@@ -11,6 +11,8 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, familyName: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  updateFamilyName: (name: string) => Promise<{ error: string | null }>;
+  deleteAccount: () => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -72,8 +74,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const updateFamilyName = async (name: string) => {
+    if (!family) return { error: "Sem família ativa" };
+    const { data, error } = await supabase
+      .from("families")
+      .update({ name })
+      .eq("id", family.id)
+      .select()
+      .single();
+    if (error) return { error: error.message };
+    setFamily(data as Family);
+    return { error: null };
+  };
+
+  const deleteAccount = async () => {
+    if (!family) return { error: "Sem família ativa" };
+    const { error } = await supabase.from("families").delete().eq("id", family.id);
+    if (error) return { error: error.message };
+    await supabase.auth.signOut();
+    return { error: null };
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user, family, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ session, user, family, loading, signIn, signUp, signOut, updateFamilyName, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

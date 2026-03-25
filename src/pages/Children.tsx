@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format, differenceInYears, parseISO } from "date-fns";
-import { CalendarIcon, Plus, ArrowRight, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2 } from "lucide-react";
+import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import TagInput from "@/components/TagInput";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Child } from "@/lib/types";
 
 const interestIcons: Record<string, React.ReactNode> = {
   Arte: <Palette className="h-3 w-3" />,
@@ -46,10 +47,13 @@ const emptyForm = {
 };
 
 export default function Children() {
-  const { children, isLoading, createChild } = useChildren();
+  const { children, isLoading, createChild, updateChild } = useChildren();
   const { family } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [editForm, setEditForm] = useState(emptyForm);
 
   const resetForm = () => setForm(emptyForm);
 
@@ -70,6 +74,41 @@ export default function Children() {
     });
     resetForm();
     setDialogOpen(false);
+  };
+
+  const openEdit = (child: Child) => {
+    setEditingChild(child);
+    setEditForm({
+      name: child.name,
+      birthDate: parseISO(child.birth_date),
+      schoolYear: child.school_year,
+      school: child.school ?? "",
+      curriculum: child.curriculum ?? "",
+      manuals: child.manuals ?? "",
+      interests: child.interests,
+      learningPreferences: child.learning_preferences ?? "",
+      learningPace: child.learning_pace ?? "",
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingChild || !editForm.name || !editForm.birthDate || !editForm.schoolYear) return;
+    await updateChild.mutateAsync({
+      id: editingChild.id,
+      name: editForm.name,
+      birth_date: format(editForm.birthDate, "yyyy-MM-dd"),
+      school_year: editForm.schoolYear,
+      school: editForm.school || null,
+      curriculum: editForm.curriculum || null,
+      manuals: editForm.manuals || null,
+      interests: editForm.interests,
+      learning_preferences: editForm.learningPreferences || null,
+      learning_pace: editForm.learningPace || null,
+    });
+    setEditDialogOpen(false);
+    setEditingChild(null);
   };
 
   const getAge = (birthDate: string) => differenceInYears(new Date(), parseISO(birthDate));
@@ -210,8 +249,8 @@ export default function Children() {
                           ))}
                         </div>
                       )}
-                      <Button variant="outline" size="sm" className="w-full gap-2">
-                        Entrar no Perfil <ArrowRight className="h-3.5 w-3.5" />
+                      <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => openEdit(child)}>
+                        <Pencil className="h-3.5 w-3.5" /> Editar Perfil
                       </Button>
                     </div>
                   </CardContent>
@@ -221,6 +260,99 @@ export default function Children() {
           </div>
         )}
       </div>
+
+      {/* Dialog de edição */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">Editar Perfil</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Nome *</Label>
+              <Input id="edit-name" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Data de nascimento *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !editForm.birthDate && "text-muted-foreground")}>
+                      <CalendarIcon className="h-4 w-4" />
+                      {editForm.birthDate ? format(editForm.birthDate, "dd/MM/yyyy") : "Selecionar"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={editForm.birthDate} onSelect={(d) => setEditForm({ ...editForm, birthDate: d })} disabled={(date) => date > new Date()} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <Label>Ano escolar *</Label>
+                <Select value={editForm.schoolYear} onValueChange={(v) => setEditForm({ ...editForm, schoolYear: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+                  <SelectContent>
+                    {["Pré-escolar", "1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano"].map((y) => (
+                      <SelectItem key={y} value={y}>{y}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Escola / Agrupamento</Label>
+              <Input value={editForm.school} onChange={(e) => setEditForm({ ...editForm, school: e.target.value })} placeholder="Nome da escola ou agrupamento" />
+            </div>
+            <div className="space-y-2">
+              <Label>Currículo</Label>
+              <Select value={editForm.curriculum} onValueChange={(v) => setEditForm({ ...editForm, curriculum: v })}>
+                <SelectTrigger><SelectValue placeholder="Selecionar currículo" /></SelectTrigger>
+                <SelectContent>
+                  {["Nacional", "Nacional adaptado", "Internacional", "Waldorf", "Montessori", "Personalizado"].map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Manuais</Label>
+              <Textarea value={editForm.manuals} onChange={(e) => setEditForm({ ...editForm, manuals: e.target.value })} placeholder="Manuais utilizados (opcional)" rows={2} />
+            </div>
+            <div className="space-y-2">
+              <Label>Interesses</Label>
+              <TagInput value={editForm.interests} onChange={(tags) => setEditForm({ ...editForm, interests: tags })} placeholder="Escreve um interesse e pressiona Enter" />
+            </div>
+            <div className="space-y-2">
+              <Label>Preferências de aprendizagem</Label>
+              <Select value={editForm.learningPreferences} onValueChange={(v) => setEditForm({ ...editForm, learningPreferences: v })}>
+                <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+                <SelectContent>
+                  {["Visual", "Auditivo", "Cinestésico", "Visual e prático", "Misto"].map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Ritmo de aprendizagem</Label>
+              <Select value={editForm.learningPace} onValueChange={(v) => setEditForm({ ...editForm, learningPace: v })}>
+                <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+                <SelectContent>
+                  {["Rápido", "Moderado", "Calmo", "Variável"].map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button type="button" variant="ghost" onClick={() => setEditDialogOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={updateChild.isPending}>
+                {updateChild.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
