@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { Mail, X, Loader2, UserPlus } from "lucide-react";
+
+type Invite = { id: string; email: string; status: string; created_at: string };
 
 const SettingsPage = () => {
   const { family, updateFamilyName, signOut, deleteAccount } = useAuth();
@@ -15,6 +19,57 @@ const SettingsPage = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Convites
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [invites, setInvites] = useState<Invite[]>([]);
+  const [invitesLoading, setInvitesLoading] = useState(true);
+
+  useEffect(() => {
+    if (!family) return;
+    supabase
+      .from("family_invites")
+      .select("id, email, status, created_at")
+      .eq("family_id", family.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setInvites((data as Invite[]) ?? []);
+        setInvitesLoading(false);
+      });
+  }, [family]);
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteEmail.trim()) return;
+    setInviteLoading(true);
+    setInviteError(null);
+    setInviteSuccess(false);
+    const { data: inviteResult, error } = await supabase.functions.invoke("invite-family-member", {
+      body: { email: inviteEmail.trim().toLowerCase() },
+    });
+    if (error || inviteResult?.error) {
+      setInviteError(inviteResult?.error ?? error?.message ?? "Erro ao enviar convite.");
+    } else {
+      setInviteSuccess(true);
+      setInviteEmail("");
+      // Recarregar lista de convites
+      const { data } = await supabase
+        .from("family_invites")
+        .select("id, email, status, created_at")
+        .eq("family_id", family!.id)
+        .order("created_at", { ascending: false });
+      setInvites((data as Invite[]) ?? []);
+    }
+    setInviteLoading(false);
+  };
+
+  const handleRevokeInvite = async (id: string) => {
+    await supabase.from("family_invites").delete().eq("id", id);
+    setInvites((prev) => prev.filter((i) => i.id !== id));
+  };
 
   const handleUpdateName = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +129,74 @@ const SettingsPage = () => {
               {nameLoading ? "A guardar…" : "Guardar"}
             </button>
           </form>
+        </section>
+
+        {/* Membros da família */}
+        <section className="rounded-2xl border bg-card p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">Membros da família</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Convida outro adulto para aceder à plataforma com a sua própria conta.
+          </p>
+
+          <form onSubmit={handleInvite} className="flex gap-2">
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={(e) => { setInviteEmail(e.target.value); setInviteSuccess(false); setInviteError(null); }}
+              placeholder="email@exemplo.com"
+              className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+            />
+            <button
+              type="submit"
+              disabled={inviteLoading || !inviteEmail.trim()}
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors shrink-0"
+            >
+              {inviteLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+              Convidar
+            </button>
+          </form>
+
+          {inviteError && <p className="text-sm text-destructive">{inviteError}</p>}
+          {inviteSuccess && <p className="text-sm text-green-600">Convite enviado com sucesso!</p>}
+
+          {/* Lista de convites */}
+          {invitesLoading ? (
+            <div className="flex items-center gap-2 py-2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">A carregar…</span>
+            </div>
+          ) : invites.length > 0 ? (
+            <div className="space-y-2 pt-1">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Convites enviados</p>
+              {invites.map((inv) => (
+                <div key={inv.id} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+                  <div>
+                    <span className="font-medium">{inv.email}</span>
+                    <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                      inv.status === "accepted"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}>
+                      {inv.status === "accepted" ? "Aceite" : "Pendente"}
+                    </span>
+                  </div>
+                  {inv.status === "pending" && (
+                    <button
+                      onClick={() => handleRevokeInvite(inv.id)}
+                      className="text-muted-foreground/50 hover:text-destructive transition-colors"
+                      title="Revogar convite"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : null}
         </section>
 
         {/* Conta */}

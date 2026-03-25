@@ -25,6 +25,7 @@ interface ReflectionDialogProps {
   onComplete: (childId: string, feeling: string, learning: string) => void;
   previewPoints: MissionPoints | null;
   children: Child[];
+  defaultChildId?: string;
 }
 
 export function ReflectionDialog({
@@ -34,9 +35,10 @@ export function ReflectionDialog({
   onComplete,
   previewPoints,
   children,
+  defaultChildId,
 }: ReflectionDialogProps) {
   const [step, setStep] = useState<"reflect" | "done">("reflect");
-  const [selectedChild, setSelectedChild] = useState(children[0]?.id ?? "");
+  const [selectedChild, setSelectedChild] = useState(defaultChildId ?? children[0]?.id ?? "");
   const [selectedFeeling, setSelectedFeeling] = useState("");
   const [learning, setLearning] = useState("");
   const [earnedPoints, setEarnedPoints] = useState<MissionPoints | null>(null);
@@ -49,7 +51,7 @@ export function ReflectionDialog({
 
   const handleClose = () => {
     setStep("reflect");
-    setSelectedChild(children[0]?.id ?? "");
+    setSelectedChild(defaultChildId ?? children[0]?.id ?? "");
     setSelectedFeeling("");
     setLearning("");
     setEarnedPoints(null);

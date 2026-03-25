@@ -4,8 +4,10 @@ import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import AppLayout from "@/components/AppLayout";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useWorldMissions } from "@/hooks/useWorldMissions";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 import {
   BookOpen,
@@ -15,7 +17,7 @@ import {
   Sparkles,
   AlertCircle,
   ArrowRight,
-  Loader2,
+  Globe,
 } from "lucide-react";
 
 const fadeUp = {
@@ -48,6 +50,9 @@ const Index = () => {
     familyName,
   } = useDashboard();
 
+  const { weeklyStats } = useWorldMissions();
+  const missionsThisWeek = weeklyStats.reduce((acc, d) => acc + d.count, 0);
+
   const todayLabel = format(new Date(), "EEEE, d 'de' MMMM", { locale: pt });
 
   return (
@@ -64,11 +69,19 @@ const Index = () => {
 
         {/* Stats */}
         {isLoading ? (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> A carregar...
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="border-border/60">
+                <CardContent className="p-5 space-y-2">
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-7 w-12" />
+                  <Skeleton className="h-3 w-20" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <motion.div initial="hidden" animate="visible" custom={1} variants={fadeUp}>
               <Card className="shadow-card hover:shadow-elevated transition-all duration-300 border-border/60">
                 <CardContent className="p-5">
@@ -129,6 +142,25 @@ const Index = () => {
                 </CardContent>
               </Card>
             </motion.div>
+
+            <motion.div initial="hidden" animate="visible" custom={4} variants={fadeUp}>
+              <Card className="shadow-card hover:shadow-elevated transition-all duration-300 border-border/60">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Missões esta semana</p>
+                      <p className="text-2xl font-heading font-bold mt-1">{missionsThisWeek}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {missionsThisWeek === 0 ? "Nenhuma ainda" : missionsThisWeek === 1 ? "missão concluída" : "missões concluídas"}
+                      </span>
+                    </div>
+                    <div className="rounded-xl p-2.5 bg-violet-100 text-violet-600">
+                      <Globe className="h-5 w-5" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         )}
 
@@ -180,8 +212,16 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               {isLoading ? (
-                <div className="flex items-center gap-2 text-muted-foreground py-4">
-                  <Loader2 className="h-4 w-4 animate-spin" /> A carregar...
+                <div className="space-y-2 py-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 px-3 py-2">
+                      <Skeleton className="h-2.5 w-2.5 rounded-full shrink-0" />
+                      <div className="flex-1 space-y-1">
+                        <Skeleton className="h-3.5 w-48" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : isWeekend ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">🌳 Tempo livre</p>

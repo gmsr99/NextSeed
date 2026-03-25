@@ -16,6 +16,7 @@ import { useChildren } from "@/hooks/useChildren";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
 import { toast } from "@/hooks/use-toast";
 import { Clock, Users, Home, TreePine, CheckCircle2, ChevronRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // ─── Filter chip ──────────────────────────────────────────────
 const FilterChip = ({
@@ -193,6 +194,10 @@ export default function WorldMissions() {
   const [showProgress, setShowProgress] = useState(false);
 
   const { children } = useChildren();
+  const [selectedChildId, setSelectedChildId] = useState<string>("");
+
+  // Inicializa com a primeira criança quando carregarem
+  const effectiveChildId = selectedChildId || children[0]?.id || "";
 
   const {
     completeMission,
@@ -205,7 +210,7 @@ export default function WorldMissions() {
     skillBreakdown,
     getPreviewPoints,
     state,
-  } = useWorldMissions();
+  } = useWorldMissions(effectiveChildId);
 
   const filtered = useMemo(() => {
     return missions.filter((m) => {
@@ -215,17 +220,6 @@ export default function WorldMissions() {
       return true;
     });
   }, [selectedAge, selectedType, selectedMode]);
-
-  const hasExterior = useMemo(
-    () =>
-      missions.some(
-        (m) =>
-          m.type === "exterior" &&
-          (selectedAge === "all" || m.ageGroup === selectedAge) &&
-          (selectedMode === "all" || m.mode === selectedMode)
-      ),
-    [selectedAge, selectedMode]
-  );
 
   const previewPoints = activeMission ? getPreviewPoints(activeMission) : null;
 
@@ -251,17 +245,31 @@ export default function WorldMissions() {
               Cuidar do nosso mundo começa em casa.
             </p>
           </div>
-          <button
-            onClick={() => setShowProgress((p) => !p)}
-            className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200 ${
-              showProgress
-                ? "bg-foreground text-background border-foreground"
-                : "bg-card border-border text-foreground hover:border-foreground/40"
-            }`}
-          >
-            <span className="text-base">{currentLevel.icon}</span>
-            {currentLevel.name}
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {children.length > 1 && (
+              <Select value={effectiveChildId} onValueChange={setSelectedChildId}>
+                <SelectTrigger className="w-[160px] h-9 text-sm">
+                  <SelectValue placeholder="Criança" />
+                </SelectTrigger>
+                <SelectContent>
+                  {children.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name.split(" ")[0]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <button
+              onClick={() => setShowProgress((p) => !p)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200 ${
+                showProgress
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-card border-border text-foreground hover:border-foreground/40"
+              }`}
+            >
+              <span className="text-base">{currentLevel.icon}</span>
+              {currentLevel.name}
+            </button>
+          </div>
         </motion.div>
 
         {/* ── Progress Panel ── */}
@@ -275,6 +283,25 @@ export default function WorldMissions() {
               className="overflow-hidden"
             >
               <div className={`rounded-3xl border p-6 bg-gradient-to-br ${currentLevel.color} ${currentLevel.borderColor} space-y-6`}>
+                {/* Child tabs (only when multiple children) */}
+                {children.length > 1 && (
+                  <div className="flex gap-2">
+                    {children.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedChildId(c.id)}
+                        className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                          effectiveChildId === c.id
+                            ? "bg-white/80 border-white/60 text-foreground shadow-sm"
+                            : "bg-white/20 border-white/30 text-foreground/60 hover:bg-white/40"
+                        }`}
+                      >
+                        {c.name.split(" ")[0]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {/* Level header */}
                 <div className="flex items-center gap-4">
                   <span className="text-5xl">{currentLevel.icon}</span>
@@ -419,11 +446,9 @@ export default function WorldMissions() {
               <FilterChip active={selectedType === "interior"} onClick={() => setSelectedType("interior")}>
                 <span className="flex items-center gap-1.5"><Home className="h-3.5 w-3.5" /> Interior</span>
               </FilterChip>
-              {hasExterior && (
-                <FilterChip active={selectedType === "exterior"} onClick={() => setSelectedType("exterior")}>
-                  <span className="flex items-center gap-1.5"><TreePine className="h-3.5 w-3.5" /> Exterior</span>
-                </FilterChip>
-              )}
+              <FilterChip active={selectedType === "exterior"} onClick={() => setSelectedType("exterior")}>
+                <span className="flex items-center gap-1.5"><TreePine className="h-3.5 w-3.5" /> Exterior</span>
+              </FilterChip>
             </div>
           </div>
           <div className="space-y-2">
@@ -497,6 +522,7 @@ export default function WorldMissions() {
         mission={activeMission}
         open={!!activeMission}
         onClose={() => setActiveMission(null)}
+        defaultChildId={effectiveChildId}
         onComplete={(childId, feeling, learning) => {
           if (activeMission) {
             completeMission.mutate(

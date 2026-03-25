@@ -1,9 +1,9 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 import LoginPage from "./pages/LoginPage";
 import WeeklyPlanner from "./pages/WeeklyPlanner";
 import Index from "./pages/Index";
@@ -22,24 +22,32 @@ import Forum from "./pages/Forum";
 import LearningAreas from "./pages/LearningAreas";
 import ParentTraining from "./pages/ParentTraining";
 import WorldMissions from "./pages/WorldMissions";
+import AcceptInvite from "./pages/AcceptInvite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AppLoader = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+  </div>
+);
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <AppLoader />;
   if (!session) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function AppRoutes() {
   const { session, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <AppLoader />;
 
   return (
     <Routes>
       <Route path="/login" element={session ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/accept-invite" element={<AcceptInvite />} />
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
       <Route path="/weekly-planner" element={<ProtectedRoute><WeeklyPlanner /></ProtectedRoute>} />
       <Route path="/children" element={<ProtectedRoute><Children /></ProtectedRoute>} />
@@ -67,7 +75,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
       <BrowserRouter>
         <AuthProvider>
           <AppRoutes />

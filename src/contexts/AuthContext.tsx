@@ -13,6 +13,7 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
   updateFamilyName: (name: string) => Promise<{ error: string | null }>;
   deleteAccount: () => Promise<{ error: string | null }>;
+  reloadFamily: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -24,12 +25,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const loadFamily = async (userId: string) => {
-    const { data } = await supabase
+    // Verifica se é o dono da família
+    const { data: owned } = await supabase
       .from("families")
       .select("*")
       .eq("user_id", userId)
-      .single();
-    setFamily(data ?? null);
+      .maybeSingle();
+
+    if (owned) {
+      setFamily(owned as Family);
+      return;
+    }
+
+    // Verifica se é membro convidado
+    const { data: membership } = await supabase
+      .from("family_members")
+      .select("families(*)")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    setFamily((membership?.families as Family) ?? null);
   };
 
   useEffect(() => {
@@ -87,6 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: null };
   };
 
+  const reloadFamily = async () => {
+    const { data: { user: u } } = await supabase.auth.getUser();
+    if (u) await loadFamily(u.id);
+  };
+
   const deleteAccount = async () => {
     if (!family) return { error: "Sem família ativa" };
     const { error } = await supabase.from("families").delete().eq("id", family.id);
@@ -96,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, family, loading, signIn, signUp, signOut, updateFamilyName, deleteAccount }}>
+    <AuthContext.Provider value={{ session, user, family, loading, signIn, signUp, signOut, updateFamilyName, deleteAccount, reloadFamily }}>
       {children}
     </AuthContext.Provider>
   );

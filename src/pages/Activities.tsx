@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import { pdf } from "@react-pdf/renderer";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { CalendarIcon, Upload, X, Save, CheckCircle2, Trash2, ImageIcon, Loader2, FileText } from "lucide-react";
+import { CalendarIcon, Upload, X, Save, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,13 +13,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useChildren } from "@/hooks/useChildren";
 import { useActivities } from "@/hooks/useActivities";
 import { useAuth } from "@/contexts/AuthContext";
-import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
+import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 
 const DISCIPLINES = Object.entries(DISCIPLINE_LABELS).map(([id, name]) => ({ id, name }));
 
@@ -36,7 +35,7 @@ function getTrimesterRange(trimester: "1" | "2" | "3") {
 const Activities = () => {
   const { family } = useAuth();
   const { children } = useChildren();
-  const { activities, isLoading: activitiesLoading, createActivity, deleteActivity } = useActivities();
+  const { activities, createActivity } = useActivities();
 
   const [childId, setChildId] = useState("");
   const [title, setTitle] = useState("");
@@ -55,15 +54,32 @@ const Activities = () => {
 
   const isFormValid = childId && title.trim() && date;
 
+  const MAX_FILE_SIZE_MB = 10;
+  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
-    setPhotoFiles((prev) => [...prev, ...files]);
-    setPreviewUrls((prev) => [
-      ...prev,
-      ...files.map((f) => URL.createObjectURL(f)),
-    ]);
     e.target.value = "";
+    if (!files.length) return;
+
+    const invalid = files.filter((f) => !f.type.startsWith("image/"));
+    if (invalid.length) {
+      toast({ title: "Ficheiro inválido", description: "Apenas imagens são permitidas.", variant: "destructive" });
+      return;
+    }
+
+    const oversized = files.filter((f) => f.size > MAX_FILE_SIZE_BYTES);
+    if (oversized.length) {
+      toast({
+        title: "Ficheiro demasiado grande",
+        description: `Cada imagem deve ter no máximo ${MAX_FILE_SIZE_MB} MB. (${oversized.map((f) => f.name).join(", ")})`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPhotoFiles((prev) => [...prev, ...files]);
+    setPreviewUrls((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
   };
 
   const removePhoto = (idx: number) => {
@@ -98,19 +114,6 @@ const Activities = () => {
     } catch (e) {
       toast({
         title: "Erro ao guardar",
-        description: e instanceof Error ? e.message : String(e),
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteActivity.mutateAsync(id);
-      toast({ title: "Atividade removida." });
-    } catch (e) {
-      toast({
-        title: "Erro ao remover",
         description: e instanceof Error ? e.message : String(e),
         variant: "destructive",
       });
@@ -299,82 +302,6 @@ const Activities = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* List of past activities */}
-        {!activitiesLoading && activities.length > 0 && (
-          <Card className="border-border/60 shadow-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="font-heading text-lg">Portfólio</CardTitle>
-              <CardDescription>{activities.length} atividade{activities.length !== 1 ? "s" : ""} registada{activities.length !== 1 ? "s" : ""}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {activities.map((act) => {
-                const child = children.find((c) => c.id === act.child_id);
-                const color = act.discipline ? DISCIPLINE_COLORS[act.discipline] ?? "#E5E7EB" : "#E5E7EB";
-                const label = act.discipline ? DISCIPLINE_LABELS[act.discipline] ?? act.discipline : null;
-                const d = parseISO(act.activity_date + "T00:00:00");
-                return (
-                  <div
-                    key={act.id}
-                    className="flex gap-3 rounded-xl p-3 hover:bg-muted/50 transition-colors group"
-                    style={{ borderLeft: `3px solid ${color}` }}
-                  >
-                    {/* Photos thumbnail */}
-                    {act.photos.length > 0 ? (
-                      <img
-                        src={act.photos[0]}
-                        className="h-14 w-14 rounded-lg object-cover shrink-0 border border-border"
-                      />
-                    ) : (
-                      <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                        <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                    )}
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{act.title}</p>
-                      <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                        <span className="text-xs text-muted-foreground">
-                          {format(d, "d 'de' MMMM", { locale: pt })}
-                        </span>
-                        {child && (
-                          <span className="text-xs text-muted-foreground">· {child.name.split(" ")[0]}</span>
-                        )}
-                        {label && (
-                          <Badge variant="secondary" className="text-xs px-1.5 py-0" style={{ backgroundColor: color + "33" }}>
-                            {label}
-                          </Badge>
-                        )}
-                        {act.photos.length > 1 && (
-                          <span className="text-xs text-muted-foreground">· {act.photos.length} fotos</span>
-                        )}
-                      </div>
-                      {act.description && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{act.description}</p>
-                      )}
-                    </div>
-
-                    {/* Delete */}
-                    <button
-                      onClick={() => handleDelete(act.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1 shrink-0"
-                      title="Remover"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        )}
-
-        {activitiesLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> A carregar portfólio...
-          </div>
-        )}
 
         {/* Trimester Report */}
         <Card className="border-border/60 shadow-card">

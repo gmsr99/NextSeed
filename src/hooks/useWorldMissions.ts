@@ -118,12 +118,12 @@ function calcTotalPoints(rows: CompletionRow[]): MissionPoints {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useWorldMissions() {
+export function useWorldMissions(selectedChildId?: string) {
   const { family } = useAuth();
   const qc = useQueryClient();
 
   // Load all completions for this family (RLS filters by child_id → family)
-  const { data: completions = [] } = useQuery<CompletionRow[]>({
+  const { data: allCompletions = [] } = useQuery<CompletionRow[]>({
     queryKey: ["mission-completions", family?.id],
     enabled: !!family,
     queryFn: async () => {
@@ -134,6 +134,12 @@ export function useWorldMissions() {
       return (data ?? []) as CompletionRow[];
     },
   });
+
+  // Filtra por criança selecionada — se nenhuma, usa todas
+  const completions = useMemo(
+    () => selectedChildId ? allCompletions.filter((c) => c.child_id === selectedChildId) : allCompletions,
+    [allCompletions, selectedChildId]
+  );
 
   // Save a new completion
   const saveMutation = useMutation({

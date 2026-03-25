@@ -15,8 +15,8 @@ export interface GeneratedPlanItem {
 export const DISCIPLINE_LABELS: Record<string, string> = {
   language: "Português",
   math: "Matemática",
-  world: "Est. Meio",
-  expression: "Artes",
+  world: "Estudo do Meio",
+  expression: "Expressão Artística",
   english: "Inglês",
   project: "Projeto",
   reading: "Leitura",
@@ -348,7 +348,7 @@ function preSchoolSchedule(child: Child, interests: string[], fridayActivity: st
     discipline: "world_visit",
     title: fridayActivity ? `Ver Mundo — ${fridayActivity}` : "Ver Mundo — Exploração com a família",
     description: fridayActivity
-      ? `Atividade planeada: ${fridayActivity}. A Noa vai explorar com os olhos bem abertos!`
+      ? `Atividade planeada: ${fridayActivity}. ${child.name.split(" ")[0]} vai explorar com os olhos bem abertos!`
       : "Dia de exploração livre com a família. Observa, toca e sente o mundo à tua volta.",
     materials: ["mochila", "lanche", "brinquedo favorito"],
     is_friday_world: true,
@@ -384,8 +384,15 @@ export function getWeekDates(weekStart: Date): Date[] {
 
 export function getNextMonday(): Date {
   const d = new Date();
-  const day = d.getDay();
-  const diff = day === 0 ? 1 : 8 - day;
+  const day = d.getDay(); // 0=Dom, 1=Seg … 6=Sáb
+  let diff: number;
+  if (day === 0) {
+    diff = 1;       // Domingo → próxima segunda
+  } else if (day === 6) {
+    diff = 2;       // Sábado → próxima segunda
+  } else {
+    diff = 1 - day; // Seg=0, Ter=-1, Qua=-2, Qui=-3, Sex=-4 → segunda desta semana
+  }
   d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
   return d;

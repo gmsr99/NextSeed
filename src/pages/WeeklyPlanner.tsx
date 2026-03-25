@@ -1,8 +1,8 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { pdf } from "@react-pdf/renderer";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { pt } from "date-fns/locale";
-import { CalendarDays, Sparkles, Download, Mail, Loader2, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { CalendarDays, Sparkles, Download, Mail, Loader2, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,16 +26,14 @@ import {
 } from "@/lib/planGenerator";
 import { generateWithGemini } from "@/lib/geminiPlanner";
 
-const SchedulePDF = lazy(() => import("@/components/pdf/SchedulePDF"));
-const ActivityGuidePDF = lazy(() => import("@/components/pdf/ActivityGuidePDF"));
-
 type Step = "form" | "preview";
 
 export default function WeeklyPlanner() {
   const { children, isLoading: childrenLoading } = useChildren();
   const { family } = useAuth();
 
-  const [weekStart] = useState<Date>(getNextMonday());
+  const [weekStart, setWeekStart] = useState<Date>(getNextMonday());
+  const [weekStartReady, setWeekStartReady] = useState(false);
   const [childInterests, setChildInterests] = useState<Record<string, string[]>>({});
   const [fridayActivity, setFridayActivity] = useState("");
   const [notes, setNotes] = useState("");
@@ -49,6 +47,98 @@ export default function WeeklyPlanner() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingExisting, setLoadingExisting] = useState(true);
+
+  // Seleciona automaticamente a semana mais próxima sem plano
+  useEffect(() => {
+    if (!family || childrenLoading) return;
+
+    const pickInitialWeek = async () => {
+      const thisMonday = getNextMonday();
+      const nextMonday = addDays(thisMonday, 7);
+
+      const { data: plans } = await supabase
+        .from("weekly_plans")
+        .select("week_start")
+        .eq("family_id", family.id)
+        .in("week_start", [format(thisMonday, "yyyy-MM-dd"), format(nextMonday, "yyyy-MM-dd")]);
+
+      const planned = new Set(plans?.map((p) => p.week_start) ?? []);
+
+      if (!planned.has(format(thisMonday, "yyyy-MM-dd"))) {
+        setWeekStart(thisMonday);
+      } else if (!planned.has(format(nextMonday, "yyyy-MM-dd"))) {
+        setWeekStart(nextMonday);
+      } else {
+        setWeekStart(thisMonday);
+      }
+
+      setWeekStartReady(true);
+    };
+
+    pickInitialWeek();
+  }, [family, childrenLoading]);
+
+  // Carrega (ou limpa) o plano sempre que a semana selecionada muda
+  useEffect(() => {
+    if (!family || !weekStartReady) return;
+
+    // Reset de estado ao trocar de semana
+    setPlanId(null);
+    setPlanItems([]);
+    setSent(false);
+    setError(null);
+    setStep("form");
+    setLoadingExisting(true);
+
+    const loadExisting = async () => {
+      try {
+        const { data: plan } = await supabase
+          .from("weekly_plans")
+          .select("id, child_interests, friday_activity, notes, status")
+          .eq("family_id", family.id)
+          .eq("week_start", format(weekStart, "yyyy-MM-dd"))
+          .maybeSingle();
+
+        if (!plan) {
+          // Sem plano — pré-preenche interesses a partir dos perfis das crianças
+          const defaultInterests: Record<string, string[]> = {};
+          children.forEach((c) => {
+            if (c.interests?.length) defaultInterests[c.id] = c.interests;
+          });
+          setChildInterests(defaultInterests);
+          setFridayActivity("");
+          setNotes("");
+          return;
+        }
+
+        const { data: items } = await supabase
+          .from("weekly_plan_items")
+          .select("child_id, day_of_week, time_slot, discipline, title, description, materials, is_friday_world, sort_order")
+          .eq("plan_id", plan.id)
+          .order("day_of_week")
+          .order("sort_order");
+
+        if (!items?.length) return;
+
+        setPlanId(plan.id);
+        setPlanItems(items as GeneratedPlanItem[]);
+        setFridayActivity(plan.friday_activity ?? "");
+        setNotes(plan.notes ?? "");
+        const interests = plan.child_interests as Record<string, string[]> | null;
+        if (interests) setChildInterests(interests);
+        if (plan.status === "sent") setSent(true);
+        setStep("preview");
+      } finally {
+        setLoadingExisting(false);
+      }
+    };
+
+    loadExisting();
+  }, [family, weekStart, weekStartReady]);
+
+  const goToPrevWeek = () => setWeekStart((d) => addDays(d, -7));
+  const goToNextWeek = () => setWeekStart((d) => addDays(d, 7));
 
   const handleGeneratePlan = async () => {
     setGenerating(true);
@@ -69,44 +159,52 @@ export default function WeeklyPlanner() {
     }
   };
 
+  // Lógica de persistência partilhada — retorna o planId guardado
+  const persistPlan = async (): Promise<string> => {
+    if (!family) throw new Error("Família não encontrada");
+
+    // 1. Upsert weekly_plan
+    const { data: plan, error: planErr } = await supabase
+      .from("weekly_plans")
+      .upsert({
+        family_id: family.id,
+        week_start: format(weekStart, "yyyy-MM-dd"),
+        child_interests: childInterests,
+        friday_activity: fridayActivity || null,
+        notes: notes || null,
+        status: "generated",
+        generated_at: new Date().toISOString(),
+      }, { onConflict: "family_id,week_start" })
+      .select()
+      .single();
+
+    if (planErr) throw planErr;
+    setPlanId(plan.id);
+
+    // 2. Delete previous items for this plan and reinsert
+    await supabase.from("weekly_plan_items").delete().eq("plan_id", plan.id);
+
+    const itemsToInsert = planItems.map((item) => ({ ...item, plan_id: plan.id }));
+    const { error: itemsErr } = await supabase.from("weekly_plan_items").insert(itemsToInsert);
+    if (itemsErr) throw itemsErr;
+
+    // 3. Guardar interesses actuais no perfil de cada criança
+    await Promise.all(
+      Object.entries(childInterests).map(([childId, interests]) =>
+        interests.length > 0
+          ? supabase.from("children").update({ interests, updated_at: new Date().toISOString() }).eq("id", childId)
+          : Promise.resolve()
+      )
+    );
+
+    return plan.id;
+  };
+
   const handleSavePlan = async () => {
-    if (!family) return;
     setSaving(true);
     setError(null);
     try {
-      // 1. Upsert weekly_plan
-      const { data: plan, error: planErr } = await supabase
-        .from("weekly_plans")
-        .upsert({
-          family_id: family.id,
-          week_start: format(weekStart, "yyyy-MM-dd"),
-          child_interests: childInterests,
-          friday_activity: fridayActivity || null,
-          notes: notes || null,
-          status: "generated",
-          generated_at: new Date().toISOString(),
-        }, { onConflict: "family_id,week_start" })
-        .select()
-        .single();
-
-      if (planErr) throw planErr;
-      setPlanId(plan.id);
-
-      // 2. Delete previous items for this plan and reinsert
-      await supabase.from("weekly_plan_items").delete().eq("plan_id", plan.id);
-
-      const itemsToInsert = planItems.map((item) => ({ ...item, plan_id: plan.id }));
-      const { error: itemsErr } = await supabase.from("weekly_plan_items").insert(itemsToInsert);
-      if (itemsErr) throw itemsErr;
-
-      // 3. Guardar interesses actuais no perfil de cada criança
-      await Promise.all(
-        Object.entries(childInterests).map(([childId, interests]) =>
-          interests.length > 0
-            ? supabase.from("children").update({ interests, updated_at: new Date().toISOString() }).eq("id", childId)
-            : Promise.resolve()
-        )
-      );
+      await persistPlan();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao guardar");
     } finally {
@@ -145,6 +243,9 @@ export default function WeeklyPlanner() {
     setSending(true);
     setError(null);
     try {
+      // Garante que o plano está guardado antes de enviar
+      const savedPlanId = planId ?? await persistPlan();
+
       const familyName = family.name;
 
       const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
@@ -182,13 +283,12 @@ export default function WeeklyPlanner() {
 
       if (fnErr) throw new Error(fnErr.message);
 
-      // Mark as sent
-      if (planId) {
-        await supabase
-          .from("weekly_plans")
-          .update({ status: "sent", sent_at: new Date().toISOString() })
-          .eq("id", planId);
-      }
+      // Marca como enviado
+      await supabase
+        .from("weekly_plans")
+        .update({ status: "sent", sent_at: new Date().toISOString() })
+        .eq("id", savedPlanId);
+
       setSent(true);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao enviar email");
@@ -197,7 +297,7 @@ export default function WeeklyPlanner() {
     }
   };
 
-  if (childrenLoading) {
+  if (childrenLoading || loadingExisting) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
@@ -215,22 +315,30 @@ export default function WeeklyPlanner() {
           <h1 className="text-3xl font-heading font-bold text-foreground">Planeador Semanal</h1>
           <p className="text-muted-foreground mt-1">
             {step === "form"
-              ? "Preenche os interesses e recebe o plano completo por email."
-              : `Plano gerado · ${formatWeekRange(weekStart)}`}
+              ? (planId ? "Ajusta os interesses e regenera o plano." : "Preenche os interesses e recebe o plano completo por email.")
+              : `${planId ? "Plano guardado" : "Plano gerado"} · ${formatWeekRange(weekStart)}`}
           </p>
         </div>
 
         {step === "form" ? (
           <div className="space-y-6">
-            {/* Week info */}
+            {/* Week selector */}
             <Card className="border-border/60">
               <CardContent className="flex items-center gap-3 p-5">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <CalendarDays className="h-5 w-5 text-primary" />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground">Semana de {formatWeekRange(weekStart)}</p>
                   <p className="text-sm text-muted-foreground">Segunda-feira a sexta-feira</p>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToPrevWeek} title="Semana anterior">
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToNextWeek} title="Próxima semana">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -310,12 +418,12 @@ export default function WeeklyPlanner() {
             {/* Actions */}
             <div className="flex flex-wrap items-center gap-3">
               <Button variant="outline" size="sm" onClick={() => setStep("form")} className="gap-2">
-                <ChevronLeft className="h-4 w-4" /> Editar
+                <ChevronLeft className="h-4 w-4" /> {planId ? "Regenerar" : "Editar"}
               </Button>
               <div className="flex-1" />
               <Button variant="outline" onClick={handleSavePlan} disabled={saving} className="gap-2">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Guardar no Supabase
+                {planId ? "Atualizar" : "Guardar"}
               </Button>
               <Button variant="outline" onClick={handleDownloadPDFs} className="gap-2">
                 <Download className="h-4 w-4" /> Descarregar PDFs
@@ -414,7 +522,6 @@ export default function WeeklyPlanner() {
           </div>
         )}
       </div>
-      <Suspense>{/* lazy PDF imports */}</Suspense>
     </AppLayout>
   );
 }

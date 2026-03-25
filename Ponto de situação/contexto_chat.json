@@ -1,0 +1,222 @@
+{
+  "projeto": {
+    "nome": "NexSeed V2",
+    "descricao": "Plataforma de homeschooling para a família Malta (Andreia + filhos Bryan e Noa). Gere currículo, atividades, projetos, gamificação e gera relatórios trimestrais obrigatórios para a escola.",
+    "url_producao": "nextseed.pt",
+    "deploy": "Vercel ligado ao branch main do GitHub (gmsr99/NextSeed)",
+    "data_contexto": "2026-03-25"
+  },
+  "stack": {
+    "frontend": [
+      "React",
+      "TypeScript",
+      "Vite",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "framer-motion"
+    ],
+    "backend": "Supabase (PostgreSQL + Auth + Storage + Edge Functions)",
+    "ia": "Gemini 2.5 Flash (google/generative-ai) — modelo thinking, filtrar parts com thought: true",
+    "pdf": "@react-pdf/renderer",
+    "data_fetching": "TanStack React Query (useQuery, useMutation, useQueryClient)",
+    "deploy": "Vercel"
+  },
+  "env_vars": {
+    "VITE_SUPABASE_URL": "em .env.local",
+    "VITE_SUPABASE_ANON_KEY": "em .env.local",
+    "VITE_GEMINI_API_KEY": "em .env.local"
+  },
+  "estrutura_src": {
+    "pages": "src/pages/",
+    "hooks": "src/hooks/",
+    "components": "src/components/",
+    "lib": "src/lib/",
+    "curriculos_json": "src/data/curriculos/",
+    "pdf_components": "src/components/pdf/"
+  },
+  "familia": {
+    "nome": "Malta",
+    "criancas": [
+      {
+        "nome": "Bryan Malta",
+        "school_year": "2º ano"
+      },
+      {
+        "nome": "Noa Malta",
+        "school_year": "Pré-escolar"
+      }
+    ],
+    "nota": "school_year usa exatamente estes valores — case sensitive. 'Pré-escolar' com P maiúsculo."
+  },
+  "supabase": {
+    "tabelas": {
+      "families": "Uma por conta. Campos: id, name, created_at.",
+      "children": "Crianças da família. Campos: id, family_id, name, school_year, interests (text), birth_date, created_at.",
+      "activities": "Atividades registadas. Campos: id, family_id, child_id, title, description, discipline (text), activity_date (date), photos (text[]), created_at.",
+      "projects": "Projetos com fases. Campos: id, family_id, child_id, title, description, status (active/paused/completed), phases (jsonb array de {id,title,completed,completed_at}), start_date, end_date, created_at, updated_at.",
+      "mission_completions": "Completações das Missões do Mundo. Campos: id, child_id, mission_id (nullable uuid), template_mission_id (text — guarda o id estático da missão ex: 'm01'), reflection, learned, points_earned, completed_at.",
+      "curriculum_disciplines": "Currículo DGE. Campos: id, school_year, discipline_key, discipline_name, weekly_minutes, objectives (jsonb array de strings), created_at.",
+      "weekly_plans": "Planos semanais gerados pelo Gemini."
+    },
+    "storage_buckets": {
+      "activity-photos": "Público. Path: {family_id}/{activity_id}/{uuid}-{filename}. Usado em useActivities.ts."
+    },
+    "rls": "Todas as tabelas usam my_family_id() para isolamento. mission_completions usa child_id IN (SELECT id FROM children WHERE family_id = my_family_id())."
+  },
+  "curriculum_disciplines_dados": {
+    "anos_disponiveis": [
+      "Pré-escolar",
+      "1º ano",
+      "2º ano",
+      "3º ano",
+      "4º ano"
+    ],
+    "discipline_keys": [
+      "language",
+      "math",
+      "world",
+      "expression",
+      "physical",
+      "citizenship",
+      "english"
+    ],
+    "nota_pre_escolar": "school_year = 'Pré-escolar' (P maiúsculo). Na BD foi corrigido de 'pré-escolar'.",
+    "nota_ingles": "1º e 2º ano têm 'english' como AEC (não obrigatório). 3º e 4º ano têm Inglês curricular obrigatório."
+  },
+  "hooks_principais": {
+    "useAuth": "src/contexts/AuthContext.tsx — expõe { session, family, loading }. family tem id e name.",
+    "useChildren": "src/hooks/useChildren.ts — { children, isLoading }. children: Child[].",
+    "useActivities": "src/hooks/useActivities.ts — { activities, isLoading, createActivity, deleteActivity }. createActivity aceita { child_id, title, description, discipline, activity_date, photoFiles? }. Faz upload para Storage antes de inserir.",
+    "useProjects": "src/hooks/useProjects.ts — { projects, isLoading, createProject, completePhase, updateStatus, deleteProject }.",
+    "useWorldMissions": "src/hooks/useWorldMissions.ts — lê de mission_completions. completeMission é useMutation (não função direta). Expõe state.completed para compatibilidade.",
+    "useCurriculum": "src/hooks/useCurriculum.ts — lê curriculum_disciplines do Supabase por school_year."
+  },
+  "lib_importantes": {
+    "planGenerator.ts": "Exporta DISCIPLINE_LABELS (Record<string,string>) e DISCIPLINE_COLORS (Record<string,string> — hex). discipline keys: language, math, world, expression, physical, citizenship, english.",
+    "curriculumLoader.ts": "getCurriculumObjectives(schoolYear): DisciplineObjectives. Lê os JSONs locais em src/data/curriculos/. Usado pelo Motor Criativo (não pelo /learning-areas que usa Supabase).",
+    "types.ts": "src/lib/types.ts — tipos partilhados: Activity, Child, Project, Phase, etc."
+  },
+  "paginas": {
+    "/": {
+      "ficheiro": "src/pages/Index.tsx",
+      "estado": "real",
+      "descricao": "Dashboard com visão semanal"
+    },
+    "/children": {
+      "ficheiro": "src/pages/Children.tsx",
+      "estado": "real",
+      "descricao": "CRUD de crianças"
+    },
+    "/learning-areas": {
+      "ficheiro": "src/pages/LearningAreas.tsx",
+      "estado": "real",
+      "descricao": "Currículo DGE do Supabase por criança/disciplina"
+    },
+    "/curriculum": {
+      "ficheiro": "src/App.tsx",
+      "estado": "redirect",
+      "descricao": "Redireciona para /learning-areas"
+    },
+    "/weekly-planner": {
+      "ficheiro": "src/pages/WeeklyPlanner.tsx",
+      "estado": "real",
+      "descricao": "Plano semanal gerado com Gemini"
+    },
+    "/creative-engine": {
+      "ficheiro": "src/pages/CreativeEngine.tsx",
+      "estado": "real",
+      "descricao": "Gera sugestões de atividades com Gemini. 'Realizar' → cria Activity. 'Guardar' → cria Project."
+    },
+    "/activities": {
+      "ficheiro": "src/pages/Activities.tsx",
+      "estado": "real",
+      "descricao": "Registo de atividades + upload fotos + gerador de PDF trimestral"
+    },
+    "/projects": {
+      "ficheiro": "src/pages/Projects.tsx",
+      "estado": "real",
+      "descricao": "Projetos com fases + biblioteca de templates"
+    },
+    "/world-missions": {
+      "ficheiro": "src/pages/WorldMissions.tsx",
+      "estado": "real",
+      "descricao": "Missões do Mundo com gamificação e pontos por criança"
+    },
+    "/portfolio": {
+      "ficheiro": "src/pages/Portfolio.tsx",
+      "estado": "real",
+      "descricao": "Timeline de atividades com filtros por criança e disciplina"
+    },
+    "/reports": {
+      "ficheiro": "src/pages/Reports.tsx",
+      "estado": "real",
+      "descricao": "KPIs reais, gráfico tendência, projetos, destaques, export PDF trimestral"
+    },
+    "/financial-literacy": {
+      "ficheiro": "src/pages/FinancialLiteracy.tsx",
+      "estado": "parcial"
+    },
+    "/digital-literacy": {
+      "ficheiro": "src/pages/DigitalLiteracy.tsx",
+      "estado": "parcial"
+    },
+    "/parent-training": {
+      "ficheiro": "src/pages/ParentTraining.tsx",
+      "estado": "mock"
+    },
+    "/community": {
+      "ficheiro": "src/pages/Community.tsx",
+      "estado": "mock"
+    },
+    "/forum": {
+      "ficheiro": "src/pages/Forum.tsx",
+      "estado": "mock"
+    },
+    "/calendar": {
+      "ficheiro": "src/pages/CalendarPage.tsx",
+      "estado": "mock"
+    },
+    "/settings": {
+      "ficheiro": "src/pages/SettingsPage.tsx",
+      "estado": "parcial"
+    }
+  },
+  "pdf": {
+    "componente": "src/components/pdf/TrimesterReportPDF.tsx",
+    "props": {
+      "activities": "Activity[] — atividades do período",
+      "child": "Child",
+      "period": "{ start: string, end: string, label: string }",
+      "familyName": "string"
+    },
+    "uso": "Importado com lazy import em Activities.tsx e Reports.tsx. Gerado com pdf(...).toBlob() e descarregado via URL.createObjectURL.",
+    "conteudo": "Capa verde escura (#1C3520) + conteúdo agrupado por disciplina + declaração com assinatura. Referências legais: Decreto-Lei n.º 55/2018, Despacho Normativo n.º 10-B/2018."
+  },
+  "gemini": {
+    "modelo": "gemini-2.5-flash-preview-04-17",
+    "nota_thinking": "É um modelo 'thinking'. Filtrar parts onde part.thought === true antes de ler o texto.",
+    "json_extraction": "Não usar regex. Fazer: strip markdown fences → indexOf('[') / lastIndexOf(']') → JSON.parse com try/catch separado.",
+    "usado_em": [
+      "WeeklyPlanner",
+      "CreativeEngine"
+    ]
+  },
+  "disciplinas_ui": {
+    "nota": "Para mostrar cores nas disciplinas usar DISCIPLINE_COLORS[discipline] (hex) com inline style, não classes Tailwind.",
+    "discipline_keys_to_labels": {
+      "language": "Português",
+      "math": "Matemática",
+      "world": "Estudo do Meio",
+      "expression": "Expressão Artística",
+      "physical": "Educação Física",
+      "citizenship": "Cidadania",
+      "english": "Inglês"
+    }
+  },
+  "decisoes_tecnicas": {
+    "mission_id_nullable": "mission_completions.mission_id é nullable. template_mission_id (TEXT) guarda o id estático da missão (ex: 'm01') porque o FK era UUID incompatível com IDs estáticos.",
+    "phases_jsonb": "projects.phases é JSONB array. Para toggle de fase: mapear o array inteiro e fazer UPDATE com o array completo.",
+    "pre_escolar_case": "Sempre 'Pré-escolar' (P maiúsculo) em children.school_year e curriculum_disciplines.school_year.",
+    "activities_portfolio": "Portfolio e Reports leem da tabela activities. Motor Criativo cria activities (botão Realizar) e projects (botão Guardar).",
+    "rls_pattern": "Nunca usar .eq('user_id', userId). Usar family_id e deixar RLS validar via my_family_id()."
+  },

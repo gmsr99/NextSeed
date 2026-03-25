@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { parseISO, differenceInCalendarWeeks } from "date-fns";
 import { motion } from "framer-motion";
-import { BarChart3, FileDown, BookOpen, FolderOpen, ImageIcon, Activity, TrendingUp, Award, Loader2 } from "lucide-react";
+import { BarChart3, FileDown, BookOpen, FolderOpen, ImageIcon, Activity, TrendingUp, Award } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,28 +17,39 @@ import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 const PERIODS = [
   { id: "week",    label: "Esta semana" },
   { id: "month",   label: "Este mês" },
-  { id: "quarter", label: "Este trimestre" },
+  { id: "quarter", label: "Este trimestre (auto)" },
+  { id: "q1",      label: "1º Trimestre (Set–Dez)" },
+  { id: "q2",      label: "2º Trimestre (Jan–Mar)" },
+  { id: "q3",      label: "3º Trimestre (Abr–Jun)" },
 ];
 
 function getRange(period: string): { start: string; end: string; label: string } {
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
+  const m = now.getMonth() + 1;
+  const y = now.getFullYear();
+  const base = m >= 9 ? y : y - 1;
+
   if (period === "week") {
-    const s = new Date(now);
-    s.setDate(s.getDate() - 6);
-    return { start: s.toISOString().slice(0, 10), end: today, label: "Últimos 7 dias" };
+    const day = now.getDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const monday = new Date(now);
+    monday.setDate(monday.getDate() + mondayOffset);
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
+    return { start: monday.toISOString().slice(0, 10), end: sunday.toISOString().slice(0, 10), label: "Esta semana" };
   }
   if (period === "month") {
     const s = new Date(now.getFullYear(), now.getMonth(), 1);
     return { start: s.toISOString().slice(0, 10), end: today, label: "Este mês" };
   }
-  // quarter = current school trimester
-  const m = now.getMonth() + 1;
-  const y = now.getFullYear();
-  const base = m >= 9 ? y : y - 1;
+  if (period === "q1") return { start: `${base}-09-01`,   end: `${base}-12-31`,   label: "1º Trimestre" };
+  if (period === "q2") return { start: `${base+1}-01-01`, end: `${base+1}-03-31`, label: "2º Trimestre" };
+  if (period === "q3") return { start: `${base+1}-04-01`, end: `${base+1}-06-30`, label: "3º Trimestre" };
+  // "quarter" = auto-detect trimestre actual
   if (m >= 9)  return { start: `${base}-09-01`,   end: `${base}-12-31`,   label: "1º Trimestre" };
   if (m <= 3)  return { start: `${base+1}-01-01`, end: `${base+1}-03-31`, label: "2º Trimestre" };
-  return           { start: `${base+1}-04-01`, end: `${base+1}-06-30`, label: "3º Trimestre" };
+  return             { start: `${base+1}-04-01`, end: `${base+1}-06-30`, label: "3º Trimestre" };
 }
 
 function buildTrend(
@@ -46,15 +58,16 @@ function buildTrend(
   period: string,
 ): { bars: number[]; labels: string[] } {
   if (period === "week") {
+    const monday = parseISO(range.start + "T00:00:00");
+    const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     const bars = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
+      const d = new Date(monday);
+      d.setDate(d.getDate() + i);
       return acts.filter(a => a.activity_date === d.toISOString().slice(0, 10)).length;
     });
-    const dayNames = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
     const labels = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
+      const d = new Date(monday);
+      d.setDate(d.getDate() + i);
       return dayNames[d.getDay()];
     });
     return { bars, labels };
@@ -134,8 +147,8 @@ export default function Reports() {
     [periodActivities]
   );
 
-  // PDF export (trimester only)
-  const canExportPDF = selectedPeriod === "quarter" && selectedChildId !== "all";
+  // PDF export — qualquer trimestre (auto ou específico)
+  const canExportPDF = ["quarter", "q1", "q2", "q3"].includes(selectedPeriod) && selectedChildId !== "all";
 
   const handleExport = async () => {
     if (!canExportPDF) return;
@@ -143,15 +156,17 @@ export default function Reports() {
     if (!child) return;
     setExporting(true);
     try {
-      const [{ pdf }, { TrimesterReportPDF }] = await Promise.all([
+      const [{ pdf }, { default: TrimesterReportPDF }] = await Promise.all([
         import("@react-pdf/renderer"),
         import("@/components/pdf/TrimesterReportPDF"),
       ]);
       const blob = await pdf(
         <TrimesterReportPDF
-          activities={periodActivities as Parameters<typeof TrimesterReportPDF>[0]["activities"]}
+          activities={periodActivities}
           child={child}
-          period={range}
+          trimesterLabel={range.label}
+          startDate={range.start}
+          endDate={range.end}
           familyName={family?.name ?? "Família"}
         />
       ).toBlob();
@@ -214,11 +229,35 @@ export default function Reports() {
           )}
         </motion.div>
 
-        {/* Loading */}
+        {/* Loading skeletons */}
         {isLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground py-12">
-            <Loader2 className="h-4 w-4 animate-spin" /> A carregar relatório…
-          </div>
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="border-primary/10">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-6 w-10" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="border-primary/10">
+                  <CardHeader className="pb-3"><Skeleton className="h-4 w-32" /></CardHeader>
+                  <CardContent className="space-y-3">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-5/6" />
+                    <Skeleton className="h-3 w-4/6" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </>
         )}
 
         {!isLoading && (

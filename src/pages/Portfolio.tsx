@@ -1,17 +1,29 @@
 import { useState, useMemo } from "react";
 import { parseISO, format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { Trophy, Leaf, ImageIcon, Filter, ChevronDown, Loader2 } from "lucide-react";
+import { Trophy, Leaf, ImageIcon, Filter, ChevronDown, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useActivities } from "@/hooks/useActivities";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
+import { toast } from "@/hooks/use-toast";
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 16 },
@@ -35,11 +47,28 @@ function DisciplineBadge({ discipline }: { discipline: string | null }) {
 
 export default function Portfolio() {
   const { children, isLoading: childrenLoading } = useChildren();
-  const { activities, isLoading: activitiesLoading } = useActivities();
+  const { activities, isLoading: activitiesLoading, deleteActivity } = useActivities();
 
   const [selectedChildId, setSelectedChildId] = useState<string>("all");
   const [disciplineFilter, setDisciplineFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [activityToDelete, setActivityToDelete] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (!activityToDelete) return;
+    try {
+      await deleteActivity.mutateAsync(activityToDelete);
+      toast({ title: "Atividade removida." });
+    } catch (e) {
+      toast({
+        title: "Erro ao remover",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    } finally {
+      setActivityToDelete(null);
+    }
+  };
 
   const isLoading = childrenLoading || activitiesLoading;
 
@@ -181,10 +210,30 @@ export default function Portfolio() {
           </motion.div>
         )}
 
-        {/* Loading */}
+        {/* Loading skeletons */}
         {isLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground py-8">
-            <Loader2 className="h-4 w-4 animate-spin" /> A carregar portfólio…
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex gap-4">
+                <div className="hidden sm:flex flex-col items-center pt-4">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                </div>
+                <Card className="flex-1 border-primary/10">
+                  <CardContent className="p-5 space-y-3">
+                    <div className="flex justify-between">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-4 w-full" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-16 w-16 rounded-lg" />
+                      <Skeleton className="h-16 w-16 rounded-lg" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
           </div>
         )}
 
@@ -240,9 +289,18 @@ export default function Portfolio() {
                               </Badge>
                             )}
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {format(d, "d MMM yyyy", { locale: pt })}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">
+                              {format(d, "d MMM yyyy", { locale: pt })}
+                            </span>
+                            <button
+                              onClick={() => setActivityToDelete(act.id)}
+                              className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5"
+                              title="Remover atividade"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* Title + description */}
@@ -290,6 +348,26 @@ export default function Portfolio() {
           </div>
         )}
       </motion.div>
+
+      <AlertDialog open={!!activityToDelete} onOpenChange={(open) => !open && setActivityToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover atividade?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação é permanente. As fotos associadas também serão eliminadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
