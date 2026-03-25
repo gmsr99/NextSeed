@@ -153,6 +153,7 @@ export function getCurriculumObjectives(schoolYear: string): DisciplineObjective
   let result: DisciplineObjectives;
   switch (schoolYear) {
     case "pré-escolar":
+    case "Pré-escolar":
     case "Pré-Escolar":
       result = extractPreEscolar(); break;
     case "1º ano":
