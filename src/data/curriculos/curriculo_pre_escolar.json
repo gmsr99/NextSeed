@@ -1,0 +1,213 @@
+{
+  "metadata": {
+    "titulo": "Currículo Nacional - Educação Pré-Escolar (Jardim de Infância)",
+    "nivel": "Educação Pré-Escolar",
+    "idade_tipica": "3-6 anos (até entrada na escolaridade obrigatória)",
+    "enquadramento_legal": [
+      "Lei-Quadro da Educação Pré-Escolar - Lei n.º 5/97, de 10 de fevereiro",
+      "Orientações Curriculares para a Educação Pré-Escolar (OCEPE) - Despacho n.º 9180/2016, de 19 de julho"
+    ],
+    "documento_referencia": "Orientações Curriculares para a Educação Pré-Escolar (OCEPE) 2016",
+    "fonte": "Direção-Geral da Educação (DGE) - https://www.dge.mec.pt/ocepe",
+    "nota_importante": "A educação pré-escolar NÃO tem um programa obrigatório a cumprir. As OCEPE são uma referência para o educador construir e gerir o currículo, adaptando-o ao grupo e ao contexto. Não há classificações nem retenção."
+  },
+
+  "principios_fundamentais": {
+    "descricao": "A educação pré-escolar assenta em 4 fundamentos articulados:",
+    "fundamentos": [
+      "Desenvolvimento e aprendizagem como vertentes indissociáveis",
+      "Reconhecimento da criança como sujeito e agente do processo educativo",
+      "Construção articulada do saber (áreas de conteúdo não são compartimentos estanques)",
+      "Resposta a todas as crianças - pedagogia diferenciada e inclusiva"
+    ],
+    "metodologia": "O educador segue um ciclo: Observar → Planear → Agir → Avaliar",
+    "avaliacao": "A avaliação é descritiva e formativa, baseada na observação e documentação. Não envolve classificações nem julgamentos de valor. Compara cada criança consigo própria para situar a evolução ao longo do tempo.",
+    "papel_do_brincar": "O brincar é reconhecido como forma privilegiada de aprendizagem. Não há oposição entre brincar e aprender - são complementares e contínuos."
+  },
+
+  "areas_de_conteudo": {
+
+    "formacao_pessoal_e_social": {
+      "nome": "Área de Formação Pessoal e Social",
+      "caracter": "Área transversal - está presente em todo o trabalho educativo",
+      "descricao": "Incide no desenvolvimento de atitudes, valores e disposições que permitem às crianças continuar a aprender com sucesso e tornar-se cidadãos autónomos, conscientes e solidários.",
+      "aprendizagens_a_promover": [
+        "Conhecer e aceitar as suas características pessoais, identidade social e cultural, situando-as em relação às de outros",
+        "Reconhecer e valorizar laços de pertença social e cultural",
+        "Saber cuidar de si e responsabilizar-se pela sua segurança e bem-estar",
+        "Adquirir capacidade de fazer escolhas, tomar decisões e assumir responsabilidades",
+        "Ensaiar diferentes estratégias para resolver dificuldades e problemas",
+        "Participar nas decisões sobre o seu processo de aprendizagem",
+        "Cooperar com outros no processo de aprendizagem",
+        "Desenvolver o respeito pelo outro e pelas suas opiniões, numa atitude de partilha e responsabilidade social",
+        "Respeitar a diversidade e solidarizar-se com os outros",
+        "Desenvolver uma atitude crítica e interventiva relativamente ao mundo que a rodeia",
+        "Conhecer e valorizar manifestações do património natural e cultural, reconhecendo a necessidade da sua preservação"
+      ]
+    },
+
+    "expressao_e_comunicacao": {
+      "nome": "Área de Expressão e Comunicação",
+      "caracter": "Área básica - única área com diferentes domínios",
+      "descricao": "Engloba diferentes formas de linguagem indispensáveis para a criança interagir com os outros, dar sentido e representar o mundo. Os domínios estão intimamente relacionados entre si.",
+      "dominios": {
+
+        "educacao_fisica": {
+          "nome": "Domínio da Educação Física",
+          "descricao": "Desenvolvimento de capacidades motoras; tomar consciência do corpo na relação com os outros e com diversos espaços e materiais.",
+          "aprendizagens_a_promover": [
+            "Cooperar em situações de jogo, seguindo orientações ou regras",
+            "Dominar movimentos de deslocamentos e equilíbrios: trepar, correr, saltitar, deslizar, rodopiar, saltar a pés juntos ou num só pé, saltar sobre obstáculos, baloiçar, rastejar, rolar",
+            "Controlar movimentos de perícia e manipulação: lançar, receber, pontapear, lançar em precisão, transportar, driblar, agarrar"
+          ]
+        },
+
+        "educacao_artistica": {
+          "nome": "Domínio da Educação Artística",
+          "descricao": "Utilização de diferentes linguagens artísticas para se exprimir, comunicar, representar e compreender o mundo.",
+          "subdomínios": {
+            "artes_visuais": {
+              "aprendizagens_a_promover": [
+                "Desenvolver capacidades expressivas e criativas através de experimentações e produções plásticas",
+                "Reconhecer e mobilizar elementos da comunicação visual na produção e apreciação das suas obras e de imagens que observa",
+                "Apreciar diferentes manifestações de artes visuais (pintura, desenho, escultura, fotografia, arquitetura, vídeo), expressando a sua opinião e leitura crítica"
+              ]
+            },
+            "jogo_dramatico_teatro": {
+              "aprendizagens_a_promover": [
+                "Utilizar e recriar o espaço e os objetos, atribuindo-lhes significados múltiplos em atividades de jogo dramático e situações imaginárias",
+                "Inventar e representar personagens e situações por iniciativa própria e/ou a partir de diferentes propostas",
+                "Apreciar espetáculos teatrais e outras práticas performativas, verbalizando a sua opinião"
+              ]
+            },
+            "musica": {
+              "aprendizagens_a_promover": [
+                "Identificar e descrever sons (fenómenos sonoros/música) quanto às suas características rítmicas, melódicas, dinâmicas, tímbricas e formais",
+                "Interpretar com intencionalidade expressivo-musical: cantos rítmicos, jogos prosódicos (trava-línguas, lengalengas, adivinhas) e canções",
+                "Elaborar improvisações musicais utilizando voz, timbres corporais, instrumentos convencionais e não convencionais",
+                "Valorizar a música como fator de identidade social e cultural"
+              ]
+            },
+            "danca": {
+              "aprendizagens_a_promover": [
+                "Desenvolver o sentido rítmico e de relação do corpo com o espaço e com os outros",
+                "Expressar, através da dança, sentimentos e emoções em diferentes situações",
+                "Refletir sobre os movimentos rítmicos e as coreografias que experimenta e/ou observa",
+                "Apreciar diferentes manifestações coreográficas usando linguagem adequada"
+              ]
+            }
+          }
+        },
+
+        "linguagem_oral_e_abordagem_escrita": {
+          "nome": "Domínio da Linguagem Oral e Abordagem à Escrita",
+          "descricao": "Desenvolvimento da linguagem oral como instrumento de expressão e comunicação; emergência da linguagem escrita através do contacto com a leitura e escrita em situações funcionais.",
+          "aprendizagens_a_promover": {
+            "linguagem_oral": [
+              "Compreender mensagens orais em situações diversas de comunicação",
+              "Usar a linguagem oral em contexto, comunicando eficazmente de modo adequado à situação",
+              "Tomar consciência gradual sobre diferentes segmentos orais que constituem as palavras (Consciência Fonológica)",
+              "Identificar diferentes palavras numa frase (Consciência da Palavra)",
+              "Identificar se uma frase está correta ou incorreta e eventualmente corrigi-la (Consciência Sintática)"
+            ],
+            "abordagem_escrita": [
+              "Identificar funções no uso da leitura e da escrita",
+              "Usar a leitura e a escrita com diferentes funcionalidades nas atividades e rotinas",
+              "Reconhecer letras e aperceber-se da sua organização em palavras",
+              "Aperceber-se do sentido direcional da escrita",
+              "Estabelecer relações entre a escrita e a mensagem oral",
+              "Compreender que a leitura e a escrita proporcionam prazer e satisfação",
+              "Sentir-se competente e capaz de usar a leitura e a escrita, mesmo em formas iniciais e não convencionais"
+            ]
+          }
+        },
+
+        "matematica": {
+          "nome": "Domínio da Matemática",
+          "descricao": "A matemática tem um papel essencial na estruturação do pensamento e na vida quotidiana. Construção de conceitos matemáticos e relações entre eles para dar sentido ao mundo.",
+          "aprendizagens_a_promover": {
+            "numeros_e_operacoes": [
+              "Identificar quantidades através de diferentes formas de representação (contagens, desenhos, símbolos, escrita de números, estimativa)",
+              "Resolver problemas do quotidiano que envolvam pequenas quantidades, com recurso à adição e subtração"
+            ],
+            "organizacao_e_tratamento_de_dados": [
+              "Recolher informação pertinente para dar resposta a questões colocadas",
+              "Utilizar gráficos e tabelas simples para organizar a informação recolhida e interpretá-los"
+            ],
+            "geometria_e_medida": [
+              "Localizar objetos num ambiente familiar, utilizando conceitos de orientação",
+              "Identificar pontos de reconhecimento de locais e usar mapas simples",
+              "Tomar o ponto de vista de outros, sendo capaz de dizer o que pode e não pode ser visto de determinada posição",
+              "Reconhecer e operar com formas geométricas, descobrindo propriedades e identificando padrões, simetrias e projeções",
+              "Compreender que os objetos têm atributos mensuráveis que permitem compará-los e ordená-los",
+              "Escolher e usar unidades de medida para responder a necessidades do quotidiano"
+            ],
+            "atitudes": [
+              "Mostrar interesse e curiosidade pela matemática, compreendendo a sua importância e utilidade",
+              "Sentir-se competente para lidar com noções matemáticas e resolver problemas"
+            ]
+          }
+        }
+      }
+    },
+
+    "conhecimento_do_mundo": {
+      "nome": "Área do Conhecimento do Mundo",
+      "descricao": "Sensibilização às diversas ciências de modo articulado, num processo de questionamento e procura organizada do saber, que permite uma melhor compreensão do mundo.",
+      "componentes": {
+        "introducao_metodologia_cientifica": {
+          "descricao": "Aprender a pensar cientificamente",
+          "aprendizagens_a_promover": [
+            "Apropriar-se do processo de desenvolvimento da metodologia científica: questionar, colocar hipóteses, prever como encontrar respostas, experimentar, recolher informação, organizar e analisar para chegar a conclusões e comunicá-las"
+          ]
+        },
+        "abordagem_ciencias_mundo_social": {
+          "descricao": "Compreender o mundo social, histórico e natural",
+          "aprendizagens_a_promover": [
+            "Tomar consciência da sua identidade e pertença a diferentes grupos do meio social próximo (família, jardim de infância, amigos, vizinhança)",
+            "Reconhecer unidades básicas do tempo diário, semanal e anual, compreendendo a influência que têm na sua vida",
+            "Conhecer elementos centrais da sua comunidade (aspetos físicos, sociais e culturais), identificando semelhanças e diferenças com outras comunidades",
+            "Estabelecer relações entre o presente e o passado da sua família e comunidade",
+            "Conhecer e respeitar a diversidade cultural",
+            "Compreender e identificar características distintivas dos seres vivos; reconhecer diferenças e semelhanças entre animais e plantas",
+            "Compreender e identificar diferenças e semelhanças entre diversos materiais (metais, plásticos, papéis, madeira), relacionando propriedades com os objetos feitos a partir deles",
+            "Descrever e procurar explicações para fenómenos e transformações observados no meio físico e natural",
+            "Demonstrar cuidados com o seu corpo e com a sua segurança",
+            "Manifestar comportamentos de preocupação com a conservação da natureza e respeito pelo ambiente"
+          ]
+        },
+        "mundo_tecnologico": {
+          "descricao": "Relação com a tecnologia",
+          "aprendizagens_a_promover": [
+            "Reconhecer os recursos tecnológicos do seu ambiente e explicar as suas funções e vantagens",
+            "Utilizar diferentes suportes tecnológicos nas atividades do quotidiano, com cuidado e segurança",
+            "Desenvolver uma atitude crítica perante as tecnologias que conhece e utiliza"
+          ]
+        }
+      }
+    }
+  },
+
+  "continuidade_educativa_e_transicoes": {
+    "descricao": "A educação pré-escolar prepara a transição para o 1.º Ciclo do Ensino Básico.",
+    "articulacao_com_1_ciclo": [
+      "A estrutura das áreas de conteúdo das OCEPE está alinhada com as componentes do currículo do 1.º Ciclo e com o Perfil do Aluno",
+      "Partilha de informação com a escola do 1.º Ciclo sobre a aprendizagem e desenvolvimento de cada criança",
+      "Visitas formais das crianças dos jardins de infância às escolas do 1.º Ciclo",
+      "Desenvolvimento de projetos comuns entre jardim de infância e escola do 1.º Ciclo",
+      "Protocolos de cooperação entre educação pré-escolar e escola do 1.º Ciclo"
+    ],
+    "documentos_de_transicao": [
+      "Relatório final de avaliação elaborado pelo educador",
+      "Documento de transição partilhado com o professor do 1.º Ciclo"
+    ]
+  },
+
+  "notas_contextuais": {
+    "diferenca_face_ao_1_ciclo": "Ao contrário do 1.º Ciclo, o pré-escolar não tem programa obrigatório, disciplinas separadas, horários fixos por área, avaliações classificativas nem retenção. O educador é o construtor e gestor do currículo.",
+    "papel_educador": "O educador de infância tem autonomia total na gestão do currículo, devendo adaptar as OCEPE ao contexto local, às características das crianças e das famílias.",
+    "grupos_etarios": "Os grupos de jardim de infância podem ser homogéneos (mesma faixa etária) ou heterogéneos (crianças de 3 a 6 anos juntas), sendo esta última prática frequente e pedagogicamente valorizada.",
+    "frequencia": "A frequência da educação pré-escolar não é obrigatória (ao contrário do 1.º Ciclo), mas a partir dos 4 anos todas as crianças têm direito a uma vaga.",
+    "decreto_lei_referencia": "Lei-Quadro n.º 5/97 e OCEPE 2016 (Despacho n.º 9180/2016)"
+  }
+}

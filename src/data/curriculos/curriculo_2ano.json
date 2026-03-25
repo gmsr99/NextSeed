@@ -1,0 +1,418 @@
+{
+    "metadata": {
+        "titulo": "Currículo Nacional - 2.º Ano de Escolaridade",
+        "ciclo": "1.º Ciclo do Ensino Básico",
+        "ano_escolaridade": 2,
+        "idade_tipica": "7-8 anos",
+        "enquadramento_legal": [
+            "Decreto-Lei n.º 55/2018, de 6 de julho (estabelece o currículo dos ensinos básico e secundário)",
+            "Despacho n.º 6944-A/2018, de 19 de julho (homologa as Aprendizagens Essenciais do Ensino Básico)",
+            "Despacho n.º 6605-A/2021, de 6 de julho (define os referenciais curriculares)"
+        ],
+        "fonte": "Direção-Geral da Educação (DGE) - https://www.dge.mec.pt",
+        "framework": "Aprendizagens Essenciais (AE) articuladas com o Perfil dos Alunos à Saída da Escolaridade Obrigatória (PA)"
+    },
+    "perfil_alunos": {
+        "descricao": "O currículo do 2.º ano é orientado pelo Perfil dos Alunos à Saída da Escolaridade Obrigatória, que define 10 áreas de competências transversais.",
+        "areas_competencias": [
+            {
+                "codigo": "A",
+                "nome": "Linguagens e textos"
+            },
+            {
+                "codigo": "B",
+                "nome": "Informação e comunicação"
+            },
+            {
+                "codigo": "C",
+                "nome": "Raciocínio e resolução de problemas"
+            },
+            {
+                "codigo": "D",
+                "nome": "Pensamento crítico e pensamento criativo"
+            },
+            {
+                "codigo": "E",
+                "nome": "Relacionamento interpessoal"
+            },
+            {
+                "codigo": "F",
+                "nome": "Desenvolvimento pessoal e autonomia"
+            },
+            {
+                "codigo": "G",
+                "nome": "Bem-estar, saúde e ambiente"
+            },
+            {
+                "codigo": "H",
+                "nome": "Sensibilidade estética e artística"
+            },
+            {
+                "codigo": "I",
+                "nome": "Saber científico, técnico e tecnológico"
+            },
+            {
+                "codigo": "J",
+                "nome": "Consciência e domínio do corpo"
+            }
+        ]
+    },
+    "estrutura_curricular": {
+        "nota": "O 2.º ano pertence ao 1.º Ciclo (4 anos: 1.º ao 4.º ano). A carga horária semanal é gerida pela escola dentro dos mínimos definidos.",
+        "cargas_minimas_semanais": {
+            "portugues_minutos": 420,
+            "matematica_minutos": 420,
+            "estudo_do_meio_minutos": 210,
+            "educacao_artistica_minutos": 135,
+            "educacao_fisica_minutos": 135,
+            "apoio_ao_estudo_minutos": 45
+        }
+    },
+    "disciplinas": {
+        "portugues": {
+            "nome": "Português",
+            "caracter": "Obrigatória",
+            "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/portugues_1c_2a_ff.pdf",
+            "introducao": "O 1.º e o 2.º anos funcionam como um continuum no processo de iniciação, desenvolvimento e consolidação da compreensão da linguagem escrita, nas vertentes da leitura e da escrita, em estreita articulação com a oralidade.",
+            "dominios": {
+                "oralidade": {
+                    "compreensao": [
+                        "Identificar intenções comunicativas de textos orais: perguntas, afirmações, exclamações, ordens, pedidos",
+                        "Selecionar informação relevante em função dos objetivos de escuta e registá-la por meio de técnicas diversas"
+                    ],
+                    "expressao": [
+                        "Falar com clareza e articular de modo adequado as palavras",
+                        "Usar a palavra na sua vez e empregar formas de tratamento adequadas na interação oral",
+                        "Respeitar os princípios de cooperação e cortesia",
+                        "Variar adequadamente a prosódia e o ritmo discursivo em função da finalidade comunicativa",
+                        "Formular perguntas, pedidos e respostas a questões considerando a situação e o interlocutor"
+                    ]
+                },
+                "leitura_e_escrita": {
+                    "leitura": [
+                        "Ler com fluência crescente textos com diferentes finalidades e em diferentes suportes",
+                        "Mobilizar o conhecimento da pontuação para interpretar e organizar o discurso",
+                        "Identificar o tema e assunto de textos lidos",
+                        "Inferir o sentido de palavras desconhecidas com base no contexto",
+                        "Aplicar estratégias de compreensão de textos de diferente tipo"
+                    ],
+                    "escrita": [
+                        "Escrever textos de géneros diversificados: narrativos, descritivos, instrucionais",
+                        "Planificar textos, elaborando planos escritos ou pictográficos",
+                        "Redigir textos, mobilizando vocabulário adequado",
+                        "Rever e melhorar textos escritos",
+                        "Escrever com correção ortográfica palavras de uso frequente",
+                        "Usar corretamente sinais de pontuação básicos: ponto final, ponto de interrogação, ponto de exclamação, vírgula"
+                    ]
+                },
+                "educacao_literaria": [
+                    "Ouvir ler e ler textos literários (contos, fábulas, poemas, lengalengas, adivinhas)",
+                    "Recontar e recriar textos lidos ou ouvidos, oralmente e por escrito",
+                    "Ler em voz alta, de forma expressiva, textos literários variados",
+                    "Exprimir sentimentos, emoções e opiniões sobre textos lidos ou ouvidos",
+                    "Participar em atividades do Plano Nacional de Leitura (PNL)"
+                ],
+                "gramatica": [
+                    "Identificar e usar corretamente classes de palavras: nomes, verbos, adjetivos",
+                    "Distinguir singular e plural; masculino e feminino",
+                    "Reconhecer sílabas e identificar sílaba tónica",
+                    "Identificar e usar adequadamente o determinante artigo definido e indefinido",
+                    "Explicitar regras ortográficas e aplicá-las: uso de maiúsculas, dígrafos, ditongos",
+                    "Desenvolver a consciência fonológica: identificar fonemas, sílabas"
+                ]
+            }
+        },
+        "matematica": {
+            "nome": "Matemática",
+            "caracter": "Obrigatória",
+            "fonte_ae": "http://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/ae_mat_2.o_ano.pdf",
+            "principios_orientadores": [
+                "Matemática para todos",
+                "A Matemática é única, mas não é a única",
+                "Matemática para o século XXI"
+            ],
+            "capacidades_transversais": [
+                "Resolução de problemas",
+                "Raciocínio matemático",
+                "Comunicação matemática",
+                "Representações múltiplas",
+                "Conexões matemáticas",
+                "Pensamento computacional"
+            ],
+            "temas": {
+                "numeros_e_operacoes": {
+                    "descricao": "Números naturais até 1000; operações de adição e subtração com algoritmos; introdução à multiplicação",
+                    "aprendizagens": [
+                        "Ler, escrever, representar e comparar números naturais até 1000",
+                        "Efetuar contagens progressivas e regressivas de 2 em 2, de 5 em 5, de 10 em 10, de 100 em 100",
+                        "Compor e decompor números até 1000 usando centenas, dezenas e unidades",
+                        "Adicionar e subtrair utilizando estratégias diversas e o algoritmo da adição",
+                        "Resolver problemas envolvendo adição e subtração (com e sem transporte)",
+                        "Construir e memorizar as tabuadas do 2, 3, 4, 5 e 10",
+                        "Interpretar a multiplicação como adição repetida",
+                        "Resolver problemas envolvendo a multiplicação em contextos do quotidiano",
+                        "Utilizar a reta numérica como representação",
+                        "Fazer estimativas e verificar a razoabilidade dos resultados"
+                    ]
+                },
+                "geometria_e_medida": {
+                    "descricao": "Figuras geométricas planas e sólidos; medições com unidades padronizadas",
+                    "aprendizagens": [
+                        "Identificar e classificar figuras geométricas: triângulo, quadrado, retângulo, círculo",
+                        "Reconhecer e nomear sólidos geométricos: cubo, paralelepípedo, cilindro, cone, esfera, pirâmide",
+                        "Identificar figuras com eixo de simetria",
+                        "Medir comprimentos com régua em centímetros e metros",
+                        "Usar unidades de tempo: horas, meias-horas, quarto de hora, dias, semanas, meses, ano",
+                        "Ler e interpretar calendários e horários simples",
+                        "Medir e comparar capacidades usando litro e meio litro",
+                        "Medir e comparar massas usando quilograma e meio quilograma"
+                    ]
+                },
+                "algebra": {
+                    "descricao": "Sequências, padrões e relações numéricas",
+                    "aprendizagens": [
+                        "Identificar e continuar sequências e padrões numéricos e não numéricos",
+                        "Descrever a regra de uma sequência",
+                        "Resolver problemas envolvendo regularidades",
+                        "Compreender a igualdade e a desigualdade (usar =, ≠, <, >)"
+                    ]
+                },
+                "dados_e_probabilidades": {
+                    "descricao": "Recolha, organização e interpretação de dados",
+                    "aprendizagens": [
+                        "Recolher dados através de observações e inquéritos simples",
+                        "Organizar dados em tabelas de frequência",
+                        "Representar dados em pictogramas e gráficos de barras simples",
+                        "Interpretar tabelas e gráficos, respondendo a questões"
+                    ]
+                }
+            }
+        },
+        "estudo_do_meio": {
+            "nome": "Estudo do Meio",
+            "caracter": "Obrigatória",
+            "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/2_estudo_do_meio.pdf",
+            "areas_conhecimento": [
+                "Biologia",
+                "Física",
+                "Geografia",
+                "Geologia",
+                "História",
+                "Química",
+                "Tecnologia"
+            ],
+            "perspetiva": "Ciência-Tecnologia-Sociedade (CTS)",
+            "dominios": {
+                "sociedade": {
+                    "descricao": "Conhecimento de si próprio, dos outros e das instituições",
+                    "aprendizagens": [
+                        "Reconhecer a importância de fontes documentais na construção do conhecimento pessoal e familiar (Cartão de Cidadão, Boletim de Saúde, fotografias, etc.)",
+                        "Reconhecer datas, factos e locais significativos para a história pessoal ou familiar, localizando-os em mapas ou numa linha de tempo",
+                        "Relacionar instituições e serviços que contribuem para o bem-estar das populações com as suas atividades e funções",
+                        "Reconhecer a importância do diálogo e da negociação na resolução pacífica de conflitos",
+                        "Reconhecer as múltiplas pertenças de cada pessoa a diferentes grupos e comunidades",
+                        "Reconhecer influências de outros países e culturas no quotidiano (alimentação, vestuário, música, etc.)",
+                        "Valorizar a aplicação dos direitos consagrados na Convenção sobre os Direitos da Criança"
+                    ]
+                },
+                "natureza": {
+                    "descricao": "Ambiente natural, corpo humano, seres vivos, fenómenos físicos",
+                    "aprendizagens": [
+                        "Distinguir os principais órgãos internos (coração, pulmões, estômago, rins) e associá-los às suas funções vitais",
+                        "Associar ossos e músculos à posição, movimento e equilíbrio",
+                        "Reconhecer que o bom funcionamento do sistema musculosquelético implica cuidados específicos (postura e atividade física)",
+                        "Refletir sobre comportamentos que contribuem para o bem-estar físico e psicológico",
+                        "Reconhecer a importância da vacinação e do uso correto dos medicamentos",
+                        "Identificar situações e comportamentos de risco para a saúde e segurança, propondo medidas de prevenção",
+                        "Localizar Portugal na Europa e no Mundo em diferentes representações cartográficas",
+                        "Caracterizar os estados de tempo típicos das estações do ano em Portugal",
+                        "Estabelecer a correspondência entre mudanças de estado físico (evaporação, condensação, solidificação, fusão) e o ciclo da água",
+                        "Categorizar os seres vivos de acordo com semelhanças e diferenças observáveis (animais: revestimento, alimentação, locomoção, reprodução; plantas: raiz, caule, folha, flor, fruto)",
+                        "Relacionar as características dos seres vivos com o seu habitat",
+                        "Relacionar ameaças à biodiversidade com a necessidade de atitudes responsáveis face à Natureza"
+                    ]
+                },
+                "tecnologia": {
+                    "descricao": "Materiais, objetos e tecnologia",
+                    "aprendizagens": [
+                        "Identificar símbolos informativos para o consumidor relacionados com a produção e utilização de bens",
+                        "Manipular, imaginar e criar objetos técnicos simples",
+                        "Utilizar as Tecnologias de Informação e Comunicação para pesquisas e apresentação de trabalhos simples"
+                    ]
+                }
+            }
+        },
+        "educacao_artistica": {
+            "nome": "Educação Artística",
+            "caracter": "Obrigatória (integra 4 subáreas no 1.º Ciclo)",
+            "nota": "No 1.º Ciclo, as AE de Educação Artística são transversais ao ciclo (não específicas por ano), mas devem ser desenvolvidas de forma progressiva.",
+            "subareas": {
+                "artes_visuais": {
+                    "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/1c_artes_visuais.pdf",
+                    "aprendizagens": [
+                        "Criar composições visuais com diferentes elementos plásticos (ponto, linha, forma, cor, textura)",
+                        "Explorar materiais, técnicas e instrumentos de expressão plástica (desenho, pintura, colagem, modelagem)",
+                        "Desenvolver a representação do espaço e das figuras",
+                        "Apreciar obras de arte e manifestações culturais visuais do patrimônio nacional e universal",
+                        "Identificar e nomear cores primárias, secundárias e cores quentes/frias",
+                        "Desenvolver a motricidade fina através da manipulação de materiais"
+                    ]
+                },
+                "expressao_dramatica_teatro": {
+                    "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/1c_teatro.pdf",
+                    "aprendizagens": [
+                        "Explorar possibilidades expressivas do corpo, da voz e do movimento em situações de jogo dramático",
+                        "Participar em jogos de improvisação e de faz de conta",
+                        "Recriar situações do quotidiano e de narrativas através da expressão dramática",
+                        "Desenvolver a capacidade de colaborar em grupo em atividades de dramatização"
+                    ]
+                },
+                "musica": {
+                    "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/1c_musica.pdf",
+                    "aprendizagens": [
+                        "Desenvolver a perceção auditiva: sons do ambiente, qualidades do som (altura, duração, intensidade, timbre)",
+                        "Cantar canções e rimas com dicção correta e expressividade",
+                        "Explorar instrumentos musicais de percussão simples",
+                        "Reproduzir padrões rítmicos com o corpo (palmas, pés) e com instrumentos",
+                        "Apreciar e comentar peças musicais de diferentes géneros"
+                    ]
+                },
+                "danca": {
+                    "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/1c_danca.pdf",
+                    "aprendizagens": [
+                        "Explorar movimentos do corpo em resposta a estímulos sonoros e visuais",
+                        "Criar sequências de movimento em grupo",
+                        "Desenvolver a consciência espacial: direções, níveis, percursos",
+                        "Apreciar e identificar características de diferentes formas de dança"
+                    ]
+                }
+            }
+        },
+        "educacao_fisica": {
+            "nome": "Educação Física",
+            "caracter": "Obrigatória",
+            "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/2_educacao_fisica.pdf",
+            "objetivos_gerais": [
+                "Elevar o nível funcional das capacidades condicionais e coordenativas (resistência, velocidade, flexibilidade, equilíbrio, ritmo, agilidade)",
+                "Cooperar com os companheiros nos jogos e exercícios, aplicando regras e princípios de cordialidade",
+                "Participar com empenho no aperfeiçoamento das habilidades motoras"
+            ],
+            "blocos": {
+                "pericias_e_manipulacoes": {
+                    "descricao": "Ações motoras básicas com aparelhos portáteis",
+                    "aprendizagens": [
+                        "Lançar, receber, rolar e conduzir objetos (bolas, arcos, cordas) com controlo crescente",
+                        "Realizar percursos com combinação de habilidades manipulativas",
+                        "Coordenar o movimento do corpo com o movimento do aparelho"
+                    ]
+                },
+                "deslocamentos_e_equilibrios": {
+                    "descricao": "Habilidades locomotoras e de equilíbrio",
+                    "aprendizagens": [
+                        "Correr, saltar, gatinhar, trepar com eficácia e coordenação",
+                        "Realizar equilíbrios estáticos e dinâmicos (solo e aparelhos)",
+                        "Executar sequências de deslocamentos com mudanças de direção e ritmo",
+                        "Realizar rolamentos e apoios com segurança"
+                    ]
+                },
+                "jogos": {
+                    "descricao": "Jogos coletivos e individuais com regras",
+                    "aprendizagens": [
+                        "Participar em jogos de perseguição, de equipa e de cooperação",
+                        "Compreender e cumprir as regras dos jogos",
+                        "Ajustar a sua iniciativa às possibilidades oferecidas pela situação de jogo",
+                        "Desenvolver atitudes de fair-play e respeito pelo adversário"
+                    ]
+                }
+            }
+        },
+        "cidadania_e_desenvolvimento": {
+            "nome": "Cidadania e Desenvolvimento",
+            "caracter": "Obrigatória (componente transversal no 1.º Ciclo)",
+            "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/cidadania-desenvolvimento.pdf",
+            "nota": "No 1.º Ciclo, Cidadania e Desenvolvimento é abordada de forma transversal, integrada nas outras disciplinas e em atividades específicas da turma.",
+            "temas_principais": [
+                "Identidade e alteridade: conhecer-se a si próprio e respeitar o outro",
+                "Convivência democrática: regras na sala de aula, na escola e na comunidade",
+                "Direitos das crianças (Convenção sobre os Direitos da Criança)",
+                "Inclusão e não discriminação",
+                "Ambiente e sustentabilidade",
+                "Saúde e bem-estar",
+                "Segurança rodoviária básica"
+            ],
+            "competencias": [
+                "Reconhecer e respeitar a diversidade de pessoas e grupos",
+                "Participar de forma ativa e responsável na vida da turma e da escola",
+                "Desenvolver a capacidade de resolução pacífica de conflitos",
+                "Identificar os seus direitos e deveres como criança"
+            ]
+        },
+        "ingles_aec": {
+            "nome": "Inglês (AEC - Atividade de Enriquecimento Curricular)",
+            "caracter": "Não obrigatória no 2.º ano (obrigatória a partir do 3.º ano como disciplina curricular); frequentemente oferecida como AEC",
+            "nota": "No 2.º ano, o Inglês pode ser oferecido como Atividade de Enriquecimento Curricular (AEC). A partir do 3.º ano passa a ser disciplina curricular obrigatória.",
+            "nivel_esperado_aec": "Introdução lúdica a vocabulário e expressões simples em inglês",
+            "aprendizagens_tipicas_aec": [
+                "Compreender e reproduzir vocabulário básico: números, cores, animais, família, partes do corpo",
+                "Cantar músicas e rimas simples em inglês",
+                "Responder a instruções simples em inglês",
+                "Identificar palavras e expressões em contextos familiares"
+            ]
+        },
+        "educacao_moral_religiosa": {
+            "nome": "Educação Moral e Religiosa (Católica ou Evangélica)",
+            "caracter": "Facultativa (de frequência opcional pelos encarregados de educação)",
+            "fonte_ae_catolica": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/emrc_1c_2a.pdf",
+            "aprendizagens_emrc_2ano": [
+                "Reconhecer a dignidade de todo o ser humano",
+                "Identificar comportamentos de respeito e de cuidado com os outros",
+                "Tomar contacto com textos e narrativas bíblicas adaptadas à faixa etária",
+                "Relacionar festividades religiosas com o quotidiano cultural português",
+                "Desenvolver atitudes de partilha, gratidão e ajuda ao próximo"
+            ]
+        }
+    },
+    "areas_nao_disciplinares": {
+        "apoio_ao_estudo": {
+            "descricao": "Tempo semanal dedicado ao apoio personalizado e ao desenvolvimento de métodos de estudo",
+            "objetivos": [
+                "Consolidar aprendizagens das disciplinas curriculares",
+                "Desenvolver autonomia e organização do trabalho escolar",
+                "Apoiar alunos com dificuldades de aprendizagem"
+            ]
+        },
+        "oferta_complementar": {
+            "descricao": "Componente de gestão da escola, podendo incluir TIC, atividades de enriquecimento, etc.",
+            "exemplos": [
+                "Introdução às TIC (Tecnologias de Informação e Comunicação)",
+                "Projetos interdisciplinares",
+                "Atividades de leitura e escrita criativa"
+            ]
+        }
+    },
+    "avaliacao": {
+        "tipo_principal": "Avaliação formativa (contínua e sistemática ao longo do ano)",
+        "provas_afericao": {
+            "existe": true,
+            "descricao": "As Provas de Aferição do 2.º ano são realizadas no final do ano letivo e incidem sobre Português e Matemática",
+            "caracter": "Não determinantes para a progressão do aluno; servem para fornecer informação ao sistema educativo, às escolas e às famílias",
+            "disciplinas_avaliadas": [
+                "Português",
+                "Matemática"
+            ]
+        },
+        "progressao": {
+            "descricao": "A progressão no 1.º Ciclo tem uma lógica de ciclo (e não de ano). A retenção é possível mas deve ser evitada, aplicando-se medidas de apoio antes de qualquer decisão de repetência.",
+            "retencao_possivel": true
+        },
+        "descritores_perfil_alunos": "Cada AE está associada a descritores do Perfil dos Alunos, orientando a avaliação para competências e não apenas para conteúdos."
+    },
+    "notas_contextuais": {
+        "continuum_1_e_2_ano": "O 1.º e o 2.º anos formam um continuum de aprendizagem, especialmente em Português (leitura e escrita) e Matemática. As AE do 2.º ano consolidam e aprofundam as do 1.º ano.",
+        "papel_professor": "O professor de 1.º Ciclo é generalista e leciona todas as disciplinas (exceto as AEC e EMRC). Tem autonomia na gestão do currículo dentro dos limites estabelecidos.",
+        "interdisciplinaridade": "As AE são desenhadas para promover conexões entre disciplinas. Por exemplo, o Estudo do Meio integra conteúdos de Biologia, Geografia e História; a Matemática articula com o Estudo do Meio em medições e representação de dados.",
+        "tecnologia": "A utilização das TIC é transversal e incentivada em todas as disciplinas, mesmo que não exista uma disciplina específica de TIC no 2.º ano.",
+        "plano_nacional_leitura": "O PNL (Plano Nacional de Leitura) é parte integrante das AE de Português, com obras recomendadas para cada ano de escolaridade.",
+        "decreto_lei_referencia": "Decreto-Lei n.º 55/2018 estabelece que o currículo deve ser gerido de forma flexível pelas escolas, respeitando os mínimos das AE."
+    }
+}

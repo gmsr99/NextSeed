@@ -1,0 +1,318 @@
+{
+  "metadata": {
+    "titulo": "Currículo Nacional - 4.º Ano de Escolaridade",
+    "ciclo": "1.º Ciclo do Ensino Básico",
+    "ano_escolaridade": 4,
+    "idade_tipica": "9-10 anos",
+    "enquadramento_legal": [
+      "Decreto-Lei n.º 55/2018, de 6 de julho",
+      "Despacho n.º 6944-A/2018, de 19 de julho",
+      "Despacho n.º 6605-A/2021, de 6 de julho"
+    ],
+    "fonte": "Direção-Geral da Educação (DGE) - https://www.dge.mec.pt",
+    "framework": "Aprendizagens Essenciais articuladas com o Perfil dos Alunos"
+  },
+
+  "contexto_pedagogico": {
+    "descricao": "O 4.º ano é o último do 1.º Ciclo. É o ano de consolidação e de preparação para o 2.º Ciclo (5.º e 6.º anos), onde o aluno passa a ter vários professores e disciplinas distintas.",
+    "foco_principal": "Consolidação de todas as aprendizagens do 1.º Ciclo. Maior complexidade textual em Português; números até 1 000 000 e introdução às decimais em Matemática; Portugal no Mundo em Estudo do Meio.",
+    "transicao_para_2_ciclo": "No final do 4.º ano o aluno realiza a transição para o 2.º Ciclo. Há uma articulação com as competências esperadas no 5.º ano."
+  },
+
+  "estrutura_curricular": {
+    "cargas_minimas_semanais_minutos": {
+      "portugues": 420,
+      "matematica": 420,
+      "estudo_do_meio": 210,
+      "ingles": 135,
+      "educacao_artistica": 135,
+      "educacao_fisica": 135,
+      "apoio_ao_estudo": 45
+    }
+  },
+
+  "disciplinas": {
+
+    "portugues": {
+      "nome": "Português",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/portugues_1c_4a_ff.pdf",
+      "nota_4_ano": "No 4.º ano o aluno deve ser um leitor fluente e um escritor autónomo. Os textos são mais complexos e diversificados. A gramática torna-se mais explícita e sistemática. É o ano de finalização do 1.º Ciclo.",
+      "dominios": {
+        "oralidade": {
+          "compreensao": [
+            "Selecionar informação relevante em função dos objetivos de escuta e registá-la por meio de técnicas diversas",
+            "Distinguir entre factos e opiniões, informação implícita e explícita, essencial e acessório, denotação e conotação"
+          ],
+          "expressao": [
+            "Pedir e tomar a palavra, respeitando o tempo de palavra dos outros",
+            "Planear, produzir e avaliar discursos orais breves com vocabulário variado e frases complexas, individualmente ou em grupo",
+            "Participar com empenho em atividades de expressão oral orientada, respeitando regras e papéis específicos",
+            "Realizar exposições breves a partir de planificação",
+            "Usar a palavra para exprimir opiniões e partilhar ideias de forma audível, com boa articulação, entoação e ritmo",
+            "Apresentar oralmente trabalhos de pesquisa simples"
+          ]
+        },
+        "leitura": {
+          "aprendizagens": [
+            "Ler textos narrativos e descritivos de maior complexidade",
+            "Ler textos informativos: artigos de enciclopédia, entradas de dicionário, avisos",
+            "Realizar leitura silenciosa com compreensão autónoma",
+            "Identificar tema, assunto, ideia principal e ideias secundárias",
+            "Distinguir factos de opiniões em textos lidos",
+            "Fazer inferências e interpretações fundamentadas no texto",
+            "Utilizar diferentes estratégias de leitura consoante o objetivo (leitura de pesquisa, leitura recreativa)"
+          ]
+        },
+        "escrita": {
+          "aprendizagens": [
+            "Escrever textos de géneros diversificados: narrativos, descritivos, epistolares (carta, e-mail), expositivos, argumentativos simples",
+            "Planificar, escrever e rever textos com progressiva autonomia",
+            "Escrever textos com vocabulário variado, frases complexas e coesão adequada",
+            "Usar corretamente a ortografia e a pontuação",
+            "Escrever sínteses e resumos curtos de textos lidos",
+            "Usar o processador de texto para escrever e rever"
+          ]
+        },
+        "educacao_literaria": [
+          "Ler e analisar obras literárias completas (narrativas, poesia, teatro) adequadas ao 4.º ano",
+          "Identificar e comentar recursos expressivos simples: comparação, personificação, metáfora",
+          "Comparar diferentes versões de um mesmo texto",
+          "Relacionar textos literários com o contexto histórico e cultural",
+          "Completar o percurso de leitor iniciado no 3.º ano (metodologia de projeto)"
+        ],
+        "gramatica": [
+          "Identificar e usar todas as classes de palavras estudadas no 1.º Ciclo: nomes, verbos, adjetivos, determinantes, pronomes pessoais, advérbios",
+          "Conjugar verbos regulares nos modos indicativo e imperativo, nos tempos: presente, pretérito perfeito, pretérito imperfeito, futuro",
+          "Identificar sujeito, predicado e complemento direto em frases simples",
+          "Distinguir frase simples e frase composta",
+          "Reconhecer e usar conectores de tempo, causa e consequência",
+          "Compreender regras de uso do hífen, acento gráfico e maiúsculas"
+        ]
+      }
+    },
+
+    "matematica": {
+      "nome": "Matemática",
+      "caracter": "Obrigatória",
+      "fonte_ae": "http://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/ae_mat_4.o_ano.pdf",
+      "nota_4_ano": "No 4.º ano o trabalho estende-se aos números até 1 000 000, introduzem-se os números decimais e trabalha-se mais profundamente a geometria e a proporcionalidade.",
+      "temas": {
+        "numeros_e_operacoes": {
+          "aprendizagens": [
+            "Ler, escrever e representar números naturais até 1 000 000",
+            "Compor e decompor números até 1 000 000 usando as diferentes ordens e classes",
+            "Adicionar, subtrair, multiplicar e dividir números de várias dígitos usando os algoritmos",
+            "Calcular mentalmente usando estratégias diversas",
+            "Compreender e usar frações: numerador, denominador, frações equivalentes",
+            "Comparar e ordenar frações",
+            "Introdução aos números decimais: décimas, centésimas, milésimas",
+            "Converter frações decimais em números decimais e vice-versa",
+            "Adicionar e subtrair números decimais",
+            "Resolver problemas envolvendo as 4 operações e frações/decimais",
+            "Calcular percentagens simples: 50%, 25%, 10%"
+          ]
+        },
+        "geometria_e_medida": {
+          "aprendizagens": [
+            "Identificar e classificar polígonos: triângulos, quadriláteros, pentágonos, hexágonos",
+            "Calcular o perímetro e a área de quadrados e retângulos",
+            "Identificar e construir figuras com eixo de simetria",
+            "Reconhecer e descrever sólidos geométricos: planificações de cubo e paralelepípedo",
+            "Usar o metro quadrado (m²) para medir área",
+            "Usar o quilômetro (km) para medir distâncias",
+            "Usar a tonelada (t) para medir massa",
+            "Calcular com unidades de tempo: horas, minutos, segundos"
+          ]
+        },
+        "algebra": {
+          "aprendizagens": [
+            "Resolver problemas com regularidades numéricas",
+            "Usar expressões com letras para representar situações matemáticas",
+            "Resolver equações simples com operações inversas"
+          ]
+        },
+        "dados_e_probabilidades": {
+          "aprendizagens": [
+            "Recolher e organizar dados em tabelas de frequência",
+            "Calcular média aritmética de um conjunto de dados simples",
+            "Construir e interpretar gráficos de barras, pictogramas e gráficos de linhas simples",
+            "Identificar e descrever acontecimentos com diferentes probabilidades (certo, provável, improvável, impossível)"
+          ]
+        }
+      }
+    },
+
+    "estudo_do_meio": {
+      "nome": "Estudo do Meio",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/4_estudo_do_meio.pdf",
+      "nota_4_ano": "No 4.º ano o âmbito alarga-se para Portugal e o Mundo. É o ano com maior conteúdo histórico e geográfico do 1.º Ciclo.",
+      "dominios": {
+        "sociedade": {
+          "aprendizagens": [
+            "Conhecer e localizar Portugal no contexto europeu e mundial, usando diferentes escalas cartográficas",
+            "Identificar os países que fazem fronteira com Portugal e os países de língua portuguesa",
+            "Conhecer e localizar os distritos/NUTS e as principais cidades de Portugal continental e ilhas",
+            "Conhecer etapas fundamentais da história de Portugal: formação, expansão marítima, período contemporâneo",
+            "Identificar figuras históricas relevantes e acontecimentos marcantes (D. Afonso Henriques, Vasco da Gama, 25 de Abril de 1974)",
+            "Conhecer a organização política de Portugal: Presidência da República, Assembleia da República, Governo",
+            "Reconhecer os principais símbolos europeus e o projeto da União Europeia",
+            "Identificar os principais recursos naturais e atividades económicas de Portugal"
+          ]
+        },
+        "natureza": {
+          "aprendizagens": [
+            "Compreender o sistema solar: sol, planetas, lua, Terra no universo",
+            "Explicar as causas do dia/noite e das estações do ano",
+            "Descrever o ciclo da água na natureza com maior detalhe",
+            "Identificar os principais ecossistemas portugueses: floresta, rio, mar, montanha",
+            "Reconhecer a importância da biodiversidade e ameaças à sua preservação",
+            "Compreender fenômenos físicos: luz, som, eletricidade - em contextos simples",
+            "Relacionar atividade humana com degradação ambiental e propor soluções"
+          ]
+        },
+        "tecnologia": {
+          "aprendizagens": [
+            "Realizar experiências científicas simples com registo sistemático de dados",
+            "Usar a Internet com supervisão para pesquisar e selecionar informação de forma crítica",
+            "Criar apresentações simples com suporte digital"
+          ]
+        }
+      }
+    },
+
+    "ingles": {
+      "nome": "Inglês",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/ingles_1c_4a_ff.pdf",
+      "nivel_referencia": "A1/A2 (transição) do QECR",
+      "nota_4_ano": "No 4.º ano o aluno consolida e aprofunda o trabalho iniciado no 3.º ano, com maior autonomia na oralidade e primeiras produções escritas mais estruturadas.",
+      "dominios": {
+        "compreensao_oral": [
+          "Compreender instruções, pedidos e informações em inglês sobre temas trabalhados",
+          "Identificar o sentido global e informação específica em textos orais curtos",
+          "Compreender histórias simples narradas em inglês"
+        ],
+        "expressao_oral": [
+          "Usar expressões e frases para comunicar sobre temas do quotidiano",
+          "Participar em diálogos simples: apresentações, perguntas e respostas sobre temas conhecidos",
+          "Descrever pessoas, objetos e espaços de forma simples"
+        ],
+        "leitura": [
+          "Ler e compreender textos curtos com vocabulário conhecido",
+          "Identificar informação específica em textos simples (listas, cartazes, mensagens, histórias curtas)"
+        ],
+        "escrita": [
+          "Escrever frases e pequenos textos com apoio de modelo",
+          "Preencher formulários simples com informação pessoal",
+          "Escrever mensagens e cartões simples"
+        ],
+        "vocabulario_tematico_adicional_4_ano": [
+          "Meios de transporte",
+          "Países e nacionalidades",
+          "Clima e tempo meteorológico",
+          "Rotinas diárias",
+          "Férias e viagens",
+          "Tecnologia simples (computador, telemóvel)"
+        ]
+      }
+    },
+
+    "educacao_artistica": {
+      "nome": "Educação Artística",
+      "caracter": "Obrigatória",
+      "nota": "Último ano do ciclo de AE transversais ao 1.º Ciclo. Deve haver uma consolidação e síntese das aprendizagens artísticas dos 4 anos.",
+      "subareas": {
+        "artes_visuais": {
+          "aprendizagens": [
+            "Realizar projetos plásticos com autonomia e intenção comunicativa",
+            "Usar técnicas e materiais diversificados com maior mestria",
+            "Fazer escolhas estéticas fundamentadas",
+            "Apreciar obras de arte conectando-as com contextos histórico-culturais"
+          ]
+        },
+        "expressao_dramatica_teatro": {
+          "aprendizagens": [
+            "Planear e executar apresentações teatrais com estrutura completa",
+            "Usar recursos expressivos (voz, gesto, movimento) com intencionalidade",
+            "Criar textos dramáticos simples"
+          ]
+        },
+        "musica": {
+          "aprendizagens": [
+            "Cantar com afinação e expressividade em grupo e a solo",
+            "Usar notação musical convencional simples",
+            "Criar pequenas composições musicais"
+          ]
+        },
+        "danca": {
+          "aprendizagens": [
+            "Criar e apresentar coreografias de grupo com autonomia",
+            "Relacionar movimento, ritmo e expressão emocional"
+          ]
+        }
+      }
+    },
+
+    "educacao_fisica": {
+      "nome": "Educação Física",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/4_educacao_fisica.pdf",
+      "nota_4_ano": "O 4.º ano consolida todas as habilidades motoras do 1.º Ciclo, preparando para as exigências técnicas do 2.º Ciclo.",
+      "blocos": {
+        "pericias_e_manipulacoes": [
+          "Realizar sequências de manipulação com diferentes aparelhos em situação de maior exigência",
+          "Combinar habilidades em percursos complexos com fluidez"
+        ],
+        "deslocamentos_e_equilibrios": [
+          "Realizar sequências acrobáticas simples com controlo e elegância",
+          "Demonstrar equilíbrio em situações instáveis e com deslocamento"
+        ],
+        "jogos": [
+          "Jogar com domínio das regras e estratégia básica em jogos coletivos",
+          "Arbitrar situações simples de jogo",
+          "Manifestar fair-play consistente"
+        ]
+      }
+    },
+
+    "cidadania_e_desenvolvimento": {
+      "nome": "Cidadania e Desenvolvimento",
+      "caracter": "Transversal",
+      "temas_principais": [
+        "Identidade nacional e europeia",
+        "Democracia e participação cívica",
+        "Direitos Humanos e Constituição Portuguesa",
+        "Globalização e interdependência",
+        "Ambiente e desenvolvimento sustentável (ODS)",
+        "Segurança online e literacia digital básica",
+        "Saúde mental e bem-estar"
+      ]
+    },
+
+    "educacao_moral_religiosa": {
+      "nome": "Educação Moral e Religiosa (Católica ou Evangélica)",
+      "caracter": "Facultativa",
+      "fonte_ae_catolica": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/emrc_1c_4a.pdf"
+    }
+  },
+
+  "avaliacao": {
+    "tipo_principal": "Avaliação formativa contínua + Avaliação sumativa no final de período",
+    "provas_afericao": {
+      "existe": false,
+      "nota": "Não há provas de aferição no 4.º ano. No entanto, é o ano de conclusão do 1.º Ciclo e de transição para o 2.º Ciclo."
+    },
+    "transicao_ciclo": {
+      "descricao": "No final do 4.º ano, o professor elabora uma informação global de avaliação que acompanha o aluno para o 5.º ano. A decisão de progressão para o 2.º Ciclo tem em conta todas as aprendizagens desenvolvidas ao longo do ciclo."
+    }
+  },
+
+  "notas_contextuais": {
+    "fechamento_1_ciclo": "O 4.º ano é o final do 1.º Ciclo. É expectável que todos os alunos dominem a leitura fluente, a escrita com correção, as 4 operações, e tenham uma visão abrangente da história e geografia de Portugal.",
+    "preparacao_2_ciclo": "O 5.º ano implica múltiplos professores e disciplinas separadas. O 4.º ano prepara os alunos para esta nova organização, desenvolvendo autonomia e métodos de estudo.",
+    "ingles_consolidacao": "No final do 4.º ano os alunos devem aproximar-se do nível A1/A2 de inglês, preparando o aprofundamento no 5.º e 6.º anos.",
+    "decreto_lei_referencia": "Decreto-Lei n.º 55/2018"
+  }
+}

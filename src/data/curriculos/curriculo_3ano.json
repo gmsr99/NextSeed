@@ -1,0 +1,321 @@
+{
+  "metadata": {
+    "titulo": "Currículo Nacional - 3.º Ano de Escolaridade",
+    "ciclo": "1.º Ciclo do Ensino Básico",
+    "ano_escolaridade": 3,
+    "idade_tipica": "8-9 anos",
+    "enquadramento_legal": [
+      "Decreto-Lei n.º 55/2018, de 6 de julho",
+      "Despacho n.º 6944-A/2018, de 19 de julho",
+      "Despacho n.º 6605-A/2021, de 6 de julho"
+    ],
+    "fonte": "Direção-Geral da Educação (DGE) - https://www.dge.mec.pt",
+    "framework": "Aprendizagens Essenciais articuladas com o Perfil dos Alunos"
+  },
+
+  "contexto_pedagogico": {
+    "descricao": "O 3.º ano marca uma transição importante: presume-se que a leitura e a escrita já estão adquiridas (processo iniciado no 1.º e consolidado no 2.º ano) e começa uma fase de usar a leitura/escrita como ferramenta para aprender outras coisas.",
+    "novas_disciplinas": "No 3.º ano introduz-se o Inglês como disciplina curricular obrigatória.",
+    "foco_principal": "Consolidação da fluência leitora e escrita; autonomia crescente; Inglês como nova língua; aprofundamento da Matemática até 10 000; Estudo do Meio mais sistemático."
+  },
+
+  "estrutura_curricular": {
+    "cargas_minimas_semanais_minutos": {
+      "portugues": 420,
+      "matematica": 420,
+      "estudo_do_meio": 210,
+      "ingles": 135,
+      "educacao_artistica": 135,
+      "educacao_fisica": 135,
+      "apoio_ao_estudo": 45
+    }
+  },
+
+  "disciplinas": {
+
+    "portugues": {
+      "nome": "Português",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/portugues_1c_3a_ff.pdf",
+      "nota_3_ano": "No 3.º ano pressupõe-se que a criança já sabe ler e escrever. O foco passa para compreensão de textos mais variados, escrita com intencionalidade comunicativa, e início do uso de metalinguagem gramatical.",
+      "dominios": {
+        "oralidade": {
+          "compreensao": [
+            "Interpretar o essencial de discursos orais sobre temas conhecidos",
+            "Identificar, organizar e registar informação relevante em função dos objetivos de escuta",
+            "Fazer inferências, esclarecer dúvidas, identificar diferentes intencionalidades comunicativas"
+          ],
+          "expressao": [
+            "Falar com clareza e articular de modo adequado as palavras",
+            "Gerir adequadamente a tomada de vez na comunicação oral, respeitando os princípios de cooperação e cortesia",
+            "Usar a palavra com propriedade para expor conhecimentos e apresentar narrações",
+            "Planear, produzir e avaliar os seus próprios textos orais",
+            "Detetar semelhanças e diferenças entre o texto oral e o texto escrito",
+            "Apresentar exposições simples sobre temas disciplinares, com apoio do professor ou grupo"
+          ]
+        },
+        "leitura": {
+          "aprendizagens": [
+            "Ler textos com características narrativas e descritivas, associados a diferentes finalidades (informativas, lúdicas, estéticas)",
+            "Distinguir nos textos características da notícia, da carta, do convite e da banda desenhada (estrutura, finalidade)",
+            "Ler textos com entoação e ritmo adequados",
+            "Realizar leitura silenciosa e autónoma",
+            "Mobilizar experiências e saberes no processo de construção de sentidos do texto",
+            "Identificar o tema e o assunto do texto ou de partes do texto",
+            "Exprimir uma opinião crítica a respeito de ações das personagens ou de aspetos do texto"
+          ]
+        },
+        "escrita": {
+          "aprendizagens": [
+            "Escrever textos com diferentes finalidades: narrar, informar, explicar, defender uma opinião",
+            "Planificar textos com recurso a guiões, esquemas ou mapas",
+            "Redigir textos com vocabulário adequado e frases corretas",
+            "Rever os próprios textos, melhorando-os (ortografia, pontuação, vocabulário)",
+            "Escrever com correção ortográfica, aplicando regras consolidadas no 1.º e 2.º anos",
+            "Usar corretamente os sinais de pontuação: vírgula, dois pontos, travessão no discurso direto",
+            "Escrever de forma legível (manuscrita ou em teclado)"
+          ]
+        },
+        "educacao_literaria": [
+          "Ler textos literários de géneros variados: poesia, teatro, narrativas (contos, fábulas, lendas)",
+          "Analisar textos literários: identificar personagens, espaço, tempo, narrador",
+          "Comparar textos do mesmo género ou de géneros diferentes",
+          "Recriar textos literários (continuações, alterações de personagens ou enredos)",
+          "Construir um percurso de leitor com orientação do professor (metodologia de projeto)"
+        ],
+        "gramatica": [
+          "Identificar e usar classes de palavras: nomes (próprios e comuns), verbos, adjetivos, determinantes artigos",
+          "Distinguir frases afirmativas, negativas, interrogativas e exclamativas",
+          "Reconhecer e usar corretamente os tempos verbais: presente, pretérito perfeito e futuro",
+          "Distinguir sujeito e predicado em frases simples",
+          "Identificar e corrigir erros ortográficos, compreendendo as regras subjacentes",
+          "Usar dicionário impresso e digital para consultar significados"
+        ]
+      }
+    },
+
+    "matematica": {
+      "nome": "Matemática",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/ae_mat_3.o_ano.pdf",
+      "nota_3_ano": "No 3.º ano expande-se para os números até 10 000, introduz-se a divisão e aprofundam-se as frações. É também o ano em que se consolida a lógica das 4 operações.",
+      "temas": {
+        "numeros_e_operacoes": {
+          "aprendizagens": [
+            "Ler, escrever e representar números naturais até 10 000",
+            "Compor e decompor números até 10 000 usando milhares, centenas, dezenas e unidades",
+            "Comparar e ordenar números até 10 000",
+            "Adicionar e subtrair números até 10 000 com e sem algoritmo",
+            "Construir e memorizar as tabuadas de multiplicação (até à de 9)",
+            "Multiplicar números de 1 e 2 dígitos usando o algoritmo da multiplicação",
+            "Compreender e usar a divisão como operação inversa da multiplicação",
+            "Dividir usando a tabuada e o algoritmo da divisão inteira",
+            "Resolver problemas envolvendo as 4 operações",
+            "Compreender e representar frações simples: metade, terço, quarto, quinto",
+            "Comparar frações com o mesmo denominador"
+          ]
+        },
+        "geometria_e_medida": {
+          "aprendizagens": [
+            "Identificar e classificar ângulos: reto, agudo e obtuso",
+            "Classificar triângulos quanto aos lados (equilátero, isósceles, escaleno) e quanto aos ângulos",
+            "Reconhecer e descrever propriedades de quadriláteros: quadrado, retângulo, paralelogramo, losango",
+            "Medir comprimentos usando o metro, o centímetro e o milímetro",
+            "Calcular perímetros de polígonos",
+            "Usar o quilograma e o grama para medir massa",
+            "Usar o litro e o mililitro para medir capacidade",
+            "Ler e interpretar horários e calcular durações de tempo"
+          ]
+        },
+        "algebra": {
+          "aprendizagens": [
+            "Identificar e continuar sequências e padrões numéricos e não numéricos com regras mais complexas",
+            "Usar expressões com letras em contextos simples (introdução informal à álgebra)",
+            "Resolver equações simples do tipo x + a = b"
+          ]
+        },
+        "dados_e_probabilidades": {
+          "aprendizagens": [
+            "Recolher, organizar e representar dados em tabelas de frequência absoluta",
+            "Ler e interpretar gráficos de barras e pictogramas",
+            "Calcular a moda de um conjunto de dados",
+            "Distinguir acontecimentos certos, possíveis e impossíveis"
+          ]
+        }
+      }
+    },
+
+    "estudo_do_meio": {
+      "nome": "Estudo do Meio",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/3_estudo_do_meio.pdf",
+      "nota_3_ano": "No 3.º ano o âmbito alarga-se para a história e patrimônio local e nacional, e o estudo dos seres vivos e do ambiente torna-se mais sistemático.",
+      "dominios": {
+        "sociedade": {
+          "aprendizagens": [
+            "Conhecer e localizar o seu município e freguesia em mapas",
+            "Identificar elementos do patrimônio histórico e cultural local (monumentos, tradições, festividades)",
+            "Conhecer instituições e serviços do município: câmara municipal, biblioteca, centro de saúde",
+            "Identificar os principais símbolos nacionais: bandeira, hino, brasão",
+            "Localizar Portugal no mapa da Europa e do Mundo",
+            "Conhecer datas e factos fundamentais da história de Portugal (com adaptação à faixa etária)",
+            "Reconhecer a diversidade cultural de Portugal e respeitar outras culturas",
+            "Identificar os direitos e deveres dos cidadãos consagrados na Constituição"
+          ]
+        },
+        "natureza": {
+          "aprendizagens": [
+            "Identificar sistemas do corpo humano: digestivo, respiratório, circulatório - e relacionar cada um com a sua função",
+            "Compreender a importância de hábitos de alimentação saudável (roda dos alimentos)",
+            "Distinguir animais vertebrados e invertebrados, classificando exemplos",
+            "Classificar plantas quanto à sua utilidade: alimentares, medicinais, ornamentais, industriais",
+            "Identificar as cadeias alimentares simples e compreender o fluxo de energia",
+            "Distinguir fenômenos naturais: erosão, vulcões, sismos",
+            "Identificar os tipos de solo e a sua importância",
+            "Reconhecer a importância da água e do ar como recursos naturais a preservar"
+          ]
+        },
+        "tecnologia": {
+          "aprendizagens": [
+            "Realizar experiências simples com materiais do quotidiano, registando observações",
+            "Utilizar instrumentos simples de medição: régua, balança, termômetro",
+            "Utilizar TIC para pesquisa de informação com orientação do professor"
+          ]
+        }
+      }
+    },
+
+    "ingles": {
+      "nome": "Inglês",
+      "caracter": "Obrigatória a partir do 3.º ano",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/ingles_1c_3a_ff.pdf",
+      "nota_3_ano": "O Inglês torna-se disciplina curricular obrigatória no 3.º ano. A abordagem é comunicativa e lúdica, privilegiando a oralidade.",
+      "nivel_referencia": "A1 do Quadro Europeu Comum de Referência para as Línguas (QECR)",
+      "dominios": {
+        "compreensao_oral": [
+          "Compreender palavras, expressões simples e instruções em inglês",
+          "Identificar vocabulário temático: família, animais, cores, números, partes do corpo, alimentos, dias da semana, meses",
+          "Compreender o sentido global de textos orais curtos"
+        ],
+        "expressao_oral": [
+          "Produzir sons da língua inglesa com articulação aproximada ao modelo",
+          "Usar expressões e frases simples para se apresentar e falar sobre si",
+          "Participar em interações simples sobre temas conhecidos"
+        ],
+        "leitura": [
+          "Reconhecer e ler palavras e frases curtas em inglês",
+          "Compreender o sentido de textos muito curtos (rótulos, cartazes, mensagens simples)"
+        ],
+        "escrita": [
+          "Copiar palavras e frases simples",
+          "Escrever palavras e frases curtas com apoio de modelo"
+        ],
+        "vocabulario_tematico": [
+          "Família e pessoas",
+          "Animais domésticos e selvagens",
+          "Cores, formas e tamanhos",
+          "Números (0-100)",
+          "Dias da semana e meses do ano",
+          "Alimentos e bebidas",
+          "Casa e mobiliário",
+          "Escola e material escolar",
+          "Corpo humano",
+          "Atividades e desportos"
+        ]
+      }
+    },
+
+    "educacao_artistica": {
+      "nome": "Educação Artística",
+      "caracter": "Obrigatória",
+      "nota": "AE transversais ao 1.º Ciclo, com progressão de complexidade.",
+      "subareas": {
+        "artes_visuais": {
+          "aprendizagens": [
+            "Criar composições visuais com maior domínio dos elementos plásticos",
+            "Explorar técnicas mistas (colagem, aguarela, técnicas digitais simples)",
+            "Apreciar e comentar obras de arte do patrimônio nacional e universal",
+            "Desenvolver projetos plásticos com intencionalidade expressiva"
+          ]
+        },
+        "expressao_dramatica_teatro": {
+          "aprendizagens": [
+            "Criar e participar em improvisações e dramatizações mais estruturadas",
+            "Planear e executar pequenas peças de teatro",
+            "Usar adereços, cenários e figurinos simples"
+          ]
+        },
+        "musica": {
+          "aprendizagens": [
+            "Ler e escrever ritmos simples usando notação não convencional",
+            "Cantar em grupo com afinação e expressividade crescentes",
+            "Tocar instrumentos de percussão em conjunto",
+            "Apreciar e comentar peças musicais de diferentes géneros e épocas"
+          ]
+        },
+        "danca": {
+          "aprendizagens": [
+            "Criar e executar sequências de movimento com estrutura rítmica",
+            "Colaborar em coreografias de grupo",
+            "Apreciar diferentes estilos de dança"
+          ]
+        }
+      }
+    },
+
+    "educacao_fisica": {
+      "nome": "Educação Física",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/3_educacao_fisica.pdf",
+      "blocos": {
+        "pericias_e_manipulacoes": [
+          "Realizar sequências de habilidades com aparelhos portáteis com maior coordenação",
+          "Combinar lançamentos, receções e conduções em percursos complexos"
+        ],
+        "deslocamentos_e_equilibrios": [
+          "Realizar deslocamentos em aparelhos (bancos, barra) com equilíbrio",
+          "Executar rolamentos, saltos e apoios com técnica correta"
+        ],
+        "jogos": [
+          "Participar em jogos de equipa com regras mais elaboradas",
+          "Aplicar estratégias básicas de ataque e defesa em jogos coletivos",
+          "Desenvolver fair-play e espírito de equipa"
+        ]
+      }
+    },
+
+    "cidadania_e_desenvolvimento": {
+      "nome": "Cidadania e Desenvolvimento",
+      "caracter": "Transversal",
+      "temas_principais": [
+        "Identidade e pertença: identidade cultural e nacional",
+        "Democracia e participação: assembleia de turma, voto, debate",
+        "Direitos Humanos: Declaração Universal e Convenção dos Direitos da Criança",
+        "Ambiente e sustentabilidade: resíduos, poupança de energia e água",
+        "Saúde: alimentação saudável, atividade física, sono",
+        "Segurança rodoviária e pessoal"
+      ]
+    },
+
+    "educacao_moral_religiosa": {
+      "nome": "Educação Moral e Religiosa (Católica ou Evangélica)",
+      "caracter": "Facultativa",
+      "fonte_ae_catolica": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/emrc_1c_3a.pdf"
+    }
+  },
+
+  "avaliacao": {
+    "tipo_principal": "Avaliação formativa contínua",
+    "provas_afericao": {
+      "existe": false,
+      "nota": "Não há provas de aferição no 3.º ano. As provas de aferição ocorrem no 2.º, 5.º e 8.º anos."
+    }
+  },
+
+  "notas_contextuais": {
+    "transicao_chave": "O 3.º ano marca a transição de 'aprender a ler' para 'ler para aprender'. O aluno já domina o código e começa a usar a leitura como ferramenta de acesso ao conhecimento.",
+    "ingles_novidade": "O início do Inglês como disciplina obrigatória é uma das principais novidades do 3.º ano face ao 2.º.",
+    "autonomia": "Espera-se que os alunos do 3.º ano comecem a desenvolver autonomia no estudo, na organização do trabalho e na pesquisa de informação.",
+    "decreto_lei_referencia": "Decreto-Lei n.º 55/2018"
+  }
+}

@@ -1,0 +1,281 @@
+{
+  "metadata": {
+    "titulo": "Currículo Nacional - 1.º Ano de Escolaridade",
+    "ciclo": "1.º Ciclo do Ensino Básico",
+    "ano_escolaridade": 1,
+    "idade_tipica": "6-7 anos",
+    "enquadramento_legal": [
+      "Decreto-Lei n.º 55/2018, de 6 de julho (estabelece o currículo dos ensinos básico e secundário)",
+      "Despacho n.º 6944-A/2018, de 19 de julho (homologa as Aprendizagens Essenciais do Ensino Básico)",
+      "Despacho n.º 6605-A/2021, de 6 de julho (define os referenciais curriculares)"
+    ],
+    "fonte": "Direção-Geral da Educação (DGE) - https://www.dge.mec.pt",
+    "framework": "Aprendizagens Essenciais (AE) articuladas com o Perfil dos Alunos à Saída da Escolaridade Obrigatória (PA)"
+  },
+
+  "contexto_pedagogico": {
+    "descricao": "O 1.º ano é o início da escolaridade obrigatória. É um ano de iniciação à leitura, escrita e matemática. O 1.º e 2.º anos funcionam como um continuum, especialmente em Português.",
+    "transicao_pre_escolar": "O 1.º ano recebe crianças com experiências de pré-escolar muito diversas. O professor deve partir do que cada criança já sabe.",
+    "foco_principal": "Iniciação ao código escrito (decifração leitura/escrita) e aos números até 20 e depois até 100."
+  },
+
+  "estrutura_curricular": {
+    "cargas_minimas_semanais_minutos": {
+      "portugues": 420,
+      "matematica": 420,
+      "estudo_do_meio": 210,
+      "educacao_artistica": 135,
+      "educacao_fisica": 135,
+      "apoio_ao_estudo": 45
+    }
+  },
+
+  "disciplinas": {
+
+    "portugues": {
+      "nome": "Português",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/ae_1.o_ano_1o_ciclo_eb_portugues.pdf",
+      "nota_1_ano": "O 1.º ano foca-se na aquisição do código alfabético - aprender a fazer corresponder sons a letras (fonemas a grafemas). É a base de tudo o resto.",
+      "dominios": {
+        "oralidade": {
+          "compreensao": [
+            "Saber escutar para interagir com adequação ao contexto e a diversas finalidades: reproduzir pequenas mensagens, cumprir instruções, responder a questões",
+            "Identificar informação essencial em textos orais sobre temas conhecidos"
+          ],
+          "expressao": [
+            "Utilizar padrões de entoação e ritmo adequados na formulação de perguntas, afirmações e pedidos",
+            "Pedir a palavra e falar na sua vez de forma clara e audível, com articulação correta e natural das palavras",
+            "Exprimir opinião, partilhando ideias e sentimentos"
+          ]
+        },
+        "leitura_e_escrita": {
+          "leitura": [
+            "Pronunciar segmentos fónicos a partir dos respetivos grafemas e dígrafos, incluindo casos dependentes da posição na palavra",
+            "Identificar as letras do alfabeto nas formas minúscula e maiúscula, em resposta ao nome da letra",
+            "Nomear as letras pela sua ordenação convencional (abecedário)",
+            "Ler palavras, pseudopalavras e frases simples com correspondência grafema-fonema",
+            "Ler pequenos textos com fluência crescente"
+          ],
+          "escrita": [
+            "Representar por escrito os fonemas através dos respetivos grafemas e dígrafos",
+            "Escrever palavras de diferentes níveis de dificuldade e extensão silábica, aplicando regras de correspondência fonema-grafema",
+            "Escrever pequenas frases e textos com apoio",
+            "Escrever com letra legível, respeitando a direção e o espaçamento",
+            "Usar maiúsculas no início de frase e após ponto final"
+          ],
+          "consciencia_fonologica": [
+            "Segmentar sílabas em palavras e reconstruir palavras a partir de sílabas",
+            "Identificar fonemas (sons) em palavras",
+            "Manipular fonemas: suprimir, adicionar, substituir fonemas em palavras simples",
+            "Identificar rimas e aliterações"
+          ]
+        },
+        "educacao_literaria": [
+          "Ouvir ler e ler textos literários adequados à faixa etária (contos, poemas, lengalengas, adivinhas, histórias tradicionais)",
+          "Recontar histórias lidas ou ouvidas",
+          "Exprimir sentimentos e opiniões sobre textos ouvidos ou lidos",
+          "Participar em atividades do Plano Nacional de Leitura (PNL)"
+        ],
+        "gramatica": [
+          "Desenvolver a consciência fonológica: sílabas, fonemas, rimas",
+          "Identificar nomes de pessoas, animais e objetos",
+          "Distinguir masculino e feminino, singular e plural em casos simples",
+          "Reconhecer a frase como unidade de sentido",
+          "Identificar o ponto final como marca de fim de frase"
+        ]
+      }
+    },
+
+    "matematica": {
+      "nome": "Matemática",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/ae_mat_1.o_ano.pdf",
+      "nota_1_ano": "O 1.º ano foca-se na construção de sentido de número até 20 (e progressivamente até 100), nas operações de adição e subtração e nas primeiras noções de geometria e medida.",
+      "temas": {
+        "numeros_e_operacoes": {
+          "aprendizagens": [
+            "Contar objetos e representar quantidades até 20, e progressivamente até 100",
+            "Ler, escrever e representar números naturais até 20 (e até 100)",
+            "Efetuar contagens progressivas e regressivas de 1 em 1, de 2 em 2, de 5 em 5 e de 10 em 10",
+            "Compor e decompor números até 20 usando dezenas e unidades",
+            "Compreender e usar o sistema de numeração decimal (dezenas e unidades)",
+            "Adicionar e subtrair com números até 20, depois até 100, usando estratégias diversas (contagem, reta numérica, cálculo mental)",
+            "Resolver problemas simples envolvendo adição e subtração em contextos do quotidiano",
+            "Reconhecer e representar metades e quartos de objetos e quantidades"
+          ]
+        },
+        "geometria_e_medida": {
+          "aprendizagens": [
+            "Identificar e nomear figuras geométricas: triângulo, quadrado, retângulo, círculo",
+            "Reconhecer e nomear sólidos geométricos simples: cubo, esfera, cilindro",
+            "Descrever posições e localizações usando linguagem: dentro/fora, em cima/em baixo, à frente/atrás, à direita/esquerda",
+            "Medir e comparar comprimentos, capacidades e massas usando unidades não padronizadas e introdução às unidades padronizadas",
+            "Reconhecer e usar unidades de tempo: dia, semana, mês, ano; manhã/tarde/noite",
+            "Ler horas em ponto no relógio"
+          ]
+        },
+        "algebra": {
+          "aprendizagens": [
+            "Identificar e continuar sequências e padrões simples (numéricos e não numéricos)",
+            "Descrever a lei de formação de uma sequência simples"
+          ]
+        },
+        "dados_e_probabilidades": {
+          "aprendizagens": [
+            "Recolher dados em situações do quotidiano",
+            "Organizar dados em listas e tabelas simples",
+            "Representar dados em pictogramas simples",
+            "Interpretar pictogramas e tabelas respondendo a questões"
+          ]
+        }
+      }
+    },
+
+    "estudo_do_meio": {
+      "nome": "Estudo do Meio",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/1_estudo_do_meio.pdf",
+      "nota_1_ano": "No 1.º ano, o Estudo do Meio parte do mais próximo para o mais distante: o próprio corpo, a família, a escola, o bairro.",
+      "dominios": {
+        "sociedade": {
+          "aprendizagens": [
+            "Reconhecer a sua identidade pessoal: nome, data de nascimento, fisionomia, gostos",
+            "Identificar os membros da sua família, reconhecendo laços de parentesco",
+            "Reconhecer a escola como comunidade educativa: colegas, professores, funcionários, espaços",
+            "Reconhecer regras de convivência e de segurança na escola e em espaços públicos",
+            "Localizar a sua casa e escola no espaço próximo, usando plantas simples",
+            "Reconhecer direitos e deveres básicos da criança"
+          ]
+        },
+        "natureza": {
+          "aprendizagens": [
+            "Identificar as principais partes externas do corpo humano e reconhecer algumas das suas funções",
+            "Reconhecer hábitos de higiene pessoal e de saúde (dentes, mãos, corpo)",
+            "Identificar alimentos saudáveis e não saudáveis",
+            "Reconhecer os estados do tempo: sol, chuva, vento, nevoeiro",
+            "Distinguir as estações do ano e as suas características",
+            "Identificar seres vivos e não vivos no ambiente próximo",
+            "Reconhecer características de animais domésticos e selvagens comuns"
+          ]
+        },
+        "tecnologia": {
+          "aprendizagens": [
+            "Identificar materiais do quotidiano e as suas propriedades básicas",
+            "Reconhecer a utilidade de instrumentos e máquinas simples do quotidiano"
+          ]
+        }
+      }
+    },
+
+    "educacao_artistica": {
+      "nome": "Educação Artística",
+      "caracter": "Obrigatória (4 subáreas transversais ao 1.º Ciclo)",
+      "nota": "As AE são transversais ao 1.º Ciclo, desenvolvendo-se progressivamente.",
+      "subareas": {
+        "artes_visuais": {
+          "aprendizagens": [
+            "Explorar materiais e técnicas de expressão plástica: desenho, pintura, colagem, modelagem",
+            "Criar composições com elementos plásticos (ponto, linha, forma, cor, textura)",
+            "Representar o corpo humano, objetos e paisagens do quotidiano",
+            "Identificar e nomear as cores primárias e fazer misturas simples"
+          ]
+        },
+        "expressao_dramatica_teatro": {
+          "aprendizagens": [
+            "Explorar possibilidades expressivas do corpo e da voz em jogos de faz de conta",
+            "Participar em dramatizações simples de histórias e situações do quotidiano",
+            "Desenvolver capacidade de colaborar em grupo"
+          ]
+        },
+        "musica": {
+          "aprendizagens": [
+            "Distinguir sons do ambiente: intensidade, duração, altura, timbre",
+            "Cantar canções simples com dicção correta",
+            "Reproduzir padrões rítmicos com o corpo (palmas, pés)",
+            "Explorar instrumentos de percussão simples"
+          ]
+        },
+        "danca": {
+          "aprendizagens": [
+            "Mover o corpo em resposta a estímulos musicais",
+            "Explorar noções de espaço, direção e nível através do movimento",
+            "Participar em danças simples e jogos de movimento"
+          ]
+        }
+      }
+    },
+
+    "educacao_fisica": {
+      "nome": "Educação Física",
+      "caracter": "Obrigatória",
+      "fonte_ae": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/1_educacao_fisica.pdf",
+      "nota_1_ano": "No 1.º ano foca-se nas habilidades motoras básicas do bloco de Perícias e Manipulações e Deslocamentos e Equilíbrios do 1.º ano.",
+      "blocos": {
+        "pericias_e_manipulacoes": {
+          "aprendizagens": [
+            "Lançar objetos com uma e com duas mãos",
+            "Receber objetos com duas mãos",
+            "Rolar e conduzir bolas",
+            "Realizar percursos com combinação simples de habilidades"
+          ]
+        },
+        "deslocamentos_e_equilibrios": {
+          "aprendizagens": [
+            "Correr em diferentes direções e velocidades",
+            "Saltar a pés juntos e num só pé",
+            "Realizar equilíbrios estáticos simples",
+            "Gatinhar, trepar e rolar"
+          ]
+        },
+        "jogos": {
+          "aprendizagens": [
+            "Participar em jogos simples com regras elementares",
+            "Desenvolver atitudes de cooperação e fair-play"
+          ]
+        }
+      }
+    },
+
+    "cidadania_e_desenvolvimento": {
+      "nome": "Cidadania e Desenvolvimento",
+      "caracter": "Transversal - integrada nas outras disciplinas",
+      "temas_principais": [
+        "Identidade pessoal: quem sou eu",
+        "Regras da sala de aula e da escola",
+        "Convivência democrática: respeitar a vez, ouvir os outros",
+        "Direitos e deveres básicos da criança",
+        "Segurança: trânsito, estranhos, emergências simples"
+      ]
+    },
+
+    "educacao_moral_religiosa": {
+      "nome": "Educação Moral e Religiosa (Católica ou Evangélica)",
+      "caracter": "Facultativa",
+      "fonte_ae_catolica": "https://www.dge.mec.pt/sites/default/files/Curriculo/Aprendizagens_Essenciais/1_ciclo/emrc_1c_1a.pdf",
+      "aprendizagens_emrc": [
+        "Reconhecer a sua identidade como pessoa única e valorizada",
+        "Desenvolver atitudes de respeito, partilha e solidariedade",
+        "Contactar com narrativas e figuras bíblicas adaptadas à faixa etária",
+        "Associar festividades religiosas (Natal, Páscoa) ao seu significado cultural e espiritual"
+      ]
+    }
+  },
+
+  "avaliacao": {
+    "tipo_principal": "Avaliação formativa contínua",
+    "provas_afericao": {
+      "existe": false,
+      "nota": "Não há provas de aferição no 1.º ano. As provas de aferição ocorrem no 2.º, 5.º e 8.º anos."
+    },
+    "progressao": "Lógica de ciclo (1.º Ciclo = 4 anos). A retenção no 1.º ano é possível mas deve ser evitada."
+  },
+
+  "notas_contextuais": {
+    "foco_1_ano": "O 1.º ano é o ano mais transformador do percurso escolar: a criança aprende a ler e a escrever. Este processo ocorre em ritmos muito diferentes de criança para criança.",
+    "continuum_com_2_ano": "O 1.º e 2.º anos são um continuum em Português - a consolidação da leitura e escrita estende-se pelos dois anos.",
+    "papel_familia": "A família tem um papel especialmente importante no 1.º ano, apoiando o processo de aprendizagem da leitura em casa.",
+    "plano_nacional_leitura": "O PNL define obras recomendadas para cada ano. No 1.º ano predominam livros de imagens, álbuns e textos muito curtos.",
+    "decreto_lei_referencia": "Decreto-Lei n.º 55/2018"
+  }
+}
