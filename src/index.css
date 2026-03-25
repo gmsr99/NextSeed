@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* NexSeed — Pastel, Organic, Nature-inspired (Escola Lá Fora style) */
+
+    /* Background: soft warm white */
+    --background: 42 50% 97%;
+    --foreground: 30 20% 22%;
+
+    /* Cards */
+    --card: 42 40% 99%;
+    --card-foreground: 30 20% 22%;
+
+    /* Popover */
+    --popover: 42 40% 99%;
+    --popover-foreground: 30 20% 22%;
+
+    /* Primary: Soft pastel mustard-yellow */
+    --primary: 45 75% 62%;
+    --primary-foreground: 30 20% 16%;
+
+    /* Secondary: Pale sand */
+    --secondary: 40 35% 93%;
+    --secondary-foreground: 30 18% 25%;
+
+    /* Muted */
+    --muted: 40 22% 93%;
+    --muted-foreground: 30 10% 50%;
+
+    /* Accent: Pastel sage green */
+    --accent: 100 38% 65%;
+    --accent-foreground: 30 20% 16%;
+
+    /* Destructive */
+    --destructive: 0 55% 62%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders & inputs */
+    --border: 40 20% 88%;
+    --input: 40 20% 88%;
+    --ring: 45 75% 62%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar: Muted sage green */
+    --sidebar-background: 105 22% 32%;
+    --sidebar-foreground: 42 30% 92%;
+    --sidebar-primary: 45 75% 65%;
+    --sidebar-primary-foreground: 30 20% 16%;
+    --sidebar-accent: 105 18% 38%;
+    --sidebar-accent-foreground: 42 30% 95%;
+    --sidebar-border: 105 15% 40%;
+    --sidebar-ring: 45 75% 65%;
+
+    /* NexSeed tokens */
+    --nexseed-orange: 35 70% 65%;
+    --nexseed-orange-light: 40 65% 72%;
+    --nexseed-green: 100 38% 65%;
+    --nexseed-green-light: 100 35% 74%;
+    --nexseed-earth: 30 18% 38%;
+    --nexseed-cream: 42 50% 95%;
+    --nexseed-bark: 25 15% 28%;
+    --nexseed-moss: 110 25% 58%;
+
+    /* Gradients */
+    --gradient-warmth: linear-gradient(135deg, hsl(45 75% 62%), hsl(35 70% 58%));
+    --gradient-forest: linear-gradient(135deg, hsl(100 38% 65%), hsl(105 30% 52%));
+    --gradient-sunset: linear-gradient(135deg, hsl(45 75% 62%), hsl(15 55% 60%));
+    --gradient-sidebar: linear-gradient(180deg, hsl(105 22% 28%), hsl(105 22% 36%));
+
+    /* Shadows */
+    --shadow-soft: 0 2px 12px -2px hsl(30 20% 22% / 0.05);
+    --shadow-card: 0 4px 20px -4px hsl(30 20% 22% / 0.07);
+    --shadow-elevated: 0 8px 36px -8px hsl(30 20% 22% / 0.10);
+    --shadow-glow: 0 0 24px -4px hsl(45 75% 62% / 0.20);
+  }
+
+  .dark {
+    --background: 105 15% 8%;
+    --foreground: 42 25% 92%;
+
+    --card: 105 12% 12%;
+    --card-foreground: 42 25% 92%;
+
+    --popover: 105 12% 12%;
+    --popover-foreground: 42 25% 92%;
+
+    --primary: 45 70% 60%;
+    --primary-foreground: 105 15% 8%;
+
+    --secondary: 105 10% 18%;
+    --secondary-foreground: 42 20% 85%;
+
+    --muted: 105 8% 18%;
+    --muted-foreground: 42 10% 55%;
+
+    --accent: 100 32% 55%;
+    --accent-foreground: 30 20% 12%;
+
+    --destructive: 0 50% 48%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 105 10% 20%;
+    --input: 105 10% 20%;
+    --ring: 45 70% 60%;
+
+    --sidebar-background: 105 20% 6%;
+    --sidebar-foreground: 42 20% 85%;
+    --sidebar-primary: 45 75% 62%;
+    --sidebar-primary-foreground: 30 20% 12%;
+    --sidebar-accent: 105 14% 14%;
+    --sidebar-accent-foreground: 42 25% 92%;
+    --sidebar-border: 105 12% 16%;
+    --sidebar-ring: 45 75% 62%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer utilities {
+  .gradient-warmth {
+    background: var(--gradient-warmth);
+  }
+  .gradient-forest {
+    background: var(--gradient-forest);
+  }
+  .gradient-sunset {
+    background: var(--gradient-sunset);
+  }
+  .gradient-sidebar {
+    background: var(--gradient-sidebar);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+}
