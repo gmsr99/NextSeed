@@ -33,10 +33,32 @@ const AppLoader = () => (
   </div>
 );
 
+function NoFamilyScreen() {
+  const { signOut } = useAuth();
+  return (
+    <div className="flex h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-sm w-full text-center space-y-4">
+        <div className="text-4xl">🌿</div>
+        <h1 className="text-xl font-heading font-bold">Sem acesso à família</h1>
+        <p className="text-muted-foreground text-sm">
+          A tua conta já não está associada a nenhuma família. Se achas que é um engano, contacta o responsável da família.
+        </p>
+        <button
+          onClick={signOut}
+          className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+        >
+          Sair da conta
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useAuth();
+  const { session, family, loading } = useAuth();
   if (loading) return <AppLoader />;
   if (!session) return <Navigate to="/login" replace />;
+  if (!family) return <NoFamilyScreen />;
   return <>{children}</>;
 }
 
