@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "geral@nextseed.pt";
 const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL");
+const ADMIN_EMAIL_2 = Deno.env.get("ADMIN_EMAIL_2");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,7 +27,11 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: FROM_EMAIL,
-        to: [to, ...(ADMIN_EMAIL && ADMIN_EMAIL !== to ? [ADMIN_EMAIL] : [])],
+        to: [
+          to,
+          ...(ADMIN_EMAIL && ADMIN_EMAIL !== to ? [ADMIN_EMAIL] : []),
+          ...(ADMIN_EMAIL_2 && ADMIN_EMAIL_2 !== to ? [ADMIN_EMAIL_2] : []),
+        ],
         subject: `NexSeed — Plano da semana de ${weekLabel}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">

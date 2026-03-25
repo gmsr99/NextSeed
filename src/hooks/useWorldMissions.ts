@@ -1,13 +1,10 @@
-import { useState, useCallback, useMemo } from "react";
+import { useMemo, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import { missions, type Mission, type MissionBenefit } from "@/lib/worldMissionsContent";
 
-export interface CompletedMission {
-  missionId: string;
-  completedAt: string; // ISO date
-  feeling: string;
-  learning: string;
-  pointsEarned: MissionPoints;
-}
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 export interface MissionPoints {
   responsibility: number;
@@ -17,22 +14,17 @@ export interface MissionPoints {
   resilience: number;
 }
 
-export interface GamificationState {
-  completed: CompletedMission[];
-  totalPoints: MissionPoints;
+interface CompletionRow {
+  id: string;
+  child_id: string;
+  template_mission_id: string | null;
+  reflection: string | null;
+  learned: string | null;
+  points_earned: number;
+  completed_at: string;
 }
 
-// Points per benefit type
-const BENEFIT_POINTS: Record<MissionBenefit, Partial<MissionPoints>> = {
-  responsabilidade: { responsibility: 10 },
-  autonomia: { autonomy: 10 },
-  cooperação: { cooperation: 10 },
-  cuidado: { care: 10 },
-  resiliência: { resilience: 10 },
-  organização: { responsibility: 5, autonomy: 5 },
-  liderança: { cooperation: 8, autonomy: 8 },
-  criatividade: { autonomy: 6, resilience: 6 },
-};
+// ── Levels ────────────────────────────────────────────────────────────────────
 
 export const LEVELS = [
   {
@@ -77,173 +69,182 @@ export const LEVELS = [
   },
 ];
 
-function calcTotalPoints(completed: CompletedMission[]): MissionPoints {
-  return completed.reduce(
-    (acc, c) => ({
-      responsibility: acc.responsibility + c.pointsEarned.responsibility,
-      autonomy: acc.autonomy + c.pointsEarned.autonomy,
-      cooperation: acc.cooperation + c.pointsEarned.cooperation,
-      care: acc.care + c.pointsEarned.care,
-      resilience: acc.resilience + c.pointsEarned.resilience,
-    }),
-    { responsibility: 0, autonomy: 0, cooperation: 0, care: 0, resilience: 0 }
-  );
-}
+// ── Points logic ──────────────────────────────────────────────────────────────
 
-function calcMissionPoints(mission: Mission): MissionPoints {
-  const pts: MissionPoints = {
-    responsibility: 0,
-    autonomy: 0,
-    cooperation: 0,
-    care: 0,
-    resilience: 0,
-  };
+const BENEFIT_POINTS: Record<MissionBenefit, Partial<MissionPoints>> = {
+  responsabilidade: { responsibility: 10 },
+  autonomia:        { autonomy: 10 },
+  cooperação:       { cooperation: 10 },
+  cuidado:          { care: 10 },
+  resiliência:      { resilience: 10 },
+  organização:      { responsibility: 5, autonomy: 5 },
+  liderança:        { cooperation: 8, autonomy: 8 },
+  criatividade:     { autonomy: 6, resilience: 6 },
+};
 
-  // Mode bonus
-  if (mission.mode === "equipa") pts.cooperation += 5;
-  if (mission.mode === "individual") pts.autonomy += 5;
-
-  // Benefit points
+export function calcMissionPoints(mission: Mission): MissionPoints {
+  const pts: MissionPoints = { responsibility: 0, autonomy: 0, cooperation: 0, care: 0, resilience: 0 };
+  if (mission.mode === "equipa")      pts.cooperation += 5;
+  if (mission.mode === "individual")  pts.autonomy    += 5;
   for (const b of mission.benefits) {
     const bp = BENEFIT_POINTS[b];
     if (bp.responsibility) pts.responsibility += bp.responsibility;
-    if (bp.autonomy) pts.autonomy += bp.autonomy;
-    if (bp.cooperation) pts.cooperation += bp.cooperation;
-    if (bp.care) pts.care += bp.care;
-    if (bp.resilience) pts.resilience += bp.resilience;
+    if (bp.autonomy)       pts.autonomy       += bp.autonomy;
+    if (bp.cooperation)    pts.cooperation    += bp.cooperation;
+    if (bp.care)           pts.care           += bp.care;
+    if (bp.resilience)     pts.resilience     += bp.resilience;
   }
-
   return pts;
 }
 
-function sumPoints(pts: MissionPoints): number {
+export function sumPoints(pts: MissionPoints): number {
   return pts.responsibility + pts.autonomy + pts.cooperation + pts.care + pts.resilience;
 }
 
-function getCurrentLevel(totalPts: MissionPoints) {
-  const total = sumPoints(totalPts);
-  let current = LEVELS[0];
-  for (const level of LEVELS) {
-    if (total >= level.minPoints) current = level;
+function calcTotalPoints(rows: CompletionRow[]): MissionPoints {
+  const acc: MissionPoints = { responsibility: 0, autonomy: 0, cooperation: 0, care: 0, resilience: 0 };
+  for (const row of rows) {
+    const mission = missions.find((m) => m.id === row.template_mission_id);
+    if (!mission) continue;
+    const pts = calcMissionPoints(mission);
+    acc.responsibility += pts.responsibility;
+    acc.autonomy       += pts.autonomy;
+    acc.cooperation    += pts.cooperation;
+    acc.care           += pts.care;
+    acc.resilience     += pts.resilience;
   }
-  return current;
+  return acc;
 }
 
-function getNextLevel(totalPts: MissionPoints) {
-  const total = sumPoints(totalPts);
-  for (const level of LEVELS) {
-    if (total < level.minPoints) return level;
-  }
-  return null;
-}
-
-const STORAGE_KEY = "nexseed_world_missions";
-
-function loadState(): GamificationState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return { completed: [], totalPoints: { responsibility: 0, autonomy: 0, cooperation: 0, care: 0, resilience: 0 } };
-}
-
-function saveState(state: GamificationState) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {}
-}
+// ── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useWorldMissions() {
-  const [state, setState] = useState<GamificationState>(() => {
-    const loaded = loadState();
-    return { ...loaded, totalPoints: calcTotalPoints(loaded.completed) };
+  const { family } = useAuth();
+  const qc = useQueryClient();
+
+  // Load all completions for this family (RLS filters by child_id → family)
+  const { data: completions = [] } = useQuery<CompletionRow[]>({
+    queryKey: ["mission-completions", family?.id],
+    enabled: !!family,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("mission_completions")
+        .select("id, child_id, template_mission_id, reflection, learned, points_earned, completed_at")
+        .order("completed_at", { ascending: false });
+      return (data ?? []) as CompletionRow[];
+    },
   });
 
-  const completeMission = useCallback(
-    (mission: Mission, feeling: string, learning: string) => {
-      const points = calcMissionPoints(mission);
-      const entry: CompletedMission = {
-        missionId: mission.id,
-        completedAt: new Date().toISOString(),
-        feeling,
-        learning,
-        pointsEarned: points,
-      };
-      setState((prev) => {
-        const completed = [...prev.completed, entry];
-        const totalPoints = calcTotalPoints(completed);
-        const next = { completed, totalPoints };
-        saveState(next);
-        return next;
+  // Save a new completion
+  const saveMutation = useMutation({
+    mutationFn: async ({
+      mission,
+      childId,
+      feeling,
+      learning,
+    }: {
+      mission: Mission;
+      childId: string;
+      feeling: string;
+      learning: string;
+    }) => {
+      const pts = calcMissionPoints(mission);
+      const { error } = await supabase.from("mission_completions").insert({
+        mission_id: null,
+        child_id: childId,
+        template_mission_id: mission.id,
+        reflection: feeling,
+        learned: learning || null,
+        points_earned: sumPoints(pts),
       });
-      return points;
+      if (error) throw error;
+      return pts;
     },
-    []
-  );
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["mission-completions", family?.id] });
+    },
+  });
 
-  const isMissionCompleted = useCallback(
-    (missionId: string) => state.completed.some((c) => c.missionId === missionId),
-    [state.completed]
-  );
+  // ── Gamification derived state ─────────────────────────────────────────────
 
-  const getMissionHistory = useCallback(
-    (missionId: string) => state.completed.filter((c) => c.missionId === missionId),
-    [state.completed]
-  );
+  const totalPoints = useMemo(() => calcTotalPoints(completions), [completions]);
+  const totalPointsSum = useMemo(() => sumPoints(totalPoints), [totalPoints]);
 
-  const currentLevel = useMemo(() => getCurrentLevel(state.totalPoints), [state.totalPoints]);
-  const nextLevel = useMemo(() => getNextLevel(state.totalPoints), [state.totalPoints]);
-  const totalPointsSum = useMemo(() => sumPoints(state.totalPoints), [state.totalPoints]);
+  const currentLevel = useMemo(() => {
+    let level = LEVELS[0];
+    for (const l of LEVELS) { if (totalPointsSum >= l.minPoints) level = l; }
+    return level;
+  }, [totalPointsSum]);
+
+  const nextLevel = useMemo(() => {
+    for (const l of LEVELS) { if (totalPointsSum < l.minPoints) return l; }
+    return null;
+  }, [totalPointsSum]);
 
   const progressToNext = useMemo(() => {
     if (!nextLevel) return 100;
-    const prev = currentLevel.minPoints;
-    const range = nextLevel.minPoints - prev;
-    const current = totalPointsSum - prev;
+    const range = nextLevel.minPoints - currentLevel.minPoints;
+    const current = totalPointsSum - currentLevel.minPoints;
     return Math.min(100, Math.round((current / range) * 100));
   }, [currentLevel, nextLevel, totalPointsSum]);
 
-  // Weekly stats — last 7 days
   const weeklyStats = useMemo(() => {
     const days: { date: string; count: number }[] = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const key = d.toISOString().slice(0, 10);
-      const count = state.completed.filter((c) => c.completedAt.slice(0, 10) === key).length;
+      const count = completions.filter((c) => c.completed_at.slice(0, 10) === key).length;
       days.push({ date: key, count });
     }
     return days;
-  }, [state.completed]);
+  }, [completions]);
 
-  // Skill breakdown as percentages
   const skillBreakdown = useMemo(() => {
-    const t = state.totalPoints;
+    const t = totalPoints;
     const total = sumPoints(t) || 1;
     return [
       { label: "Responsabilidade", value: t.responsibility, pct: Math.round((t.responsibility / total) * 100), color: "bg-amber-400" },
-      { label: "Autonomia", value: t.autonomy, pct: Math.round((t.autonomy / total) * 100), color: "bg-sky-400" },
-      { label: "Cooperação", value: t.cooperation, pct: Math.round((t.cooperation / total) * 100), color: "bg-violet-400" },
-      { label: "Cuidado", value: t.care, pct: Math.round((t.care / total) * 100), color: "bg-green-400" },
-      { label: "Resiliência", value: t.resilience, pct: Math.round((t.resilience / total) * 100), color: "bg-rose-400" },
+      { label: "Autonomia",        value: t.autonomy,       pct: Math.round((t.autonomy       / total) * 100), color: "bg-sky-400"  },
+      { label: "Cooperação",       value: t.cooperation,    pct: Math.round((t.cooperation    / total) * 100), color: "bg-violet-400" },
+      { label: "Cuidado",          value: t.care,           pct: Math.round((t.care           / total) * 100), color: "bg-green-400" },
+      { label: "Resiliência",      value: t.resilience,     pct: Math.round((t.resilience     / total) * 100), color: "bg-rose-400" },
     ];
-  }, [state.totalPoints]);
+  }, [totalPoints]);
 
-  // Per-mission points preview
+  const isMissionCompleted = useCallback(
+    (missionId: string) => completions.some((c) => c.template_mission_id === missionId),
+    [completions]
+  );
+
   const getPreviewPoints = useCallback((mission: Mission) => calcMissionPoints(mission), []);
+
+  // Compat with WorldMissions.tsx state.completed usage
+  const state = useMemo(() => ({
+    completed: completions.map((c) => ({
+      missionId: c.template_mission_id ?? "",
+      childId: c.child_id,
+      completedAt: c.completed_at,
+      feeling: c.reflection ?? "",
+      learning: c.learned ?? "",
+      pointsEarned: (() => {
+        const m = missions.find((x) => x.id === c.template_mission_id);
+        return m ? calcMissionPoints(m) : { responsibility: 0, autonomy: 0, cooperation: 0, care: 0, resilience: 0 };
+      })(),
+    })),
+  }), [completions]);
 
   return {
     state,
-    completeMission,
+    completeMission: saveMutation,
     isMissionCompleted,
-    getMissionHistory,
+    getPreviewPoints,
     currentLevel,
     nextLevel,
     totalPointsSum,
     progressToNext,
     weeklyStats,
     skillBreakdown,
-    getPreviewPoints,
     LEVELS,
   };
 }

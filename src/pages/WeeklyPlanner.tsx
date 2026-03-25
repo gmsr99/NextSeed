@@ -98,6 +98,15 @@ export default function WeeklyPlanner() {
       const itemsToInsert = planItems.map((item) => ({ ...item, plan_id: plan.id }));
       const { error: itemsErr } = await supabase.from("weekly_plan_items").insert(itemsToInsert);
       if (itemsErr) throw itemsErr;
+
+      // 3. Guardar interesses actuais no perfil de cada criança
+      await Promise.all(
+        Object.entries(childInterests).map(([childId, interests]) =>
+          interests.length > 0
+            ? supabase.from("children").update({ interests, updated_at: new Date().toISOString() }).eq("id", childId)
+            : Promise.resolve()
+        )
+      );
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao guardar");
     } finally {

@@ -12,7 +12,9 @@ import {
   type Mission,
 } from "@/lib/worldMissionsContent";
 import { useWorldMissions, LEVELS } from "@/hooks/useWorldMissions";
+import { useChildren } from "@/hooks/useChildren";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
+import { toast } from "@/hooks/use-toast";
 import { Clock, Users, Home, TreePine, CheckCircle2, ChevronRight } from "lucide-react";
 
 // ─── Filter chip ──────────────────────────────────────────────
@@ -189,6 +191,8 @@ export default function WorldMissions() {
   const [selectedMode, setSelectedMode] = useState<MissionMode | "all">("all");
   const [activeMission, setActiveMission] = useState<Mission | null>(null);
   const [showProgress, setShowProgress] = useState(false);
+
+  const { children } = useChildren();
 
   const {
     completeMission,
@@ -493,13 +497,17 @@ export default function WorldMissions() {
         mission={activeMission}
         open={!!activeMission}
         onClose={() => setActiveMission(null)}
-        onComplete={(feeling, learning) => {
+        onComplete={(childId, feeling, learning) => {
           if (activeMission) {
-            completeMission(activeMission, feeling, learning);
+            completeMission.mutate(
+              { mission: activeMission, childId, feeling, learning },
+              { onError: () => toast({ title: "Erro ao guardar missão", variant: "destructive" }) }
+            );
             setShowProgress(true);
           }
         }}
         previewPoints={previewPoints}
+        children={children}
       />
     </AppLayout>
   );

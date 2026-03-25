@@ -42,6 +42,7 @@ const Index = () => {
     totalActivities,
     todayItems,
     children,
+    pastPlans,
     isWeekend,
     weekStart,
     familyName,
@@ -219,6 +220,44 @@ const Index = () => {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Planos anteriores */}
+        {!isLoading && pastPlans.length > 0 && (
+          <motion.div initial="hidden" animate="visible" custom={6} variants={fadeUp}>
+            <Card className="shadow-card border-border/60">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-heading text-lg">Planos anteriores</CardTitle>
+                <CardDescription>Últimas semanas geradas</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                {pastPlans.map((plan) => {
+                  const d = new Date(plan.week_start + "T00:00:00");
+                  const label = format(d, "'Semana de' d 'de' MMMM", { locale: pt });
+                  const interests = plan.child_interests as Record<string, string[]> | null;
+                  const allInterests = interests
+                    ? [...new Set(Object.values(interests).flat())].slice(0, 4).join(", ")
+                    : null;
+                  return (
+                    <div key={plan.id} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">{label}</p>
+                        {allInterests && (
+                          <p className="text-xs text-muted-foreground truncate">{allInterests}</p>
+                        )}
+                      </div>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ml-3 ${
+                        plan.status === "sent" ? "bg-accent/15 text-accent" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {plan.status === "sent" ? "Enviado" : "Gerado"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
       </div>
     </AppLayout>
   );

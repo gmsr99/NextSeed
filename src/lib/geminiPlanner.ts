@@ -1,6 +1,7 @@
 import type { Child } from "./types";
 import type { GeneratedPlanItem } from "./planGenerator";
 import { DISCIPLINE_LABELS, DAY_LABELS } from "./planGenerator";
+import { getCurriculumObjectives } from "./curriculumLoader";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 
@@ -293,7 +294,9 @@ function buildPrompt(
   const curriculumSection = children.map((c) => {
     const isPreSchool = c.school_year.toLowerCase().startsWith("pré");
     const key = isPreSchool ? "Pré-escolar" : c.school_year;
-    const curr = CURRICULUM[key];
+    // Usa JSON oficial da DGE se disponível, senão fallback hardcoded
+    const realCurr = getCurriculumObjectives(c.school_year);
+    const curr = Object.keys(realCurr).length > 0 ? realCurr : CURRICULUM[key];
     if (!curr) return `### ${c.name} — sem currículo definido`;
     return `### ${c.name} (${c.school_year})\n${Object.entries(curr).map(([disc, objs]) =>
       `  **${DISCIPLINE_LABELS[disc] ?? disc}:**\n${objs.map((o) => `    - ${o}`).join("\n")}`
@@ -342,17 +345,7 @@ Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma
 
 // ─── Chamada ao Gemini ─────────────────────────────────────────────────────────
 
-export async function generateWithGemini(
-  children: Child[],
-  childInterests: Record<string, string[]>,
-  fridayActivity: string,
-): Promise<GeneratedPlanItem[]> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string;
-  if (!apiKey) throw new Error("VITE_GEMINI_API_KEY não definida");
-
-  const skeleton = buildSkeleton(children);
-  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity);
-
+async function callGemini(apiKey: string, prompt: string) {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
     {
@@ -368,6 +361,28 @@ export async function generateWithGemini(
       }),
     },
   );
+  return res;
+}
+
+export async function generateWithGemini(
+  children: Child[],
+  childInterests: Record<string, string[]>,
+  fridayActivity: string,
+): Promise<GeneratedPlanItem[]> {
+  const apiKey1 = import.meta.env.VITE_GEMINI_API_KEY as string;
+  const apiKey2 = import.meta.env.VITE_GEMINI_API_KEY_2 as string;
+  if (!apiKey1) throw new Error("VITE_GEMINI_API_KEY não definida");
+
+  const skeleton = buildSkeleton(children);
+  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity);
+
+  let res = await callGemini(apiKey1, prompt);
+
+  // Fallback para segunda chave se quota excedida (429)
+  if (res.status === 429 && apiKey2) {
+    console.warn("Gemini: quota da chave 1 atingida, a usar chave 2...");
+    res = await callGemini(apiKey2, prompt);
+  }
 
   if (!res.ok) {
     const err = await res.text();

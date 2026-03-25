@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-import { startOfWeek, endOfWeek, getISODay, format } from "date-fns";
+import { startOfWeek, endOfWeek, subWeeks, getISODay, format } from "date-fns";
 
 export function useDashboard() {
   const { family } = useAuth();
@@ -56,18 +56,37 @@ export function useDashboard() {
     },
   });
 
+  // Planos anteriores (últimas 8 semanas, excluindo a actual)
+  const eightWeeksAgo = format(subWeeks(weekStart, 8), "yyyy-MM-dd");
+  const { data: pastPlans = [] as { id: string; week_start: string; status: string | null; sent_at: string | null; child_interests: unknown }[], isLoading: pastLoading } = useQuery({
+    queryKey: ["dashboard-past-plans", family?.id, format(weekStart, "yyyy-MM-dd")],
+    enabled: !!family,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("weekly_plans")
+        .select("id, week_start, status, sent_at, child_interests")
+        .eq("family_id", family!.id)
+        .lt("week_start", format(weekStart, "yyyy-MM-dd"))
+        .gte("week_start", eightWeeksAgo)
+        .order("week_start", { ascending: false })
+        .limit(5);
+      return data ?? [];
+    },
+  });
+
   const totalActivities = planItems.length;
   const todayItems = planItems.filter((i) => i.day_of_week === todayDow);
   const isWeekend = todayDow >= 6;
 
   return {
-    isLoading: planLoading || itemsLoading || childrenLoading,
+    isLoading: planLoading || itemsLoading || childrenLoading || pastLoading,
     hasPlan: !!weekPlan,
     planStatus: weekPlan?.status ?? null,
     planSentAt: weekPlan?.sent_at ?? null,
     totalActivities,
     todayItems,
     children,
+    pastPlans,
     isWeekend,
     weekStart,
     familyName: family?.name ?? "",

@@ -13,12 +13,18 @@ const FEELINGS = [
   { emoji: "🌟", label: "Inspirado" },
 ];
 
+interface Child {
+  id: string;
+  name: string;
+}
+
 interface ReflectionDialogProps {
   mission: Mission | null;
   open: boolean;
   onClose: () => void;
-  onComplete: (feeling: string, learning: string) => void;
+  onComplete: (childId: string, feeling: string, learning: string) => void;
   previewPoints: MissionPoints | null;
+  children: Child[];
 }
 
 export function ReflectionDialog({
@@ -27,20 +33,23 @@ export function ReflectionDialog({
   onClose,
   onComplete,
   previewPoints,
+  children,
 }: ReflectionDialogProps) {
   const [step, setStep] = useState<"reflect" | "done">("reflect");
+  const [selectedChild, setSelectedChild] = useState(children[0]?.id ?? "");
   const [selectedFeeling, setSelectedFeeling] = useState("");
   const [learning, setLearning] = useState("");
   const [earnedPoints, setEarnedPoints] = useState<MissionPoints | null>(null);
 
   const handleSubmit = () => {
-    onComplete(selectedFeeling, learning);
+    onComplete(selectedChild, selectedFeeling, learning);
     setEarnedPoints(previewPoints);
     setStep("done");
   };
 
   const handleClose = () => {
     setStep("reflect");
+    setSelectedChild(children[0]?.id ?? "");
     setSelectedFeeling("");
     setLearning("");
     setEarnedPoints(null);
@@ -53,6 +62,8 @@ export function ReflectionDialog({
     ? Object.values(earnedPoints).reduce((a, b) => a + b, 0)
     : 0;
 
+  const canSubmit = selectedChild && selectedFeeling;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md rounded-3xl border-border p-0 overflow-hidden shadow-elevated">
@@ -63,10 +74,10 @@ export function ReflectionDialog({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
-              className="p-6 space-y-6"
+              className="p-6 space-y-5"
             >
               {/* Header */}
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-1.5">
                 <span className="text-4xl">{mission.icon}</span>
                 <h2 className="font-heading text-xl font-bold text-foreground">
                   Missão concluída!
@@ -76,7 +87,29 @@ export function ReflectionDialog({
                 </p>
               </div>
 
-              {/* Feeling question */}
+              {/* Child selector */}
+              {children.length > 1 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-foreground">Quem fez a missão?</p>
+                  <div className="flex gap-2">
+                    {children.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedChild(c.id)}
+                        className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200 ${
+                          selectedChild === c.id
+                            ? "border-primary bg-primary/10 text-primary shadow-sm"
+                            : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                        }`}
+                      >
+                        {c.name.split(" ")[0]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Feeling */}
               <div className="space-y-3">
                 <p className="text-sm font-medium text-foreground">Como te sentiste?</p>
                 <div className="grid grid-cols-3 gap-2">
@@ -97,7 +130,7 @@ export function ReflectionDialog({
                 </div>
               </div>
 
-              {/* Learning question */}
+              {/* Learning */}
               <div className="space-y-2">
                 <p className="text-sm font-medium text-foreground">
                   O que aprendeste? <span className="text-muted-foreground font-normal">(opcional)</span>
@@ -136,7 +169,7 @@ export function ReflectionDialog({
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={!selectedFeeling}
+                  disabled={!canSubmit}
                   className="flex-1 rounded-xl bg-primary text-primary-foreground py-2.5 text-sm font-semibold hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Concluir missão
@@ -159,9 +192,7 @@ export function ReflectionDialog({
                 🌟
               </motion.div>
               <div className="space-y-1">
-                <h2 className="font-heading text-2xl font-bold text-foreground">
-                  Fantástico!
-                </h2>
+                <h2 className="font-heading text-2xl font-bold text-foreground">Fantástico!</h2>
                 <p className="text-muted-foreground text-sm">
                   Cada missão que completas muda o teu mundo um pouco mais.
                 </p>
@@ -176,7 +207,7 @@ export function ReflectionDialog({
                 <p className="font-heading text-3xl font-bold text-primary">
                   +{totalEarned} pontos
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">adicionados ao teu perfil</p>
+                <p className="text-xs text-muted-foreground mt-1">adicionados ao portfólio</p>
               </motion.div>
 
               <button
