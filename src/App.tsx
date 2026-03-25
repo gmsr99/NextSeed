@@ -8,7 +8,6 @@ import LoginPage from "./pages/LoginPage";
 import WeeklyPlanner from "./pages/WeeklyPlanner";
 import Index from "./pages/Index";
 import Children from "./pages/Children";
-import Curriculum from "./pages/Curriculum";
 import Activities from "./pages/Activities";
 import Projects from "./pages/Projects";
 import Portfolio from "./pages/Portfolio";
@@ -44,7 +43,7 @@ function AppRoutes() {
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
       <Route path="/weekly-planner" element={<ProtectedRoute><WeeklyPlanner /></ProtectedRoute>} />
       <Route path="/children" element={<ProtectedRoute><Children /></ProtectedRoute>} />
-      <Route path="/curriculum" element={<ProtectedRoute><Curriculum /></ProtectedRoute>} />
+      <Route path="/curriculum" element={<Navigate to="/learning-areas" replace />} />
       <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
       <Route path="/creative-engine" element={<ProtectedRoute><CreativeEngine /></ProtectedRoute>} />
       <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />

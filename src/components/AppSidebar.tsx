@@ -39,23 +39,22 @@ const mainItems = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Planeador Semanal", url: "/weekly-planner", icon: CalendarCheck },
   { title: "Crianças", url: "/children", icon: Users },
-  { title: "Currículo & Planeamento", url: "/curriculum", icon: BookOpen },
-  { title: "Áreas de Aprendizagem", url: "/learning-areas", icon: Shapes },
+  { title: "Áreas de Aprendizagem", url: "/learning-areas", icon: BookOpen },
   { title: "Atividades", url: "/activities", icon: FlaskConical },
   { title: "Motor Criativo", url: "/creative-engine", icon: Sparkles },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
   { title: "Missões do Mundo", url: "/world-missions", icon: Globe },
-  { title: "Literacia Financeira", url: "/financial-literacy", icon: Landmark },
-  { title: "Literacia Digital", url: "/digital-literacy", icon: Monitor },
+  { title: "Literacia Financeira", url: "/financial-literacy", icon: Landmark, disabled: true },
+  { title: "Literacia Digital", url: "/digital-literacy", icon: Monitor, disabled: true },
   { title: "Portfólio", url: "/portfolio", icon: FileImage },
   { title: "Relatórios", url: "/reports", icon: BarChart3 },
 ];
 
 const secondaryItems = [
-  { title: "Formação para Pais", url: "/parent-training", icon: HeartHandshake },
-  { title: "Comunidade", url: "/community", icon: MessagesSquare },
-  { title: "Fórum", url: "/forum", icon: MessageCircle },
-  { title: "Agenda", url: "/calendar", icon: CalendarDays },
+  { title: "Formação para Pais", url: "/parent-training", icon: HeartHandshake, disabled: true },
+  { title: "Comunidade", url: "/community", icon: MessagesSquare, disabled: true },
+  { title: "Fórum", url: "/forum", icon: MessageCircle, disabled: true },
+  { title: "Agenda", url: "/calendar", icon: CalendarDays, disabled: true },
   { title: "Definições", url: "/settings", icon: Settings },
 ];
 
@@ -83,21 +82,24 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    tooltip={item.title}
-                  >
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="rounded-lg px-3 py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
-                    >
+                  {item.disabled ? (
+                    <div className="rounded-lg px-3 py-2 flex items-center gap-2 text-sidebar-foreground/25 cursor-default select-none">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
+                    </div>
+                  ) : (
+                    <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className="rounded-lg px-3 py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+                      >
+                        <item.icon className="h-[18px] w-[18px] shrink-0" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -112,21 +114,24 @@ export function AppSidebar() {
             <SidebarMenu>
               {secondaryItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    tooltip={item.title}
-                  >
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="rounded-lg px-3 py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
-                    >
+                  {item.disabled ? (
+                    <div className="rounded-lg px-3 py-2 flex items-center gap-2 text-sidebar-foreground/25 cursor-default select-none">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
+                    </div>
+                  ) : (
+                    <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className="rounded-lg px-3 py-2 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+                      >
+                        <item.icon className="h-[18px] w-[18px] shrink-0" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
