@@ -85,8 +85,7 @@ const SettingsPage = () => {
   };
 
   const handleRemoveMember = async (userId: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase.rpc as any)("remove_family_member", { p_user_id: userId });
+    const { error } = await supabase.rpc("remove_family_member", { p_user_id: userId });
     if (!error) {
       setMembers((prev) => prev.filter((m) => m.user_id !== userId));
     }
