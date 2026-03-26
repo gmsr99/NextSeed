@@ -272,6 +272,7 @@ export default function WeeklyPlanner() {
       const { error: fnErr } = await supabase.functions.invoke("send-weekly-plan", {
         body: {
           to: family.email,
+          familyId: family.id,
           familyName,
           weekLabel: formatWeekRange(weekStart),
           scheduleB64,

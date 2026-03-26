@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "geral@nextseed.pt";
+const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "geral@nexseed.pt";
 const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL");
 const ADMIN_EMAIL_2 = Deno.env.get("ADMIN_EMAIL_2");
 
@@ -16,8 +17,29 @@ serve(async (req) => {
   }
 
   try {
-    const { to, familyName, weekLabel, scheduleB64, guideB64, scheduleName, guideName } =
+    const { to, familyId, familyName, weekLabel, scheduleB64, guideB64, scheduleName, guideName } =
       await req.json();
+
+    // Collect all recipient emails: owner + family members
+    const recipients = new Set<string>([to]);
+
+    if (familyId) {
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      const { data: members } = await supabaseAdmin
+        .from("family_members")
+        .select("email")
+        .eq("family_id", familyId)
+        .not("email", "is", null);
+      for (const m of members ?? []) {
+        if (m.email) recipients.add(m.email);
+      }
+    }
+
+    if (ADMIN_EMAIL) recipients.add(ADMIN_EMAIL);
+    if (ADMIN_EMAIL_2) recipients.add(ADMIN_EMAIL_2);
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -27,11 +49,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: FROM_EMAIL,
-        to: [
-          to,
-          ...(ADMIN_EMAIL && ADMIN_EMAIL !== to ? [ADMIN_EMAIL] : []),
-          ...(ADMIN_EMAIL_2 && ADMIN_EMAIL_2 !== to ? [ADMIN_EMAIL_2] : []),
-        ],
+        to: Array.from(recipients),
         subject: `NexSeed — Plano da semana de ${weekLabel}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">

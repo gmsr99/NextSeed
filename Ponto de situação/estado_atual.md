@@ -10,7 +10,7 @@
 - **IA:** Gemini 2.5 Flash (Motor Criativo)
 - **PDF:** @react-pdf/renderer
 - **Dados:** TanStack React Query (useQuery / useMutation)
-- **Deploy:** Vercel → nextseed.pt (ligado ao branch `main` do GitHub)
+- **Deploy:** Vercel → nexseed.pt (ligado ao branch `main` do GitHub)
 
 ---
 

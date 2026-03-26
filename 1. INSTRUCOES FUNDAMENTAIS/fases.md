@@ -1,6 +1,6 @@
-# Arquitetura e Informação do Projeto "NextSeed"
+# Arquitetura e Informação do Projeto "NexSeed"
 
-O projeto **NextSeed** foi desenhado para gerir e facilitar o ensino em casa (*homeschooling*), cruzando o currículo escolar com dinâmicas personalizadas. No entanto, o projeto divide-se numa fase inicial de automação (urgente) e numa visão de futuro (a aplicação completa).
+O projeto **NexSeed** foi desenhado para gerir e facilitar o ensino em casa (*homeschooling*), cruzando o currículo escolar com dinâmicas personalizadas. No entanto, o projeto divide-se numa fase inicial de automação (urgente) e numa visão de futuro (a aplicação completa).
 
 ---
 
@@ -33,7 +33,7 @@ A partir do momento em que a mãe recebe estes dois PDFs, fica totalmente libert
 
 ## 2. Fase 2: Estrutura Principal da App (Visão de Futuro)
 
-A longo prazo, a plataforma NextSeed evoluirá para uma aplicação completa com as seguintes secções:
+A longo prazo, a plataforma NexSeed evoluirá para uma aplicação completa com as seguintes secções:
 
 ### 2.1. Dashboard Inicial
 O painel de entrada oferece uma visão imediata com as aulas da semana, o progresso mensal da criança, as atividades recentes e os próximos eventos [3]. 

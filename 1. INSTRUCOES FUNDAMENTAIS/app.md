@@ -1,6 +1,6 @@
-# Arquitetura e Informação da App "NextSeed"
+# Arquitetura e Informação da App "NexSeed"
 
-A aplicação **NextSeed** foi desenhada para gerir e facilitar o ensino em casa (*homeschooling*), cruzando o currículo escolar tradicional com dinâmicas personalizadas aos interesses das crianças [1].
+A aplicação **NexSeed** foi desenhada para gerir e facilitar o ensino em casa (*homeschooling*), cruzando o currículo escolar tradicional com dinâmicas personalizadas aos interesses das crianças [1].
 
 ## 1. Estrutura Principal e Funcionalidades
 
