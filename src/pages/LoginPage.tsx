@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center gap-2">
-          <NexSeedLogo />
+          <NexSeedLogo dark={false} />
           <p className="text-sm text-muted-foreground">A tua plataforma de homeschooling</p>
         </div>
 
