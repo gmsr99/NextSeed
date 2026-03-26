@@ -7,8 +7,8 @@ const NexSeedLogo = ({ collapsed = false }: { collapsed?: boolean }) => {
         <Sprout className="h-5 w-5 text-white" />
       </div>
       {!collapsed && (
-        <span className="font-heading text-xl font-bold text-gray-800">
-          Next<span className="text-sidebar-primary">Seed</span>
+        <span className="font-heading text-xl font-bold">
+          <span className="text-white">Nex</span><span className="text-sidebar-primary">Seed</span>
         </span>
       )}
     </div>
