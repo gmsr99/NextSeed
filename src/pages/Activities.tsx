@@ -1,11 +1,10 @@
 import { useState, useRef } from "react";
-import { pdf } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { CalendarIcon, Upload, X, Save, CheckCircle2, Loader2, FileText } from "lucide-react";
+import { CalendarIcon, Upload, X, Save, CheckCircle2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,25 +16,13 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useChildren } from "@/hooks/useChildren";
 import { useActivities } from "@/hooks/useActivities";
-import { useAuth } from "@/contexts/AuthContext";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 
 const DISCIPLINES = Object.entries(DISCIPLINE_LABELS).map(([id, name]) => ({ id, name }));
 
-function getTrimesterRange(trimester: "1" | "2" | "3") {
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
-  const base = month >= 9 ? year : year - 1;
-  if (trimester === "1") return { start: `${base}-09-01`,     end: `${base}-12-31`,   label: "1º Trimestre" };
-  if (trimester === "2") return { start: `${base + 1}-01-01`, end: `${base + 1}-03-31`, label: "2º Trimestre" };
-  return                         { start: `${base + 1}-04-01`, end: `${base + 1}-06-30`, label: "3º Trimestre" };
-}
-
 const Activities = () => {
-  const { family } = useAuth();
   const { children } = useChildren();
-  const { activities, createActivity } = useActivities();
+  const { createActivity } = useActivities();
 
   const [childId, setChildId] = useState("");
   const [title, setTitle] = useState("");
@@ -46,11 +33,6 @@ const Activities = () => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Report state
-  const [reportChildId, setReportChildId] = useState("");
-  const [reportTrimester, setReportTrimester] = useState<"1" | "2" | "3">("1");
-  const [generatingReport, setGeneratingReport] = useState(false);
 
   const isFormValid = childId && title.trim() && date;
 
@@ -101,7 +83,6 @@ const Activities = () => {
       });
       setSaved(true);
       toast({ title: "Atividade guardada no portfólio! 🌱" });
-      // Reset form
       setChildId("");
       setTitle("");
       setDiscipline("");
@@ -120,54 +101,13 @@ const Activities = () => {
     }
   };
 
-  const handleGenerateReport = async () => {
-    if (!reportChildId) return;
-    setGeneratingReport(true);
-    try {
-      const { start, end, label } = getTrimesterRange(reportTrimester);
-      const child = children.find((c) => c.id === reportChildId);
-      if (!child) throw new Error("Criança não encontrada");
-
-      const filtered = activities.filter(
-        (a) => a.child_id === reportChildId && a.activity_date >= start && a.activity_date <= end,
-      );
-
-      const { default: TrimesterReportPDF } = await import("@/components/pdf/TrimesterReportPDF");
-      const blob = await pdf(
-        <TrimesterReportPDF
-          child={child}
-          familyName={family?.name ?? "Família"}
-          activities={filtered}
-          trimesterLabel={label}
-          startDate={start}
-          endDate={end}
-        />
-      ).toBlob();
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `nexseed-relatorio-${child.name.split(" ")[0].toLowerCase()}-${reportTrimester}trim-${start.substring(0, 4)}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      toast({
-        title: "Erro ao gerar relatório",
-        description: e instanceof Error ? e.message : String(e),
-        variant: "destructive",
-      });
-    } finally {
-      setGeneratingReport(false);
-    }
-  };
-
   return (
     <AppLayout>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">Registar Atividade</h1>
-          <p className="text-muted-foreground mt-1">Regista o que foi feito e guarda no portfólio com fotos.</p>
+          <h1 className="text-3xl font-heading font-bold text-foreground">Diário de Atividades</h1>
+          <p className="text-muted-foreground mt-1">Regista o que fizeram hoje — atividades, momentos e aprendizagens do dia-a-dia.</p>
         </div>
 
         {/* Form */}
@@ -300,68 +240,6 @@ const Activities = () => {
                 )}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Trimester Report */}
-        <Card className="border-border/60 shadow-card">
-          <CardHeader className="pb-3">
-            <CardTitle className="font-heading text-lg flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" /> Relatório do Trimestre
-            </CardTitle>
-            <CardDescription>
-              Gera um PDF oficial com todas as atividades do período — para entregar na escola.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Criança</Label>
-                <Select value={reportChildId} onValueChange={setReportChildId}>
-                  <SelectTrigger><SelectValue placeholder="Selecionar criança" /></SelectTrigger>
-                  <SelectContent>
-                    {children.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Período</Label>
-                <Select value={reportTrimester} onValueChange={(v) => setReportTrimester(v as "1" | "2" | "3")}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1º Trimestre (Set – Dez)</SelectItem>
-                    <SelectItem value="2">2º Trimestre (Jan – Mar)</SelectItem>
-                    <SelectItem value="3">3º Trimestre (Abr – Jun)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {reportChildId && (() => {
-              const { start, end } = getTrimesterRange(reportTrimester);
-              const count = activities.filter(
-                (a) => a.child_id === reportChildId && a.activity_date >= start && a.activity_date <= end
-              ).length;
-              return (
-                <p className="text-sm text-muted-foreground">
-                  {count} atividade{count !== 1 ? "s" : ""} registada{count !== 1 ? "s" : ""} neste período.
-                </p>
-              );
-            })()}
-
-            <Button
-              onClick={handleGenerateReport}
-              disabled={!reportChildId || generatingReport}
-              className="gap-2"
-            >
-              {generatingReport ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> A gerar PDF...</>
-              ) : (
-                <><FileText className="h-4 w-4" /> Gerar e Descarregar PDF</>
-              )}
-            </Button>
           </CardContent>
         </Card>
       </motion.div>

@@ -11,38 +11,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useChildren } from "@/hooks/useChildren";
+import { useExtracurricular } from "@/hooks/useExtracurricular";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ExtracurricularActivity } from "@/lib/types";
-
-const DAY_LABELS_FULL = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
-
-const ACTIVITY_TYPES = [
-  "Desporto",
-  "Música",
-  "Teatro / Artes Performativas",
-  "Natação",
-  "Dança",
-  "Artes Visuais",
-  "Língua Estrangeira",
-  "Escuteiros / Grupos",
-  "Tecnologia / Robótica",
-  "Outro",
-];
-
-const ACTIVITY_COLORS: Record<string, string> = {
-  "Desporto":                    "#90BE6D",
-  "Música":                      "#E9C46A",
-  "Teatro / Artes Performativas": "#F4A261",
-  "Natação":                     "#4CC9F0",
-  "Dança":                       "#F77F00",
-  "Artes Visuais":               "#9B72CF",
-  "Língua Estrangeira":          "#43AA8B",
-  "Escuteiros / Grupos":         "#2EC4B6",
-  "Tecnologia / Robótica":       "#6366F1",
-  "Outro":                       "#9CA3AF",
-};
+import { EXTRACURRICULAR_COLORS, EXTRACURRICULAR_TYPES, DAY_LABELS_FULL } from "@/lib/constants";
 
 // ─── Formulário vazio ─────────────────────────────────────────────────────────
 
@@ -58,61 +30,12 @@ const emptyForm = {
   notes: "",
 };
 
-// ─── Hook local (CRUD completo — usado apenas nesta página) ───────────────────
-
-function useExtracurricularManager() {
-  const { family } = useAuth();
-  const qc = useQueryClient();
-
-  const { data: activities = [], isLoading } = useQuery({
-    queryKey: ["extracurricular", family?.id],
-    enabled: !!family,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("extracurricular_activities")
-        .select("*")
-        .eq("family_id", family!.id)
-        .eq("is_active", true)
-        .order("day_of_week")
-        .order("start_time");
-      if (error) throw error;
-      return (data ?? []) as ExtracurricularActivity[];
-    },
-  });
-
-  const create = useMutation({
-    mutationFn: async (payload: Omit<ExtracurricularActivity, "id" | "created_at" | "is_active">) => {
-      const { error } = await supabase.from("extracurricular_activities").insert({ ...payload, is_active: true });
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["extracurricular", family?.id] }),
-  });
-
-  const update = useMutation({
-    mutationFn: async ({ id, ...payload }: Partial<ExtracurricularActivity> & { id: string }) => {
-      const { error } = await supabase.from("extracurricular_activities").update(payload).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["extracurricular", family?.id] }),
-  });
-
-  const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("extracurricular_activities").update({ is_active: false }).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["extracurricular", family?.id] }),
-  });
-
-  return { activities, isLoading, create, update, remove };
-}
-
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function Extracurricular() {
   const { children } = useChildren();
   const { family } = useAuth();
-  const { activities, isLoading, create, update, remove } = useExtracurricularManager();
+  const { activities, isLoading, create, update, remove } = useExtracurricular();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -246,7 +169,7 @@ export default function Extracurricular() {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {dayActs.map((act, i) => {
-                      const color = ACTIVITY_COLORS[act.type ?? "Outro"] ?? "#9CA3AF";
+                      const color = EXTRACURRICULAR_COLORS[act.type ?? "Outro"] ?? "#9CA3AF";
                       return (
                         <motion.div
                           key={act.id}
@@ -355,7 +278,7 @@ export default function Extracurricular() {
                 <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
                   <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
                   <SelectContent>
-                    {ACTIVITY_TYPES.map((t) => (
+                    {EXTRACURRICULAR_TYPES.map((t) => (
                       <SelectItem key={t} value={t}>{t}</SelectItem>
                     ))}
                   </SelectContent>

@@ -41,14 +41,14 @@ const mainItems = [
   { title: "Planeador Semanal", url: "/weekly-planner", icon: CalendarCheck },
   { title: "Crianças", url: "/children", icon: Users },
   { title: "Áreas de Aprendizagem", url: "/learning-areas", icon: BookOpen },
-  { title: "Atividades", url: "/activities", icon: FlaskConical },
   { title: "Motor Criativo", url: "/creative-engine", icon: Sparkles },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
+  { title: "Diário", url: "/activities", icon: FlaskConical },
+  { title: "Portfólio", url: "/portfolio", icon: FileImage },
   { title: "Missões do Mundo", url: "/world-missions", icon: Globe },
   { title: "Extracurriculares", url: "/extracurricular", icon: Trophy },
   { title: "Literacia Financeira", url: "/financial-literacy", icon: Landmark, disabled: true },
   { title: "Literacia Digital", url: "/digital-literacy", icon: Monitor, disabled: true },
-  { title: "Portfólio", url: "/portfolio", icon: FileImage },
   { title: "Relatórios", url: "/reports", icon: BarChart3 },
 ];
 

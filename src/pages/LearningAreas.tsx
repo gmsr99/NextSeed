@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, ChevronDown, Clock, Loader2 } from "lucide-react";
+import { BookOpen, ChevronDown, Clock, Loader2, ArrowRight } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
@@ -116,6 +118,11 @@ export default function LearningAreas() {
           </motion.div>
         )}
 
+        {/* Link to Portfolio coverage */}
+        {!isLoading && disciplines.length > 0 && (
+          <CoverageCallToAction />
+        )}
+
         {/* Empty curriculum (year not yet in DB) */}
         {!isLoading && child && disciplines.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
@@ -125,6 +132,30 @@ export default function LearningAreas() {
         )}
       </div>
     </AppLayout>
+  );
+}
+
+function CoverageCallToAction() {
+  const navigate = useNavigate();
+  return (
+    <Card className="border-primary/20 bg-primary/5">
+      <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Queres saber que objetivos já foram trabalhados?</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            No Portfólio podes analisar atividades e projetos com IA para ver a cobertura curricular.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 shrink-0"
+          onClick={() => navigate("/portfolio")}
+        >
+          Ver Portfólio <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

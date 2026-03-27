@@ -75,22 +75,7 @@ const TRANSITIONS_4Y = [
   { cat: "Micro-Missão",             items: ["Regar a planta / alimentar o peixe", "Levar lápis para a mesa", "Escolher o cartão da próxima atividade"] },
 ];
 
-// ─── Nomes completos dos dias (para secção de extracurriculares) ──────────────
-const DAY_NAMES_FULL = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
-
-// Cores por tipo de atividade extracurricular
-const EXTRA_COLORS: Record<string, string> = {
-  "Desporto":                    "#90BE6D",
-  "Música":                      "#E9C46A",
-  "Teatro / Artes Performativas": "#F4A261",
-  "Natação":                     "#4CC9F0",
-  "Dança":                       "#F77F00",
-  "Artes Visuais":               "#9B72CF",
-  "Língua Estrangeira":          "#43AA8B",
-  "Escuteiros / Grupos":         "#2EC4B6",
-  "Tecnologia / Robótica":       "#6366F1",
-  "Outro":                       "#9CA3AF",
-};
+import { EXTRACURRICULAR_COLORS, DAY_LABELS_FULL } from "@/lib/constants";
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
@@ -236,8 +221,8 @@ export default function SchedulePDF({ children, planItems, weekStart, familyName
             <Text style={S.extraTitle}>Atividades Extracurriculares da Semana</Text>
             <View style={S.extraGrid}>
               {extracurriculars.map((act) => {
-                const color = EXTRA_COLORS[act.type ?? "Outro"] ?? "#9CA3AF";
-                const dayLabel = act.day_of_week ? DAY_NAMES_FULL[act.day_of_week - 1] : "—";
+                const color = EXTRACURRICULAR_COLORS[act.type ?? "Outro"] ?? "#9CA3AF";
+                const dayLabel = act.day_of_week ? DAY_LABELS_FULL[act.day_of_week - 1] : "—";
                 const timeLabel = act.start_time
                   ? `${act.start_time}${act.end_time ? `–${act.end_time}` : ""}`
                   : "";
