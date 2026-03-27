@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      extracurricular_activities: {
+        Row: {
+          id: string
+          family_id: string
+          child_id: string | null
+          name: string
+          type: string | null
+          location: string | null
+          day_of_week: number | null
+          start_time: string | null
+          end_time: string | null
+          travel_time_minutes: number
+          notes: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          child_id?: string | null
+          name: string
+          type?: string | null
+          location?: string | null
+          day_of_week?: number | null
+          start_time?: string | null
+          end_time?: string | null
+          travel_time_minutes?: number
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          child_id?: string | null
+          name?: string
+          type?: string | null
+          location?: string | null
+          day_of_week?: number | null
+          start_time?: string | null
+          end_time?: string | null
+          travel_time_minutes?: number
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       activities: {
         Row: {
           activity_date: string
@@ -342,6 +393,7 @@ export type Database = {
           generated_at: string | null
           id: string
           notes: string | null
+          reading_theme: string | null
           sent_at: string | null
           status: string | null
           updated_at: string | null
@@ -355,6 +407,7 @@ export type Database = {
           generated_at?: string | null
           id?: string
           notes?: string | null
+          reading_theme?: string | null
           sent_at?: string | null
           status?: string | null
           updated_at?: string | null
@@ -368,6 +421,7 @@ export type Database = {
           generated_at?: string | null
           id?: string
           notes?: string | null
+          reading_theme?: string | null
           sent_at?: string | null
           status?: string | null
           updated_at?: string | null
@@ -408,6 +462,87 @@ export type Database = {
         }
         Relationships: []
       }
+      nexseed_curriculum: {
+        Row: {
+          id: string
+          school_year: string
+          discipline_key: string
+          discipline_name: string
+          area: string | null
+          objective: string
+          description: string | null
+          activities: Json | null
+          skills: string[] | null
+          difficulty: 'introdução' | 'consolidação' | 'extensão' | null
+          source: string | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          school_year: string
+          discipline_key: string
+          discipline_name: string
+          area?: string | null
+          objective: string
+          description?: string | null
+          activities?: Json | null
+          skills?: string[] | null
+          difficulty?: 'introdução' | 'consolidação' | 'extensão' | null
+          source?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          school_year?: string
+          discipline_key?: string
+          discipline_name?: string
+          area?: string | null
+          objective?: string
+          description?: string | null
+          activities?: Json | null
+          skills?: string[] | null
+          difficulty?: 'introdução' | 'consolidação' | 'extensão' | null
+          source?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      curriculum_coverage: {
+        Row: {
+          id: string
+          family_id: string
+          activity_id: string | null
+          project_id: string | null
+          curriculum_id: string
+          confidence: number | null
+          source: 'ai' | 'manual'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          activity_id?: string | null
+          project_id?: string | null
+          curriculum_id: string
+          confidence?: number | null
+          source?: 'ai' | 'manual'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          activity_id?: string | null
+          project_id?: string | null
+          curriculum_id?: string
+          confidence?: number | null
+          source?: 'ai' | 'manual'
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -435,5 +570,25 @@ export type Database = {
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"]
 
+export type Activity = Tables<"activities">
 export type Family = Tables<"families">
 export type Child = Tables<"children">
+
+// ─── Atividades Extracurriculares ─────────────────────────────────────────────
+// Tipo canónico (linha completa da tabela)
+export type ExtracurricularActivity = Tables<"extracurricular_activities">
+export type NexseedCurriculum = Tables<"nexseed_curriculum">
+export type CurriculumCoverage = Tables<"curriculum_coverage">
+
+// Projeção leve usada no WeeklyPlanner e SchedulePDF (apenas campos necessários)
+export interface ExtracurricularItem {
+  id: string;
+  child_id: string | null;
+  name: string;
+  type: string | null;
+  location: string | null;
+  day_of_week: number | null; // 1=Seg … 7=Dom
+  start_time: string | null;  // "HH:MM"
+  end_time: string | null;    // "HH:MM"
+  travel_time_minutes: number;
+}

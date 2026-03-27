@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { format, differenceInYears, parseISO } from "date-fns";
+import { SCHOOL_YEARS, suggestPreSchoolYear } from "@/lib/planGenerator";
 import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
@@ -147,7 +148,12 @@ export default function Children() {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={form.birthDate} onSelect={(d) => setForm({ ...form, birthDate: d })} disabled={(date) => date > new Date()} initialFocus className="p-3 pointer-events-auto" />
+                        <Calendar mode="single" selected={form.birthDate} onSelect={(d) => {
+                            if (!d) { setForm({ ...form, birthDate: d }); return; }
+                            const age = differenceInYears(new Date(), d);
+                            const autoYear = age <= 6 && age >= 3 ? suggestPreSchoolYear(d) : form.schoolYear;
+                            setForm({ ...form, birthDate: d, schoolYear: autoYear || form.schoolYear });
+                          }} disabled={(date) => date > new Date()} initialFocus className="p-3 pointer-events-auto" />
                       </PopoverContent>
                     </Popover>
                   </div>
@@ -156,7 +162,7 @@ export default function Children() {
                     <Select value={form.schoolYear} onValueChange={(v) => setForm({ ...form, schoolYear: v })}>
                       <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
                       <SelectContent>
-                        {["Pré-escolar", "1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano"].map((y) => (
+                        {SCHOOL_YEARS.map((y) => (
                           <SelectItem key={y} value={y}>{y}</SelectItem>
                         ))}
                       </SelectContent>
@@ -283,7 +289,12 @@ export default function Children() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={editForm.birthDate} onSelect={(d) => setEditForm({ ...editForm, birthDate: d })} disabled={(date) => date > new Date()} initialFocus className="p-3 pointer-events-auto" />
+                    <Calendar mode="single" selected={editForm.birthDate} onSelect={(d) => {
+                        if (!d) { setEditForm({ ...editForm, birthDate: d }); return; }
+                        const age = differenceInYears(new Date(), d);
+                        const autoYear = age <= 6 && age >= 3 ? suggestPreSchoolYear(d) : editForm.schoolYear;
+                        setEditForm({ ...editForm, birthDate: d, schoolYear: autoYear || editForm.schoolYear });
+                      }} disabled={(date) => date > new Date()} initialFocus className="p-3 pointer-events-auto" />
                   </PopoverContent>
                 </Popover>
               </div>

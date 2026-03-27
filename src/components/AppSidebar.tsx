@@ -18,6 +18,7 @@ import {
   Globe,
   CalendarCheck,
   LogOut,
+  Trophy,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -44,6 +45,7 @@ const mainItems = [
   { title: "Motor Criativo", url: "/creative-engine", icon: Sparkles },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
   { title: "Missões do Mundo", url: "/world-missions", icon: Globe },
+  { title: "Extracurriculares", url: "/extracurricular", icon: Trophy },
   { title: "Literacia Financeira", url: "/financial-literacy", icon: Landmark, disabled: true },
   { title: "Literacia Digital", url: "/digital-literacy", icon: Monitor, disabled: true },
   { title: "Portfólio", url: "/portfolio", icon: FileImage },

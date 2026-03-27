@@ -75,7 +75,8 @@ serve(async (req) => {
 
     if (!res.ok) {
       const err = await res.text();
-      throw new Error(`Resend error: ${err}`);
+      console.error("Resend API error", res.status, err);
+      throw new Error(`Resend ${res.status}: ${err}`);
     }
 
     return new Response(JSON.stringify({ ok: true }), {

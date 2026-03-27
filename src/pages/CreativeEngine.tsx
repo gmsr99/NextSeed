@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
 import {
   Sparkles, Wand2, BookmarkPlus, Play, BookOpen, Target,
-  Lightbulb, Loader2, CheckCircle2,
+  Lightbulb, Loader2, CheckCircle2, CalendarClock, Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -18,6 +18,8 @@ import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 import { getCurriculumObjectives } from "@/lib/curriculumLoader";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+
+type OutputType = "activity" | "project" | "";
 
 interface CurriculumItem {
   id: string;
@@ -31,11 +33,11 @@ interface Suggestion {
   title: string;
   description: string;
   type: string;
+  phases?: string[];
 }
 
 // ── Curriculum helpers ─────────────────────────────────────────────────────────
 
-// Fallback objectives for Pré-escolar (not in curriculumLoader)
 const PRESCHOOL_ITEMS: CurriculumItem[] = [
   { id: "ps-1", discipline: "language",   disciplineLabel: "Português",  objective: "Escuta ativa de histórias e recontar com as suas palavras" },
   { id: "ps-2", discipline: "language",   disciplineLabel: "Português",  objective: "Rimas, lengalengas e jogos com sons e fonemas" },
@@ -52,7 +54,6 @@ function getCurriculumItems(schoolYear: string): CurriculumItem[] {
 
   for (const [discipline, objs] of Object.entries(objectives)) {
     const label = DISCIPLINE_LABELS[discipline] ?? discipline;
-    // Max 5 objectives per discipline to keep the list manageable
     for (let i = 0; i < Math.min((objs as string[]).length, 5); i++) {
       items.push({
         id: `${discipline}-${i}`,
@@ -74,24 +75,49 @@ async function generateWithGemini(
   interests: string[],
   disciplineLabel: string,
   objective: string,
+  outputType: "activity" | "project",
 ): Promise<Suggestion[]> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string;
-  const prompt = `Gera 3 sugestões de atividades criativas para uma criança portuguesa do ${schoolYear}, chamada ${childName}, com os seguintes interesses: ${interests.join(", ") || "variados"}.
+
+  const interestStr = interests.join(", ") || "variados";
+
+  const prompt = outputType === "activity"
+    ? `Gera 3 sugestões de ATIVIDADES para uma criança portuguesa do ${schoolYear}, chamada ${childName}, com os seguintes interesses: ${interestStr}.
+
+Uma atividade realiza-se numa única sessão de 30 a 90 minutos, dentro de uma aula ou momento de estudo. Deve ser concreta, prática e completável num só dia.
 
 A atividade deve trabalhar o seguinte objetivo curricular de ${disciplineLabel}:
 "${objective}"
 
-As sugestões devem ser práticas, lúdicas e integrar os interesses da criança de forma natural.
 Responde APENAS com um array JSON válido, sem markdown, sem texto adicional.
 Formato exato:
 [
   {
     "title": "Nome criativo da atividade (máx 6 palavras)",
-    "description": "Descrição em 2-3 frases de como realizar a atividade, mencionando os interesses da criança",
-    "type": "Projeto"
+    "description": "Descrição em 2-3 frases de como realizar a atividade numa sessão, mencionando os interesses da criança",
+    "type": "Prática"
   }
 ]
-O campo "type" deve ser um de: Projeto, Prática, Escrita, Investigação, Jogo, Criativa.`;
+O campo "type" deve ser um de: Prática, Escrita, Investigação, Jogo, Criativa.`
+
+    : `Gera 3 sugestões de PROJETOS para uma criança portuguesa do ${schoolYear}, chamada ${childName}, com os seguintes interesses: ${interestStr}.
+
+Um projeto desenvolve-se ao longo de vários dias, semanas ou meses (ex: plantar e cuidar de uma árvore, escrever um diário, construir algo progressivamente). Tem fases distintas que se sucedem no tempo.
+
+O projeto deve trabalhar o seguinte objetivo curricular de ${disciplineLabel}:
+"${objective}"
+
+Responde APENAS com um array JSON válido, sem markdown, sem texto adicional.
+Formato exato:
+[
+  {
+    "title": "Nome criativo do projeto (máx 6 palavras)",
+    "description": "Descrição em 2-3 frases do projeto e como se desenvolve ao longo do tempo, mencionando os interesses da criança",
+    "type": "Projeto",
+    "phases": ["Fase 1: descrição curta", "Fase 2: descrição curta", "Fase 3: descrição curta"]
+  }
+]
+Cada projeto deve ter entre 3 e 5 fases. O campo "type" é sempre "Projeto".`;
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -113,7 +139,6 @@ O campo "type" deve ser um de: Projeto, Prática, Escrita, Investigação, Jogo,
   const responsePart = parts.filter((p) => !p.thought).pop();
   const raw = responsePart?.text ?? "";
 
-  // Robust JSON extraction: strip markdown fences, find first [ ... last ]
   const cleaned = raw
     .replace(/```(?:json)?/gi, "")
     .replace(/```/g, "")
@@ -129,7 +154,7 @@ O campo "type" deve ser um de: Projeto, Prática, Escrita, Investigação, Jogo,
 
   const jsonStr = cleaned.slice(startIdx, endIdx + 1);
 
-  let parsed: { title: string; description: string; type: string }[];
+  let parsed: { title: string; description: string; type: string; phases?: string[] }[];
   try {
     parsed = JSON.parse(jsonStr);
   } catch {
@@ -143,12 +168,12 @@ O campo "type" deve ser um de: Projeto, Prática, Escrita, Investigação, Jogo,
 // ── Type badge colours ─────────────────────────────────────────────────────────
 
 const TYPE_COLORS: Record<string, string> = {
-  Projeto:       "bg-accent/15 text-accent-foreground",
-  Prática:       "bg-primary/15 text-primary",
-  Escrita:       "bg-orange-100 text-orange-700",
-  Investigação:  "bg-teal-100 text-teal-700",
-  Jogo:          "bg-violet-100 text-violet-700",
-  Criativa:      "bg-pink-100 text-pink-700",
+  Projeto:      "bg-accent/15 text-accent-foreground",
+  Prática:      "bg-primary/15 text-primary",
+  Escrita:      "bg-orange-100 text-orange-700",
+  Investigação: "bg-teal-100 text-teal-700",
+  Jogo:         "bg-violet-100 text-violet-700",
+  Criativa:     "bg-pink-100 text-pink-700",
 };
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -158,24 +183,24 @@ export default function CreativeEngine() {
   const { createActivity } = useActivities();
   const { createProject } = useProjects();
 
-  const [selectedChildId, setSelectedChildId]       = useState("");
+  const [selectedChildId, setSelectedChildId]           = useState("");
   const [selectedCurriculumId, setSelectedCurriculumId] = useState("");
-  const [suggestions, setSuggestions]               = useState<Suggestion[]>([]);
-  const [isGenerating, setIsGenerating]             = useState(false);
-  const [hasGenerated, setHasGenerated]             = useState(false);
-  const [realizingId, setRealizingId]               = useState<string | null>(null);
-  const [savingId, setSavingId]                     = useState<string | null>(null);
-  const [doneIds, setDoneIds]                       = useState<Set<string>>(new Set());
+  const [outputType, setOutputType]                     = useState<OutputType>("");
+  const [suggestions, setSuggestions]                   = useState<Suggestion[]>([]);
+  const [isGenerating, setIsGenerating]                 = useState(false);
+  const [hasGenerated, setHasGenerated]                 = useState(false);
+  const [realizingId, setRealizingId]                   = useState<string | null>(null);
+  const [savingId, setSavingId]                         = useState<string | null>(null);
+  const [doneIds, setDoneIds]                           = useState<Set<string>>(new Set());
 
-  const selectedChild      = children.find((c) => c.id === selectedChildId);
-  const curriculumItems    = useMemo(
+  const selectedChild   = children.find((c) => c.id === selectedChildId);
+  const curriculumItems = useMemo(
     () => selectedChild ? getCurriculumItems(selectedChild.school_year) : [],
-    [selectedChild]
+    [selectedChild],
   );
   const selectedCurriculum = curriculumItems.find((c) => c.id === selectedCurriculumId);
-  const canGenerate        = !!selectedChild && !!selectedCurriculum;
+  const canGenerate        = !!selectedChild && !!selectedCurriculum && !!outputType;
 
-  // Group curriculum items by discipline for the Select
   const curriculumByDiscipline = useMemo(() => {
     const map: Record<string, CurriculumItem[]> = {};
     for (const item of curriculumItems) {
@@ -185,12 +210,16 @@ export default function CreativeEngine() {
     return map;
   }, [curriculumItems]);
 
-  const handleGenerate = async () => {
-    if (!selectedChild || !selectedCurriculum) return;
-    setIsGenerating(true);
+  const resetSuggestions = () => {
     setSuggestions([]);
     setHasGenerated(false);
     setDoneIds(new Set());
+  };
+
+  const handleGenerate = async () => {
+    if (!selectedChild || !selectedCurriculum || !outputType) return;
+    setIsGenerating(true);
+    resetSuggestions();
     try {
       const results = await generateWithGemini(
         selectedChild.name.split(" ")[0],
@@ -198,6 +227,7 @@ export default function CreativeEngine() {
         selectedChild.interests ?? [],
         selectedCurriculum.disciplineLabel,
         selectedCurriculum.objective,
+        outputType,
       );
       setSuggestions(results);
       setHasGenerated(true);
@@ -212,7 +242,7 @@ export default function CreativeEngine() {
     }
   };
 
-  // "Realizar" → log to portfolio (activities)
+  // "Realizar" → registar como atividade feita hoje
   const handleRealizar = async (s: Suggestion) => {
     if (!selectedChild || !selectedCurriculum) return;
     setRealizingId(s.id);
@@ -224,7 +254,7 @@ export default function CreativeEngine() {
         discipline: selectedCurriculum.discipline,
         activity_date: format(new Date(), "yyyy-MM-dd"),
       });
-      setDoneIds((prev) => new Set(prev).add(`r-${s.id}`));
+      setDoneIds((prev) => new Set(prev).add(s.id));
       toast({ title: "Atividade registada no portfólio! 🌱" });
     } catch (e) {
       toast({ title: "Erro ao registar", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
@@ -233,19 +263,23 @@ export default function CreativeEngine() {
     }
   };
 
-  // "Guardar" → save as a project (single phase)
+  // "Guardar como Projeto" → criar projeto com fases
   const handleGuardar = async (s: Suggestion) => {
     if (!selectedChild) return;
     setSavingId(s.id);
     try {
+      const phases = s.phases?.length
+        ? s.phases.map((p) => ({ title: p }))
+        : [{ title: "Realizar o projeto" }];
+
       await createProject.mutateAsync({
         child_id: selectedChild.id,
         title: s.title,
         description: s.description,
-        phases: [{ title: "Realizar a atividade" }],
+        phases,
       });
-      setDoneIds((prev) => new Set(prev).add(`s-${s.id}`));
-      toast({ title: "Guardado em Projetos! 🚀" });
+      setDoneIds((prev) => new Set(prev).add(s.id));
+      toast({ title: "Projeto guardado! 🚀" });
     } catch (e) {
       toast({ title: "Erro ao guardar", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
     } finally {
@@ -256,6 +290,7 @@ export default function CreativeEngine() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto space-y-8">
+
         {/* Header */}
         <div>
           <div className="flex items-center gap-3 mb-1">
@@ -265,24 +300,29 @@ export default function CreativeEngine() {
             <h1 className="text-3xl font-heading font-bold">Motor Criativo</h1>
           </div>
           <p className="text-muted-foreground mt-1 ml-[52px]">
-            A IA transforma objetivos curriculares em atividades personalizadas para cada criança.
+            A IA transforma objetivos curriculares em atividades ou projetos personalizados para cada criança.
           </p>
         </div>
 
-        {/* Context panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* Child */}
+        {/* Steps */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+          {/* 1. Criança */}
           <Card className="shadow-soft border-border/60">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Target className="h-4 w-4 text-accent" />
-                1. Selecionar Criança
+                1. Criança
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Select
                 value={selectedChildId}
-                onValueChange={(v) => { setSelectedChildId(v); setSelectedCurriculumId(""); setSuggestions([]); setHasGenerated(false); }}
+                onValueChange={(v) => {
+                  setSelectedChildId(v);
+                  setSelectedCurriculumId("");
+                  resetSuggestions();
+                }}
               >
                 <SelectTrigger><SelectValue placeholder="Escolher criança…" /></SelectTrigger>
                 <SelectContent>
@@ -301,34 +341,16 @@ export default function CreativeEngine() {
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="rounded-xl border border-border/60 bg-muted/30 p-4 space-y-3">
-                      <div>
-                        <p className="text-xs text-muted-foreground font-medium mb-1.5">Interesses</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {(selectedChild.interests ?? []).length > 0
-                            ? selectedChild.interests.map((i) => (
-                                <Badge key={i} variant="secondary" className="text-xs">{i}</Badge>
-                              ))
-                            : <span className="text-xs text-muted-foreground italic">Sem interesses definidos</span>
-                          }
-                        </div>
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3 space-y-2">
+                      <p className="text-xs text-muted-foreground font-medium">Interesses</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(selectedChild.interests ?? []).length > 0
+                          ? selectedChild.interests.map((i) => (
+                              <Badge key={i} variant="secondary" className="text-xs">{i}</Badge>
+                            ))
+                          : <span className="text-xs text-muted-foreground italic">Sem interesses definidos</span>
+                        }
                       </div>
-                      {(selectedChild.learning_preferences || selectedChild.learning_pace) && (
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          {selectedChild.learning_preferences && (
-                            <div>
-                              <p className="text-xs text-muted-foreground">Preferências</p>
-                              <p className="font-medium text-sm">{selectedChild.learning_preferences}</p>
-                            </div>
-                          )}
-                          {selectedChild.learning_pace && (
-                            <div>
-                              <p className="text-xs text-muted-foreground">Ritmo</p>
-                              <p className="font-medium text-sm">{selectedChild.learning_pace}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </motion.div>
                 )}
@@ -336,7 +358,7 @@ export default function CreativeEngine() {
             </CardContent>
           </Card>
 
-          {/* Curriculum */}
+          {/* 2. Objetivo */}
           <Card className="shadow-soft border-border/60">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -347,7 +369,7 @@ export default function CreativeEngine() {
             <CardContent className="space-y-4">
               <Select
                 value={selectedCurriculumId}
-                onValueChange={(v) => { setSelectedCurriculumId(v); setSuggestions([]); setHasGenerated(false); }}
+                onValueChange={(v) => { setSelectedCurriculumId(v); resetSuggestions(); }}
                 disabled={!selectedChild}
               >
                 <SelectTrigger>
@@ -376,13 +398,60 @@ export default function CreativeEngine() {
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="rounded-xl border border-border/60 bg-muted/30 p-4 space-y-2">
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3 space-y-1.5">
                       <Badge variant="outline" className="text-xs">{selectedCurriculum.disciplineLabel}</Badge>
-                      <p className="text-sm font-medium leading-relaxed">{selectedCurriculum.objective}</p>
+                      <p className="text-sm leading-relaxed">{selectedCurriculum.objective}</p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
+            </CardContent>
+          </Card>
+
+          {/* 3. O que gerar */}
+          <Card className="shadow-soft border-border/60">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-pink-500" />
+                3. O que criar?
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <button
+                type="button"
+                onClick={() => { setOutputType("activity"); resetSuggestions(); }}
+                className={`w-full rounded-xl border-2 p-4 text-left transition-all duration-150 ${
+                  outputType === "activity"
+                    ? "border-primary bg-primary/5"
+                    : "border-border/60 hover:border-border"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="h-4 w-4 text-primary shrink-0" />
+                  <span className="font-semibold text-sm">Atividade</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Realiza-se numa única sessão (30–90 min). Concreta e imediata.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setOutputType("project"); resetSuggestions(); }}
+                className={`w-full rounded-xl border-2 p-4 text-left transition-all duration-150 ${
+                  outputType === "project"
+                    ? "border-accent bg-accent/5"
+                    : "border-border/60 hover:border-border"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <CalendarClock className="h-4 w-4 text-accent shrink-0" />
+                  <span className="font-semibold text-sm">Projeto</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Desenvolve-se ao longo de dias ou meses, com fases progressivas.
+                </p>
+              </button>
             </CardContent>
           </Card>
         </div>
@@ -403,7 +472,7 @@ export default function CreativeEngine() {
           </Button>
         </div>
 
-        {/* Loading animation */}
+        {/* Loading */}
         <AnimatePresence>
           {isGenerating && (
             <motion.div
@@ -419,7 +488,9 @@ export default function CreativeEngine() {
                 <div className="absolute inset-0 rounded-full gradient-warmth opacity-30 animate-ping" />
               </div>
               <p className="text-muted-foreground text-sm font-medium animate-pulse">
-                A cruzar interesses com o currículo…
+                {outputType === "project"
+                  ? "A criar projetos com fases…"
+                  : "A cruzar interesses com o currículo…"}
               </p>
             </motion.div>
           )}
@@ -437,9 +508,9 @@ export default function CreativeEngine() {
               <div className="flex items-center gap-2">
                 <Lightbulb className="h-5 w-5 text-primary" />
                 <h2 className="text-xl font-heading font-bold">
-                  Sugestões para {selectedChild?.name.split(" ")[0]}
+                  {outputType === "project" ? "Projetos" : "Atividades"} para {selectedChild?.name.split(" ")[0]}
                 </h2>
-                <span className="text-xs text-muted-foreground ml-1">geradas pela IA</span>
+                <span className="text-xs text-muted-foreground ml-1">gerados pela IA</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -464,47 +535,62 @@ export default function CreativeEngine() {
                       </CardHeader>
 
                       <CardContent className="flex-1 flex flex-col justify-between gap-4">
-                        <CardDescription className="text-sm leading-relaxed">
-                          {s.description}
-                        </CardDescription>
+                        <div className="space-y-3">
+                          <CardDescription className="text-sm leading-relaxed">
+                            {s.description}
+                          </CardDescription>
 
-                        <div className="flex gap-2">
-                          {/* Realizar → log as done in portfolio */}
-                          <Button
-                            size="sm"
-                            className="flex-1 gap-1.5"
-                            disabled={realizingId === s.id || doneIds.has(`r-${s.id}`)}
-                            onClick={() => handleRealizar(s)}
-                            title="Registar como atividade feita hoje no portfólio"
-                          >
-                            {realizingId === s.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : doneIds.has(`r-${s.id}`) ? (
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                            ) : (
-                              <Play className="h-3.5 w-3.5" />
-                            )}
-                            {doneIds.has(`r-${s.id}`) ? "Registado!" : "Realizar"}
-                          </Button>
+                          {/* Fases do projeto */}
+                          {outputType === "project" && s.phases && s.phases.length > 0 && (
+                            <div className="space-y-1.5">
+                              {s.phases.map((phase, pi) => (
+                                <div key={pi} className="flex items-start gap-2 text-xs text-muted-foreground">
+                                  <span className="shrink-0 h-4 w-4 rounded-full bg-accent/15 text-accent flex items-center justify-center font-semibold text-[10px]">
+                                    {pi + 1}
+                                  </span>
+                                  <span className="leading-relaxed">{phase.replace(/^Fase \d+:\s*/i, "")}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
 
-                          {/* Guardar → save as project */}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-1.5"
-                            disabled={savingId === s.id || doneIds.has(`s-${s.id}`)}
-                            onClick={() => handleGuardar(s)}
-                            title="Guardar como projeto para fazer mais tarde"
-                          >
-                            {savingId === s.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : doneIds.has(`s-${s.id}`) ? (
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                            ) : (
-                              <BookmarkPlus className="h-3.5 w-3.5" />
-                            )}
-                            {doneIds.has(`s-${s.id}`) ? "Guardado!" : "Guardar"}
-                          </Button>
+                        {/* Ação única consoante o tipo */}
+                        <div>
+                          {outputType === "activity" ? (
+                            <Button
+                              size="sm"
+                              className="w-full gap-1.5"
+                              disabled={realizingId === s.id || doneIds.has(s.id)}
+                              onClick={() => handleRealizar(s)}
+                            >
+                              {realizingId === s.id ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : doneIds.has(s.id) ? (
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              ) : (
+                                <Play className="h-3.5 w-3.5" />
+                              )}
+                              {doneIds.has(s.id) ? "Registado!" : "Registar atividade"}
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full gap-1.5"
+                              disabled={savingId === s.id || doneIds.has(s.id)}
+                              onClick={() => handleGuardar(s)}
+                            >
+                              {savingId === s.id ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : doneIds.has(s.id) ? (
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              ) : (
+                                <BookmarkPlus className="h-3.5 w-3.5" />
+                              )}
+                              {doneIds.has(s.id) ? "Guardado!" : "Guardar projeto"}
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -519,7 +605,7 @@ export default function CreativeEngine() {
         {!isGenerating && !hasGenerated && (
           <div className="text-center py-12 text-muted-foreground">
             <Wand2 className="h-12 w-12 mx-auto mb-3 opacity-20" />
-            <p className="text-sm">Seleciona uma criança e um objetivo curricular para começar.</p>
+            <p className="text-sm">Seleciona uma criança, um objetivo e o tipo de conteúdo a criar.</p>
           </div>
         )}
       </div>

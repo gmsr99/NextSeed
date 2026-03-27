@@ -22,6 +22,7 @@ import Forum from "./pages/Forum";
 import LearningAreas from "./pages/LearningAreas";
 import ParentTraining from "./pages/ParentTraining";
 import WorldMissions from "./pages/WorldMissions";
+import Extracurricular from "./pages/Extracurricular";
 import AcceptInvite from "./pages/AcceptInvite";
 import NotFound from "./pages/NotFound";
 
@@ -88,6 +89,7 @@ function AppRoutes() {
       <Route path="/learning-areas" element={<ProtectedRoute><LearningAreas /></ProtectedRoute>} />
       <Route path="/parent-training" element={<ProtectedRoute><ParentTraining /></ProtectedRoute>} />
       <Route path="/world-missions" element={<ProtectedRoute><WorldMissions /></ProtectedRoute>} />
+      <Route path="/extracurricular" element={<ProtectedRoute><Extracurricular /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

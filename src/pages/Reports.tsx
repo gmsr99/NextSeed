@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { parseISO, differenceInCalendarWeeks } from "date-fns";
 import { motion } from "framer-motion";
-import { BarChart3, FileDown, BookOpen, FolderOpen, ImageIcon, Activity, TrendingUp, Award } from "lucide-react";
+import { BarChart3, FileDown, BookOpen, FolderOpen, ImageIcon, Activity, TrendingUp, Award, Loader2 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

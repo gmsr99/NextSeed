@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
 import { pt } from "date-fns/locale";
-import { CalendarDays, Sparkles, Download, Mail, Loader2, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import { CalendarDays, Sparkles, Download, Mail, Loader2, ChevronLeft, ChevronRight, CheckCircle2, Clock, MapPin } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TagInput from "@/components/TagInput";
 import { useChildren } from "@/hooks/useChildren";
+import { useExtracurricular } from "@/hooks/useExtracurricular";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import {
@@ -28,15 +29,45 @@ import { generateWithGemini } from "@/lib/geminiPlanner";
 
 type Step = "form" | "preview";
 
+// ─── Persistência do campo "notes" (backward compat) ─────────────────────────
+function parseNotesField(raw: string | null): { notes: string; readingTheme: string } {
+  if (!raw) return { notes: "", readingTheme: "" };
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "object" && parsed !== null && "notes" in parsed) {
+      return { notes: parsed.notes ?? "", readingTheme: parsed.readingTheme ?? "" };
+    }
+  } catch { /* string simples */ }
+  return { notes: raw, readingTheme: "" };
+}
+
+function serializeNotesField(notes: string, readingTheme: string): string | null {
+  if (!notes && !readingTheme) return null;
+  if (!readingTheme) return notes; // compatibilidade retroativa
+  return JSON.stringify({ notes, readingTheme });
+}
+
+const DAY_LABELS_EXT = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+
+const ACTIVITY_COLORS_EXT: Record<string, string> = {
+  "Desporto": "#90BE6D", "Música": "#E9C46A",
+  "Teatro / Artes Performativas": "#F4A261", "Natação": "#4CC9F0",
+  "Dança": "#F77F00", "Artes Visuais": "#9B72CF",
+  "Língua Estrangeira": "#43AA8B", "Escuteiros / Grupos": "#2EC4B6",
+  "Tecnologia / Robótica": "#6366F1", "Outro": "#9CA3AF",
+};
+
 export default function WeeklyPlanner() {
   const { children, isLoading: childrenLoading } = useChildren();
   const { family } = useAuth();
+  const { activities: extracurriculars } = useExtracurricular();
 
   const [weekStart, setWeekStart] = useState<Date>(getNextMonday());
   const [weekStartReady, setWeekStartReady] = useState(false);
   const [childInterests, setChildInterests] = useState<Record<string, string[]>>({});
   const [fridayActivity, setFridayActivity] = useState("");
   const [notes, setNotes] = useState("");
+  const [weeklyReadingTheme, setWeeklyReadingTheme] = useState("");
 
   const [step, setStep] = useState<Step>("form");
   const [planItems, setPlanItems] = useState<GeneratedPlanItem[]>([]);
@@ -89,13 +120,14 @@ export default function WeeklyPlanner() {
     setSent(false);
     setError(null);
     setStep("form");
+    setWeeklyReadingTheme("");
     setLoadingExisting(true);
 
     const loadExisting = async () => {
       try {
         const { data: plan } = await supabase
           .from("weekly_plans")
-          .select("id, child_interests, friday_activity, notes, status")
+          .select("id, child_interests, friday_activity, notes, reading_theme, status")
           .eq("family_id", family.id)
           .eq("week_start", format(weekStart, "yyyy-MM-dd"))
           .maybeSingle();
@@ -109,6 +141,7 @@ export default function WeeklyPlanner() {
           setChildInterests(defaultInterests);
           setFridayActivity("");
           setNotes("");
+          setWeeklyReadingTheme("");
           return;
         }
 
@@ -124,7 +157,17 @@ export default function WeeklyPlanner() {
         setPlanId(plan.id);
         setPlanItems(items as GeneratedPlanItem[]);
         setFridayActivity(plan.friday_activity ?? "");
-        setNotes(plan.notes ?? "");
+
+        // reading_theme: prioridade à coluna dedicada; fallback ao JSON em notes (registos antigos)
+        if (plan.reading_theme != null) {
+          setWeeklyReadingTheme(plan.reading_theme);
+          setNotes(plan.notes ?? "");
+        } else {
+          const parsedNotes = parseNotesField(plan.notes);
+          setNotes(parsedNotes.notes);
+          setWeeklyReadingTheme(parsedNotes.readingTheme);
+        }
+
         const interests = plan.child_interests as Record<string, string[]> | null;
         if (interests) setChildInterests(interests);
         if (plan.status === "sent") setSent(true);
@@ -144,13 +187,27 @@ export default function WeeklyPlanner() {
     setGenerating(true);
     setError(null);
     try {
-      const items = await generateWithGemini(children, childInterests, fridayActivity);
+      // Buscar currículo NexSeed da BD para triangulação (national + NexSeed + interests)
+      const schoolYears = [...new Set(children.map((c) => c.school_year))];
+      const { data: nexseedRows } = await supabase
+        .from("nexseed_curriculum")
+        .select("school_year, discipline_key, objective")
+        .in("school_year", schoolYears);
+
+      const nexseedByYear: Record<string, Record<string, string[]>> = {};
+      for (const row of nexseedRows ?? []) {
+        if (!nexseedByYear[row.school_year]) nexseedByYear[row.school_year] = {};
+        if (!nexseedByYear[row.school_year][row.discipline_key]) nexseedByYear[row.school_year][row.discipline_key] = [];
+        nexseedByYear[row.school_year][row.discipline_key].push(row.objective);
+      }
+
+      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear);
       setPlanItems(items);
       setStep("preview");
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.warn("AI falhou:", msg);
-      const items = generateWeeklyPlan(children, childInterests, fridayActivity);
+      const items = generateWeeklyPlan(children, childInterests, fridayActivity, weeklyReadingTheme);
       setPlanItems(items);
       setStep("preview");
       setError(`IA indisponível (${msg}) — plano gerado com templates.`);
@@ -171,7 +228,9 @@ export default function WeeklyPlanner() {
         week_start: format(weekStart, "yyyy-MM-dd"),
         child_interests: childInterests,
         friday_activity: fridayActivity || null,
+        // Usa coluna dedicada reading_theme; notes é texto simples (sem JSON)
         notes: notes || null,
+        reading_theme: weeklyReadingTheme || null,
         status: "generated",
         generated_at: new Date().toISOString(),
       }, { onConflict: "family_id,week_start" })
@@ -218,7 +277,7 @@ export default function WeeklyPlanner() {
     // PDF 1 — Horário
     const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
     const scheduleBlob = await pdf(
-      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
+      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} />
     ).toBlob();
     const scheduleUrl = URL.createObjectURL(scheduleBlob);
     const a1 = document.createElement("a");
@@ -243,6 +302,10 @@ export default function WeeklyPlanner() {
     setSending(true);
     setError(null);
     try {
+      // Garante sessão válida antes de invocar a edge function
+      const { error: sessionErr } = await supabase.auth.refreshSession();
+      if (sessionErr) throw new Error("Sessão expirada. Por favor recarrega a página.");
+
       // Garante que o plano está guardado antes de enviar
       const savedPlanId = planId ?? await persistPlan();
 
@@ -250,7 +313,7 @@ export default function WeeklyPlanner() {
 
       const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
       const scheduleBlob = await pdf(
-        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
+        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} />
       ).toBlob();
 
       const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
@@ -269,7 +332,7 @@ export default function WeeklyPlanner() {
       const scheduleB64 = await toBase64(scheduleBlob);
       const guideB64 = await toBase64(guideBlob);
 
-      const { error: fnErr } = await supabase.functions.invoke("send-weekly-plan", {
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke("send-weekly-plan", {
         body: {
           to: family.email,
           familyId: family.id,
@@ -282,7 +345,19 @@ export default function WeeklyPlanner() {
         },
       });
 
-      if (fnErr) throw new Error(fnErr.message);
+      // Extrair erro real do body da resposta (o SDK devolve mensagem genérica)
+      if (fnErr) {
+        let detail = fnErr.message;
+        try {
+          const body = await (fnErr as unknown as { context: Response }).context.json();
+          detail = body?.error ?? JSON.stringify(body);
+        } catch {
+          try {
+            detail = await (fnErr as unknown as { context: Response }).context.text();
+          } catch { /* usa mensagem original */ }
+        }
+        throw new Error(detail);
+      }
 
       // Marca como enviado
       await supabase
@@ -384,6 +459,27 @@ export default function WeeklyPlanner() {
               </CardContent>
             </Card>
 
+            {/* Tema Semanal — Leitura e Portefólio */}
+            <Card className="border-border/60">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-heading text-lg">Leitura e Portefólio — Tema da semana</CardTitle>
+                <CardDescription>
+                  A mini-série de 4 episódios (Seg a Qui) será gerada a partir deste tema.
+                  Se deixares em branco, usa o interesse principal da criança.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Input
+                  value={weeklyReadingTheme}
+                  onChange={(e) => setWeeklyReadingTheme(e.target.value)}
+                  placeholder="Ex: O Sistema Solar, Os Dinossauros, A Floresta Amazónica..."
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  4 episódios sequenciais: Ep.1 O Começo · Ep.2 O Desafio · Ep.3 A Descoberta · Ep.4 O Final
+                </p>
+              </CardContent>
+            </Card>
+
             {/* Notes */}
             <Card className="border-border/60">
               <CardHeader className="pb-3">
@@ -445,6 +541,65 @@ export default function WeeklyPlanner() {
               <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
                 {error}
               </div>
+            )}
+
+            {/* Extracurriculares da semana */}
+            {extracurriculars.length > 0 && (
+              <Card className="border-border/60">
+                <CardHeader className="pb-3">
+                  <CardTitle className="font-heading text-lg">Extracurriculares da Semana</CardTitle>
+                  <CardDescription>Atividades fora do horário académico</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {extracurriculars.map((act) => {
+                      const color = ACTIVITY_COLORS_EXT[act.type ?? "Outro"] ?? "#9CA3AF";
+                      const dayLabel = act.day_of_week ? DAY_LABELS_EXT[act.day_of_week - 1] : "";
+                      const timeLabel = act.start_time
+                        ? `${act.start_time}${act.end_time ? `–${act.end_time}` : ""}`
+                        : "";
+                      const childName = act.child_id
+                        ? children.find((c) => c.id === act.child_id)?.name ?? ""
+                        : "Todos";
+                      return (
+                        <div
+                          key={act.id}
+                          className="flex gap-3 rounded-xl p-3"
+                          style={{ backgroundColor: color + "18", borderLeft: `3px solid ${color}` }}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              {act.type && (
+                                <Badge variant="secondary" className="text-xs" style={{ backgroundColor: color + "33" }}>
+                                  {act.type}
+                                </Badge>
+                              )}
+                              <span className="text-xs text-muted-foreground">{childName}</span>
+                            </div>
+                            <p className="text-sm font-medium text-foreground">{act.name}</p>
+                            <div className="flex flex-wrap gap-3 mt-1 text-xs text-muted-foreground">
+                              {dayLabel && <span className="font-medium">{dayLabel}</span>}
+                              {timeLabel && (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />{timeLabel}
+                                </span>
+                              )}
+                              {act.location && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />{act.location}
+                                </span>
+                              )}
+                              {act.travel_time_minutes > 0 && (
+                                <span>{act.travel_time_minutes}min deslocação</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {/* Plan preview by child */}

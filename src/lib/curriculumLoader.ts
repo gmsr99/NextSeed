@@ -140,7 +140,7 @@ function extractAno(
   const cid = d.cidadania_e_desenvolvimento as Record<string, unknown>;
   const citizenship = (cid?.temas_principais ?? cid?.competencias ?? []) as string[];
 
-  return { language, math, world, expression, english, citizenship };
+  return { language: lang, math, world, expression, english, citizenship };
 }
 
 // ─── Cache + ponto de entrada público ─────────────────────────────────────────

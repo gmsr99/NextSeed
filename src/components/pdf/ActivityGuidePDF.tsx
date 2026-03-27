@@ -4,7 +4,7 @@ import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, collectMaterials, for
 import type { Child } from "@/lib/types";
 
 const S = StyleSheet.create({
-  page: { fontFamily: "Helvetica", fontSize: 9, padding: 32, backgroundColor: "#FAFAF8" },
+  page: { fontFamily: "Helvetica", fontSize: 9, padding: 32, backgroundColor: "#FFFFFF" },
   header: { marginBottom: 18, borderBottomWidth: 2, borderColor: "#2D4A2D", paddingBottom: 8 },
   headerTitle: { fontSize: 20, fontWeight: "bold", color: "#2D4A2D", marginBottom: 2 },
   headerSub: { fontSize: 10, color: "#6B7280" },
@@ -51,7 +51,8 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
         </View>
 
         {[1, 2, 3, 4, 5].map((day) => {
-          const dayItems = planItems.filter((i) => i.day_of_week === day);
+          // Filtra blocos fixos — o Guia mostra apenas atividades com conteúdo pedagógico
+          const dayItems = planItems.filter((i) => i.day_of_week === day && !i.is_fixed);
           if (dayItems.length === 0) return null;
 
           return (

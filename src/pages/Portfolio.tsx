@@ -1,7 +1,10 @@
 import { useState, useMemo } from "react";
 import { parseISO, format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { Trophy, Leaf, ImageIcon, Filter, ChevronDown, Trash2 } from "lucide-react";
+import {
+  Trophy, Leaf, ImageIcon, Filter, ChevronDown, Trash2,
+  Sparkles, Loader2, BookOpen, FolderKanban, CheckCircle2,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
-import { useActivities } from "@/hooks/useActivities";
+import { usePortfolio, type PortfolioEntry } from "@/hooks/usePortfolio";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 import { toast } from "@/hooks/use-toast";
 
@@ -30,7 +33,6 @@ const fadeUp = {
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.4 } }),
 };
 
-// Discipline badge colour derived from DISCIPLINE_COLORS (hex → Tailwind-style inline)
 function DisciplineBadge({ discipline }: { discipline: string | null }) {
   if (!discipline) return null;
   const label = DISCIPLINE_LABELS[discipline] ?? discipline;
@@ -45,19 +47,107 @@ function DisciplineBadge({ discipline }: { discipline: string | null }) {
   );
 }
 
+function CoverageTags({ coverage }: { coverage: PortfolioEntry["coverage"] }) {
+  if (!coverage.length) return null;
+  const sorted = [...coverage].sort((a, b) => b.confidence - a.confidence).slice(0, 3);
+  return (
+    <div className="flex flex-wrap gap-1 mt-2">
+      {sorted.map((c) => (
+        <span
+          key={c.curriculum_id}
+          title={`${c.objective} (${Math.round(c.confidence * 100)}% confiança)`}
+          className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20"
+        >
+          <BookOpen className="h-3 w-3 shrink-0" />
+          {c.discipline_name}
+          {c.confidence >= 0.8 && <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
+        </span>
+      ))}
+      {coverage.length > 3 && (
+        <span className="text-xs text-muted-foreground px-1">+{coverage.length - 3}</span>
+      )}
+    </div>
+  );
+}
+
 export default function Portfolio() {
   const { children, isLoading: childrenLoading } = useChildren();
-  const { activities, isLoading: activitiesLoading, deleteActivity } = useActivities();
+  const { entries, isLoading: portfolioLoading, analyze, deleteActivity } = usePortfolio();
 
   const [selectedChildId, setSelectedChildId] = useState<string>("all");
+  const [typeFilter, setTypeFilter]            = useState<"all" | "activity" | "project">("all");
   const [disciplineFilter, setDisciplineFilter] = useState<string>("all");
-  const [showFilters, setShowFilters] = useState(false);
-  const [activityToDelete, setActivityToDelete] = useState<string | null>(null);
+  const [showFilters, setShowFilters]          = useState(false);
+  const [entryToDelete, setEntryToDelete]      = useState<string | null>(null);
+  const [analyzing, setAnalyzing]              = useState(false);
+
+  const isLoading = childrenLoading || portfolioLoading;
+
+  // ─── Filtros ───────────────────────────────────────────────────────────────
+
+  const filtered = useMemo(() =>
+    entries
+      .filter((e) => selectedChildId === "all" || e.child_id === selectedChildId)
+      .filter((e) => typeFilter === "all" || e.kind === typeFilter)
+      .filter((e) => {
+        if (disciplineFilter === "all") return true;
+        return e.kind === "activity" && e.discipline === disciplineFilter;
+      }),
+    [entries, selectedChildId, typeFilter, disciplineFilter]
+  );
+
+  const presentDisciplines = useMemo(() => {
+    const base = entries.filter(
+      (e) => (selectedChildId === "all" || e.child_id === selectedChildId) && e.kind === "activity"
+    );
+    return [...new Set(base.map((e) => e.kind === "activity" ? e.discipline : null).filter(Boolean))] as string[];
+  }, [entries, selectedChildId]);
+
+  // ─── Estatísticas ──────────────────────────────────────────────────────────
+
+  const statsBase = useMemo(() =>
+    entries.filter((e) => selectedChildId === "all" || e.child_id === selectedChildId),
+    [entries, selectedChildId]
+  );
+
+  const totalActivities = statsBase.filter((e) => e.kind === "activity").length;
+  const totalProjects   = statsBase.filter((e) => e.kind === "project").length;
+  const coveredCount    = statsBase.filter((e) => e.coverage.length > 0).length;
+
+  const selectedChild = children.find((c) => c.id === selectedChildId);
+
+  // ─── Analisar com IA ───────────────────────────────────────────────────────
+
+  const handleAnalyze = async () => {
+    const toAnalyze = filtered.length > 0 ? filtered : entries.filter(
+      (e) => selectedChildId === "all" || e.child_id === selectedChildId
+    );
+    if (!toAnalyze.length) return;
+
+    setAnalyzing(true);
+    try {
+      const result = await analyze.mutateAsync(toAnalyze);
+      toast({
+        title: "Análise concluída",
+        description: `${result.matched} ligações curriculares identificadas.`,
+      });
+    } catch (e) {
+      toast({
+        title: "Erro na análise",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  // ─── Apagar ───────────────────────────────────────────────────────────────
 
   const handleDelete = async () => {
-    if (!activityToDelete) return;
+    if (!entryToDelete) return;
     try {
-      await deleteActivity.mutateAsync(activityToDelete);
+      await deleteActivity.mutateAsync(entryToDelete);
       toast({ title: "Atividade removida." });
     } catch (e) {
       toast({
@@ -66,43 +156,11 @@ export default function Portfolio() {
         variant: "destructive",
       });
     } finally {
-      setActivityToDelete(null);
+      setEntryToDelete(null);
     }
   };
 
-  const isLoading = childrenLoading || activitiesLoading;
-
-  // Activities for the selected child, sorted newest first
-  const childActivities = useMemo(
-    () =>
-      activities
-        .filter((a) => selectedChildId === "all" || a.child_id === selectedChildId)
-        .filter((a) => disciplineFilter === "all" || a.discipline === disciplineFilter)
-        .sort((a, b) => b.activity_date.localeCompare(a.activity_date)),
-    [activities, selectedChildId, disciplineFilter]
-  );
-
-  // Disciplines present in the filtered activities (for the filter dropdown)
-  const presentDisciplines = useMemo(() => {
-    const base = activities.filter(
-      (a) => selectedChildId === "all" || a.child_id === selectedChildId
-    );
-    return [...new Set(base.map((a) => a.discipline).filter(Boolean))] as string[];
-  }, [activities, selectedChildId]);
-
-  // Stats for the banner
-  const statsChild = useMemo(
-    () =>
-      activities.filter(
-        (a) => selectedChildId === "all" || a.child_id === selectedChildId
-      ),
-    [activities, selectedChildId]
-  );
-  const totalCount   = statsChild.length;
-  const photosCount  = statsChild.filter((a) => a.photos.length > 0).length;
-  const disciplinesCount = new Set(statsChild.map((a) => a.discipline).filter(Boolean)).size;
-
-  const selectedChild = children.find((c) => c.id === selectedChildId);
+  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <AppLayout>
@@ -114,17 +172,31 @@ export default function Portfolio() {
             <h1 className="text-3xl font-heading font-bold text-foreground flex items-center gap-2">
               <Trophy className="h-7 w-7 text-primary" /> Portfólio
             </h1>
-            <p className="text-muted-foreground mt-1">O percurso de aprendizagem, passo a passo.</p>
+            <p className="text-muted-foreground mt-1">Atividades e projetos, ligados ao currículo NexSeed.</p>
           </div>
-          <Select value={selectedChildId} onValueChange={(v) => { setSelectedChildId(v); setDisciplineFilter("all"); }}>
-            <SelectTrigger className="w-[200px]"><SelectValue placeholder="Todas as crianças" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as crianças</SelectItem>
-              {children.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={selectedChildId} onValueChange={(v) => { setSelectedChildId(v); setDisciplineFilter("all"); }}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Todas as crianças" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as crianças</SelectItem>
+                {children.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAnalyze}
+              disabled={analyzing || isLoading}
+              className="gap-2 shrink-0"
+            >
+              {analyzing
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Sparkles className="h-4 w-4" />}
+              {analyzing ? "A analisar…" : "Analisar com IA"}
+            </Button>
+          </div>
         </div>
 
         {/* Banner */}
@@ -147,9 +219,9 @@ export default function Portfolio() {
                 </div>
                 <div className="hidden sm:flex gap-3">
                   {[
-                    { value: totalCount,       label: "Atividades" },
-                    { value: photosCount,       label: "Com fotos" },
-                    { value: disciplinesCount,  label: "Áreas" },
+                    { value: totalActivities, label: "Atividades",  icon: "🌿" },
+                    { value: totalProjects,   label: "Projetos",    icon: "📁" },
+                    { value: coveredCount,    label: "Analisados",  icon: "✨" },
                   ].map((s) => (
                     <div key={s.label} className="text-center bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2">
                       <p className="text-2xl font-bold text-white">{s.value}</p>
@@ -162,55 +234,57 @@ export default function Portfolio() {
           </motion.div>
         )}
 
-        {/* Filters */}
-        {presentDisciplines.length > 1 && (
-          <motion.div initial="hidden" animate="visible" custom={1} variants={fadeUp}>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="gap-2"
+        {/* Filtros */}
+        <motion.div initial="hidden" animate="visible" custom={1} variants={fadeUp} className="flex flex-wrap gap-2">
+          {/* Tipo */}
+          {(["all", "activity", "project"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTypeFilter(t)}
+              className={cn(
+                "px-3 py-1 rounded-full text-xs font-medium border transition-all flex items-center gap-1",
+                typeFilter === t
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-card border-border text-muted-foreground hover:border-foreground/30"
+              )}
             >
-              <Filter className="h-4 w-4" /> Filtrar por área
-              <ChevronDown className={cn("h-4 w-4 transition-transform", showFilters && "rotate-180")} />
-            </Button>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="flex flex-wrap gap-2 mt-3"
+              {t === "all"      && "Todos"}
+              {t === "activity" && <><ImageIcon className="h-3 w-3" /> Atividades</>}
+              {t === "project"  && <><FolderKanban className="h-3 w-3" /> Projetos</>}
+            </button>
+          ))}
+
+          {/* Filtro de disciplina (só quando a tab é activity ou all) */}
+          {presentDisciplines.length > 1 && typeFilter !== "project" && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="gap-1 h-7 px-3 text-xs"
               >
+                <Filter className="h-3 w-3" /> Área
+                <ChevronDown className={cn("h-3 w-3 transition-transform", showFilters && "rotate-180")} />
+              </Button>
+              {showFilters && presentDisciplines.map((d) => (
                 <button
-                  onClick={() => setDisciplineFilter("all")}
+                  key={d}
+                  onClick={() => setDisciplineFilter(disciplineFilter === d ? "all" : d)}
                   className={cn(
                     "px-3 py-1 rounded-full text-xs font-medium border transition-all",
-                    disciplineFilter === "all"
+                    disciplineFilter === d
                       ? "bg-foreground text-background border-foreground"
                       : "bg-card border-border text-muted-foreground hover:border-foreground/30"
                   )}
                 >
-                  Todas
+                  {DISCIPLINE_LABELS[d] ?? d}
                 </button>
-                {presentDisciplines.map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => setDisciplineFilter(d)}
-                    className={cn(
-                      "px-3 py-1 rounded-full text-xs font-medium border transition-all",
-                      disciplineFilter === d
-                        ? "bg-foreground text-background border-foreground"
-                        : "bg-card border-border text-muted-foreground hover:border-foreground/30"
-                    )}
-                  >
-                    {DISCIPLINE_LABELS[d] ?? d}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </motion.div>
-        )}
+              ))}
+            </>
+          )}
+        </motion.div>
 
-        {/* Loading skeletons */}
+        {/* Skeletons */}
         {isLoading && (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
@@ -226,10 +300,6 @@ export default function Portfolio() {
                     </div>
                     <Skeleton className="h-5 w-48" />
                     <Skeleton className="h-4 w-full" />
-                    <div className="flex gap-2">
-                      <Skeleton className="h-16 w-16 rounded-lg" />
-                      <Skeleton className="h-16 w-16 rounded-lg" />
-                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -240,18 +310,18 @@ export default function Portfolio() {
         {/* Timeline */}
         {!isLoading && (
           <div className="relative">
-            {/* Vertical line */}
             <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/30 via-primary/15 to-transparent hidden sm:block" />
 
             <div className="space-y-4">
-              {childActivities.map((act, i) => {
-                const child = children.find((c) => c.id === act.child_id);
-                const d = parseISO(act.activity_date + "T00:00:00");
-                const hasPhotos = act.photos.length > 0;
+              {filtered.map((entry, i) => {
+                const child = children.find((c) => c.id === entry.child_id);
+                const d = parseISO(entry.date + "T00:00:00");
+                const isActivity = entry.kind === "activity";
+                const hasPhotos  = isActivity && (entry.photos?.length ?? 0) > 0;
 
                 return (
                   <motion.div
-                    key={act.id}
+                    key={entry.id}
                     initial="hidden"
                     animate="visible"
                     custom={i + 2}
@@ -262,13 +332,17 @@ export default function Portfolio() {
                     <div className="hidden sm:flex flex-col items-center pt-4">
                       <div className={cn(
                         "h-10 w-10 rounded-full flex items-center justify-center shrink-0 shadow-sm z-10",
-                        hasPhotos
-                          ? "gradient-warmth"
-                          : "bg-card border-2 border-primary/20"
+                        !isActivity
+                          ? "bg-violet-100 border-2 border-violet-300"
+                          : hasPhotos
+                            ? "gradient-warmth"
+                            : "bg-card border-2 border-primary/20"
                       )}>
-                        {hasPhotos
-                          ? <ImageIcon className="h-4 w-4 text-white" />
-                          : <Leaf className="h-4 w-4 text-primary/60" />
+                        {!isActivity
+                          ? <FolderKanban className="h-4 w-4 text-violet-600" />
+                          : hasPhotos
+                            ? <ImageIcon className="h-4 w-4 text-white" />
+                            : <Leaf className="h-4 w-4 text-primary/60" />
                         }
                       </div>
                     </div>
@@ -276,13 +350,28 @@ export default function Portfolio() {
                     {/* Card */}
                     <Card className={cn(
                       "flex-1 hover:shadow-md transition-shadow border-primary/10",
-                      hasPhotos && "ring-1 ring-primary/20"
+                      !isActivity && "border-violet-200",
+                      entry.coverage.length > 0 && "ring-1 ring-primary/15"
                     )}>
                       <CardContent className="p-4 sm:p-5">
-                        {/* Meta row */}
+                        {/* Meta */}
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <DisciplineBadge discipline={act.discipline} />
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-xs",
+                                !isActivity && "border-violet-300 text-violet-700"
+                              )}
+                            >
+                              {isActivity ? "Atividade" : "Projeto"}
+                            </Badge>
+                            {isActivity && <DisciplineBadge discipline={entry.discipline} />}
+                            {!isActivity && (
+                              <Badge variant="outline" className="text-xs border-violet-200 text-violet-600">
+                                {(entry as typeof entry & { status: string }).status}
+                              </Badge>
+                            )}
                             {selectedChildId === "all" && child && (
                               <Badge variant="outline" className="text-xs">
                                 {child.name.split(" ")[0]}
@@ -293,39 +382,63 @@ export default function Portfolio() {
                             <span className="text-xs text-muted-foreground">
                               {format(d, "d MMM yyyy", { locale: pt })}
                             </span>
-                            <button
-                              onClick={() => setActivityToDelete(act.id)}
-                              className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5"
-                              title="Remover atividade"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
+                            {isActivity && (
+                              <button
+                                onClick={() => setEntryToDelete(entry.id)}
+                                className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5"
+                                title="Remover atividade"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
                           </div>
                         </div>
 
-                        {/* Title + description */}
-                        <h3 className="font-semibold text-foreground">{act.title}</h3>
-                        {act.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{act.description}</p>
+                        {/* Título + descrição */}
+                        <h3 className="font-semibold text-foreground">{entry.title}</h3>
+                        {entry.description && (
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{entry.description}</p>
                         )}
 
-                        {/* Photos */}
+                        {/* Fases do projeto */}
+                        {!isActivity && (entry as typeof entry & { phases: { title: string; completed: boolean }[] }).phases?.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {(entry as typeof entry & { phases: { title: string; completed: boolean }[] }).phases.slice(0, 4).map((phase, pi) => (
+                              <span
+                                key={pi}
+                                className={cn(
+                                  "text-xs px-2 py-0.5 rounded-full border",
+                                  phase.completed
+                                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                    : "bg-muted border-border text-muted-foreground"
+                                )}
+                              >
+                                {phase.completed ? "✓ " : ""}{phase.title}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Fotos (atividades) */}
                         {hasPhotos && (
                           <div className="flex flex-wrap gap-2 mt-3">
-                            {act.photos.slice(0, 5).map((url, j) => (
+                            {(entry as typeof entry & { photos: string[] }).photos.slice(0, 5).map((url, j) => (
                               <img
                                 key={j}
                                 src={url}
                                 className="h-16 w-16 rounded-lg object-cover border border-border"
                               />
                             ))}
-                            {act.photos.length > 5 && (
+                            {(entry as typeof entry & { photos: string[] }).photos.length > 5 && (
                               <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                                +{act.photos.length - 5}
+                                +{(entry as typeof entry & { photos: string[] }).photos.length - 5}
                               </div>
                             )}
                           </div>
                         )}
+
+                        {/* Cobertura curricular */}
+                        <CoverageTags coverage={entry.coverage} />
                       </CardContent>
                     </Card>
                   </motion.div>
@@ -334,14 +447,14 @@ export default function Portfolio() {
             </div>
 
             {/* Empty state */}
-            {childActivities.length === 0 && !isLoading && (
+            {filtered.length === 0 && !isLoading && (
               <div className="text-center py-16">
                 <Trophy className="h-12 w-12 mx-auto text-primary/20 mb-3" />
                 <p className="font-heading font-semibold text-foreground">Portfólio vazio</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {totalCount > 0
-                    ? "Nenhuma atividade com este filtro."
-                    : "Regista atividades para construir o portfólio."}
+                  {entries.length > 0
+                    ? "Nenhuma entrada com este filtro."
+                    : "Regista atividades e projetos para construir o portfólio."}
                 </p>
               </div>
             )}
@@ -349,12 +462,13 @@ export default function Portfolio() {
         )}
       </motion.div>
 
-      <AlertDialog open={!!activityToDelete} onOpenChange={(open) => !open && setActivityToDelete(null)}>
+      {/* Confirm delete */}
+      <AlertDialog open={!!entryToDelete} onOpenChange={(open) => !open && setEntryToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remover atividade?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação é permanente. As fotos associadas também serão eliminadas.
+              Esta ação é permanente. As fotos e ligações curriculares também serão eliminadas.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
