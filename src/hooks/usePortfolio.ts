@@ -170,7 +170,16 @@ export function usePortfolio() {
     },
   });
 
+  // Contagem de cobertura por curriculum_id — para mostrar no tab de currículo
+  const coverageCountByCurriculum = new Map<string, number>();
+  for (const row of coverageRaw as { curriculum_id: string }[]) {
+    coverageCountByCurriculum.set(
+      row.curriculum_id,
+      (coverageCountByCurriculum.get(row.curriculum_id) ?? 0) + 1
+    );
+  }
+
   const isLoading = loadingActivities || loadingProjects || loadingCoverage;
 
-  return { entries, isLoading, analyze, deleteActivity };
+  return { entries, isLoading, analyze, deleteActivity, coverageCountByCurriculum };
 }

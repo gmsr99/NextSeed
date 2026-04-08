@@ -1,251 +1,345 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Loader2, BookOpen, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, ChevronDown, Clock, Loader2, ArrowRight } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
-import { useCurriculum, type CurriculumDiscipline } from "@/hooks/useCurriculum";
-import { disciplines as DISCIPLINE_META } from "@/lib/disciplines";
-import { getAgeGroup, getAgeGroupLabel } from "@/lib/disciplines";
+import { useChildCurriculum } from "@/hooks/useChildCurriculum";
+import {
+  GC_DISCIPLINE_LABELS,
+  PERIOD_LABELS,
+  STATUS_CONFIG,
+  STATUS_ORDER,
+} from "@/lib/gcConstants";
+import type { ContentProgressStatus } from "@/lib/types";
+import type { DomainGroup, DisciplineGroup, ContentWithProgress } from "@/hooks/useChildCurriculum";
 
-// Map discipline_key → visual metadata from disciplines.ts
-function getMeta(key: string) {
-  return DISCIPLINE_META.find((d) => d.id === key) ?? {
-    icon: "📚",
-    color: "#9CA3AF",
-    names: { early: key, primary: key, secondary: key },
-    descriptions: { early: "", primary: "", secondary: "" },
-  };
+// ── Rating selector ───────────────────────────────────────────────────────────
+
+const RATING_ICONS = [
+  { status: "a_aprender"   as ContentProgressStatus, icon: Circle,       label: "1 — A aprender"   },
+  { status: "em_progresso" as ContentProgressStatus, icon: Clock,        label: "2 — Em progresso"  },
+  { status: "dominado"     as ContentProgressStatus, icon: CheckCircle2, label: "3 — Dominado"      },
+];
+
+function RatingPicker({
+  item,
+  onRate,
+  saving,
+}: {
+  item: ContentWithProgress;
+  onRate: (contentId: string, status: ContentProgressStatus) => void;
+  saving: boolean;
+}) {
+  const current = item.progress?.status ?? "a_aprender";
+  return (
+    <div className="flex gap-1.5 shrink-0">
+      {RATING_ICONS.map(({ status, icon: Icon, label }) => (
+        <button
+          key={status}
+          title={label}
+          disabled={saving}
+          onClick={() => onRate(item.id, status)}
+          className={cn(
+            "h-7 w-7 rounded-full flex items-center justify-center border transition-all duration-150",
+            current === status
+              ? cn("border-transparent", STATUS_CONFIG[status].classes)
+              : "border-border/50 text-muted-foreground hover:border-foreground/30 hover:text-foreground bg-transparent"
+          )}
+        >
+          <Icon className="h-3.5 w-3.5" />
+        </button>
+      ))}
+    </div>
+  );
 }
 
-// Derive age from school_year string
-function ageFromSchoolYear(schoolYear: string): number {
-  if (schoolYear.includes("pré") || schoolYear.includes("Pré")) return 5;
-  const match = schoolYear.match(/(\d)/);
-  if (!match) return 7;
-  const year = parseInt(match[1]);
-  return 5 + year; // 1º→6, 2º→7, 3º→8, 4º→9
+// ── Domain section ────────────────────────────────────────────────────────────
+
+function DomainSection({
+  group,
+  onRate,
+  saving,
+}: {
+  group: DomainGroup;
+  onRate: (contentId: string, status: ContentProgressStatus) => void;
+  saving: boolean;
+}) {
+  const [open, setOpen] = useState(true);
+  const mastered = group.contents.filter((c) => c.progress?.status === "dominado").length;
+  const total = group.contents.length;
+
+  return (
+    <div className="border rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+          <span className="text-sm font-medium truncate">{group.domain}</span>
+          {group.period !== "all" && (
+            <Badge variant="outline" className="text-xs shrink-0">{PERIOD_LABELS[group.period] ?? group.period}</Badge>
+          )}
+        </div>
+        <span className="text-xs text-muted-foreground shrink-0 ml-3">{mastered}/{total} dominados</span>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="divide-y divide-border/30">
+              {group.contents.map((item) => (
+                <div
+                  key={item.id}
+                  className={cn(
+                    "flex items-start gap-3 px-4 py-3 transition-colors",
+                    item.progress?.status === "dominado" && "bg-emerald-50/40"
+                  )}
+                >
+                  <p className={cn(
+                    "flex-1 text-sm leading-relaxed",
+                    item.progress?.status === "dominado" && "line-through text-muted-foreground"
+                  )}>
+                    {item.content}
+                  </p>
+                  <RatingPicker item={item} onRate={onRate} saving={saving} />
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
+
+// ── Discipline panel ──────────────────────────────────────────────────────────
+
+function DisciplinePanel({
+  group,
+  onRate,
+  saving,
+}: {
+  group: DisciplineGroup;
+  onRate: (contentId: string, status: ContentProgressStatus) => void;
+  saving: boolean;
+}) {
+  const pctMastered = group.total > 0 ? Math.round((group.mastered / group.total) * 100) : 0;
+  const pctStarted  = group.total > 0 ? Math.round((group.started  / group.total) * 100) : 0;
+
+  // Group domains by period
+  const periods = [...new Set(group.domains.map((d) => d.period))].sort();
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: "Total",      value: group.total,        sub: "conteúdos" },
+          { label: "Iniciados",  value: `${pctStarted}%`,   sub: `${group.started} conteúdos` },
+          { label: "Dominados",  value: `${pctMastered}%`,  sub: `${group.mastered} conteúdos` },
+        ].map(({ label, value, sub }) => (
+          <div key={label} className="rounded-lg border bg-muted/30 px-3 py-2.5 text-center">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-xl font-bold font-heading">{value}</p>
+            <p className="text-xs text-muted-foreground">{sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center gap-4 text-xs text-muted-foreground px-1">
+        {STATUS_ORDER.map((s) => (
+          <div key={s} className="flex items-center gap-1.5">
+            <div className={cn("h-2 w-2 rounded-full", STATUS_CONFIG[s].bar)} />
+            {STATUS_CONFIG[s].label}
+          </div>
+        ))}
+      </div>
+
+      {/* Domains by period */}
+      {periods.map((period) => {
+        const periodDomains = group.domains.filter((d) => d.period === period);
+        return (
+          <div key={period}>
+            {period !== "all" && (
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                {PERIOD_LABELS[period] ?? period}
+              </h4>
+            )}
+            <div className="space-y-2">
+              {periodDomains.map((d) => (
+                <DomainSection key={d.domain} group={d} onRate={onRate} saving={saving} />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function LearningAreas() {
   const { children, isLoading: childrenLoading } = useChildren();
   const [selectedChildId, setSelectedChildId] = useState<string>("__first__");
+  const [saving, setSaving] = useState(false);
+  const [activeDisc, setActiveDisc] = useState<string | null>(null);
 
-  const child = selectedChildId === "__first__"
-    ? children[0]
-    : children.find((c) => c.id === selectedChildId);
+  const child = selectedChildId === "__first__" ? children[0] : children.find((c) => c.id === selectedChildId);
 
-  const schoolYear = child?.school_year ?? null;
-  const { disciplines, isLoading: curriculumLoading } = useCurriculum(schoolYear);
+  const { grouped, isLoading, hasData, upsertProgress } = useChildCurriculum(
+    child?.id ?? null,
+    child?.school_year ?? null
+  );
 
-  const isLoading = childrenLoading || curriculumLoading;
+  // Set active discipline when data loads
+  if (grouped.length > 0 && activeDisc === null) {
+    setActiveDisc(grouped[0].discipline);
+  }
 
-  const ageGroup = child ? getAgeGroup(ageFromSchoolYear(child.school_year)) : "primary";
+  const handleRate = async (contentId: string, status: ContentProgressStatus) => {
+    if (!child) return;
+    setSaving(true);
+    try {
+      await upsertProgress.mutateAsync({ contentId, status });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const activeGroup = grouped.find((g) => g.discipline === activeDisc);
 
   return (
     <AppLayout>
-      <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-8">
-
+      <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">
-              Áreas de Aprendizagem
-            </h1>
+            <h1 className="text-3xl font-heading font-bold text-foreground">Áreas de Aprendizagem</h1>
             <p className="text-muted-foreground mt-1">
-              Disciplinas e objetivos adaptados ao ano escolar de cada criança.
+              Gestão de Conteúdos por criança — avalia de 1 (a aprender) a 3 (dominado).
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            {!childrenLoading && children.length > 0 && (
-              <Select
-                value={selectedChildId === "__first__" ? (children[0]?.id ?? "") : selectedChildId}
-                onValueChange={setSelectedChildId}
-              >
-                <SelectTrigger className="w-[200px] bg-card border-border">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {children.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            {child && (
-              <Badge variant="secondary" className="text-xs whitespace-nowrap">
-                {child.school_year} · {getAgeGroupLabel(ageGroup)}
-              </Badge>
-            )}
-          </div>
+          {children.length > 1 && (
+            <Select
+              value={selectedChildId}
+              onValueChange={(v) => { setSelectedChildId(v); setActiveDisc(null); }}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Selecionar criança" />
+              </SelectTrigger>
+              <SelectContent>
+                {children.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Loading */}
-        {isLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground py-12">
-            <Loader2 className="h-4 w-4 animate-spin" /> A carregar currículo…
+        {(childrenLoading || isLoading) && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" />
           </div>
         )}
 
-        {/* Empty state — no children */}
-        {!isLoading && children.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">
-            <BookOpen className="h-12 w-12 mx-auto text-primary/20 mb-3" />
-            <p className="font-semibold text-foreground">Sem perfis criados</p>
-            <p className="text-sm mt-1">Adiciona uma criança primeiro nas Definições.</p>
-          </div>
+        {/* No child */}
+        {!childrenLoading && !child && (
+          <Card className="border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+              <BookOpen className="h-8 w-8 opacity-30" />
+              <p className="text-muted-foreground text-sm">Adiciona uma criança primeiro na página Crianças.</p>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Discipline grid */}
-        {!isLoading && disciplines.length > 0 && (
-          <motion.div
-            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-            initial="hidden"
-            animate="visible"
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}
-            key={schoolYear}
-          >
-            {disciplines.map((disc) => (
-              <DisciplineCard key={disc.discipline_key} discipline={disc} ageGroup={ageGroup} />
-            ))}
-          </motion.div>
+        {/* No GC data for this year */}
+        {!childrenLoading && !isLoading && child && !hasData && (
+          <Card className="border-border/60">
+            <CardContent className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+              <BookOpen className="h-8 w-8 opacity-30" />
+              <p className="font-medium">{child.name} — {child.school_year}</p>
+              <p className="text-sm text-muted-foreground">
+                Ainda não há conteúdos GC para este ano letivo.<br />
+                Disponível para Pré-escolar e 1º ao 4º ano.
+              </p>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Link to Portfolio coverage */}
-        {!isLoading && disciplines.length > 0 && (
-          <CoverageCallToAction />
-        )}
+        {/* Main content */}
+        {!childrenLoading && !isLoading && child && hasData && grouped.length > 0 && (
+          <div className="flex gap-6">
+            {/* Discipline sidebar */}
+            <div className="w-52 shrink-0 space-y-1">
+              {grouped.map((g) => {
+                const pct = g.total > 0 ? Math.round((g.mastered / g.total) * 100) : 0;
+                const isActive = g.discipline === activeDisc;
+                return (
+                  <button
+                    key={g.discipline}
+                    onClick={() => setActiveDisc(g.discipline)}
+                    className={cn(
+                      "w-full text-left px-3 py-3 rounded-xl transition-all duration-150 border",
+                      isActive
+                        ? "bg-primary/10 border-primary/30 text-primary"
+                        : "bg-transparent border-transparent text-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    <p className="text-sm font-medium leading-tight">
+                      {GC_DISCIPLINE_LABELS[g.discipline] ?? g.discipline}
+                    </p>
+                    <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{pct}% dominado</p>
+                  </button>
+                );
+              })}
+            </div>
 
-        {/* Empty curriculum (year not yet in DB) */}
-        {!isLoading && child && disciplines.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">
-            <BookOpen className="h-10 w-10 mx-auto text-primary/20 mb-3" />
-            <p className="text-sm">Currículo para <strong>{schoolYear}</strong> ainda não disponível.</p>
+            {/* Content area */}
+            <div className="flex-1 min-w-0">
+              {activeGroup && (
+                <Card className="border-border/60">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="font-heading text-lg">
+                      {GC_DISCIPLINE_LABELS[activeGroup.discipline] ?? activeGroup.discipline}
+                    </CardTitle>
+                    <CardDescription>
+                      {child.name} · {child.school_year}
+                      {saving && <span className="ml-2 text-primary animate-pulse">A guardar...</span>}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <DisciplinePanel
+                      group={activeGroup}
+                      onRate={handleRate}
+                      saving={saving}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         )}
       </div>
     </AppLayout>
-  );
-}
-
-function CoverageCallToAction() {
-  const navigate = useNavigate();
-  return (
-    <Card className="border-primary/20 bg-primary/5">
-      <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-foreground">Queres saber que objetivos já foram trabalhados?</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            No Portfólio podes analisar atividades e projetos com IA para ver a cobertura curricular.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5 shrink-0"
-          onClick={() => navigate("/portfolio")}
-        >
-          Ver Portfólio <ArrowRight className="h-3.5 w-3.5" />
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function DisciplineCard({
-  discipline,
-  ageGroup,
-}: {
-  discipline: CurriculumDiscipline;
-  ageGroup: ReturnType<typeof getAgeGroup>;
-}) {
-  const [open, setOpen] = useState(false);
-  const meta = getMeta(discipline.discipline_key);
-  const displayName = discipline.discipline_name;
-  const objCount = discipline.objectives.length;
-
-  return (
-    <motion.div
-      variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-    >
-      <Card
-        className={cn(
-          "group relative overflow-hidden border-border/60 transition-shadow duration-300",
-          open ? "shadow-elevated" : "hover:shadow-md cursor-pointer",
-        )}
-        onClick={() => setOpen((v) => !v)}
-      >
-        {/* Accent bar */}
-        <div
-          className="absolute top-0 left-0 w-full h-1 rounded-t-lg"
-          style={{ backgroundColor: meta.color }}
-        />
-
-        <CardContent className="p-5 pt-6 space-y-3">
-          {/* Icon + name row */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl leading-none">{meta.icon}</span>
-              <h3 className="text-base font-semibold text-foreground leading-tight">
-                {displayName}
-              </h3>
-            </div>
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 text-muted-foreground shrink-0 mt-0.5 transition-transform duration-200",
-                open && "rotate-180",
-              )}
-            />
-          </div>
-
-          {/* Stats row */}
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <BookOpen className="h-3.5 w-3.5" />
-              {objCount} objetivos
-            </span>
-            {discipline.weekly_minutes && (
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                {discipline.weekly_minutes} min/sem
-              </span>
-            )}
-          </div>
-
-          {/* Expandable objectives list */}
-          <AnimatePresence initial={false}>
-            {open && (
-              <motion.ul
-                key="objectives"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25 }}
-                className="space-y-1 pt-1 border-t border-border/40 overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {discipline.objectives.map((obj, i) => (
-                  <li key={i} className="text-xs text-muted-foreground leading-relaxed flex gap-2">
-                    <span
-                      className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0"
-                      style={{ backgroundColor: meta.color }}
-                    />
-                    {obj}
-                  </li>
-                ))}
-              </motion.ul>
-            )}
-          </AnimatePresence>
-        </CardContent>
-      </Card>
-    </motion.div>
   );
 }

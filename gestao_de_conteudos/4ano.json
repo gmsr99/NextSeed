@@ -1,0 +1,244 @@
+{
+    "ano": "4.º ano",
+    "disciplinas": {
+        "Artes_Visuais": {
+            "1º_2º_e_3º_Periodos": {
+                "Apropriação e Reflexão": [
+                    "Observação e apreciação dos diferentes universos visuais (obras e artefactos de arte – pintura, escultura, desenho, assemblage, colagem, fotografia, instalação, land´art, banda desenhada, design, arquitetura, artesanato, multimédia, linguagens cinematográficas, entre outros), utilizando um vocabulário específico e adequado.",
+                    "Mobilizar a linguagem elementar das artes visuais (cor, forma, linha, textura, padrão, proporção e desproporção, plano, luz, espaço, volume, movimento, ritmo, matéria, …) integrada em diferentes contextos culturais (movimentos artísticos, épocas e geografias)."
+                ],
+                "Interpretação e Comunicação": [
+                    "Dialogar sobre o que vê e sente, de modo a construir múltiplos discursos e leituras da(s) realidade(s).",
+                    "Compreender a intencionalidade dos símbolos e dos sistemas de comunicação visual.",
+                    "Apreciar as diferentes manifestações artísticas e outras realidades visuais."
+                ],
+                "Experimentação e Criação": [
+                    "Integrar a linguagem das artes visuais, assim como várias técnicas de expressão (pintura; desenho - incluindo esboços, esquemas, e itinerários; técnica mista; assemblage; land´art; escultura; maqueta; fotografia, entre outras) nas suas experimentações: físicas e/ou digitais.",
+                    "Experimentar possibilidades expressivas dos materiais (carvão vegetal, pasta de modelar, barro, pastel seco, tinta cenográfica, pincéis e trinchas, rolos, papéis de formatos e características diversas, entre outros) e das diferentes técnicas, adequando o seu uso a diferentes contextos e situações.",
+                    "Escolher técnicas e materiais de acordo com a intenção expressiva das suas produções plásticas.",
+                    "Manifestar capacidades expressivas e criativas nas suas produções plásticas, evidenciando os conhecimentos adquiridos.",
+                    "Utilizar vários processos de registo de ideias (ex.: diários gráficos), de planeamento (ex.: projeto, portfólio) e de trabalho (ex.: individual, em grupo e em rede).",
+                    "Apreciar os seus trabalhos e os dos seus colegas, mobilizando diferentes critérios de argumentação."
+                ]
+            }
+        },
+        "Estudo_do_Meio": {
+            "1º_Periodo": {
+                "Natureza e Tecnologia": [
+                    "Corpo humano: Sistemas do corpo humano.",
+                    "Modificações biológicas e comportamentais na adolescência.",
+                    "Mecanismos simples da defesa do organismo.",
+                    "Importância da evolução tecnológica para a saúde."
+                ],
+                "Sociedade": [
+                    "História de Portugal: O passado nacional.",
+                    "Património natural e vestígios materiais do passado.",
+                    "Direitos Humanos: Direitos Humanos.",
+                    "A Declaração Universal dos Direitos Humanos."
+                ]
+            },
+            "2º_Periodo": {
+                "Sociedade e Tecnologia": [
+                    "União Europeia: União Europeia.",
+                    "Fluxos Migratórios.",
+                    "Evolução da Tecnologia - transportes e telecomunicações."
+                ],
+                "Natureza": [
+                    "Natureza e ambiente: Animais e plantas em via de extinção.",
+                    "Interferência da vida humana no oceano.",
+                    "O aumento da população mundial e a qualidade do ambiente.",
+                    "Espaço: A Terra do Sistema Solar.",
+                    "Representações da Terra.",
+                    "Processos para referenciar os pontos cardeais.",
+                    "Sismos, vulcões, rochas e solo: Sismos e vulcões."
+                ]
+            },
+            "3º_Periodo": {
+                "Tecnologia": [
+                    "Evolução tecnológica e previsão/redução de catástrofes naturais.",
+                    "A tecnologia no tempo: Evolução tecnológica e prevenção/redução do efeito de catástrofes tecnológicas.",
+                    "Objetos tecnológicos do passado e do presente.",
+                    "Fontes de energia e circuitos elétricos.",
+                    "Uso das TIC com segurança, respeito e responsabilidade."
+                ],
+                "Sociedade e Natureza": [
+                    "Relevo e distribuição da população: Formas de relevo, rios, lagos e lagoas.",
+                    "Diferentes formas de relevo em mapas hipsométricos.",
+                    "Distribuição espacial da população.",
+                    "O património natural."
+                ]
+            }
+        },
+        "Matematica": {
+            "1º_Periodo": {
+                "Números": [
+                    "Números naturais até 200 000: Usos do número natural; Sistema de numeração decimal; Valor posicional.",
+                    "Relações numéricas: Composição e decomposição.",
+                    "Cálculo mental: Estratégias.",
+                    "Operações: Algoritmo da adição e subtração; Algoritmo da multiplicação com números naturais.",
+                    "Frações: Significado de fração; Relações entre frações."
+                ],
+                "Dados e Probabilidades": [
+                    "Representações Gráficas: Diagrama de caule e folhas."
+                ],
+                "Álgebra": [
+                    "Regularidades em sequências: Sequências de crescimento.",
+                    "Expressões e relações: Igualdades aritméticas."
+                ],
+                "Geometria e Medida": [
+                    "Sólidos: Prismas e pirâmides regulares; Planificações.",
+                    "Figuras planas: Quadriláteros; Retas paralelas e retas perpendiculares; Círculo e circunferência."
+                ]
+            },
+            "2º_Periodo": {
+                "Números": [
+                    "Números naturais até 400 000: Usos do número natural; Sistema de numeração decimal; Valor posicional.",
+                    "Relações numéricas: Composição e decomposição.",
+                    "Cálculo mental: Estratégias; Estimativas de cálculo.",
+                    "Operações: Algoritmo da divisão com números naturais.",
+                    "Frações e decimais: Significado de decimal; Relações entre decimais; Relações entre representações."
+                ],
+                "Dados e Probabilidades": [
+                    "Representações Gráficas: Diagrama de caule e folhas."
+                ],
+                "Álgebra": [
+                    "Regularidades em sequências: Sequências de crescimento.",
+                    "Expressões e relações: Relações numéricas e algébricas."
+                ],
+                "Geometria e Medida": [
+                    "Área: Medição e unidades de medida; Usos da área.",
+                    "Capacidade: Significado; Medição e unidades de medida; Usos da capacidade.",
+                    "Dinheiro: Usos do dinheiro."
+                ]
+            },
+            "3º_Periodo": {
+                "Números": [
+                    "Números naturais até 1 000 000: Usos do número natural; Sistema de numeração decimal; Valor posicional.",
+                    "Relações numéricas: Composição e decomposição; Factos básicos da multiplicação e sua relação com a divisão.",
+                    "Cálculo mental: Estratégias; Estimativas de cálculo.",
+                    "Operações: Algoritmo da divisão com números naturais; Algoritmo da adição e subtração envolvendo decimais."
+                ],
+                "Dados e Probabilidades": [
+                    "Questões estatísticas, recolha e organização de dados: Questões estatísticas; Recolha de dados (fontes e secundárias).",
+                    "Representações Gráficas: Gráficos de barras duplos (justapostas); Análise crítica de gráficos.",
+                    "Análise de dados: Interpretação e conclusão.",
+                    "Comunicação e divulgação de um estudo: Público-alvo; Recursos para a comunicação oral e escrita.",
+                    "Probabilidades: Convicção sobre acontecimentos."
+                ],
+                "Álgebra": [
+                    "Regularidades em sequências: Sequências de crescimento.",
+                    "Expressões e relações: Relações numéricas e algébricas."
+                ],
+                "Geometria e Medida": [
+                    "Operações com figuras: Simetria de reflexão; Simetria de rotação."
+                ]
+            },
+            "Ao_longo_do_ano": {
+                "Capacidades Matemáticas": [
+                    "Resolução de problemas: Processo; Estratégias.",
+                    "Raciocínio matemático: Conjeturar e generalizar; Classificar; Justificar.",
+                    "Pensamento computacional: Abstração; Decomposição; Reconhecimento de padrões; Algoritmia; Depuração.",
+                    "Comunicação matemática: Expressão de ideias; Discussão de ideias.",
+                    "Representações matemáticas: Representações múltiplas; Conexões entre representações; Linguagem simbólica matemática.",
+                    "Conexões matemáticas: Conexões internas; Conexões externas.",
+                    "Modelos matemáticos: Linguagem simbólica matemática."
+                ]
+            }
+        },
+        "Portugues": {
+            "1º_Periodo": {
+                "Oralidade": [
+                    "Interação discursiva.",
+                    "Compreensão e expressão."
+                ],
+                "Leitura": [
+                    "Fluência de leitura.",
+                    "Compreensão de texto."
+                ],
+                "Educação Literária": [
+                    "Leitura e audição.",
+                    "Produção expressiva."
+                ],
+                "Escrita": [
+                    "Planificação de texto.",
+                    "Produção de texto.",
+                    "Revisão de texto."
+                ],
+                "Gramática": [
+                    "Onomatopeias.",
+                    "Formação de palavras e família de palavras.",
+                    "Significado de prefixos e sufixos.",
+                    "Sujeito/GN; Predicado/GV.",
+                    "Plurais irregulares de nomes e adjetivos.",
+                    "Femininos irregulares de nomes e adjetivos.",
+                    "Conectores discursivos.",
+                    "Ampliar, expandir, modificar e reduzir frases.",
+                    "Frases complexas."
+                ]
+            },
+            "2º_Periodo": {
+                "Oralidade": [
+                    "Interação discursiva.",
+                    "Compreensão e expressão.",
+                    "Produção de discurso oral."
+                ],
+                "Leitura": [
+                    "Fluência de leitura.",
+                    "Compreensão de texto.",
+                    "Localização de informação explícita.",
+                    "Realização de leitura silenciosa e autónoma."
+                ],
+                "Educação Literária": [
+                    "Leitura e audição.",
+                    "Produção expressiva.",
+                    "Apresentação de livros."
+                ],
+                "Escrita": [
+                    "Pesquisa e registo de informação.",
+                    "Produção de texto.",
+                    "Ortografia e pontuação (grafia, pontuação e translineação, configuração gráfica e sinais auxiliares da escrita)."
+                ],
+                "Gramática": [
+                    "Nomes comuns coletivos.",
+                    "Graus dos nomes.",
+                    "Tempos verbais: pretérito imperfeito do modo indicativo.",
+                    "Modo imperativo.",
+                    "Pronomes pessoais (formas tónicas e átonas) em frases afirmativas.",
+                    "Pronomes pessoais em frases negativas e com advérbios pré-verbais."
+                ]
+            },
+            "3º_Periodo": {
+                "Oralidade": [
+                    "Interação discursiva.",
+                    "Compreensão e expressão.",
+                    "Produção de discurso oral.",
+                    "Pesquisa e registo da informação."
+                ],
+                "Leitura": [
+                    "Fluência de leitura.",
+                    "Compreensão de texto.",
+                    "Ler textos com características narrativas e descritivas de maior complexidade."
+                ],
+                "Educação Literária": [
+                    "Leitura e audição.",
+                    "Produção expressiva.",
+                    "Apresentação de livros."
+                ],
+                "Escrita": [
+                    "Ortografia e pontuação.",
+                    "Produção de texto.",
+                    "Pesquisa e registo de informação.",
+                    "Aperfeiçoamento de texto."
+                ],
+                "Gramática": [
+                    "Determinantes interrogativos.",
+                    "Preposições.",
+                    "Pronomes possessivos.",
+                    "Pronomes demonstrativos.",
+                    "Sentido literal e sentido figurado de palavras ou expressões.",
+                    "Expressões idiomáticas."
+                ]
+            }
+        }
+    }
+}

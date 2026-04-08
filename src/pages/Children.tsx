@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { format, differenceInYears, parseISO } from "date-fns";
 import { SCHOOL_YEARS, suggestPreSchoolYear } from "@/lib/planGenerator";
-import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2 } from "lucide-react";
+import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2, GraduationCap, BarChart2 } from "lucide-react";
+import CurriculumCoverageReport from "@/components/CurriculumCoverageReport";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import ChildCurriculumView from "@/components/ChildCurriculumView";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,6 +55,8 @@ export default function Children() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
+  const [curriculumChild, setCurriculumChild] = useState<Child | null>(null);
+  const [reportChild, setReportChild] = useState<Child | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [editForm, setEditForm] = useState(emptyForm);
 
@@ -86,7 +90,7 @@ export default function Children() {
       school: child.school ?? "",
       curriculum: child.curriculum ?? "",
       manuals: child.manuals ?? "",
-      interests: child.interests,
+      interests: child.interests ?? [],
       learningPreferences: child.learning_preferences ?? "",
       learningPace: child.learning_pace ?? "",
     });
@@ -246,18 +250,26 @@ export default function Children() {
                           <p className="text-sm text-muted-foreground">{getAge(child.birth_date)} anos · {child.school_year}</p>
                         </div>
                       </div>
-                      {child.interests.length > 0 && (
+                      {(child.interests ?? []).length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                          {child.interests.map((interest) => (
+                          {(child.interests ?? []).map((interest) => (
                             <Badge key={interest} variant="secondary" className="gap-1 text-xs font-medium">
                               {interestIcons[interest] || null}{interest}
                             </Badge>
                           ))}
                         </div>
                       )}
-                      <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => openEdit(child)}>
-                        <Pencil className="h-3.5 w-3.5" /> Editar Perfil
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => openEdit(child)}>
+                          <Pencil className="h-3.5 w-3.5" /> Editar
+                        </Button>
+                        <Button variant="outline" size="sm" title="Currículo GC" onClick={() => setCurriculumChild(child)}>
+                          <GraduationCap className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" title="Relatório de cobertura" onClick={() => setReportChild(child)}>
+                          <BarChart2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -266,6 +278,30 @@ export default function Children() {
           </div>
         )}
       </div>
+
+      {/* Dialog de relatório de cobertura */}
+      <Dialog open={!!reportChild} onOpenChange={(o) => { if (!o) setReportChild(null); }}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">
+              Relatório GC — {reportChild?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {reportChild && <CurriculumCoverageReport child={reportChild} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de currículo */}
+      <Dialog open={!!curriculumChild} onOpenChange={(o) => { if (!o) setCurriculumChild(null); }}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">
+              Currículo — {curriculumChild?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {curriculumChild && <ChildCurriculumView child={curriculumChild} />}
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog de edição */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>

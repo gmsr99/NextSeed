@@ -12,7 +12,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -341,6 +341,7 @@ export default function Projects() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [diffFilter, setDiffFilter] = useState("all");
   const [startingTemplate, setStartingTemplate] = useState<typeof TEMPLATES[0] | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const activeProjects   = projects.filter((p) => p.status !== "completed");
   const completedProjects = projects.filter((p) => p.status === "completed");
@@ -387,6 +388,7 @@ export default function Projects() {
     try {
       await deleteProject.mutateAsync(id);
       toast({ title: "Projeto eliminado." });
+      setConfirmDeleteId(null);
     } catch {
       toast({ title: "Erro ao eliminar", variant: "destructive" });
     }
@@ -449,7 +451,7 @@ export default function Projects() {
                               childName={child?.name.split(" ")[0] ?? ""}
                               onCompletePhase={(phaseId) => handleCompletePhase(p, phaseId)}
                               onUpdateStatus={(status) => handleStatus(p.id, status)}
-                              onDelete={() => handleDelete(p.id)}
+                              onDelete={() => setConfirmDeleteId(p.id)}
                             />
                           </motion.div>
                         );
@@ -474,7 +476,7 @@ export default function Projects() {
                               childName={child?.name.split(" ")[0] ?? ""}
                               onCompletePhase={(phaseId) => handleCompletePhase(p, phaseId)}
                               onUpdateStatus={(status) => handleStatus(p.id, status)}
-                              onDelete={() => handleDelete(p.id)}
+                              onDelete={() => setConfirmDeleteId(p.id)}
                             />
                           </motion.div>
                         );
@@ -599,6 +601,31 @@ export default function Projects() {
         onStart={handleStart}
         saving={createProject.isPending}
       />
+
+      {/* Confirm delete dialog */}
+      <Dialog open={!!confirmDeleteId} onOpenChange={(open) => { if (!open) setConfirmDeleteId(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Eliminar projeto?</DialogTitle>
+            <DialogDescription>
+              Esta ação é permanente. O projeto e todas as suas fases serão eliminados.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setConfirmDeleteId(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteProject.isPending}
+              onClick={() => confirmDeleteId && handleDelete(confirmDeleteId)}
+            >
+              {deleteProject.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

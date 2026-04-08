@@ -1,16 +1,20 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { parseISO, format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { pdf } from "@react-pdf/renderer";
 import {
   Trophy, Leaf, ImageIcon, Filter, ChevronDown, Trash2,
-  Sparkles, Loader2, BookOpen, FolderKanban, CheckCircle2,
+  Sparkles, Loader2, BookOpen, FolderKanban, CheckCircle2, Download,
+  X, ChevronLeft, ChevronRight, ZoomIn,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
@@ -27,6 +31,8 @@ import { useChildren } from "@/hooks/useChildren";
 import { usePortfolio, type PortfolioEntry } from "@/hooks/usePortfolio";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import type { NexseedCurriculum } from "@/lib/types";
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 16 },
@@ -70,9 +76,127 @@ function CoverageTags({ coverage }: { coverage: PortfolioEntry["coverage"] }) {
   );
 }
 
+// ── Currículo NexSeed tab ─────────────────────────────────────────────────────
+
+type CurriculumGroup = {
+  discipline_key: string;
+  discipline_name: string;
+  objectives: (NexseedCurriculum & { coverageCount: number })[];
+};
+
+function NexseedCurriculumTab({
+  schoolYears,
+  coverageCountByCurriculum,
+}: {
+  schoolYears: string[];
+  coverageCountByCurriculum: Map<string, number>;
+}) {
+  const { data: items = [], isLoading } = useQuery<NexseedCurriculum[]>({
+    queryKey: ["nexseed_curriculum", schoolYears],
+    enabled: schoolYears.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("nexseed_curriculum")
+        .select("*")
+        .in("school_year", schoolYears)
+        .eq("is_active", true)
+        .order("discipline_key")
+        .order("area");
+      if (error) throw error;
+      return (data ?? []) as NexseedCurriculum[];
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground gap-3">
+        <BookOpen className="h-10 w-10 opacity-30" />
+        <p className="font-semibold">Currículo NexSeed ainda não configurado</p>
+        <p className="text-sm max-w-sm">
+          O currículo NexSeed será preenchido com os objetivos pedagógicos da família. Por agora, a triangulação usa apenas o currículo nacional GC.
+        </p>
+      </div>
+    );
+  }
+
+  // Agrupar por school_year → discipline
+  const byYear = new Map<string, CurriculumGroup[]>();
+  for (const item of items) {
+    if (!byYear.has(item.school_year)) byYear.set(item.school_year, []);
+    const yearGroups = byYear.get(item.school_year)!;
+    let group = yearGroups.find((g) => g.discipline_key === item.discipline_key);
+    if (!group) {
+      group = { discipline_key: item.discipline_key, discipline_name: item.discipline_name, objectives: [] };
+      yearGroups.push(group);
+    }
+    group.objectives.push({ ...item, coverageCount: coverageCountByCurriculum.get(item.id) ?? 0 });
+  }
+
+  return (
+    <div className="space-y-8">
+      {[...byYear.entries()].map(([year, groups]) => (
+        <div key={year}>
+          <h2 className="text-base font-heading font-bold mb-4 pb-1 border-b">{year}</h2>
+          <div className="space-y-5">
+            {groups.map((group) => {
+              const covered = group.objectives.filter((o) => o.coverageCount > 0).length;
+              return (
+                <div key={group.discipline_key}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-semibold">{group.discipline_name}</p>
+                    <span className="text-xs text-muted-foreground">{covered}/{group.objectives.length} cobertos</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {group.objectives.map((obj) => (
+                      <div
+                        key={obj.id}
+                        className={cn(
+                          "flex items-start gap-3 rounded-lg border px-3 py-2.5 text-sm",
+                          obj.coverageCount > 0
+                            ? "border-primary/20 bg-primary/5"
+                            : "border-border bg-card"
+                        )}
+                      >
+                        <div className="flex-1">
+                          {obj.area && (
+                            <p className="text-xs text-muted-foreground mb-0.5">{obj.area}</p>
+                          )}
+                          <p className={cn(obj.coverageCount > 0 && "text-foreground font-medium")}>
+                            {obj.objective}
+                          </p>
+                        </div>
+                        {obj.coverageCount > 0 && (
+                          <Badge variant="outline" className="shrink-0 text-xs border-primary/30 text-primary gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            {obj.coverageCount}×
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Portfolio() {
   const { children, isLoading: childrenLoading } = useChildren();
-  const { entries, isLoading: portfolioLoading, analyze, deleteActivity } = usePortfolio();
+  const { entries, isLoading: portfolioLoading, analyze, deleteActivity, coverageCountByCurriculum } = usePortfolio();
+
+  const schoolYears = useMemo(() => [...new Set(children.map((c) => c.school_year))], [children]);
 
   const [selectedChildId, setSelectedChildId] = useState<string>("all");
   const [typeFilter, setTypeFilter]            = useState<"all" | "activity" | "project">("all");
@@ -80,6 +204,36 @@ export default function Portfolio() {
   const [showFilters, setShowFilters]          = useState(false);
   const [entryToDelete, setEntryToDelete]      = useState<string | null>(null);
   const [analyzing, setAnalyzing]              = useState(false);
+  const [exportingPDF, setExportingPDF]        = useState(false);
+
+  // Lightbox state
+  const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null);
+
+  const openLightbox = useCallback((photos: string[], index: number) => {
+    setLightbox({ photos, index });
+  }, []);
+
+  const closeLightbox = useCallback(() => setLightbox(null), []);
+
+  const lightboxPrev = useCallback(() =>
+    setLightbox((lb) => lb ? { ...lb, index: (lb.index - 1 + lb.photos.length) % lb.photos.length } : lb),
+  []);
+
+  const lightboxNext = useCallback(() =>
+    setLightbox((lb) => lb ? { ...lb, index: (lb.index + 1) % lb.photos.length } : lb),
+  []);
+
+  // Keyboard nav for lightbox
+  useEffect(() => {
+    if (!lightbox) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") lightboxPrev();
+      if (e.key === "ArrowRight") lightboxNext();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightbox, closeLightbox, lightboxPrev, lightboxNext]);
 
   const isLoading = childrenLoading || portfolioLoading;
 
@@ -142,6 +296,39 @@ export default function Portfolio() {
     }
   };
 
+  // ─── Exportar PDF ────────────────────────────────────────────────────────
+
+  const handleExportPDF = async () => {
+    setExportingPDF(true);
+    try {
+      const { default: PortfolioPDFComp } = await import("@/components/pdf/PortfolioPDF");
+      const entriesToExport = filtered.length > 0 ? filtered : entries;
+      const blob = await pdf(
+        <PortfolioPDFComp
+          entries={entriesToExport}
+          children={children}
+          childId={selectedChildId}
+          familyName={children[0] ? "Família NexSeed" : "NexSeed"}
+        />
+      ).toBlob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      const childLabel = selectedChildId !== "all"
+        ? (children.find((c) => c.id === selectedChildId)?.name ?? "portfolio")
+        : "portfolio";
+      a.download = `nexseed-portfolio-${childLabel}-${format(new Date(), "yyyy-MM-dd")}.pdf`;
+      a.click();
+    } catch (e) {
+      toast({
+        title: "Erro ao exportar PDF",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    } finally {
+      setExportingPDF(false);
+    }
+  };
+
   // ─── Apagar ───────────────────────────────────────────────────────────────
 
   const handleDelete = async () => {
@@ -196,6 +383,18 @@ export default function Portfolio() {
                 : <Sparkles className="h-4 w-4" />}
               {analyzing ? "A analisar…" : "Analisar com IA"}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPDF}
+              disabled={exportingPDF || isLoading || entries.length === 0}
+              className="gap-2 shrink-0"
+            >
+              {exportingPDF
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Download className="h-4 w-4" />}
+              PDF
+            </Button>
           </div>
         </div>
 
@@ -233,6 +432,25 @@ export default function Portfolio() {
             </Card>
           </motion.div>
         )}
+
+        <Tabs defaultValue="portfolio">
+          <TabsList className="mb-4">
+            <TabsTrigger value="portfolio" className="gap-1.5">
+              <Trophy className="h-3.5 w-3.5" /> Portfólio
+            </TabsTrigger>
+            <TabsTrigger value="curriculum" className="gap-1.5">
+              <BookOpen className="h-3.5 w-3.5" /> Currículo NexSeed
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="curriculum" className="mt-0">
+            <NexseedCurriculumTab
+              schoolYears={schoolYears}
+              coverageCountByCurriculum={coverageCountByCurriculum}
+            />
+          </TabsContent>
+
+          <TabsContent value="portfolio" className="mt-0">
 
         {/* Filtros */}
         <motion.div initial="hidden" animate="visible" custom={1} variants={fadeUp} className="flex flex-wrap gap-2">
@@ -420,22 +638,36 @@ export default function Portfolio() {
                         )}
 
                         {/* Fotos (atividades) */}
-                        {hasPhotos && (
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            {(entry as typeof entry & { photos: string[] }).photos.slice(0, 5).map((url, j) => (
-                              <img
-                                key={j}
-                                src={url}
-                                className="h-16 w-16 rounded-lg object-cover border border-border"
-                              />
-                            ))}
-                            {(entry as typeof entry & { photos: string[] }).photos.length > 5 && (
-                              <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                                +{(entry as typeof entry & { photos: string[] }).photos.length - 5}
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        {hasPhotos && (() => {
+                          const photos = (entry as typeof entry & { photos: string[] }).photos;
+                          const visible = photos.slice(0, 5);
+                          const remaining = photos.length - visible.length;
+                          return (
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              {visible.map((url, j) => (
+                                <button
+                                  key={j}
+                                  onClick={() => openLightbox(photos, j)}
+                                  className="relative group h-16 w-16 rounded-lg overflow-hidden border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                                  title="Ver foto"
+                                >
+                                  <img src={url} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                    <ZoomIn className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  </div>
+                                </button>
+                              ))}
+                              {remaining > 0 && (
+                                <button
+                                  onClick={() => openLightbox(photos, 5)}
+                                  className="h-16 w-16 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center text-xs font-semibold text-muted-foreground border border-border transition-colors"
+                                >
+                                  +{remaining}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         {/* Cobertura curricular */}
                         <CoverageTags coverage={entry.coverage} />
@@ -460,6 +692,9 @@ export default function Portfolio() {
             )}
           </div>
         )}
+
+          </TabsContent>
+        </Tabs>
       </motion.div>
 
       {/* Confirm delete */}
@@ -482,6 +717,76 @@ export default function Portfolio() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* ── Lightbox ────────────────────────────────────────────────────────── */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={closeLightbox}
+        >
+          {/* Close */}
+          <button
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
+            onClick={closeLightbox}
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          {/* Counter */}
+          {lightbox.photos.length > 1 && (
+            <span className="absolute top-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+              {lightbox.index + 1} / {lightbox.photos.length}
+            </span>
+          )}
+
+          {/* Prev */}
+          {lightbox.photos.length > 1 && (
+            <button
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors bg-black/30 rounded-full p-2"
+              onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={lightbox.photos[lightbox.index]}
+            className="max-h-[90vh] max-w-[90vw] rounded-xl shadow-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          {lightbox.photos.length > 1 && (
+            <button
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors bg-black/30 rounded-full p-2"
+              onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          )}
+
+          {/* Thumbnails strip */}
+          {lightbox.photos.length > 1 && (
+            <div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {lightbox.photos.map((url, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLightbox((lb) => lb ? { ...lb, index: i } : lb)}
+                  className={`h-10 w-10 rounded-md overflow-hidden border-2 transition-all ${
+                    i === lightbox.index ? "border-white opacity-100" : "border-transparent opacity-50 hover:opacity-80"
+                  }`}
+                >
+                  <img src={url} className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </AppLayout>
   );
 }

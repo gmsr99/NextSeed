@@ -397,6 +397,7 @@ export type Database = {
           sent_at: string | null
           status: string | null
           updated_at: string | null
+          version: number
           week_start: string
         }
         Insert: {
@@ -411,6 +412,7 @@ export type Database = {
           sent_at?: string | null
           status?: string | null
           updated_at?: string | null
+          version?: number
           week_start: string
         }
         Update: {
@@ -425,6 +427,7 @@ export type Database = {
           sent_at?: string | null
           status?: string | null
           updated_at?: string | null
+          version?: number
           week_start?: string
         }
         Relationships: []
@@ -510,6 +513,75 @@ export type Database = {
         }
         Relationships: []
       }
+      curriculum_contents: {
+        Row: {
+          id: string
+          school_year: string
+          discipline: string
+          period: string
+          domain: string
+          content: string
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          school_year: string
+          discipline: string
+          period: string
+          domain: string
+          content: string
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          school_year?: string
+          discipline?: string
+          period?: string
+          domain?: string
+          content?: string
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      child_content_progress: {
+        Row: {
+          id: string
+          child_id: string
+          content_id: string
+          status: 'a_aprender' | 'em_progresso' | 'dominado'
+          success_level: number | null
+          taught_on: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          child_id: string
+          content_id: string
+          status?: 'a_aprender' | 'em_progresso' | 'dominado'
+          success_level?: number | null
+          taught_on?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          child_id?: string
+          content_id?: string
+          status?: 'a_aprender' | 'em_progresso' | 'dominado'
+          success_level?: number | null
+          taught_on?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       curriculum_coverage: {
         Row: {
           id: string
@@ -580,7 +652,10 @@ export type ExtracurricularActivity = Tables<"extracurricular_activities">
 export type NexseedCurriculum = Tables<"nexseed_curriculum">
 export type CurriculumCoverage = Tables<"curriculum_coverage">
 
-// Projeção leve usada no WeeklyPlanner e SchedulePDF (apenas campos necessários)
+export type CurriculumContent = Tables<"curriculum_contents">
+export type ContentProgress = Tables<"child_content_progress">
+export type ContentProgressStatus = ContentProgress["status"]
+
 export interface ExtracurricularItem {
   id: string;
   child_id: string | null;
@@ -591,4 +666,64 @@ export interface ExtracurricularItem {
   start_time: string | null;  // "HH:MM"
   end_time: string | null;    // "HH:MM"
   travel_time_minutes: number;
+}
+
+// ─── Metodologias ─────────────────────────────────────────────────────────────
+
+export type MethodologyCategory =
+  | 'pedagogias-classicas'
+  | 'natureza-experiencia'
+  | 'alta-autonomia'
+  | 'aprendizagem-ativa'
+  | 'contemporaneo';
+
+export type MethodologyIntensity = 'baixa' | 'media' | 'alta';
+export type MethodologyMaterialsCost = 'baixo' | 'medio' | 'alto';
+
+export interface MethodologyPrinciple {
+  id: string;
+  methodology_id: string;
+  title: string;
+  description: string | null;
+  sort_order: number;
+}
+
+export interface MethodologyCompatibility {
+  id: string;
+  methodology_a_id: string;
+  methodology_b_id: string;
+  compatibility_level: string; // 'alta' | 'media' | 'baixa'
+  notes: string | null;
+}
+
+export interface Methodology {
+  id: string;
+  slug: string;
+  name: string;
+  category: MethodologyCategory;
+  short_description: string;
+  philosophy_summary: string | null;
+  intensity: MethodologyIntensity;
+  materials_cost: MethodologyMaterialsCost;
+  age_min: number;
+  age_max: number;
+  ai_generation_style: string | null;
+  keywords: string[] | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  methodology_principles?: MethodologyPrinciple[];
+}
+
+// Priority 1 = Principal (plano gerado com pleno peso)
+// Priority 2 = Secundária (peso parcial)
+// Priority 3 = Complementar (referência)
+export interface FamilyMethodology {
+  id: string;
+  family_id: string;
+  methodology_id: string;
+  priority: 1 | 2 | 3;
+  notes: string | null;
+  adopted_at: string;
+  methodology?: Methodology;
 }

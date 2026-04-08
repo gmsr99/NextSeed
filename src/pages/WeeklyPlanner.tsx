@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
-import { pt } from "date-fns/locale";
-import { CalendarDays, Sparkles, Download, Mail, Loader2, ChevronLeft, ChevronRight, CheckCircle2, Clock, MapPin } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TagInput from "@/components/TagInput";
+import PostWeekProgressDialog from "@/components/PostWeekProgressDialog";
+import {
+  VersionBadge,
+  PlannerForm,
+  PlanActions,
+  ExtracurricularsCard,
+  PlanPreview,
+} from "@/components/planner";
 import { useChildren } from "@/hooks/useChildren";
 import { useExtracurricular } from "@/hooks/useExtracurricular";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,12 +19,10 @@ import {
   generateWeeklyPlan,
   getNextMonday,
   formatWeekRange,
-  DISCIPLINE_LABELS,
-  DISCIPLINE_COLORS,
-  DAY_LABELS,
   type GeneratedPlanItem,
 } from "@/lib/planGenerator";
 import { generateWithGemini } from "@/lib/geminiPlanner";
+import { YEAR_MAP } from "@/lib/gcConstants";
 
 type Step = "form" | "preview";
 
@@ -43,11 +40,12 @@ function parseNotesField(raw: string | null): { notes: string; readingTheme: str
 
 function serializeNotesField(notes: string, readingTheme: string): string | null {
   if (!notes && !readingTheme) return null;
-  if (!readingTheme) return notes; // compatibilidade retroativa
+  if (!readingTheme) return notes;
   return JSON.stringify({ notes, readingTheme });
 }
 
-import { EXTRACURRICULAR_COLORS, DAY_LABELS_FULL } from "@/lib/constants";
+// Keep serializeNotesField in scope — used indirectly for backward compat
+void serializeNotesField;
 
 export default function WeeklyPlanner() {
   const { children, isLoading: childrenLoading } = useChildren();
@@ -64,11 +62,16 @@ export default function WeeklyPlanner() {
   const [step, setStep] = useState<Step>("form");
   const [planItems, setPlanItems] = useState<GeneratedPlanItem[]>([]);
   const [planId, setPlanId] = useState<string | null>(null);
+  const [planVersion, setPlanVersion] = useState<number>(1);
+  const [isNewGeneration, setIsNewGeneration] = useState(false);
+  const [planHistory, setPlanHistory] = useState<Array<{ id: string; version: number; generated_at: string | null }>>([]);
 
   const [generating, setGenerating] = useState(false);
+  const [generatingStep, setGeneratingStep] = useState("");
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [showProgressDialog, setShowProgressDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingExisting, setLoadingExisting] = useState(true);
 
@@ -106,9 +109,11 @@ export default function WeeklyPlanner() {
   useEffect(() => {
     if (!family || !weekStartReady) return;
 
-    // Reset de estado ao trocar de semana
     setPlanId(null);
     setPlanItems([]);
+    setPlanVersion(1);
+    setIsNewGeneration(false);
+    setPlanHistory([]);
     setSent(false);
     setError(null);
     setStep("form");
@@ -117,15 +122,14 @@ export default function WeeklyPlanner() {
 
     const loadExisting = async () => {
       try {
-        const { data: plan } = await supabase
+        const { data: plans } = await supabase
           .from("weekly_plans")
-          .select("id, child_interests, friday_activity, notes, reading_theme, status")
+          .select("id, version, generated_at, child_interests, friday_activity, notes, reading_theme, status")
           .eq("family_id", family.id)
           .eq("week_start", format(weekStart, "yyyy-MM-dd"))
-          .maybeSingle();
+          .order("version", { ascending: false });
 
-        if (!plan) {
-          // Sem plano — pré-preenche interesses a partir dos perfis das crianças
+        if (!plans?.length) {
           const defaultInterests: Record<string, string[]> = {};
           children.forEach((c) => {
             if (c.interests?.length) defaultInterests[c.id] = c.interests;
@@ -137,6 +141,14 @@ export default function WeeklyPlanner() {
           return;
         }
 
+        setPlanHistory(plans.map((p) => ({
+          id: p.id,
+          version: p.version ?? 1,
+          generated_at: p.generated_at ?? null,
+        })));
+
+        const plan = plans[0];
+
         const { data: items } = await supabase
           .from("weekly_plan_items")
           .select("child_id, day_of_week, time_slot, discipline, title, description, materials, is_friday_world, sort_order")
@@ -147,10 +159,11 @@ export default function WeeklyPlanner() {
         if (!items?.length) return;
 
         setPlanId(plan.id);
+        setPlanVersion(plan.version ?? 1);
+        setIsNewGeneration(false);
         setPlanItems(items as GeneratedPlanItem[]);
         setFridayActivity(plan.friday_activity ?? "");
 
-        // reading_theme: prioridade à coluna dedicada; fallback ao JSON em notes (registos antigos)
         if (plan.reading_theme != null) {
           setWeeklyReadingTheme(plan.reading_theme);
           setNotes(plan.notes ?? "");
@@ -178,8 +191,10 @@ export default function WeeklyPlanner() {
   const handleGeneratePlan = async () => {
     setGenerating(true);
     setError(null);
+    setPlanId(null);
+    setIsNewGeneration(true);
     try {
-      // Buscar currículo NexSeed da BD para triangulação (national + NexSeed + interests)
+      setGeneratingStep("A consultar o currículo NexSeed...");
       const schoolYears = [...new Set(children.map((c) => c.school_year))];
       const { data: nexseedRows } = await supabase
         .from("nexseed_curriculum")
@@ -193,53 +208,135 @@ export default function WeeklyPlanner() {
         nexseedByYear[row.school_year][row.discipline_key].push(row.objective);
       }
 
-      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear);
+      setGeneratingStep("A consultar o progresso curricular...");
+      const gcProgressByChild: Record<string, Record<string, string[]>> = {};
+      const gcAllByChild: Record<string, Record<string, string[]>> = {};
+      const gcChildren = children.filter((c) => YEAR_MAP[c.school_year]);
+      await Promise.all(
+        gcChildren.map(async (child) => {
+          const dbYear = YEAR_MAP[child.school_year];
+
+          const { data: allContents } = await supabase
+            .from("curriculum_contents")
+            .select("id, discipline, content")
+            .eq("school_year", dbYear);
+
+          const { data: progressRows } = await supabase
+            .from("child_content_progress")
+            .select("content_id, status")
+            .eq("child_id", child.id);
+
+          if (!allContents?.length) return;
+
+          const progressMap = new Map((progressRows ?? []).map((p) => [p.content_id, p.status]));
+
+          for (const c of allContents) {
+            const status = progressMap.get(c.id) ?? "a_aprender";
+            if (status === "dominado") continue;
+
+            if (!gcAllByChild[child.id]) gcAllByChild[child.id] = {};
+            if (!gcAllByChild[child.id][c.discipline]) gcAllByChild[child.id][c.discipline] = [];
+            gcAllByChild[child.id][c.discipline].push(c.content);
+
+            if (status === "em_progresso") {
+              if (!gcProgressByChild[child.id]) gcProgressByChild[child.id] = {};
+              if (!gcProgressByChild[child.id][c.discipline]) gcProgressByChild[child.id][c.discipline] = [];
+              gcProgressByChild[child.id][c.discipline].push(`[em progresso] ${c.content}`);
+            }
+          }
+        })
+      );
+
+      for (const child of gcChildren) {
+        if (!gcProgressByChild[child.id] && gcAllByChild[child.id]) {
+          gcProgressByChild[child.id] = {};
+          for (const [discipline, contents] of Object.entries(gcAllByChild[child.id])) {
+            gcProgressByChild[child.id][discipline] = contents.map((c) => `[a aprender] ${c}`);
+          }
+        }
+      }
+
+      setGeneratingStep("A gerar atividades com IA...");
+      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild);
+
+      setGeneratingStep("A montar o horário...");
       setPlanItems(items);
       setStep("preview");
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.warn("AI falhou:", msg);
+      setGeneratingStep("A usar templates locais...");
       const items = generateWeeklyPlan(children, childInterests, fridayActivity, weeklyReadingTheme);
       setPlanItems(items);
       setStep("preview");
       setError(`IA indisponível (${msg}) — plano gerado com templates.`);
     } finally {
       setGenerating(false);
+      setGeneratingStep("");
     }
   };
 
-  // Lógica de persistência partilhada — retorna o planId guardado
   const persistPlan = async (): Promise<string> => {
     if (!family) throw new Error("Família não encontrada");
 
-    // 1. Upsert weekly_plan
-    const { data: plan, error: planErr } = await supabase
-      .from("weekly_plans")
-      .upsert({
-        family_id: family.id,
-        week_start: format(weekStart, "yyyy-MM-dd"),
-        child_interests: childInterests,
-        friday_activity: fridayActivity || null,
-        // Usa coluna dedicada reading_theme; notes é texto simples (sem JSON)
-        notes: notes || null,
-        reading_theme: weeklyReadingTheme || null,
-        status: "generated",
-        generated_at: new Date().toISOString(),
-      }, { onConflict: "family_id,week_start" })
-      .select()
-      .single();
+    const weekKey = format(weekStart, "yyyy-MM-dd");
+    const planPayload = {
+      family_id: family.id,
+      week_start: weekKey,
+      child_interests: childInterests,
+      friday_activity: fridayActivity || null,
+      notes: notes || null,
+      reading_theme: weeklyReadingTheme || null,
+      status: "generated",
+      generated_at: new Date().toISOString(),
+    };
 
-    if (planErr) throw planErr;
-    setPlanId(plan.id);
+    let savedPlanId: string;
+    let savedVersion: number;
 
-    // 2. Delete previous items for this plan and reinsert
-    await supabase.from("weekly_plan_items").delete().eq("plan_id", plan.id);
+    if (!isNewGeneration && planId) {
+      const { data: plan, error: planErr } = await supabase
+        .from("weekly_plans")
+        .update(planPayload)
+        .eq("id", planId)
+        .select("id, version")
+        .single();
+      if (planErr) throw planErr;
+      savedPlanId = plan.id;
+      savedVersion = plan.version ?? planVersion;
+    } else {
+      const { data: versionRows } = await supabase
+        .from("weekly_plans")
+        .select("version")
+        .eq("family_id", family.id)
+        .eq("week_start", weekKey)
+        .order("version", { ascending: false })
+        .limit(1);
 
-    const itemsToInsert = planItems.map((item) => ({ ...item, plan_id: plan.id }));
+      const nextVersion = (versionRows?.[0]?.version ?? 0) + 1;
+
+      const { data: plan, error: planErr } = await supabase
+        .from("weekly_plans")
+        .insert({ ...planPayload, version: nextVersion })
+        .select("id, version")
+        .single();
+      if (planErr) throw planErr;
+      savedPlanId = plan.id;
+      savedVersion = plan.version ?? nextVersion;
+
+      const newEntry = { id: savedPlanId, version: savedVersion, generated_at: planPayload.generated_at };
+      setPlanHistory((prev) => [newEntry, ...prev]);
+    }
+
+    setPlanId(savedPlanId);
+    setPlanVersion(savedVersion);
+    setIsNewGeneration(false);
+
+    await supabase.from("weekly_plan_items").delete().eq("plan_id", savedPlanId);
+    const itemsToInsert = planItems.map((item) => ({ ...item, plan_id: savedPlanId }));
     const { error: itemsErr } = await supabase.from("weekly_plan_items").insert(itemsToInsert);
     if (itemsErr) throw itemsErr;
 
-    // 3. Guardar interesses actuais no perfil de cada criança
     await Promise.all(
       Object.entries(childInterests).map(([childId, interests]) =>
         interests.length > 0
@@ -248,14 +345,33 @@ export default function WeeklyPlanner() {
       )
     );
 
-    return plan.id;
+    return savedPlanId;
+  };
+
+  const handleRestoreVersion = async (targetId: string) => {
+    const { data: items } = await supabase
+      .from("weekly_plan_items")
+      .select("child_id, day_of_week, time_slot, discipline, title, description, materials, is_friday_world, sort_order")
+      .eq("plan_id", targetId)
+      .order("day_of_week")
+      .order("sort_order");
+
+    if (!items?.length) return;
+
+    const targetEntry = planHistory.find((h) => h.id === targetId);
+    setPlanId(targetId);
+    setPlanVersion(targetEntry?.version ?? 1);
+    setIsNewGeneration(false);
+    setPlanItems(items as GeneratedPlanItem[]);
   };
 
   const handleSavePlan = async () => {
+    const wasNewGeneration = isNewGeneration;
     setSaving(true);
     setError(null);
     try {
       await persistPlan();
+      if (wasNewGeneration) setShowProgressDialog(true);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao guardar");
     } finally {
@@ -266,25 +382,21 @@ export default function WeeklyPlanner() {
   const handleDownloadPDFs = async () => {
     const familyName = family?.name ?? "Família";
 
-    // PDF 1 — Horário
     const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
     const scheduleBlob = await pdf(
       <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} />
     ).toBlob();
-    const scheduleUrl = URL.createObjectURL(scheduleBlob);
     const a1 = document.createElement("a");
-    a1.href = scheduleUrl;
+    a1.href = URL.createObjectURL(scheduleBlob);
     a1.download = `nexseed-horario-${format(weekStart, "yyyy-MM-dd")}.pdf`;
     a1.click();
 
-    // PDF 2 — Guia
     const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
     const guideBlob = await pdf(
       <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
     ).toBlob();
-    const guideUrl = URL.createObjectURL(guideBlob);
     const a2 = document.createElement("a");
-    a2.href = guideUrl;
+    a2.href = URL.createObjectURL(guideBlob);
     a2.download = `nexseed-guia-${format(weekStart, "yyyy-MM-dd")}.pdf`;
     a2.click();
   };
@@ -294,13 +406,10 @@ export default function WeeklyPlanner() {
     setSending(true);
     setError(null);
     try {
-      // Garante sessão válida antes de invocar a edge function
       const { error: sessionErr } = await supabase.auth.refreshSession();
       if (sessionErr) throw new Error("Sessão expirada. Por favor recarrega a página.");
 
-      // Garante que o plano está guardado antes de enviar
       const savedPlanId = planId ?? await persistPlan();
-
       const familyName = family.name;
 
       const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
@@ -313,7 +422,6 @@ export default function WeeklyPlanner() {
         <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
       ).toBlob();
 
-      // Convert blobs to base64
       const toBase64 = (blob: Blob): Promise<string> =>
         new Promise((res) => {
           const reader = new FileReader();
@@ -324,7 +432,7 @@ export default function WeeklyPlanner() {
       const scheduleB64 = await toBase64(scheduleBlob);
       const guideB64 = await toBase64(guideBlob);
 
-      const { data: fnData, error: fnErr } = await supabase.functions.invoke("send-weekly-plan", {
+      const { error: fnErr } = await supabase.functions.invoke("send-weekly-plan", {
         body: {
           to: family.email,
           familyId: family.id,
@@ -337,7 +445,6 @@ export default function WeeklyPlanner() {
         },
       });
 
-      // Extrair erro real do body da resposta (o SDK devolve mensagem genérica)
       if (fnErr) {
         let detail = fnErr.message;
         try {
@@ -351,7 +458,6 @@ export default function WeeklyPlanner() {
         throw new Error(detail);
       }
 
-      // Marca como enviado
       await supabase
         .from("weekly_plans")
         .update({ status: "sent", sent_at: new Date().toISOString() })
@@ -389,145 +495,37 @@ export default function WeeklyPlanner() {
         </div>
 
         {step === "form" ? (
-          <div className="space-y-6">
-            {/* Week selector */}
-            <Card className="border-border/60">
-              <CardContent className="flex items-center gap-3 p-5">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <CalendarDays className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground">Semana de {formatWeekRange(weekStart)}</p>
-                  <p className="text-sm text-muted-foreground">Segunda-feira a sexta-feira</p>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToPrevWeek} title="Semana anterior">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToNextWeek} title="Próxima semana">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Children interests */}
-            {children.map((child) => (
-              <Card key={child.id} className="border-border/60">
-                <CardHeader className="pb-3">
-                  <CardTitle className="font-heading text-lg">{child.name}</CardTitle>
-                  <CardDescription>{child.school_year} · {child.curriculum}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    <Label>Interesses desta semana</Label>
-                    <TagInput
-                      value={childInterests[child.id] ?? child.interests ?? []}
-                      onChange={(tags) =>
-                        setChildInterests((prev) => ({ ...prev, [child.id]: tags }))
-                      }
-                      placeholder="Escreve um interesse e pressiona Enter (ex: vulcões, Sonic...)"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Os interesses são usados para personalizar todas as atividades da semana.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {/* Friday activity */}
-            <Card className="border-border/60">
-              <CardHeader className="pb-3">
-                <CardTitle className="font-heading text-lg">Sexta-feira — Ver Mundo</CardTitle>
-                <CardDescription>Actividade de saída planeada (opcional)</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Input
-                  value={fridayActivity}
-                  onChange={(e) => setFridayActivity(e.target.value)}
-                  placeholder="Ex: Visita ao Museu de História Natural..."
-                />
-              </CardContent>
-            </Card>
-
-            {/* Tema Semanal — Leitura e Portefólio */}
-            <Card className="border-border/60">
-              <CardHeader className="pb-3">
-                <CardTitle className="font-heading text-lg">Leitura e Portefólio — Tema da semana</CardTitle>
-                <CardDescription>
-                  A mini-série de 4 episódios (Seg a Qui) será gerada a partir deste tema.
-                  Se deixares em branco, usa o interesse principal da criança.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Input
-                  value={weeklyReadingTheme}
-                  onChange={(e) => setWeeklyReadingTheme(e.target.value)}
-                  placeholder="Ex: O Sistema Solar, Os Dinossauros, A Floresta Amazónica..."
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  4 episódios sequenciais: Ep.1 O Começo · Ep.2 O Desafio · Ep.3 A Descoberta · Ep.4 O Final
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Notes */}
-            <Card className="border-border/60">
-              <CardHeader className="pb-3">
-                <CardTitle className="font-heading text-lg">Notas para a semana</CardTitle>
-                <CardDescription>Informações adicionais para o plano (opcional)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ex: esta semana temos consulta na quarta de manhã..."
-                  rows={3}
-                />
-              </CardContent>
-            </Card>
-
-            <Button
-              size="lg"
-              className="w-full gap-2"
-              onClick={handleGeneratePlan}
-              disabled={children.length === 0 || generating}
-            >
-              {generating ? (
-                <><Loader2 className="h-5 w-5 animate-spin" /> A gerar com IA...</>
-              ) : (
-                <><Sparkles className="h-5 w-5" /> Gerar Plano com IA</>
-              )}
-            </Button>
-          </div>
+          <PlannerForm
+            children={children}
+            childInterests={childInterests}
+            onChildInterestsChange={(childId, tags) =>
+              setChildInterests((prev) => ({ ...prev, [childId]: tags }))
+            }
+            fridayActivity={fridayActivity}
+            onFridayActivityChange={setFridayActivity}
+            weeklyReadingTheme={weeklyReadingTheme}
+            onWeeklyReadingThemeChange={setWeeklyReadingTheme}
+            notes={notes}
+            onNotesChange={setNotes}
+            weekStart={weekStart}
+            onPrevWeek={goToPrevWeek}
+            onNextWeek={goToNextWeek}
+            generating={generating}
+            generatingStep={generatingStep}
+            onGenerate={handleGeneratePlan}
+          />
         ) : (
-          /* ── Preview ── */
           <div className="space-y-6">
-            {/* Actions */}
-            <div className="flex flex-wrap items-center gap-3">
-              <Button variant="outline" size="sm" onClick={() => setStep("form")} className="gap-2">
-                <ChevronLeft className="h-4 w-4" /> {planId ? "Regenerar" : "Editar"}
-              </Button>
-              <div className="flex-1" />
-              <Button variant="outline" onClick={handleSavePlan} disabled={saving} className="gap-2">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {planId ? "Atualizar" : "Guardar"}
-              </Button>
-              <Button variant="outline" onClick={handleDownloadPDFs} className="gap-2">
-                <Download className="h-4 w-4" /> Descarregar PDFs
-              </Button>
-              <Button onClick={handleSendEmail} disabled={sending || sent} className="gap-2">
-                {sending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : sent ? (
-                  <CheckCircle2 className="h-4 w-4" />
-                ) : (
-                  <Mail className="h-4 w-4" />
-                )}
-                {sent ? "Email enviado!" : "Enviar por Email"}
-              </Button>
-            </div>
+            <PlanActions
+              planId={planId}
+              saving={saving}
+              sending={sending}
+              sent={sent}
+              onBack={() => setStep("form")}
+              onSave={handleSavePlan}
+              onDownload={handleDownloadPDFs}
+              onSendEmail={handleSendEmail}
+            />
 
             {error && (
               <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
@@ -535,141 +533,32 @@ export default function WeeklyPlanner() {
               </div>
             )}
 
-            {/* Extracurriculares da semana */}
-            {extracurriculars.length > 0 && (
-              <Card className="border-border/60">
-                <CardHeader className="pb-3">
-                  <CardTitle className="font-heading text-lg">Extracurriculares da Semana</CardTitle>
-                  <CardDescription>Atividades fora do horário académico</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {extracurriculars.map((act) => {
-                      const color = EXTRACURRICULAR_COLORS[act.type ?? "Outro"] ?? "#9CA3AF";
-                      const dayLabel = act.day_of_week ? DAY_LABELS_FULL[act.day_of_week - 1] : "";
-                      const timeLabel = act.start_time
-                        ? `${act.start_time}${act.end_time ? `–${act.end_time}` : ""}`
-                        : "";
-                      const childName = act.child_id
-                        ? children.find((c) => c.id === act.child_id)?.name ?? ""
-                        : "Todos";
-                      return (
-                        <div
-                          key={act.id}
-                          className="flex gap-3 rounded-xl p-3"
-                          style={{ backgroundColor: color + "18", borderLeft: `3px solid ${color}` }}
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              {act.type && (
-                                <Badge variant="secondary" className="text-xs" style={{ backgroundColor: color + "33" }}>
-                                  {act.type}
-                                </Badge>
-                              )}
-                              <span className="text-xs text-muted-foreground">{childName}</span>
-                            </div>
-                            <p className="text-sm font-medium text-foreground">{act.name}</p>
-                            <div className="flex flex-wrap gap-3 mt-1 text-xs text-muted-foreground">
-                              {dayLabel && <span className="font-medium">{dayLabel}</span>}
-                              {timeLabel && (
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />{timeLabel}
-                                </span>
-                              )}
-                              {act.location && (
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />{act.location}
-                                </span>
-                              )}
-                              {act.travel_time_minutes > 0 && (
-                                <span>{act.travel_time_minutes}min deslocação</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <VersionBadge
+              version={planVersion}
+              history={planHistory}
+              isUnsaved={isNewGeneration && !planId}
+              onRestore={handleRestoreVersion}
+            />
 
-            {/* Plan preview by child */}
-            <Tabs defaultValue={children[0]?.id}>
-              <TabsList>
-                {children.map((child) => (
-                  <TabsTrigger key={child.id} value={child.id}>
-                    {child.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            <ExtracurricularsCard
+              extracurriculars={extracurriculars}
+              children={children}
+            />
 
-              {children.map((child) => {
-                const childItems = planItems.filter((i) => i.child_id === child.id);
-
-                return (
-                  <TabsContent key={child.id} value={child.id} className="space-y-4 mt-4">
-                    {[1, 2, 3, 4, 5].map((day) => {
-                      const dayItems = childItems
-                        .filter((i) => i.day_of_week === day)
-                        .sort((a, b) => a.sort_order - b.sort_order);
-                      if (dayItems.length === 0) return null;
-
-                      return (
-                        <Card key={day} className="border-border/60">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                              {DAY_LABELS[day - 1]}
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-2">
-                            {dayItems.map((item, idx) => {
-                              const color = DISCIPLINE_COLORS[item.discipline] ?? "#E5E7EB";
-                              return (
-                                <div
-                                  key={idx}
-                                  className="flex gap-3 rounded-xl p-3"
-                                  style={{ backgroundColor: color + "22", borderLeft: `3px solid ${color}` }}
-                                >
-                                  <div className="text-xs text-muted-foreground w-24 shrink-0 pt-0.5">
-                                    {item.time_slot}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Badge
-                                        variant="secondary"
-                                        className="text-xs"
-                                        style={{ backgroundColor: color + "44" }}
-                                      >
-                                        {DISCIPLINE_LABELS[item.discipline] ?? item.discipline}
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm font-medium text-foreground">{item.title}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                                    {item.materials.length > 0 && (
-                                      <div className="flex flex-wrap gap-1 mt-2">
-                                        {item.materials.map((m, mi) => (
-                                          <span key={mi} className="text-xs bg-muted rounded px-2 py-0.5 text-muted-foreground">
-                                            {m}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </TabsContent>
-                );
-              })}
-            </Tabs>
+            <PlanPreview
+              children={children}
+              planItems={planItems}
+            />
           </div>
         )}
       </div>
+
+      <PostWeekProgressDialog
+        open={showProgressDialog}
+        onClose={() => setShowProgressDialog(false)}
+        familyChildren={children}
+        planItems={planItems}
+      />
     </AppLayout>
   );
 }

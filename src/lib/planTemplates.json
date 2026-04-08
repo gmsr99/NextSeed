@@ -1,0 +1,145 @@
+{
+  "activities": {
+    "language": [
+      {
+        "title": "Leitura — A história de {interest}",
+        "description": "Lê um texto sobre {interest}. Sublinha as palavras difíceis. Responde: O que aconteceu? Quem são as personagens?",
+        "materials": ["texto impresso ou livro", "lápis de cor", "caderno"]
+      },
+      {
+        "title": "Escrita criativa — {interest}",
+        "description": "Escreve uma história curta (5-8 frases) sobre {interest}. Usa pelo menos 3 adjetivos. Desenha uma cena da tua história.",
+        "materials": ["caderno", "lápis", "lápis de cor"]
+      },
+      {
+        "title": "Gramática com {interest}",
+        "description": "Escreve 5 frases sobre {interest}. Identifica o sujeito e o predicado. Conta as sílabas das palavras mais difíceis.",
+        "materials": ["caderno", "lápis"]
+      },
+      {
+        "title": "Ditado sobre {interest}",
+        "description": "O adulto lê um pequeno texto sobre {interest} e a criança escreve. Corrigem juntos e ilustram a palavra favorita.",
+        "materials": ["caderno", "lápis", "texto preparado pelo adulto"]
+      }
+    ],
+    "math": [
+      {
+        "title": "Matemática — Problemas com {interest}",
+        "description": "Inventa 5 problemas de adição e subtração com {interest}. \"Havia 12 {interest}s, apareceram mais 7. Quantos ficam?\"",
+        "materials": ["caderno de matemática", "lápis"]
+      },
+      {
+        "title": "Geometria com {interest}",
+        "description": "Desenha {interest} usando formas geométricas. Conta quantas usaste de cada tipo e regista numa tabela.",
+        "materials": ["papel quadriculado", "lápis de cor", "régua"]
+      },
+      {
+        "title": "Medidas — {interest} no mundo real",
+        "description": "Estima e mede objetos da casa relacionados com {interest}. Usa a régua. Faz uma tabela com os resultados.",
+        "materials": ["régua", "fita métrica", "caderno", "lápis"]
+      },
+      {
+        "title": "Tabuada com {interest}",
+        "description": "Pratica a tabuada do 2 ao 5 usando {interest} como tema. Cria um problema de multiplicação com {interest}s.",
+        "materials": ["caderno", "lápis", "fichas de tabuada"]
+      }
+    ],
+    "world": [
+      {
+        "title": "Estudo do Meio — Descobrir {interest}",
+        "description": "Pesquisa 3 factos curiosos sobre {interest}. Desenha um mapa mental. Partilha com a família ao jantar.",
+        "materials": ["livros ou tablet", "papel A4", "lápis de cor"]
+      },
+      {
+        "title": "Ciências — {interest} e a natureza",
+        "description": "Observa como {interest} aparece na natureza. Faz um desenho científico com etiquetas. Escreve 3 perguntas.",
+        "materials": ["caderno de ciências", "lápis de cor", "lupa (se disponível)"]
+      },
+      {
+        "title": "Experiência com {interest}",
+        "description": "Faz uma experiência simples com {interest}. Regista o que pensavas que ia acontecer e o que aconteceu.",
+        "materials": ["materiais da experiência", "caderno", "lápis"]
+      }
+    ],
+    "expression": [
+      {
+        "title": "Artes — Criar {interest}",
+        "description": "Usa técnica livre (pintura, colagem, modelagem) para criar algo inspirado em {interest}. Explica a tua obra em 2 frases.",
+        "materials": ["tintas ou lápis de cor", "folha A4", "materiais reciclados"]
+      },
+      {
+        "title": "Texto livre — {interest} na minha imaginação",
+        "description": "Escreve livremente sobre {interest} sem preocupação com erros. O que sentes? O que imaginarias? Desenha se quiseres.",
+        "materials": ["caderno", "lápis ou canetas coloridas"]
+      }
+    ],
+    "english": [
+      {
+        "title": "English — {interest} words",
+        "description": "Aprende 5 palavras em inglês sobre {interest}. Desenha cada uma com a legenda. Pratica a pronúncia em voz alta.",
+        "materials": ["caderno", "lápis de cor"]
+      },
+      {
+        "title": "English — A story about {interest}",
+        "description": "Ouve uma história curta sobre {interest} em inglês. Desenha 3 cenas e escreve uma frase em inglês para cada.",
+        "materials": ["tablet ou computador", "caderno", "lápis de cor"]
+      }
+    ],
+    "project": [
+      {
+        "title": "Projeto — Planear sobre {interest}",
+        "description": "Começa a planear um mini-projeto sobre {interest}. O que queres descobrir? Escreve um plano com 3 passos.",
+        "materials": ["caderno de projetos", "lápis"]
+      },
+      {
+        "title": "Valores — {interest} no meu coração",
+        "description": "Conversa sobre valores ligados a {interest}: respeito, gratidão, coragem. Desenha uma situação onde aplicarias este valor.",
+        "materials": ["caderno", "lápis de cor"]
+      }
+    ]
+  },
+  "miniSeries": [
+    {
+      "title": "Leitura · Ep.1 — {interest}: O Começo",
+      "description": "Descobre as personagens e o mundo de \"{interest}\". Lê ou ouve o 1.º episódio. Desenha a cena favorita e escreve 1 frase sobre ela.",
+      "materials": ["episódio impresso ou em tablet", "caderno de portefólio", "lápis de cor"]
+    },
+    {
+      "title": "Leitura · Ep.2 — {interest}: O Desafio",
+      "description": "As personagens encontram um grande desafio em \"{interest}\". Lê e responde: Qual é o problema? O que farias tu? Escreve no portefólio.",
+      "materials": ["episódio impresso ou em tablet", "caderno de portefólio", "lápis"]
+    },
+    {
+      "title": "Leitura · Ep.3 — {interest}: A Descoberta",
+      "description": "Há uma descoberta importante em \"{interest}\"! Lê com atenção. Escreve 2 factos novos e faz um desenho da descoberta.",
+      "materials": ["episódio impresso ou em tablet", "caderno de portefólio", "lápis"]
+    },
+    {
+      "title": "Leitura · Ep.4 — {interest}: O Final",
+      "description": "Chegou o último episódio de \"{interest}\"! Como termina a aventura? Escreve o teu próprio final alternativo no portefólio.",
+      "materials": ["episódio impresso ou em tablet", "caderno de portefólio", "lápis"]
+    }
+  ],
+  "preSchool": {
+    "language": {
+      "title": "Linguagem — Histórias de {interest}",
+      "description": "Ouve uma história sobre {interest}. Conta a história com as tuas palavras usando dedoches. Que personagem gostavas de ser?",
+      "materials": ["livro de histórias", "dedoches ou bonecos"]
+    },
+    "math": {
+      "title": "Números — Contar {interest}s",
+      "description": "Conta objetos relacionados com {interest} até 10. Agrupa por cor ou tamanho. Qual grupo tem mais?",
+      "materials": ["objetos pequenos (botões, pedras)", "tabuleiro de contagem (opcional)"]
+    },
+    "expression": {
+      "title": "Expressão Criativa — {interest} em Arte",
+      "description": "Pinta, recorta ou modela algo inspirado em {interest}. Conta o que fizeste.",
+      "materials": ["tintas de dedos ou lápis de cera", "barro ou massa de modelar", "papel A3"]
+    },
+    "world": {
+      "title": "Descoberta — {interest} no mundo",
+      "description": "Saiam à procura de coisas relacionadas com {interest}. Tira fotografias ou faz um desenho do que encontraste.",
+      "materials": ["telemóvel para fotos (opcional)", "papel e lápis"]
+    }
+  }
+}

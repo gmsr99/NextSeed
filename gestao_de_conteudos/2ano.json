@@ -1,0 +1,264 @@
+1{
+    "ano": "2.º ano",
+    "disciplinas": {
+        "Artes_Visuais": {
+            "1º_2º_e_3º_Periodos": {
+                "Apropriação e Reflexão": [
+                    "Observação e apreciação dos diferentes universos visuais (obras e artefactos de arte – pintura, escultura, desenho, assemblage, colagem, fotografia, instalação, land´art, banda desenhada, design, arquitetura, artesanato, multimédia, linguagens cinematográficas, entre outros), utilizando um vocabulário específico e adequado.",
+                    "Mobilizar a linguagem elementar das artes visuais (cor, forma, linha, textura, padrão, proporção e desproporção, plano, luz, espaço, volume, movimento, ritmo, matéria, …) integrada em diferentes contextos culturais (movimentos artísticos, épocas e geografias)."
+                ],
+                "Interpretação e Comunicação": [
+                    "Dialogar sobre o que vê e sente, de modo a construir múltiplos discursos e leituras da(s) realidade(s).",
+                    "Compreender a intencionalidade dos símbolos e dos sistemas de comunicação visual.",
+                    "Apreciar as diferentes manifestações artísticas e outras realidades visuais."
+                ],
+                "Experimentação e Criação": [
+                    "Integrar a linguagem das artes visuais, assim como várias técnicas de expressão (pintura; desenho - incluindo esboços, esquemas, e itinerários; técnica mista; assemblage; land´art; escultura; maqueta; fotografia, entre outras) nas suas experimentações: físicas e/ou digitais.",
+                    "Experimentar possibilidades expressivas dos materiais (carvão vegetal, pasta de modelar, barro, pastel seco, tinta cenográfica, pincéis e trinchas, rolos, papéis de formatos e características diversas, entre outros) e das diferentes técnicas, adequando o seu uso a diferentes contextos e situações.",
+                    "Escolher técnicas e materiais de acordo com a intenção expressiva das suas produções plásticas.",
+                    "Manifestar capacidades expressivas e criativas nas suas produções plásticas, evidenciando os conhecimentos adquiridos.",
+                    "Utilizar vários processos de registo de ideias (ex.: diários gráficos), de planeamento (ex.: projeto, portfólio) e de trabalho (ex.: individual, em grupo e em rede).",
+                    "Apreciar os seus trabalhos e os dos seus colegas, mobilizando diferentes critérios de argumentação."
+                ]
+            }
+        },
+        "Estudo_do_Meio": {
+            "1º_Periodo": {
+                "Sociedade": [
+                    "As regras de boa convivência (diálogo, negociação, compromisso)."
+                ],
+                "Natureza": [
+                    "Ossos e músculos.",
+                    "Os principais órgãos do corpo humano (coração, pulmões, estômago e rins).",
+                    "A vacinação e o uso de medicamentos.",
+                    "O bem-estar."
+                ],
+                "Cidadania": [
+                    "Saúde.",
+                    "Igualdade de género.",
+                    "Interculturalidade.",
+                    "Direitos humanos."
+                ],
+                "Sociedade / Natureza / Tecnologia": [
+                    "Passado pessoal e familiar.",
+                    "Localizar Portugal.",
+                    "Diferentes grupos e comunidades.",
+                    "A influência de outros povos e culturas.",
+                    "Os Direitos da Criança."
+                ]
+            },
+            "2º_Periodo": {
+                "Sociedade / Natureza / Tecnologia": [
+                    "Plantas e itinerários.",
+                    "Segurança individual e coletiva.",
+                    "Representar lugares.",
+                    "As instituições e os serviços.",
+                    "Os símbolos do consumidor.",
+                    "Os meios de comunicação.",
+                    "Os recursos tecnológicos.",
+                    "Segurança na internet.",
+                    "A temperatura dos materiais."
+                ],
+                "Cidadania": [
+                    "Literacia financeira e educação para o consumo.",
+                    "Media."
+                ]
+            },
+            "3º_Periodo": {
+                "Natureza": [
+                    "As características dos animais (revestimento, alimentação, locomoção e reprodução).",
+                    "As características das plantas (tipo de raiz, tipo de caule, forma da folha, folha caduca/persistente, cor da flor, fruto e semente).",
+                    "Os seres vivos e o seu habitat.",
+                    "Ameaças à biodiversidade."
+                ],
+                "Sociedade / Natureza / Tecnologia": [
+                    "A importância da água, do ar e do solo.",
+                    "Os problemas ambientais.",
+                    "As estações do ano (estados de tempo típicos das estações do ano em Portugal e a sua variabilidade).",
+                    "Mudanças de estado físico (evaporação, condensação, solidificação, fusão).",
+                    "O ciclo da água."
+                ],
+                "Cidadania": [
+                    "Bem-estar animal.",
+                    "Desenvolvimento sustentável.",
+                    "Educação Ambiental."
+                ]
+            }
+        },
+        "Matematica": {
+            "1º_Periodo": {
+                "Números": [
+                    "Números naturais até 299: Ler e representar, usando uma diversidade de representações. Comparar e ordenar números naturais, de forma crescente e decrescente.",
+                    "Sistema de numeração decimal: Valor posicional.",
+                    "Relações numéricas: Factos básicos da adição. Composição e decomposição. Factos básicos da adição e sua relação com a subtração. Números ordinais até 20.º",
+                    "Cálculo mental: Estratégias.",
+                    "Multiplicação/ Divisão: Significado e usos da multiplicação e da divisão. Relação entre a multiplicação e a divisão."
+                ],
+                "Capacidades Matemáticas": [
+                    "Resolução de Problemas: Processo. Estratégias.",
+                    "Raciocínio Matemático: Conjeturar e generalizar. Classificar. Justificar.",
+                    "Pensamento Computacional: Pensamento. Abstração. Decomposição. Reconhecimento de padrões. Algoritrmia. Depuração.",
+                    "Comunicação Matemática: Expressão e discussão de ideias.",
+                    "Representações matemáticas: Representações múltiplas. Conexões entre representações. Linguagem simbólica matemática.",
+                    "Conexões matemáticas: Conexões internas e externas.",
+                    "Modelos matemáticos."
+                ],
+                "Dados": [
+                    "Questões estatísticas, recolha e organização de dados: Questões estatísticas. Recolha de dados (fontes primárias e métodos). Tabela de frequências absolutas. Diagramas de Carroll.",
+                    "Representações Gráficas.",
+                    "Análise de dados: Interpretação e conclusão."
+                ],
+                "Álgebra": [
+                    "Expressões e relações: Igualdades numéricas. Relações numéricas e algébricas. Propriedades das operações."
+                ],
+                "Geometria e Medida": [
+                    "Orientação espacial: Itinerários.",
+                    "Sólidos: Características dos sólidos."
+                ]
+            },
+            "2º_Periodo": {
+                "Capacidades Matemáticas": [
+                    "Resolução de Problemas: Processo. Estratégias.",
+                    "Raciocínio Matemático: Conjeturar e generalizar. Classificar. Justificar.",
+                    "Pensamento Computacional: Abstração. Decomposição. Reconhecimento de padrões. Algoritrmia. Depuração.",
+                    "Comunicação Matemática: Expressão e discussão de ideias.",
+                    "Representações matemáticas: Representações múltiplas. Conexões entre representações. Linguagem simbólica matemática.",
+                    "Conexões matemáticas: Conexões internas e externas.",
+                    "Modelos matemáticos."
+                ],
+                "Números": [
+                    "Números naturais até 699: Ler e representar, usando uma diversidade de representações. Comparar e ordenar números naturais, de forma crescente e decrescente.",
+                    "Sistema de numeração decimal: Valor posicional.",
+                    "Relações numéricas: Factos básicos da multiplicação (tabuadas do 2, 4, 5, 10 e 3). Composição e decomposição.",
+                    "Cálculo mental: Estratégias.",
+                    "Multiplicação/ Divisão: Significado e usos da multiplicação e da divisão. Relação entre a multiplicação e a divisão."
+                ],
+                "Álgebra": [
+                    "Regularidades em sequências: Sequências de repetição e crescimento.",
+                    "Expressões e relações: Igualdades aritméticas. Relações numéricas e algébricas. Propriedades das operações."
+                ],
+                "Dados": [
+                    "Questões estatísticas, recolha e organização de dados: Questões estatísticas. Recolha de dados (fontes primárias e métodos).",
+                    "Representações Gráficas: Pictogramas. Gráficos de barras. Análise crítica de gráficos.",
+                    "Análise de dados."
+                ],
+                "Geometria e Medida": [
+                    "Orientação espacial: Vistas e plantas.",
+                    "Figuras Planas: Polígonos."
+                ]
+            },
+            "3º_Periodo": {
+                "Capacidades Matemáticas": [
+                    "Resolução de Problemas: Processo. Estratégias.",
+                    "Raciocínio Matemático: Conjeturar e generalizar. Classificar. Justificar.",
+                    "Pensamento Computacional: Abstração. Decomposição. Reconhecimento de padrões. Algoritrmia. Depuração.",
+                    "Comunicação Matemática: Expressão e discussão de ideias.",
+                    "Representações matemáticas: Representações múltiplas. Conexões entre representações. Linguagem simbólica matemática.",
+                    "Conexões matemáticas: Conexões internas e externas.",
+                    "Modelos matemáticos."
+                ],
+                "Números": [
+                    "Números naturais até 1000: Significados de número natural. Usos do número natural. Arredondar números naturais à dezena ou centena mais próxima.",
+                    "Sistema de numeração decimal: Valor posicional.",
+                    "Relações numéricas: Factos básicos da multiplicação e sua relação com a divisão. Composição e decomposição.",
+                    "Frações: Significado de fração. Relações entre frações.",
+                    "Cálculo mental: Estratégias. Estimativas de cálculo.",
+                    "Multiplicação/ Divisão: Significado e usos da multiplicação e da divisão. Relação entre a multiplicação e a divisão."
+                ],
+                "Dados": [
+                    "Representações Gráficas: Gráfico de barras. Análise crítica de gráficos.",
+                    "Análise de dados: Interpretação e conclusão. Resumo dos dados – Moda.",
+                    "Comunicação e divulgação de um estudo: Público-alvo. Recursos para a comunicação (posters)."
+                ],
+                "Álgebra": [
+                    "Expressões e Relações: Relações numéricas e algébricas."
+                ],
+                "Geometria e Medida": [
+                    "Área: Significado. Medição e unidades de medida. Usos da área.",
+                    "Operações com figuras: Deslizar, rodar e voltar.",
+                    "Comprimento: Medição e unidades de medida.",
+                    "Perímetro: Usos do comprimento."
+                ]
+            }
+        },
+        "Portugues": {
+            "1º_Periodo": {
+                "Oralidade": [
+                    "Interação discursiva: Princípio de cooperação e cortesia. Resposta, pergunta, pedido.",
+                    "Compreensão e expressão: Articulação, entoação e ritmo. Vocabulário: alargamento, adequação, variedade. Informação essencial. Instrução. Frase. Expressão de ideias e de sentimentos. Expressão orientada: reconto, conto; simulação, dramatização."
+                ],
+                "Leitura e Escrita": [
+                    "Alfabeto e grafemas: Alfabeto (consolidação). Correspondências grafofonémicas (grafemas com diacrítico, dígrafos e ditongos). Correspondências fonográficas.",
+                    "Fluência de leitura: velocidade, precisão e prosódia: Palavras e pseudopalavras, com complexidade silábica crescente; palavras regulares e irregulares; textos.",
+                    "Compreensão de texto: Textos de características: narrativas, descritivas, associados a finalidades diferentes. Vocabulário: alargamento, adequação e variedade. Sentidos do texto: sequência de acontecimentos, mudança de espaço; encadeamentos de causa e efeito; tema, assunto; informação essencial; articulação de factos e de ideias.",
+                    "Pesquisa e registo da informação.",
+                    "Ortografia e pontuação: Sílabas, palavras, pseudopalavras, frases, texto. Acentos gráficos e til. Sinais de pontuação. Letra de imprensa, letra manuscrita.",
+                    "Produção de texto: Pequenas narrativas. Planificação de texto: ideias-chave. Redação e revisão de texto: concordância; tempos verbais; utilização de sinónimos e de pronomes; apresentação gráfica."
+                ],
+                "Educação Literária": [
+                    "Audição e leitura: Obras de literatura para a infância, textos da tradição popular; outros textos literários selecionados pelo aluno, sob orientação (Listagem PNL). Selecionar livros para leitura pessoal, apresentando as razões das suas escolhas. Formas de leitura: silenciosa; em voz alta; em coro.",
+                    "Compreensão de texto: Antecipação de conteúdos/temas. Inferências (de sentimento – atitude). (Re)conto; alteração de passagens em texto narrativo. Expressão de sentimentos e de emoções.",
+                    "Memorização e recitação: Lengalengas; trava-línguas; adivinhas rimadas; poemas.",
+                    "Produção expressiva: Histórias inventadas. Recriação de textos."
+                ],
+                "Gramática": [
+                    "Classificação de palavras quanto ao número de sílabas.",
+                    "Sílaba tónica e átona.",
+                    "Acentos, sinais gráficos e pontuação.",
+                    "Sinónimos e antónimos: reconhecimento.",
+                    "Classe de palavras: Nome próprio e comum (Flexão de género e número). Determinante artigo."
+                ]
+            },
+            "2º_Periodo": {
+                "Oralidade": [
+                    "Interação discursiva: Princípio de cortesia. Resposta, pergunta, pedido.",
+                    "Compreensão e expressão: Articulação, entoação e ritmo. Vocabulário: alargamento, adequação e variedade. Informação essencial. Instrução. Frase. Expressão de ideias e de sentimentos. Reconto de histórias e narração de situações vividas e imaginadas. Jogos de simulação e dramatização."
+                ],
+                "Leitura e Escrita": [
+                    "Consciência fonológica e habilidades fonémicas: Perceção e discriminação fonéticas. Consciência silábica. Sensibilidade fonológica. Consciência fonémica.",
+                    "Fluência de leitura: velocidade, precisão e prosódia: Palavras e pseudopalavras, com complexidade silábica crescente; palavras regulares e irregulares; textos.",
+                    "Compreensão de texto: Textos de características: narrativas, descritivas, informativas, associados a finalidades diferentes. Poema. Vocabulário: alargamento, adequação e variedade. Sentidos do texto: sequência de acontecimentos, mudança de espaço; encadeamentos de causa e efeito; tema, assunto; informação essencial; articulação de factos e de ideias.",
+                    "Pesquisa e registo da informação.",
+                    "Ortografia e pontuação: Acentos gráficos e til. Sinais de pontuação.",
+                    "Produção de texto: Planificação de texto: ideias-chave. Escrita de textos curtos com diversas finalidades (narrar, informar e explicar). Redação e revisão de texto: concordância; tempos verbais; utilização de sinónimos e de pronomes; apresentação gráfica."
+                ],
+                "Educação Literária": [
+                    "Audição e leitura: Obras de literatura para a infância, textos da tradição popular; outros textos literários selecionados pelo aluno, sob orientação (Listagem PNL). Leitura de narrativas e poemas adequados à idade, por iniciativa própria ou de outrem. Formas de leitura: silenciosa; em voz alta; em coro.",
+                    "Compreensão de texto: Antecipação de conteúdos/temas. Compreender narrativas literárias. (Re)conto de histórias. Explicitar o sentido dos poemas escutados ou lidos. Valorizar a diversidade cultural dos textos (ouvidos ou lidos). Expressão de sentimentos e de emoções. Dizer, de modo dramatizado, trava-línguas, lengalengas e poemas memorizados (treino da voz, dos gestos, das pausas, da entoação e da expressão facial).",
+                    "Produção expressiva: Histórias inventadas. Recriação de textos."
+                ],
+                "Gramática": [
+                    "Morfologia e lexicologia: Sinónimos e antónimos: reconhecimento.",
+                    "Classe de palavras: Adjetivo (flexão género e número). Pronome pessoal. Verbo (infinitivo). Conectores.",
+                    "Acentos, sinais gráficos e pontuação.",
+                    "Sinónimos e antónimos: reconhecimento."
+                ]
+            },
+            "3º_Periodo": {
+                "Oralidade": [
+                    "Compreensão e expressão: Articulação, entoação e ritmo. Vocabulário: alargamento, adequação. Informação essencial. Instrução. Perguntas, pedidos e respostas. Expressão de ideias e de sentimentos. Planear, produzir e avaliar os seus próprios textos. Reconto de histórias e narração de situações vividas e imaginadas. Jogos de simulação e dramatização."
+                ],
+                "Leitura e Escrita": [
+                    "Consciência fonológica e habilidades fonémicas: Perceção e discriminação fonéticas. Consciência silábica. Sensibilidade fonológica. Consciência fonémica.",
+                    "Fluência de leitura: velocidade, precisão e prosódia: Palavras e pseudopalavras, com complexidade silábica crescente; palavras regulares e irregulares; textos.",
+                    "Compreensão de texto: Textos de características: narrativas, descritivas, informativas, associados a finalidades diferentes. Vocabulário: alargamento, adequação e variedade. Sentidos do texto: sequência de acontecimentos, mudança de espaço; encadeamentos de causa e efeito; tema, assunto; informação essencial; articulação de factos e de ideias.",
+                    "Pesquisa e registo da informação.",
+                    "Ortografia e pontuação: Acentos gráficos e til. Sinais de pontuação.",
+                    "Produção de texto: Planificação de texto: ideias-chave. Redação e revisão de texto: concordância; tempos verbais; utilização de sinónimos e de pronomes; apresentação gráfica."
+                ],
+                "Educação Literária": [
+                    "Ortografia e pontuação: Sílabas, palavras (regulares e irregulares), pseudopalavras. Frases. Sinais de pontuação: ponto final, ponto de interrogação. Letra de imprensa, letra manuscrita.",
+                    "Produção escrita: Frases simples. Legendas de imagens. Pequenos textos.",
+                    "Audição e leitura: Obras de literatura para a infância, textos da tradição popular; outros textos literários selecionados pelo aluno, sob orientação (Listagem PNL). Leitura de narrativas e poemas adequados à idade, por iniciativa própria ou de outrem. Formas de leitura: silenciosa; em voz alta; em coro.",
+                    "Compreensão de texto: Antecipação de conteúdos/temas. Compreender narrativas literárias. (Re)conto de histórias. Explicitar o sentido dos poemas escutados ou lidos. Valorizar a diversidade cultural dos textos (ouvidos ou lidos). Expressão de sentimentos e de emoções. Dizer, de modo dramatizado, trava-línguas línguas, lengalengas e poemas memorizados (treino da voz, dos gestos, das pausas, da entoação e da expressão facial).",
+                    "Produção expressiva: Histórias inventadas. Recriação de textos."
+                ],
+                "Gramática": [
+                    "Conhecimento lexical (passivo e ativo).",
+                    "Classe de palavras: Interjeição.",
+                    "Significados conotativos."
+                ]
+            }
+        }
+    }
+}

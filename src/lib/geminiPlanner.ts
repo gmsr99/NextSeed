@@ -1,13 +1,14 @@
 import type { Child } from "./types";
 import type { GeneratedPlanItem } from "./planGenerator";
-import { DISCIPLINE_LABELS, DAY_LABELS, normalizeSchoolYear, getAlignedPreSchoolSlots } from "./planGenerator";
-import { getCurriculumObjectives } from "./curriculumLoader";
+import { DISCIPLINE_LABELS, DAY_LABELS, getAlignedPreSchoolSlots } from "./planGenerator";
+import { GC_DISCIPLINE_LABELS } from "./gcConstants";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 
-// ─── Currículo Nacional Português (DGE / Aprendizagens Essenciais) ─────────────
+// ─── [removido] Currículo Nacional hardcoded — vem da BD (curriculum_contents) ──
+// Este bloco já não é usado; mantido temporariamente para não quebrar o git diff
 
-const CURRICULUM: Record<string, Record<string, string[]>> = {
+const _UNUSED = {
   "Pré-escolar": {
     language: [
       "Escuta ativa de histórias e recontar com as suas palavras",
@@ -306,6 +307,8 @@ function buildPrompt(
   fridayActivity: string,
   weeklyReadingTheme: string,
   nexseedByYear: Record<string, Record<string, string[]>>,
+  gcProgressByChild: Record<string, Record<string, string[]>>,
+  gcAllByChild: Record<string, Record<string, string[]>>,
 ): string {
   const hasPrimary = children.some((c) => !c.school_year.toLowerCase().startsWith("pré"));
   const hasPreSchool = children.some((c) => c.school_year.toLowerCase().startsWith("pré"));
@@ -316,17 +319,31 @@ function buildPrompt(
     return `- **${c.name}** (${c.school_year}) | Interesses: ${interests} | Estilo: ${c.learning_preferences ?? "misto"} | Ritmo: ${c.learning_pace ?? "moderado"}`;
   }).join("\n");
 
-  const curriculumSection = children.map((c) => {
-    const key = normalizeSchoolYear(c.school_year);
-    const realCurr = getCurriculumObjectives(c.school_year);
-    const curr = Object.keys(realCurr).length > 0 ? realCurr : CURRICULUM[key];
-    if (!curr) return `### ${c.name} — sem currículo definido`;
-    return `### ${c.name} (${c.school_year})\n${Object.entries(curr).map(([disc, objs]) =>
-      `  **${DISCIPLINE_LABELS[disc] ?? disc}:**\n${(objs as string[]).map((o) => `    - ${o}`).join("\n")}`
+  // Conteúdos GC activos (a aprender / em progresso) por criança — TRIANGULAÇÃO PRINCIPAL
+  const gcLines = children.map((c) => {
+    const disc = gcProgressByChild[c.id];
+    if (!disc || Object.keys(disc).length === 0) return null;
+    return `### ${c.name} (${c.school_year})\n${Object.entries(disc).map(([d, contents]) =>
+      `  **${GC_DISCIPLINE_LABELS[d] ?? d}:**\n${contents.map((ct) => `    - ${ct}`).join("\n")}`
     ).join("\n")}`;
-  }).join("\n\n");
+  }).filter(Boolean);
+  const gcSection = gcLines.length > 0
+    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nO educador marcou estes conteúdos. As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança:\n${gcLines.join("\n\n")}\n`
+    : "";
 
-  // Objetivos NexSeed (da base de dados da família — têm prioridade sobre o currículo nacional)
+  // Contexto GC completo por criança (todos os não dominados) — para orientação geral
+  const gcAllLines = children.map((c) => {
+    const disc = gcAllByChild[c.id];
+    if (!disc || Object.keys(disc).length === 0) return null;
+    return `### ${c.name} (${c.school_year})\n${Object.entries(disc).map(([d, contents]) =>
+      `  **${GC_DISCIPLINE_LABELS[d] ?? d}:** ${contents.length} conteúdos por explorar`
+    ).join("\n")}`;
+  }).filter(Boolean);
+  const gcAllSection = gcAllLines.length > 0
+    ? `\n## CURRÍCULO NACIONAL GC — CONTEÚDOS AINDA POR DOMINAR\n${gcAllLines.join("\n\n")}\n`
+    : "";
+
+  // Currículo NexSeed (objetivos próprios da família)
   const nexseedLines = children.map((c) => {
     const yr = nexseedByYear[c.school_year];
     if (!yr || Object.keys(yr).length === 0) return null;
@@ -335,7 +352,7 @@ function buildPrompt(
     ).join("\n")}`;
   }).filter(Boolean);
   const nexseedSection = nexseedLines.length > 0
-    ? `\n## CURRÍCULO NEXSEED (prioridade máxima — metodologia própria da família)\n${nexseedLines.join("\n\n")}\n`
+    ? `\n## CURRÍCULO NEXSEED (metodologia própria da família — prioridade máxima)\n${nexseedLines.join("\n\n")}\n`
     : "";
 
   const skeletonSection = skeleton.map((item, idx) => {
@@ -356,17 +373,14 @@ function buildPrompt(
   const multiLevelNote = multiLevel
     ? `\n## FAMÍLIA MULTI-NÍVEL ⚡
 Os horários do pré-escolar estão alinhados com o ensino primário: à mesma hora, os irmãos trabalham a mesma disciplina com conteúdos diferentes.
-Na **descrição** das atividades do pré-escolar menciona (1 frase) como o adulto pode aproveitar a atividade do irmão mais velho como ponto de partida (ex: "Enquanto o irmão resolve problemas de matemática, [nome] conta os mesmos objetos com os dedos").`
+Na **descrição** das atividades do pré-escolar menciona (1 frase) como o adulto pode aproveitar a atividade do irmão mais velho como ponto de partida.`
     : "";
 
   return `És um especialista em educação e homeschooling português. Gera ${skeleton.length} atividades para um plano semanal NexSeed.
 
 ## CRIANÇAS
 ${childrenSection}
-${multiLevelNote}${nexseedSection}
-## CURRÍCULO NACIONAL (DGE — Aprendizagens Essenciais)
-${curriculumSection}
-
+${multiLevelNote}${nexseedSection}${gcSection}${gcAllSection}
 ## SEXTA-FEIRA
 ${fridayNote}
 
@@ -376,17 +390,18 @@ ${readingNote}
 ## ATIVIDADES A PREENCHER
 ${skeletonSection}
 
-## REGRAS
-1. **Triangulação**: se existir Currículo NexSeed, usa-o como guia principal para os objetivos; usa os **interesses** para tematizar. Ex: objetivo NexSeed "classificar por cor" + interesse "dinossauros" → separar dinossauros herbívoros/carnívoros por cor de cartão.
-2. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Descrição = resumo (2 frases) + 1 pergunta de compreensão.
-3. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
-4. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
-5. **Encerramento Reflexivo** (15:00-15:30): partilha emocional e síntese do dia de Ver Mundo.
-6. **Pré-escolar**: atividades lúdicas, sensoriais, máx. 30 min, sem escrita formal.
-7. Títulos específicos e criativos — NUNCA genéricos.
-8. Descrições CURTAS: máx. 2 frases diretas com passos concretos para a mãe implementar.
-9. Materiais: máx. 4 itens simples disponíveis em casa ou papelaria.
-10. Títulos: máx. 8 palavras.
+## REGRAS DE TRIANGULAÇÃO
+1. **Prioridade**: NexSeed (se existir) → Conteúdos GC em foco → Conteúdos GC por dominar → interesses.
+2. Usa os **interesses** para tematizar — nunca como objetivo. Ex: objetivo GC "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo.
+3. **Conteúdos dominados** NÃO devem voltar a aparecer nas atividades.
+4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Descrição = resumo (2 frases) + 1 pergunta de compreensão.
+5. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
+6. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
+7. **Encerramento Reflexivo** (15:00-15:30): partilha emocional e síntese do dia.
+8. **Pré-escolar**: atividades lúdicas, sensoriais, máx. 30 min, sem escrita formal.
+9. Títulos específicos e criativos — NUNCA genéricos. Máx. 8 palavras.
+10. Descrições CURTAS: máx. 2 frases diretas com passos concretos.
+11. Materiais: máx. 4 itens simples disponíveis em casa ou papelaria.
 
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
@@ -420,13 +435,15 @@ export async function generateWithGemini(
   fridayActivity: string,
   weeklyReadingTheme = "",
   nexseedByYear: Record<string, Record<string, string[]>> = {},
+  gcProgressByChild: Record<string, Record<string, string[]>> = {},
+  gcAllByChild: Record<string, Record<string, string[]>> = {},
 ): Promise<GeneratedPlanItem[]> {
   const apiKey1 = import.meta.env.VITE_GEMINI_API_KEY as string;
   const apiKey2 = import.meta.env.VITE_GEMINI_API_KEY_2 as string;
   if (!apiKey1) throw new Error("VITE_GEMINI_API_KEY não definida");
 
   const skeleton = buildSkeleton(children);
-  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear);
+  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild);
 
   let res = await callGemini(apiKey1, prompt);
 

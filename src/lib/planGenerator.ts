@@ -1,4 +1,15 @@
 import type { Child } from "./types";
+import RAW_TEMPLATES from "./planTemplates.json";
+
+// ─── Template helpers ─────────────────────────────────────────────────────────
+
+type TplJSON = { title: string; description: string; materials: string[] };
+
+/** Substitui {interest} pelo valor real em title e description */
+function applyTpl(tpl: TplJSON, interest: string): { title: string; description: string; materials: string[] } {
+  const r = (s: string) => s.replace(/\{interest\}/g, interest);
+  return { title: r(tpl.title), description: r(tpl.description), materials: tpl.materials };
+}
 
 export interface GeneratedPlanItem {
   child_id: string;
@@ -41,6 +52,7 @@ export const DISCIPLINE_LABELS: Record<string, string> = {
   transition:     "Transição · 7 min",
   break:          "Pausa Exterior",
   practical_life: "Vida Prática",
+  lunch:          "Almoço + Tempo Livre",
   meditation:     "Relaxamento",
 };
 
@@ -58,6 +70,7 @@ export const DISCIPLINE_COLORS: Record<string, string> = {
   transition:     "#FDE68A",
   break:          "#BFDBFE",
   practical_life: "#FBCFE8",
+  lunch:          "#FEF9C3",
   meditation:     "#DDD6FE",
 };
 
@@ -69,7 +82,7 @@ export const DAY_LABELS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
 
 type PrimarySlot = { slot: string; discipline: string; tIdx: number; episode?: number };
 
-const PRIMARY_DAYS: PrimarySlot[][] = [
+export const PRIMARY_DAYS: PrimarySlot[][] = [
   // Seg
   [
     { slot: "09:45-10:10", discipline: "language",    tIdx: 0 },
@@ -105,7 +118,7 @@ const PRIMARY_DAYS: PrimarySlot[][] = [
 ];
 
 // Blocos variáveis da sexta-feira
-const FRIDAY_VARIABLE = [
+export const FRIDAY_VARIABLE = [
   { slot: "09:45-11:50", discipline: "world_visit",  tIdx: 0, isFridayWorld: true  },
   { slot: "14:00-14:30", discipline: "expression",   tIdx: 0, isFridayWorld: false }, // Registo da visita
   { slot: "15:00-15:30", discipline: "world_visit",  tIdx: 1, isFridayWorld: false }, // Encerramento
@@ -114,33 +127,60 @@ const FRIDAY_VARIABLE = [
 // ─── Blocos fixos (mostrados no horário PDF mas NÃO guardados na BD) ──────────
 
 export const FIXED_BLOCKS_PRIMARY = [
-  { slot: "09:30-09:45", discipline: "ritual",         label: "Ritual de Chegada"       },
-  { slot: "10:10-10:17", discipline: "transition",     label: "Transição · 7 min"       },
-  { slot: "10:42-11:05", discipline: "break",          label: "Pausa Exterior"          },
-  { slot: "11:50-12:30", discipline: "practical_life", label: "Vida Prática"            },
-  { slot: "14:30-14:45", discipline: "meditation",     label: "Relaxamento"             },
+  { slot: "09:30-09:45", discipline: "ritual",         label: "Ritual de Chegada"              },
+  { slot: "10:10-10:17", discipline: "transition",     label: "Transição · 7 min"              },
+  { slot: "10:42-11:05", discipline: "break",          label: "Pausa Exterior"                 },
+  { slot: "11:50-12:30", discipline: "practical_life", label: "Vida Prática / Preparação Almoço"},
+  { slot: "12:30-14:00", discipline: "lunch",          label: "Almoço + Tempo Livre"           },
+  { slot: "14:30-14:45", discipline: "meditation",     label: "Relaxamento / Meditação"        },
 ];
 
 export const FIXED_BLOCKS_FRIDAY = [
-  { slot: "09:30-09:45", discipline: "ritual",         label: "Partida · Ver Mundo"     },
-  { slot: "11:50-12:30", discipline: "practical_life", label: "Vida Prática Exterior"   },
-  { slot: "14:30-14:45", discipline: "meditation",     label: "Relaxamento"             },
+  { slot: "09:30-09:45", discipline: "ritual",         label: "Saída / Visita de Estudo"   },
+  { slot: "11:50-12:30", discipline: "practical_life", label: "Vida Prática no Exterior"   },
+  { slot: "12:30-14:00", discipline: "lunch",          label: "Almoço fora / Piquenique"   },
+  { slot: "14:30-14:45", discipline: "meditation",     label: "Relaxamento / Meditação"    },
 ];
 
 export const FIXED_BLOCKS_PRESCHOOL = [
-  { slot: "09:00-09:30", discipline: "ritual",         label: "Ritual de Chegada"       },
+  { slot: "09:00-09:30", discipline: "ritual",         label: "Ritual de Chegada"         },
+  { slot: "10:30-10:45", discipline: "break",          label: "Pausa Lúdica"              },
+  { slot: "11:15-12:00", discipline: "practical_life", label: "Vida Prática / Jogo Livre"  },
+  { slot: "12:00-14:00", discipline: "lunch",          label: "Almoço + Tempo Livre"      },
+  { slot: "14:30-14:45", discipline: "meditation",     label: "Relaxamento / Meditação"   },
+];
+
+// Pré-escolar autónomo — sexta: world_visit na BD tem slot "09:30-12:00"
+// Os blocos fixos preenchem os espaços antes e depois dessa janela.
+export const FIXED_BLOCKS_PRESCHOOL_FRIDAY = [
+  { slot: "09:00-09:30", discipline: "ritual",    label: "Saída / Visita de Estudo" },
+  { slot: "12:00-14:00", discipline: "lunch",     label: "Almoço fora / Piquenique" },
+  { slot: "14:30-14:45", discipline: "meditation", label: "Relaxamento / Meditação"  },
 ];
 
 /**
  * Gera os blocos fixos do horário para visualização no SchedulePDF.
  * NÃO são guardados na BD.
+ *
+ * Lógica:
+ * - Ensino primário → FIXED_BLOCKS_PRIMARY (Seg-Qui) + FIXED_BLOCKS_FRIDAY (Sex)
+ * - Pré-escolar alinhado (tem irmão/irmã no primário) → mesma estrutura do primário
+ *   para que o adulto possa gerir ambos em paralelo
+ * - Pré-escolar autónomo → FIXED_BLOCKS_PRESCHOOL (Seg-Qui) + FIXED_BLOCKS_PRESCHOOL_FRIDAY
  */
 export function getFixedScheduleBlocks(children: Child[]): GeneratedPlanItem[] {
+  const hasPrimaryChild = children.some(
+    (c) => !c.school_year.toLowerCase().startsWith("pré"),
+  );
   const items: GeneratedPlanItem[] = [];
+
   for (const child of children) {
     const isPreSchool = child.school_year.toLowerCase().startsWith("pré");
-    if (!isPreSchool) {
-      // Seg a Qui — blocos fixos
+    // Pré-escolar alinhado partilha a estrutura de blocos fixos do primário
+    const isAligned = isPreSchool && hasPrimaryChild;
+
+    if (!isPreSchool || isAligned) {
+      // Primário (ou pré-escolar alinhado): Seg a Qui
       for (let dayIdx = 0; dayIdx < 4; dayIdx++) {
         FIXED_BLOCKS_PRIMARY.forEach((b, idx) => {
           items.push({
@@ -151,7 +191,7 @@ export function getFixedScheduleBlocks(children: Child[]): GeneratedPlanItem[] {
           });
         });
       }
-      // Sexta — blocos fixos
+      // Sexta
       FIXED_BLOCKS_FRIDAY.forEach((b, idx) => {
         items.push({
           child_id: child.id, day_of_week: 5,
@@ -161,8 +201,8 @@ export function getFixedScheduleBlocks(children: Child[]): GeneratedPlanItem[] {
         });
       });
     } else {
-      // Pré-escolar
-      for (let dayIdx = 0; dayIdx < 5; dayIdx++) {
+      // Pré-escolar autónomo: Seg a Qui
+      for (let dayIdx = 0; dayIdx < 4; dayIdx++) {
         FIXED_BLOCKS_PRESCHOOL.forEach((b, idx) => {
           items.push({
             child_id: child.id, day_of_week: dayIdx + 1,
@@ -172,187 +212,30 @@ export function getFixedScheduleBlocks(children: Child[]): GeneratedPlanItem[] {
           });
         });
       }
+      // Sexta pré-escolar
+      FIXED_BLOCKS_PRESCHOOL_FRIDAY.forEach((b, idx) => {
+        items.push({
+          child_id: child.id, day_of_week: 5,
+          time_slot: b.slot, discipline: b.discipline, title: b.label,
+          description: "", materials: [], is_friday_world: false,
+          sort_order: 100 + idx, is_fixed: true,
+        });
+      });
     }
   }
   return items;
 }
 
-// ─── Templates de atividades ──────────────────────────────────────────────────
+// ─── Templates de atividades — carregados de planTemplates.json ──────────────
 
-type Tpl = { title: (i: string) => string; description: (i: string) => string; materials: string[] };
-
-const T: Record<string, Tpl[]> = {
-  language: [
-    {
-      title: (i) => `Leitura — A história de ${i}`,
-      description: (i) =>
-        `Lê um texto sobre ${i}. Sublinha as palavras difíceis. Responde: O que aconteceu? Quem são as personagens?`,
-      materials: ["texto impresso ou livro", "lápis de cor", "caderno"],
-    },
-    {
-      title: (i) => `Escrita criativa — ${i}`,
-      description: (i) =>
-        `Escreve uma história curta (5-8 frases) sobre ${i}. Usa pelo menos 3 adjetivos. Desenha uma cena da tua história.`,
-      materials: ["caderno", "lápis", "lápis de cor"],
-    },
-    {
-      title: (i) => `Gramática com ${i}`,
-      description: (i) =>
-        `Escreve 5 frases sobre ${i}. Identifica o sujeito e o predicado. Conta as sílabas das palavras mais difíceis.`,
-      materials: ["caderno", "lápis"],
-    },
-    {
-      title: (i) => `Ditado sobre ${i}`,
-      description: (i) =>
-        `O adulto lê um pequeno texto sobre ${i} e a criança escreve. Corrigem juntos e ilustram a palavra favorita.`,
-      materials: ["caderno", "lápis", "texto preparado pelo adulto"],
-    },
-  ],
-  math: [
-    {
-      title: (i) => `Matemática — Problemas com ${i}`,
-      description: (i) =>
-        `Inventa 5 problemas de adição e subtração com ${i}. "Havia 12 ${i}s, apareceram mais 7. Quantos ficam?"`,
-      materials: ["caderno de matemática", "lápis"],
-    },
-    {
-      title: (i) => `Geometria com ${i}`,
-      description: (i) =>
-        `Desenha ${i} usando formas geométricas. Conta quantas usaste de cada tipo e regista numa tabela.`,
-      materials: ["papel quadriculado", "lápis de cor", "régua"],
-    },
-    {
-      title: (i) => `Medidas — ${i} no mundo real`,
-      description: (i) =>
-        `Estima e mede objetos da casa relacionados com ${i}. Usa a régua. Faz uma tabela com os resultados.`,
-      materials: ["régua", "fita métrica", "caderno", "lápis"],
-    },
-    {
-      title: (i) => `Tabuada com ${i}`,
-      description: (i) =>
-        `Pratica a tabuada do 2 ao 5 usando ${i} como tema. Cria um problema de multiplicação com ${i}s.`,
-      materials: ["caderno", "lápis", "fichas de tabuada"],
-    },
-  ],
-  world: [
-    {
-      title: (i) => `Estudo do Meio — Descobrir ${i}`,
-      description: (i) =>
-        `Pesquisa 3 factos curiosos sobre ${i}. Desenha um mapa mental. Partilha com a família ao jantar.`,
-      materials: ["livros ou tablet", "papel A4", "lápis de cor"],
-    },
-    {
-      title: (i) => `Ciências — ${i} e a natureza`,
-      description: (i) =>
-        `Observa como ${i} aparece na natureza. Faz um desenho científico com etiquetas. Escreve 3 perguntas.`,
-      materials: ["caderno de ciências", "lápis de cor", "lupa (se disponível)"],
-    },
-    {
-      title: (i) => `Experiência com ${i}`,
-      description: (i) =>
-        `Faz uma experiência simples com ${i}. Regista o que pensavas que ia acontecer e o que aconteceu.`,
-      materials: ["materiais da experiência", "caderno", "lápis"],
-    },
-  ],
-  expression: [
-    {
-      title: (i) => `Artes — Criar ${i}`,
-      description: (i) =>
-        `Usa técnica livre (pintura, colagem, modelagem) para criar algo inspirado em ${i}. Explica a tua obra em 2 frases.`,
-      materials: ["tintas ou lápis de cor", "folha A4", "materiais reciclados"],
-    },
-    {
-      title: (i) => `Texto livre — ${i} na minha imaginação`,
-      description: (i) =>
-        `Escreve livremente sobre ${i} sem preocupação com erros. O que sentes? O que imaginarias? Desenha se quiseres.`,
-      materials: ["caderno", "lápis ou canetas coloridas"],
-    },
-  ],
-  english: [
-    {
-      title: (i) => `English — ${i} words`,
-      description: (i) =>
-        `Aprende 5 palavras em inglês sobre ${i}. Desenha cada uma com a legenda. Pratica a pronúncia em voz alta.`,
-      materials: ["caderno", "lápis de cor"],
-    },
-    {
-      title: (i) => `English — A story about ${i}`,
-      description: (i) =>
-        `Ouve uma história curta sobre ${i} em inglês. Desenha 3 cenas e escreve uma frase em inglês para cada.`,
-      materials: ["tablet ou computador", "caderno", "lápis de cor"],
-    },
-  ],
-  project: [
-    {
-      title: (i) => `Projeto — Planear sobre ${i}`,
-      description: (i) =>
-        `Começa a planear um mini-projeto sobre ${i}. O que queres descobrir? Escreve um plano com 3 passos.`,
-      materials: ["caderno de projetos", "lápis"],
-    },
-    {
-      title: (i) => `Valores — ${i} no meu coração`,
-      description: (i) =>
-        `Conversa sobre valores ligados a ${i}: respeito, gratidão, coragem. Desenha uma situação onde aplicarias este valor.`,
-      materials: ["caderno", "lápis de cor"],
-    },
-  ],
-};
+// T: activities indexed by discipline, array of templates
+const T: Record<string, TplJSON[]> = RAW_TEMPLATES.activities as Record<string, TplJSON[]>;
 
 // Mini-série de Leitura e Portefólio (4 episódios semanais)
-const MINI_SERIES = [
-  {
-    title: (i: string) => `Leitura · Ep.1 — ${i}: O Começo`,
-    description: (i: string) =>
-      `Descobre as personagens e o mundo de "${i}". Lê ou ouve o 1.º episódio. Desenha a cena favorita e escreve 1 frase sobre ela.`,
-    materials: ["episódio impresso ou em tablet", "caderno de portefólio", "lápis de cor"],
-  },
-  {
-    title: (i: string) => `Leitura · Ep.2 — ${i}: O Desafio`,
-    description: (i: string) =>
-      `As personagens encontram um grande desafio em "${i}". Lê e responde: Qual é o problema? O que farias tu? Escreve no portefólio.`,
-    materials: ["episódio impresso ou em tablet", "caderno de portefólio", "lápis"],
-  },
-  {
-    title: (i: string) => `Leitura · Ep.3 — ${i}: A Descoberta`,
-    description: (i: string) =>
-      `Há uma descoberta importante em "${i}"! Lê com atenção. Escreve 2 factos novos e faz um desenho da descoberta.`,
-    materials: ["episódio impresso ou em tablet", "caderno de portefólio", "lápis"],
-  },
-  {
-    title: (i: string) => `Leitura · Ep.4 — ${i}: O Final`,
-    description: (i: string) =>
-      `Chegou o último episódio de "${i}"! Como termina a aventura? Escreve o teu próprio final alternativo no portefólio.`,
-    materials: ["episódio impresso ou em tablet", "caderno de portefólio", "lápis"],
-  },
-];
+const MINI_SERIES: TplJSON[] = RAW_TEMPLATES.miniSeries as TplJSON[];
 
-// Pré-escolar templates
-const PRE_SCHOOL: Record<string, Tpl> = {
-  language: {
-    title: (i) => `Linguagem — Histórias de ${i}`,
-    description: (i) =>
-      `Ouve uma história sobre ${i}. Conta a história com as tuas palavras usando dedoches. Que personagem gostavas de ser?`,
-    materials: ["livro de histórias", "dedoches ou bonecos"],
-  },
-  math: {
-    title: (i) => `Números — Contar ${i}s`,
-    description: (i) =>
-      `Conta objetos relacionados com ${i} até 10. Agrupa por cor ou tamanho. Qual grupo tem mais?`,
-    materials: ["objetos pequenos (botões, pedras)", "tabuleiro de contagem (opcional)"],
-  },
-  expression: {
-    title: (i) => `Expressão Criativa — ${i} em Arte`,
-    description: (i) =>
-      `Pinta, recorta ou modela algo inspirado em ${i}. Conta o que fizeste.`,
-    materials: ["tintas de dedos ou lápis de cera", "barro ou massa de modelar", "papel A3"],
-  },
-  world: {
-    title: (i) => `Descoberta — ${i} no mundo`,
-    description: (i) =>
-      `Saiam à procura de coisas relacionadas com ${i}. Tira fotografias ou faz um desenho do que encontraste.`,
-    materials: ["telemóvel para fotos (opcional)", "papel e lápis"],
-  },
-};
+// Pré-escolar templates (1 template per discipline)
+const PRE_SCHOOL: Record<string, TplJSON> = RAW_TEMPLATES.preSchool as Record<string, TplJSON>;
 
 // ─── Gerador de horário primário ──────────────────────────────────────────────
 
@@ -379,9 +262,7 @@ function primarySchedule(
           day_of_week: dayIdx + 1,
           time_slot: s.slot,
           discipline: "reading",
-          title: ep.title(readingTheme),
-          description: ep.description(readingTheme),
-          materials: ep.materials,
+          ...applyTpl(ep, readingTheme),
           is_friday_world: false,
           sort_order: slotIdx,
         });
@@ -394,9 +275,7 @@ function primarySchedule(
           day_of_week: dayIdx + 1,
           time_slot: s.slot,
           discipline: s.discipline,
-          title: tpl.title(interest),
-          description: tpl.description(interest),
-          materials: tpl.materials,
+          ...applyTpl(tpl, interest),
           is_friday_world: false,
           sort_order: slotIdx,
         });
@@ -527,9 +406,7 @@ function preSchoolSchedule(
         day_of_week: dayIdx + 1,
         time_slot: slot,
         discipline: discipline,
-        title: tpl.title(interest),
-        description: tpl.description(interest),
-        materials: tpl.materials,
+        ...applyTpl(tpl, interest),
         is_friday_world: false,
         sort_order: sIdx,
       });

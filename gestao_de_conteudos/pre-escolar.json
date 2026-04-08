@@ -1,0 +1,498 @@
+{
+    "ano": "Educação Pré-Escolar (Ciclo Único: 3 a 6 anos)",
+    "nota_explicativa": "As Orientações Curriculares não dividem as aprendizagens por idade, assumindo o pré-escolar como um processo contínuo.",
+    "areas_de_conteudo": {
+        "Formacao_Pessoal_e_Social": {
+            "Construção da identidade e da autoestima": {
+                "Aprendizagens a promover": [
+                    "Conhecer e aceitar as suas características pessoais e a sua identidade social e cultural, situando-as em relação às de outros.",
+                    "Reconhecer e valorizar laços de pertença social e cultural."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Identifica as suas características individuais (sexo, idade, nome, etc.) e reconhece semelhanças e diferenças com os outros.",
+                    "Verbaliza necessidades de bem-estar físico (fome, casa de banho).",
+                    "Expressa as suas emoções e sentimentos e reconhece os dos outros.",
+                    "Manifesta os seus gostos e preferências.",
+                    "Mantém e justifica opiniões, aceitando as dos outros.",
+                    "Demonstra prazer nas suas produções e progressos.",
+                    "Revela confiança em experimentar atividades novas.",
+                    "Aceita algumas frustrações e insucessos sem desanimar.",
+                    "Representa papéis e situações da sua cultura em jogo dramático.",
+                    "Reconhece a sua pertença a diferentes grupos sociais.",
+                    "Identifica e valoriza traços da sua cultura familiar e de outras culturas."
+                ],
+                "Estrategias_do_educador": [
+                    "Valoriza e respeita cada criança como modelo de relação.",
+                    "Está atento à transmissão verbal e não verbal.",
+                    "Identifica e valoriza o comportamento positivo.",
+                    "Apoia a expressão de opiniões e sentimentos.",
+                    "Tira proveito da diversidade cultural e respeita as diferenças familiares.",
+                    "Alarga as referências culturais através do contacto com múltiplos recursos."
+                ]
+            },
+            "Independência e autonomia": {
+                "Aprendizagens a promover": [
+                    "Saber cuidar de si e responsabilizar-se pela sua segurança e bem-estar.",
+                    "Ir adquirindo a capacidade de fazer escolhas, tomar decisões e assumir responsabilidades, tendo em conta o seu bem-estar e o dos outros."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Realiza de forma cada vez mais independente as tarefas do dia a dia (vestir, comer, lavar).",
+                    "Apropria-se da localização e uso dos materiais da sala com cuidado.",
+                    "Conhece as rotinas diárias e o que se faz em cada momento.",
+                    "Escolhe atividades com crescente autonomia sem perturbar o grupo.",
+                    "Executa tarefas a que se comprometeu.",
+                    "Adquire maior controlo motor em movimentos complexos e precisos.",
+                    "Compreende a importância de normas de vida saudável e higiene.",
+                    "Tem consciência dos riscos físicos e adota normas de segurança.",
+                    "Preocupa-se com a segurança das outras crianças."
+                ],
+                "Estrategias_do_educador": [
+                    "Dá tempo para a criança realizar as tarefas do dia a dia.",
+                    "Organiza os materiais com a participação das crianças.",
+                    "Fala sobre os momentos da rotina.",
+                    "Facilita escolhas e apoia iniciativas.",
+                    "Negoceia tarefas necessárias à vida do grupo (ex: arrumar a sala).",
+                    "Incentiva a resolução de problemas de forma autónoma.",
+                    "Sensibiliza para os problemas de segurança e higiene pessoal.",
+                    "Envolve as famílias na construção da autonomia da criança."
+                ]
+            },
+            "Consciência de si como aprendente": {
+                "Aprendizagens a promover": [
+                    "Ser capaz de ensaiar diferentes estratégias para resolver as dificuldades e problemas que se lhe colocam.",
+                    "Ser capaz de participar nas decisões sobre o seu processo de aprendizagem.",
+                    "Cooperar com outros no processo de aprendizagem."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Manifesta curiosidade pelo mundo e formula questões.",
+                    "Revela interesse por aprender usando novas aprendizagens.",
+                    "Expressa opiniões com critérios que as justificam.",
+                    "Contribui para a aprendizagem do grupo com propostas e ideias.",
+                    "Participa na planificação de projetos explicitando o que quer fazer.",
+                    "Colabora em pequeno e grande grupo.",
+                    "Partilha com o educador e crianças o que descobriu.",
+                    "Aprecia criticamente os seus trabalhos pedindo sugestões para melhorar.",
+                    "Expressa ideias recorrendo a diferentes tipos de linguagem."
+                ],
+                "Estrategias_do_educador": [
+                    "Estimula a curiosidade e apoia a criança a relacionar saberes.",
+                    "Escuta e promove a articulação de contributos para conclusões conjuntas.",
+                    "Envolve a criança no planeamento, realização e avaliação.",
+                    "Coloca perguntas abertas incentivando a construção conjunta do pensamento.",
+                    "Apoia a criatividade na procura de soluções."
+                ]
+            },
+            "Convivência democrática e cidadania": {
+                "Aprendizagens a promover": [
+                    "Desenvolver o respeito pelo outro e pelas suas opiniões, numa atitude de partilha e de responsabilidade social.",
+                    "Respeitar a diversidade e solidarizar-se com os outros.",
+                    "Desenvolver uma atitude crítica e interventiva relativamente ao que se passa no mundo que a rodeia.",
+                    "Conhecer e valorizar manifestações do património natural e cultural, reconhecendo a necessidade da sua preservação."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Espera pela sua vez em jogos e diálogos.",
+                    "Contribui para regras do grupo e procura cumpri-las.",
+                    "Resolve conflitos de forma autónoma através do diálogo.",
+                    "Escuta, questiona e argumenta face a opiniões diferentes.",
+                    "Demonstra apoio e entreajuda.",
+                    "Reconhece a diversidade (género, etnia, religião) como fator de enriquecimento.",
+                    "Aceita que meninos e meninas podem fazer as mesmas coisas.",
+                    "Identifica injustiças propondo formas de as resolver.",
+                    "Conhece manifestações do património artístico e paisagístico preservando-as.",
+                    "Desenvolve sentido estético perante manifestações culturais."
+                ],
+                "Estrategias_do_educador": [
+                    "Organiza um ambiente inclusivo com as mesmas oportunidades para todos.",
+                    "Seleciona materiais sem estereótipos de género ou etnia.",
+                    "Dialoga sobre a diferença e a justiça social.",
+                    "Incentiva a resolução de conflitos pelo diálogo.",
+                    "Debate o que é real, imaginário ou manipulado na TV/media.",
+                    "Incentiva práticas de proteção da natureza e património cultural."
+                ]
+            }
+        },
+        "Expressao_e_Comunicacao": {
+            "Domínio da Educação Física": {
+                "Aprendizagens a promover": [
+                    "Cooperar em situações de jogo, seguindo orientações ou regras.",
+                    "Dominar movimentos que implicam deslocamentos e equilíbrios como: trepar, correr, saltitar, deslizar, rodopiar, saltar a pés juntos ou num só pé, saltar sobre obstáculos, baloiçar, rastejar e rolar.",
+                    "Controlar movimentos de perícia e manipulação como: lançar, receber, pontapear, lançar em precisão, transportar, driblar e agarrar."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Demonstra gosto pelas atividades físicas e progride nelas.",
+                    "Coopera em equipa.",
+                    "Aceita e cumpre as regras dos jogos.",
+                    "Aceita a situação de ganhar ou perder.",
+                    "Compreende e esquematiza as regras dos jogos.",
+                    "Cria ou imagina possibilidades motoras e propõe-nas ao grupo."
+                ],
+                "Estrategias_do_educador": [
+                    "Prevê espaços exteriores e naturais para a Educação Física.",
+                    "Dá oportunidade à criança de explorar o espaço e correr riscos controlados.",
+                    "Disponibiliza materiais para o planeamento de jogos infantis.",
+                    "Adequa propostas ao desenvolvimento encorajando a interajuda.",
+                    "Debate as regras e está atento a reações ao ganhar/perder.",
+                    "Cria oportunidades para saltar, trepar, suspender-se, lançar bolas, etc."
+                ]
+            },
+            "Domínio da Educação Artística - Artes Visuais": {
+                "Aprendizagens a promover": [
+                    "Desenvolver capacidades expressivas e criativas através de experimentações e produções plásticas.",
+                    "Reconhecer e mobilizar elementos da comunicação visual tanto na produção e apreciação das suas produções como em imagens que observa.",
+                    "Apreciar diferentes manifestações de artes visuais (pintura, desenho, escultura, fotografia, arquitetura vídeo, etc.)."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Tem prazer em explorar pintura, desenho, modelagem, colagens com cores e formas.",
+                    "Recria histórias e vivências usando materiais diversos (barro, carvão, materiais reciclados).",
+                    "Introduz cores e texturas de modo intencional.",
+                    "Dialoga sobre imagens de museus, galerias e natureza.",
+                    "Emite opiniões com justificação sobre os trabalhos."
+                ],
+                "Estrategias_do_educador": [
+                    "Disponibiliza materiais diversos e acessíveis permitindo tempo flexível para a execução.",
+                    "Seleciona obras de arte para observação e expõe os trabalhos das crianças.",
+                    "Dialoga durante a execução ajudando-as a concretizar ideias.",
+                    "Comenta o uso de elementos visuais.",
+                    "Promove visitas a centros culturais e o uso de vocabulário específico."
+                ]
+            },
+            "Domínio da Educação Artística - Jogo Dramático/Teatro": {
+                "Aprendizagens a promover": [
+                    "Utilizar e recriar o espaço e os objetos, atribuindo-lhes significados múltiplos em atividades de jogo dramático e recriação do quotidiano.",
+                    "Inventar e representar personagens e situações, por iniciativa própria e/ou propostas.",
+                    "Apreciar espetáculos teatrais e outras práticas performativas."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Envolve-se em situações complexas de caracterização de papéis.",
+                    "Propõe soluções para desafios criativos de teatro.",
+                    "Inventa diálogos escolhendo cenários, adereços e músicas.",
+                    "Comenta espetáculos usando vocabulário adequado (palco, ator, encenador)."
+                ],
+                "Estrategias_do_educador": [
+                    "Fornece adereços estimulantes e debate os estereótipos culturais observados.",
+                    "Propicia o jogo dramático para além da sala (ginásio, rua).",
+                    "Envolve as crianças na elaboração e execução de projetos de teatro.",
+                    "Promove o contacto com práticas teatrais de vários géneros."
+                ]
+            },
+            "Domínio da Educação Artística - Música": {
+                "Aprendizagens a promover": [
+                    "Identificar e descrever os sons que ouve (fenómenos sonoros/música) quanto às suas características rítmicas, melódicas, dinâmicas e tímbricas.",
+                    "Interpretar cantos rítmicos, trava-línguas e canções com expressividade.",
+                    "Elaborar improvisações musicais com voz, corpo e instrumentos.",
+                    "Valorizar a música como fator de identidade social e cultural."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Inventa ambientes sonoros usando voz, corpo e objetos.",
+                    "Identifica sons da natureza, vocais e instrumentais.",
+                    "Canta canções controlando a melodia e respiração.",
+                    "Distingue auditivamente músicas de vários estilos e culturas e comenta-as.",
+                    "Usa grafismos não convencionais para registar sequências curtas/longas."
+                ],
+                "Estrategias_do_educador": [
+                    "Coloca à disposição instrumentos e fontes sonoras organizando tempo para a exploração livre.",
+                    "Proporciona escuta orientada de sons (da natureza e gravados).",
+                    "Explora jogos prosódicos (rimas e trava-línguas).",
+                    "Promove o contacto com estilos e tradições locais (ex: fado, cante alentejano).",
+                    "Incentiva improvisações para criar ambientes (som de chuva, planeta desconhecido)."
+                ]
+            },
+            "Domínio da Educação Artística - Dança": {
+                "Aprendizagens a promover": [
+                    "Desenvolver o sentido rítmico e de relação do corpo com o espaço e com os outros.",
+                    "Expressar sentimentos e emoções através da dança.",
+                    "Refletir sobre movimentos rítmicos e coreografias experimentadas ou observadas.",
+                    "Apreciar diferentes manifestações coreográficas usando linguagem específica."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Expressa-se ritmicamente com prazer.",
+                    "Realiza movimentos coordenados usando o espaço e o tempo.",
+                    "Cria movimentos a partir de objetos, animais ou situações da vida real.",
+                    "Interpreta sequências e comenta-as.",
+                    "Aprecia dança ao vivo ou audiovisual utilizando termos como bailarino, palco, ensaio."
+                ],
+                "Estrategias_do_educador": [
+                    "Proporciona brincadeiras com movimentos locomotores e não locomotores (alongar, saltitar, rodopiar).",
+                    "Promove ações coordenadas sobre diversos pontos de apoio e trajetórias.",
+                    "Propicia observação e debate de dança no cinema, teatro ou internet.",
+                    "Cria situações para expressar emoções a partir de histórias ou imagens dançando."
+                ]
+            },
+            "Domínio da Linguagem Oral e Abordagem à Escrita - Comunicação Oral": {
+                "Aprendizagens a promover": [
+                    "Compreender mensagens orais em situações diversas de comunicação.",
+                    "Usar a linguagem oral em contexto, conseguindo comunicar eficazmente."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Faz perguntas sobre novo vocabulário e usa-o.",
+                    "Responde adequadamente apresentando as suas ideias.",
+                    "Elabora e aumenta a complexidade gramatical das frases (coordenadas, subordinadas).",
+                    "Reproduz corretamente letras de canções.",
+                    "Relata acontecimentos mantendo a sequência.",
+                    "Usa linguagem com diferentes propósitos (pedir, informar, debater)."
+                ],
+                "Estrategias_do_educador": [
+                    "Disponibiliza material que promove a linguagem (histórias, fantoches, áudios).",
+                    "Faz pedidos e instruções complexas.",
+                    "Usa vocabulário rico interligando palavras (ex: motosserra, astronauta).",
+                    "Conta histórias e incentiva as crianças a criarem as suas.",
+                    "Facilita o contacto com outras línguas (sensibilização a língua estrangeira)."
+                ]
+            },
+            "Domínio da Linguagem Oral e Abordagem à Escrita - Consciência linguística": {
+                "Aprendizagens a promover": [
+                    "Tomar consciência gradual sobre diferentes segmentos orais que constituem as palavras (Consciência Fonológica).",
+                    "Identificar diferentes palavras numa frase (Consciência da Palavra).",
+                    "Identificar se uma frase está correta ou incorreta e corrigi-la (Consciência Sintática)."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Identifica o número de sílabas de uma palavra.",
+                    "Descobre palavras que começam ou acabam com o mesmo som.",
+                    "Isola ou conta as palavras de uma frase.",
+                    "Muda ou retira uma palavra de uma frase alterando o seu sentido.",
+                    "Identifica frases cuja estrutura gramatical está incorreta."
+                ],
+                "Estrategias_do_educador": [
+                    "Cria jogos com rimas e reconstrução de palavras a partir de sons.",
+                    "Explora histórias e canções com repetições de som.",
+                    "Lê poesias e trava-línguas.",
+                    "Faz jogos lúdicos de troca de palavras para refletir sobre o novo sentido das frases."
+                ]
+            },
+            "Domínio da Linguagem Oral e Abordagem à Escrita - Funcionalidade da linguagem escrita": {
+                "Aprendizagens a promover": [
+                    "Identificar funções no uso da leitura e da escrita.",
+                    "Usar a leitura e a escrita com diferentes funcionalidades nas rotinas e interações."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Refere vontade de querer aprender a ler e escrever.",
+                    "Identifica se a escrita é lúdica, informativa ou para registo (mnemónica).",
+                    "Usa receitas para cozinhar ou listas para materiais.",
+                    "Pede aos adultos para lhe escreverem algo numa situação concreta.",
+                    "Escreve (convencionalmente ou não) pseudopalavras em brincadeiras.",
+                    "Distingue diferentes tipos de livros consoante a sua função."
+                ],
+                "Estrategias_do_educador": [
+                    "Integra jornais, panfletos, e dicionários no quotidiano.",
+                    "Escreve em conjunto cartazes informativos ou notícias de jornal para uso diário.",
+                    "Lê placas nas ruas, ementas da escola e receitas para cozinhar.",
+                    "Lê e escreve perante as crianças imitando a escrita em áreas de faz-de-conta.",
+                    "Incentiva as famílias ao uso da leitura funcional (idas às compras)."
+                ]
+            },
+            "Domínio da Linguagem Oral e Abordagem à Escrita - Identificação de convenções da escrita": {
+                "Aprendizagens a promover": [
+                    "Reconhecer letras e aperceber-se da sua organização em palavras.",
+                    "Aperceber-se do sentido direcional da escrita.",
+                    "Estabelecer relação entre a escrita e a mensagem oral."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Diferencia desenho de escrita usando garatujas e 'letras'.",
+                    "Identifica o próprio nome e as respetivas letras.",
+                    "Nas tentativas de leitura, aponta o dedo seguindo a orientação da frase.",
+                    "Partilha com colegas semelhanças entre letras."
+                ],
+                "Estrategias_do_educador": [
+                    "Põe papéis, agendas e teclados ao dispor.",
+                    "Oferece jogos de identificação de letras.",
+                    "Questiona a criança sobre o que 'escreveu', levando a explicitar estratégias.",
+                    "Realça a correspondência oral-escrita durante as leituras (ex: mostrar enquanto lê)."
+                ]
+            },
+            "Domínio da Linguagem Oral e Abordagem à Escrita - Prazer e motivação para ler e escrever": {
+                "Aprendizagens a promover": [
+                    "Compreender que a leitura e a escrita são atividades que proporcionam prazer.",
+                    "Estabelecer razões pessoais para se envolver com a leitura associadas ao seu valor.",
+                    "Sentir-se capaz de usar a leitura e a escrita, mesmo que em formas iniciais não convencionais."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Escolhe voluntariamente ler e escrever demonstrando concentração e prazer.",
+                    "Ouve rimas e histórias com atenção.",
+                    "Reflete sobre a importância da escrita.",
+                    "Partilha entusiasmo com a família face às aprendizagens de leitura.",
+                    "Envolve-se em desafios e tenta escrever mesmo sem saber fazê-lo formalmente."
+                ],
+                "Estrategias_do_educador": [
+                    "Garante material de leitura rico do ponto de vista estético.",
+                    "Dá oportunidades livres de escolha sobre o que ler.",
+                    "Partilha os progressos reforçando a competência da criança.",
+                    "Envolve as famílias nas partilhas e vivências do processo de leitura."
+                ]
+            },
+            "Domínio da Matemática - Números e Operações": {
+                "Aprendizagens a promover": [
+                    "Identificar quantidades através de diferentes formas de representação (contagens, desenhos, símbolos, escrita de números, estimativa, etc.).",
+                    "Resolver problemas do quotidiano que envolvam pequenas quantidades, com recurso à adição e subtração."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Faz correspondência termo a termo para contar.",
+                    "Compreende que a última palavra falada na contagem é o valor total.",
+                    "Usa 'mais do que' e 'menos do que' para comparar conjuntos.",
+                    "Conta por ordem crescente e decrescente.",
+                    "Combina (adiciona) conjuntos e retira (subtrai) de um conjunto.",
+                    "Usa intuições de multiplicação e divisão no contexto concreto."
+                ],
+                "Estrategias_do_educador": [
+                    "Provê tampas, pedras, legos e sementes para operarem as quantidades.",
+                    "Usa a rotina (contar crianças, pacotes de leite) para reforçar o número.",
+                    "Atenta aos números no ambiente (portas, autocarro, telemóvel).",
+                    "Usa canções e rimas com sequência de números.",
+                    "Encoraja as crianças a desenharem/esquematizarem a contagem e operarem mentalmente."
+                ]
+            },
+            "Domínio da Matemática - Organização e Tratamento de Dados": {
+                "Aprendizagens a promover": [
+                    "Recolher informação pertinente para dar resposta a questões colocadas (listagens, desenhos).",
+                    "Utilizar gráficos e tabelas simples para organizar a informação e interpretá-la."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Recolhe dados no quotidiano sobre interesses próprios.",
+                    "Usa pictogramas simples ou tabelas com ajuda.",
+                    "Interpreta a categoria que tem maior frequência (moda).",
+                    "Percebe que a tabela descreve apenas uma dada realidade ou grupo."
+                ],
+                "Estrategias_do_educador": [
+                    "Levanta perguntas (ex: 'quantas meninas comeram sopa?').",
+                    "Ajuda a estruturar a recolha em tabelas usando caricas ou representações visuais.",
+                    "Apoia a 'leitura' das tabelas de modo a extraírem os valores totais e a frequência alta.",
+                    "Incentiva-as a divulgarem os achados ao resto do estabelecimento."
+                ]
+            },
+            "Domínio da Matemática - Geometria e Medida (Geometria)": {
+                "Aprendizagens a promover": [
+                    "Localizar objetos num ambiente familiar utilizando orientação.",
+                    "Identificar pontos de reconhecimento usando mapas simples.",
+                    "Tomar a perspetiva visual do outro perante um cenário.",
+                    "Reconhecer, rodar e analisar formas identificando padrões e simetrias."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Consegue usar posições relativas (em frente, atrás, entre o X e o Y).",
+                    "Segue caminhos com descrição oral e desenha percursos de locais familiares.",
+                    "Sabe esconder-se num jogo usando uma boa posição oculta.",
+                    "Diferencia formas 2D e 3D no quotidiano e arte.",
+                    "Consegue ver no espelho, rodar, ampliar objetos identificando a mudança de forma e posição."
+                ],
+                "Estrategias_do_educador": [
+                    "Usa geoplanos, blocos lógicos, espelhos e puzzles para manipulação geométrica.",
+                    "Propõe jogos de cabra cega explorando pelo tato.",
+                    "Cria atividades usando fotografias de vários ângulos para as crianças detetarem de onde foram tiradas.",
+                    "Utiliza mosaicos, quadros ou roupas para criar e continuar padrões.",
+                    "Constrói papagaios de papel ou blocos tridimensionais (caixas) com os alunos."
+                ]
+            },
+            "Domínio da Matemática - Geometria e Medida (Medida)": {
+                "Aprendizagens a promover": [
+                    "Compreender que os objetos têm atributos mensuráveis para comparação.",
+                    "Escolher unidades de medida naturais e convencionais para necessidades diárias."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Compara torres de legos com conceitos (maior que, mais estreito).",
+                    "Usa os passos/mãos (alternativas) para medir distâncias.",
+                    "Pesa objetos na mão para estipular peso e corrobora-os depois na balança."
+                ],
+                "Estrategias_do_educador": [
+                    "Faz perguntas e incentiva comparações sobre tamanho, volume e capacidade das águas/areia.",
+                    "Ajuda a escolher unidades (como o cabo de vassoura) para medir.",
+                    "Traz réguas, fitas e termómetros padronizados associando-os à rotina."
+                ]
+            },
+            "Domínio da Matemática - Interesse e Curiosidade pela matemática": {
+                "Aprendizagens a promover": [
+                    "Mostrar interesse e curiosidade pela matemática, compreendendo a sua utilidade.",
+                    "Sentir-se competente para lidar com noções matemáticas e resolver problemas."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Aplica ativamente noções lógicas em brincadeiras sem intervenção do adulto.",
+                    "Coloca problemas aos amigos.",
+                    "Gera as próprias estratégias não desistindo da resolução ou procurando outras abordagens."
+                ],
+                "Estrategias_do_educador": [
+                    "Encoraja as crianças a criticarem individualmente os raciocínios.",
+                    "Desafia as capacidades com saltos abstratos.",
+                    "Dá feedback do esforço para gerar uma consciência coerente do processo dedutivo."
+                ]
+            }
+        },
+        "Conhecimento_do_Mundo": {
+            "Introdução à Metodologia Científica": {
+                "Aprendizagens a promover": [
+                    "Apropriar-se das etapas do processo científico: questionar, formular hipóteses, investigar, organizar e tirar conclusões."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Observa e questiona querendo saber mais.",
+                    "Encontra explicações provisórias para as suas hipóteses.",
+                    "Participa ativamente na testagem e recolha visual das anotações (fotos, etc.).",
+                    "Partilha e sente satisfação no anúncio da descoberta final às famílias."
+                ],
+                "Estrategias_do_educador": [
+                    "Cria um 'canto das ciências' rico com lupas, binóculos, terra, conchas, ímans e microscópios.",
+                    "Pergunta 'O que vai acontecer se...?' ou 'Como podemos descobrir?'.",
+                    "Fomenta a anotação metódica nos cadernos.",
+                    "Usa com rigor estrito os termos científicos ao descrever fenómenos."
+                ]
+            },
+            "Abordagem às Ciências - Conhecimento do mundo social": {
+                "Aprendizagens a promover": [
+                    "Tomar consciência da identidade e pertença (família, vizinhança).",
+                    "Reconhecer unidades básicas do tempo (dia, semana, mês).",
+                    "Conhecer elementos centrais da comunidade na sua cultura e história social e compará-los.",
+                    "Conhecer e respeitar a diversidade cultural entre o presente e passado."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Sabe a morada, nacionalidade e as características físicas de si próprio.",
+                    "Usa o vocabulário (ontem, semana, noite) adequadamente.",
+                    "Reconhece o grau de parentesco dos seus entes.",
+                    "Associa rotinas aos períodos matutinos/vespertinos.",
+                    "Nomeia estradas, monumentos e profissionais da sua terra.",
+                    "Respeita a heterogeneidade cultural nas roupas, cores ou religiões."
+                ],
+                "Estrategias_do_educador": [
+                    "Trabalha coleções de fotos e utensílios do 'passado' dos avós.",
+                    "Aproveita as festividades nacionais para enriquecer o meio multicultural (gastronomias, rituais).",
+                    "Debate tons de pele, religiões, e interesses erradicando estigmas.",
+                    "Trabalha calendários visuais de presença temporal do grupo."
+                ]
+            },
+            "Abordagem às Ciências - Conhecimento do mundo físico e natural": {
+                "Aprendizagens a promover": [
+                    "Compreender características e semelhanças/diferenças nos seres vivos (animais/plantas) e materiais não vivos (plástico, madeira, metais).",
+                    "Descrever as explicações lógicas dos fenómenos atmosféricos.",
+                    "Prezar a segurança e higiene.",
+                    "Preocupar-se com o respeito pelo meio ambiente."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Nomeia órgãos dos sentidos do corpo humano.",
+                    "Evita excesso de doce, usa a passadeira e lava as mãos justificando-o.",
+                    "Sabe discernir peixes de aves, mamíferos, animais selvagens ou plantas.",
+                    "Testa flutuações, dissoluções (açúcar/água), ações do íman e relata os resultados das interações físicas.",
+                    "Recicla, fecha as torneiras, apaga as luzes e admira a Natureza."
+                ],
+                "Estrategias_do_educador": [
+                    "Mobiliza peritos locais ou familiares que dominem temáticas ambientais ou de saúde.",
+                    "Aproveita a chuva intensa ou a lagarta trazida pelas crianças como alvo central das conversas botânicas/biológicas.",
+                    "Pede responsabilidade pelo tratamento dos jardins (regas, proteção dos ninhos).",
+                    "Facilita a análise do impacto poluente desfavorável dos seres humanos (efeito do lixo)."
+                ]
+            },
+            "Mundo tecnológico e Utilização das Tecnologias": {
+                "Aprendizagens a promover": [
+                    "Reconhecer e explicar as vantagens dos recursos tecnológicos diários.",
+                    "Usar suportes no seu quotidiano em segurança e ter postura crítica."
+                ],
+                "Sinais de observacao_na_crianca": [
+                    "Fala acerca de radares, semáforos, e eletrodomésticos adequadamente.",
+                    "Recorre a câmaras, computadores ou internet como fontes ativas da resposta a projetos.",
+                    "Usa regras cautelosas para com choques elétricos ou fontes de incêndio.",
+                    "Finge que regista, clica e lê códigos de barras em jogos simbólicos de compra-venda.",
+                    "Imagina criações inovadoras e desenha engenhocas."
+                ],
+                "Estrategias_do_educador": [
+                    "Providencia o manuseamento prático em tablets e processadores visuais adaptados.",
+                    "Conduz raciocínios sobre a televisão ou publicidade em busca da distinção 'Real vs Encenado'.",
+                    "Estabelece regras na rede sobre partilha de vídeos/imagens.",
+                    "Constrói com o grupo, em materiais recicláveis, 'máquinas' idealizadas (rádio com fios, telescópio simulado, relógio de tempo)."
+                ]
+            }
+        }
+    }
+}

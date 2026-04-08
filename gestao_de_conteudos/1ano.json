@@ -1,0 +1,221 @@
+{
+    "ano": "1.º ano",
+    "disciplinas": {
+        "Artes_Visuais": {
+            "1º_2º_e_3º_Periodos": {
+                "Apropriação e Reflexão": [
+                    "Observação e apreciação dos diferentes universos visuais (obras e artefactos de arte – pintura, escultura, desenho, assemblage, colagem, fotografia, instalação, land´art, banda desenhada, design, arquitetura, artesanato, multimédia, linguagens cinematográficas, entre outros), utilizando um vocabulário específico e adequado.",
+                    "Mobilizar a linguagem elementar das artes visuais (cor, forma, linha, textura, padrão, proporção e desproporção, plano, luz, espaço, volume, movimento, ritmo, matéria, …) integrada em diferentes contextos culturais (movimentos artísticos, épocas e geografias)."
+                ],
+                "Interpretação e Comunicação": [
+                    "Dialogar sobre o que vê e sente, de modo a construir múltiplos discursos e leituras da(s) realidade(s).",
+                    "Compreender a intencionalidade dos símbolos e dos sistemas de comunicação visual.",
+                    "Apreciar as diferentes manifestações artísticas e outras realidades visuais."
+                ],
+                "Experimentação e Criação": [
+                    "Integrar a linguagem das artes visuais, assim como várias técnicas de expressão (pintura; desenho - incluindo esboços, esquemas, e itinerários; técnica mista; assemblage; land´art; escultura; maqueta; fotografia, entre outras) nas suas experimentações: físicas e/ou digitais.",
+                    "Experimentar possibilidades expressivas dos materiais (carvão vegetal, pasta de modelar, barro, pastel seco, tinta cenográfica, pincéis e trinchas, rolos, papéis de formatos e características diversas, entre outros) e das diferentes técnicas, adequando o seu uso a diferentes contextos e situações.",
+                    "Escolher técnicas e materiais de acordo com a intenção expressiva das suas produções plásticas.",
+                    "Manifestar capacidades expressivas e criativas nas suas produções plásticas, evidenciando os conhecimentos adquiridos.",
+                    "Utilizar vários processos de registo de ideias (ex.: diários gráficos), de planeamento (ex.: projeto, portfólio) e de trabalho (ex.: individual, em grupo e em rede).",
+                    "Apreciar os seus trabalhos e os dos seus colegas, mobilizando diferentes critérios de argumentação."
+                ]
+            }
+        },
+        "Estudo_do_Meio": {
+            "1º_Periodo": {
+                "Sociedade": [
+                    "À descoberta de si mesmo: A sua identificação; O seu corpo; A segurança do seu corpo; Os membros da sua família."
+                ],
+                "Natureza": [
+                    "À descoberta de si mesmo: Os seus gostos e preferências; O seu corpo; O seu passado próximo."
+                ],
+                "Tecnologia": [
+                    "À descoberta dos outros e das instituições: Outras pessoas com quem mantém relações próximas.",
+                    "À descoberta das inter-relações entre espaços: Datas e locais importantes.",
+                    "À descoberta dos materiais e objetos: Manusear objetos em situações Concretas."
+                ]
+            },
+            "2º_Periodo": {
+                "Sociedade": [
+                    "À descoberta de si mesmo.",
+                    "À descoberta dos outros e das instituições: A sua escola."
+                ],
+                "Natureza": [
+                    "À descoberta de si mesmo: A saúde do seu corpo.",
+                    "À descoberta de si mesmo: As suas perspetivas para o futuro próximo.",
+                    "A descoberta dos materiais e objectos: A casa."
+                ],
+                "Tecnologia": [
+                    "À descoberta dos outros e das instituições: As pessoas da escola.",
+                    "À descoberta das inter-relações entre espaços: Localizar espaços em relação a um ponto de referência; O espaço da sua escola; Os seus itinerários.",
+                    "À descoberta dos materiais e objetos: Comportamentos de risco; Manusear objetos."
+                ]
+            },
+            "3º_Periodo": {
+                "Natureza": [
+                    "À descoberta do ambiente natural: Os seres vivos do seu ambiente.",
+                    "À descoberta do ambiente natural: Os aspetos físicos do meio local; Identificar cores, sons e cheiros da Natureza."
+                ],
+                "Tecnologia": [
+                    "À descoberta do ambiente natural: Realizar experiências com alguns materiais e objetos de uso corrente (sal, açúcar, leite, madeira, barro, cortiça, areia, papel, cera, objetos variados…).",
+                    "À descoberta do ambiente natural: Realizar experiências com a água e com o som."
+                ]
+            }
+        },
+        "Matematica": {
+            "1º_Periodo": {
+                "Números": [
+                    "Números naturais até 10: Significados de número natural; Usos do número natural.",
+                    "Relações numéricas: Factos básicos da adição; Composição e decomposição; Factos básicos da adição e sua relação com a subtração.",
+                    "Cálculo mental: Estratégias.",
+                    "Adição e Subtração: Significado e usos; Relação entre adição e subtração."
+                ],
+                "Álgebra": [
+                    "Regularidades em sequências: Sequências de repetição.",
+                    "Expressões e relações: Igualdades aritméticas; Propriedades das operações."
+                ],
+                "Dados e Probabilidades": [
+                    "Questões estatísticas, recolha e organização de dados: Questões estatísticas; Fontes primárias de dados; Métodos de recolha de dados (observar e inquirir); Recolha de dados; Registo de dados (listas e tabelas de contagem); Comunicação e divulgação de um estudo.",
+                    "Representações Gráficas: Gráfico de pontos; Análise crítica de gráficos.",
+                    "Análise de dados: Interpretação e conclusão."
+                ],
+                "Geometria e Medida": [
+                    "Orientação espacial: Posição e localização.",
+                    "Sólidos: Sólidos e superfícies.",
+                    "Figuras planas: Polígonos elementares, círculo e outras figuras."
+                ]
+            },
+            "2º_Periodo": {
+                "Números": [
+                    "Números naturais até 50: Significados de número natural; Usos do número natural.",
+                    "Relações numéricas: Factos básicos da adição; Composição e decomposição; Estimativas de cálculo.",
+                    "Cálculo mental: Estratégias.",
+                    "Adição e Subtração: Significado e usos; Relação entre adição e subtração."
+                ],
+                "Álgebra": [
+                    "Regularidades em sequências: Sequências de repetição.",
+                    "Expressões e relações: Igualdades aritméticas; Relações numéricas e algébricas."
+                ],
+                "Dados e Probabilidades": [
+                    "Questões estatísticas, recolha e organização de dados: Questões estatísticas; Fontes primárias de dados; Métodos de recolha de dados (observar e inquirir); Recolha de dados; Registo de dados (listas e tabelas de contagem).",
+                    "Representações gráficas: Pictogramas e gráfico de pontos.",
+                    "Análise de dados: Comunicação e divulgação de um estudo; público-alvo; Apresentações orais; Interpretação e conclusão."
+                ],
+                "Geometria e Medida": [
+                    "Figuras planas: Polígonos elementares, círculo e outras figuras.",
+                    "Operações com figuras: Composição e decomposição.",
+                    "Tempo: Sequências de acontecimentos; Calendários."
+                ]
+            },
+            "3º_Periodo": {
+                "Números": [
+                    "Números naturais até 100: Significados de número natural; Usos do número natural.",
+                    "Sistema de numeração decimal: Valor posicional.",
+                    "Relações numéricas: Factos básicos da adição; Composição e decomposição; Estimativas de cálculo.",
+                    "Cálculo mental: Estratégias.",
+                    "Adição e Subtração: Significado e usos; Relação entre adição e subtração."
+                ],
+                "Álgebra": [
+                    "Regularidades em sequências.",
+                    "Expressões e relações: igualdades aritméticas; Relações numéricas e algébricas; Propriedades das operações."
+                ],
+                "Dados e Probabilidades": [
+                    "Questões estatísticas, recolha e organização de dados: Questões estatísticas; Fontes primárias de dados; Métodos de recolha de dados (observar e inquirir); Recolha de dados; Registo de dados (listas e tabelas de contagem).",
+                    "Representações gráficas: Pictogramas e gráfico de pontos.",
+                    "Análise de dados: Comunicação e divulgação de um estudo; público-alvo; Apresentações orais; Interpretação e conclusão."
+                ],
+                "Geometria e Medida": [
+                    "Operações com figuras: Composição e decomposição.",
+                    "Comprimento: Significado; Medição e unidades de medida; Usos do comprimento."
+                ]
+            },
+            "Ao_longo_do_ano": {
+                "Capacidades Matemáticas": [
+                    "Resolução de problemas: Processo; Estratégias.",
+                    "Raciocínio matemático: Conjeturar e generalizar; Classificar; Justificar.",
+                    "Pensamento computacional: Abstração; Decomposição; Reconhecimento de padrões; Algoritmia; Depuração.",
+                    "Comunicação matemática: Expressão de ideias; Discussão de ideias.",
+                    "Representações matemáticas: Representações múltiplas; Conexões entre representações; Linguagem simbólica matemática.",
+                    "Conexões matemáticas: Conexões internas; Conexões externas.",
+                    "Modelos matemáticos: Linguagem simbólica matemática."
+                ]
+            }
+        },
+        "Portugues": {
+            "1º_Periodo": {
+                "Oralidade": [
+                    "Interação discursiva: Princípio de cortesia; Resposta, pergunta, pedido.",
+                    "Compreensão e expressão: Articulação, entoação e ritmo; Vocabulário: alargamento, adequação; Informação essencial; Instrução; Frase; Expressão de ideias e de sentimentos."
+                ],
+                "Leitura e Escrita": [
+                    "Alfabeto e grafemas: Alfabeto (i, u, o, a, e, p, t, l, d, m, v); Letra maiúscula, letra minúscula; Valores fonológicos de grafemas, dígrafos e ditongos (iu, ui, oi, ou, ai, au, ão, ei, eu, ãe, al/el/il/ol/ul).",
+                    "Consciência fonológica e habilidades fonémicas: Perceção e discriminação fonéticas; Consciência silábica; Sensibilidade fonológica; Consciência fonémica.",
+                    "Fluência de leitura: velocidade, precisão e prosódia: Palavras e pseudopalavras monossilábicas, dissilábicas e trissilábicas; Palavras regulares e irregulares.",
+                    "Compreensão de texto: Textos de características narrativas, informativas, descritivas; Poema, banda desenhada; Vocabulário: alargamento e adequação; Sentidos do texto: sequência de acontecimentos, mudança de espaço, tema, assunto, informação essencial, intenções e emoções de personagens.",
+                    "Ortografia e pontuação: Sílabas, palavras (regulares e irregulares), pseudopalavras, frases; Letra de imprensa, letra manuscrita; Frases; Sinais de pontuação: ponto final, ponto de interrogação.",
+                    "Produção escrita: Frases simples; Legendas de imagens."
+                ],
+                "Iniciação à Educação Literária": [
+                    "Audição e leitura: Obras de literatura para a infância, textos da tradição popular \"Pelo muro acima\", \"Um, dois, três, quatro\", \"Frutos\".",
+                    "Compreensão de texto: Rima; Antecipação de conteúdos; Reconto; Expressão de sentimentos e de emoções.",
+                    "Memorização e recitação: Trava-línguas, lengalenga; poema.",
+                    "Produção expressiva: Histórias inventadas; Recriação de textos."
+                ],
+                "Gramática": [
+                    "Morfologia e lexicologia: Nome: flexão em género e número (regular)."
+                ]
+            },
+            "2º_Periodo": {
+                "Oralidade": [
+                    "Interação discursiva: Princípio de cortesia; Resposta, pergunta, pedido.",
+                    "Compreensão e expressão: Articulação, entoação e ritmo; Vocabulário: alargamento, adequação; Informação essencial; Instrução; Frase; Expressão de ideias e de sentimentos."
+                ],
+                "Leitura e Escrita": [
+                    "Consciência fonológica e habilidades fonémicas: Perceção e discriminação fonéticas; Consciência silábica; Sensibilidade fonológica; Consciência fonémica.",
+                    "Alfabeto e grafemas: Alfabeto (c, q, n, r, b, g, j, f, s); Letra maiúscula, letra minúscula; Valores fonológicos de grafemas, dígrafos e ditongos (-rr-;-r-; ar/er/ir/or/ur); Valores fonológicos de grafemas, dígrafos e ditongos (gue/gui, ge/gi).",
+                    "Fluência de leitura: velocidade, precisão e prosódia: Palavras e pseudopalavras monossilábicas, dissilábicas e trissilábicas; Palavras regulares e irregulares.",
+                    "Compreensão de texto: Textos de características narrativas, informativas, descritivas; Poema, banda desenhada; Vocabulário: alargamento e adequação; Sentidos do texto: sequência de acontecimentos, mudança de espaço, tema, assunto, informação essencial, intenções e emoções de personagens.",
+                    "Ortografia e pontuação: Sílabas, palavras (regulares e irregulares), pseudopalavras; Frases; Sinais de pontuação: ponto final, ponto de interrogação; Letra de imprensa, letra manuscrita.",
+                    "Produção escrita: Frases simples; Legendas de imagens; Pequenos textos."
+                ],
+                "Iniciação à Educação Literária": [
+                    "Audição e leitura: Obras de literatura para a infância, textos da tradição popular \"Vamos contar um segredo\".",
+                    "Compreensão de texto: Antecipação de conteúdos; Reconto; Expressão de sentimentos e de emoções.",
+                    "Produção expressiva: Histórias inventadas."
+                ],
+                "Gramática": [
+                    "Morfologia e lexicologia: Sinónimos e antónimos: reconhecimento.",
+                    "Unidades da língua: Palavra, sílaba fonemas.",
+                    "Classe de palavras: Nome próprio.",
+                    "Vocabulário: Alargamento e adequação.",
+                    "Ortografia e pontuação: Correspondência fonema-grafema; Sinais de pontuação (ponto final)."
+                ]
+            },
+            "3º_Periodo": {
+                "Oralidade": [
+                    "Compreensão e expressão: Articulação, entoação e ritmo; Vocabulário: alargamento, adequação; Informação essencial; Instrução; Frase; Expressão de ideias e de sentimentos."
+                ],
+                "Leitura e Escrita": [
+                    "Consciência fonológica e habilidades fonémicas: Perceção e discriminação fonéticas; Consciência silábica; Sensibilidade fonológica; Consciência fonémica.",
+                    "Alfabeto e grafemas: Alfabeto (z, h, x, k, w, y); Letra maiúscula, letra minúscula; Valores fonológicos de grafemas, dígrafos e ditongos (-ss-; ce/ci; ça/ço/çu; as/es/is/os/us; ãos/ões/ães; -s-; az/ez/iz/oz/uz); Valores fonológicos de grafemas, dígrafos e ditongos (an/en/in/on/un; am/em/im/om/um; ans/ens/ins/ons/uns; nh; lh; br/cr/dr/fr/gr/pr/tr/vr; bl/cl/dl/fl/gl/pl/tl; valores de x).",
+                    "Fluência de leitura: velocidade, precisão e prosódia: Palavras e pseudopalavras monossilábicas, dissilábicas e trissilábicas; Palavras regulares e irregulares; Textos.",
+                    "Ortografia e pontuação: Sílabas, palavras (regulares e irregulares), pseudopalavras; Frases; Sinais de pontuação: ponto final, ponto de interrogação; Letra de imprensa, letra manuscrita.",
+                    "Produção escrita: Frases simples; Legendas de imagens; Pequenos textos."
+                ],
+                "Iniciação à Educação Literária": [
+                    "Audição e leitura: Obras de literatura para a infância, textos da tradição popular \"A história do Pedrito Coelho\".",
+                    "Compreensão de texto: Antecipação de conteúdos; Reconto; Expressão de sentimentos e de emoções.",
+                    "Produção expressiva: Histórias inventadas; Recriação de textos."
+                ],
+                "Gramática": [
+                    "Unidades da língua: Palavra, sílaba fonemas.",
+                    "Morfologia e lexicologia: Nome e adjetivo qualificativo: flexão em género e número (regular).",
+                    "Classe de palavras: Nome próprio.",
+                    "Vocabulário: Alargamento e adequação.",
+                    "Ortografia e pontuação: Correspondência fonema-grafema; Sinais de pontuação (ponto final)."
+                ]
+            }
+        }
+    }
+}

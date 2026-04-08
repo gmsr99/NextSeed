@@ -1,12 +1,13 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { GeneratedPlanItem } from "@/lib/planGenerator";
 import {
-  DISCIPLINE_LABELS,
   DISCIPLINE_COLORS,
   DAY_LABELS,
   getWeekDates,
   formatWeekRange,
   getFixedScheduleBlocks,
+  PRIMARY_DAYS,
+  FRIDAY_VARIABLE,
 } from "@/lib/planGenerator";
 import type { Child, ExtracurricularItem } from "@/lib/types";
 
@@ -26,13 +27,20 @@ const S = StyleSheet.create({
   headerTimeCell: { width: 58, padding: "4 5", color: "#FFFFFF", fontWeight: "bold", fontSize: 7 },
   headerCell:     { flex: 1, padding: "4 5", color: "#FFFFFF", fontWeight: "bold", fontSize: 7 },
 
-  tableRow:       { flexDirection: "row", borderBottomWidth: 1, borderColor: "#F3F4F6" },
-  timeCell:       { width: 58, padding: "3 5", fontSize: 7, color: "#9CA3AF", justifyContent: "center" },
-  cell:           { flex: 1, padding: "3 4", minHeight: 20, justifyContent: "center" },
+  tableRow:         { flexDirection: "row", borderBottomWidth: 1, borderColor: "#F3F4F6" },
+  tableRowBig:      { flexDirection: "row", borderBottomWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#F0FDF4" },
+  tableRowMedium:   { flexDirection: "row", borderBottomWidth: 1, borderColor: "#FEF9C3", backgroundColor: "#FEFCE8" },
+  timeCell:         { width: 58, padding: "3 5", fontSize: 7, color: "#9CA3AF", justifyContent: "center" },
+  timeCellBig:      { width: 58, padding: "3 5", fontSize: 7, color: "#6B7280", fontWeight: "bold", justifyContent: "center" },
+  timeCellMedium:   { width: 58, padding: "3 5", fontSize: 7, color: "#92400E", justifyContent: "center" },
+  cell:             { flex: 1, padding: "3 4", minHeight: 20, justifyContent: "center" },
+  cellBig:          { flex: 1, padding: "4 5", minHeight: 60, justifyContent: "center" },
+  cellMedium:       { flex: 1, padding: "3 5", minHeight: 36, justifyContent: "center" },
 
   // Bloco de disciplina (apenas nome, sem título de atividade)
   pill:           { borderRadius: 2, padding: "2 4" },
   pillLabel:      { fontSize: 7, fontWeight: "bold", color: "#1F2937" },
+  pillLabelBig:   { fontSize: 9, fontWeight: "bold", color: "#1F2937" },
 
   // Bloco fixo (ritual, transição, etc.) — estilo neutro
   fixedPill:      { borderRadius: 2, padding: "2 4" },
@@ -59,7 +67,7 @@ const S = StyleSheet.create({
   footer:         { marginTop: 14, borderTopWidth: 1, borderColor: "#E5E7EB", paddingTop: 6, color: "#9CA3AF", fontSize: 7 },
 });
 
-// ─── Conteúdo das transições (dos documentos pedagógicos do Elton) ────────────
+// ─── Conteúdo das transições ──────────────────────────────────────────────────
 
 const TRANSITIONS_7Y = [
   { cat: "Movimento Cruzado",        items: ["Mão direita ao joelho esquerdo (alternado, lento)", "Jumping jacks × 25", "Saltar à corda 2 min", "Equilíbrio numa perna, 20 seg"] },
@@ -76,6 +84,88 @@ const TRANSITIONS_4Y = [
 ];
 
 import { EXTRACURRICULAR_COLORS, DAY_LABELS_FULL } from "@/lib/constants";
+
+// ─── Slots canónicos ──────────────────────────────────────────────────────────
+// Ordem exata dos blocos no horário semanal (Seg–Qui) para o ensino primário
+// e para o pré-escolar alinhado com irmão/irmã do primário.
+// A sexta-feira tem um conjunto diferente porque "Ver Mundo" ocupa 09:45-11:50.
+
+const CANONICAL_PRIMARY_WEEK = [
+  "09:30-09:45",  // Ritual de Chegada
+  "09:45-10:10",  // Variável 1
+  "10:10-10:17",  // Transição · 7 min
+  "10:17-10:42",  // Variável 2
+  "10:42-11:05",  // Pausa Exterior
+  "11:05-11:50",  // Variável 3
+  "11:50-12:30",  // Vida Prática / Preparação Almoço
+  "12:30-14:00",  // Almoço + Tempo Livre
+  "14:00-14:30",  // Variável 4
+  "14:30-14:45",  // Relaxamento
+  "15:00-15:30",  // Leitura e Portefólio
+];
+
+const CANONICAL_PRIMARY_FRIDAY = [
+  "09:30-09:45",  // Saída / Visita de Estudo
+  "09:45-11:50",  // Ver Mundo / Aprendizagem em contexto real (bloco grande)
+  "11:50-12:30",  // Vida Prática no Exterior
+  "12:30-14:00",  // Almoço fora / Piquenique
+  "14:00-14:30",  // Registo da Visita
+  "14:30-14:45",  // Relaxamento
+  "15:00-15:30",  // Encerramento Reflexivo
+];
+
+// BIG_SLOTS: blocos com duração >2h — altura máxima, destaque verde.
+const BIG_SLOTS = new Set(["09:45-11:50", "09:30-12:00"]);
+
+// MEDIUM_SLOTS: blocos com duração >1h — altura média, destaque amarelo.
+const MEDIUM_SLOTS = new Set(["12:30-14:00", "12:00-14:00"]);
+
+// ─── Lookup de células com suporte a spans ────────────────────────────────────
+// Um bloco como "09:45-11:50" (Sexta) cobre vários slots canónicos da semana
+// ("09:45-10:10", "10:10-10:17", …). Em vez de criar uma linha extra para o
+// bloco grande, mostramos-o na primeira linha que intercepta e marcamos as
+// restantes como continuação (célula colorida sem label).
+
+function timeToMin(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// Altura fixa por slot — garante alinhamento perfeito entre colunas
+function slotHeight(slot: string): number {
+  if (MEDIUM_SLOTS.has(slot)) return 42;
+  return 22;
+}
+
+// Altura total de um item que abrange vários slots canónicos
+function itemSpanHeight(itemSlot: string, tableSlots: string[]): number {
+  const [iStart, iEnd] = itemSlot.split("-").map(timeToMin);
+  return tableSlots
+    .filter((s) => {
+      const [sStart, sEnd] = s.split("-").map(timeToMin);
+      return sStart >= iStart && sEnd <= iEnd;
+    })
+    .reduce((sum, s) => sum + slotHeight(s), 0);
+}
+
+// ─── Normalização de slots antigos ───────────────────────────────────────────
+// Itens guardados na BD com código mais antigo podem ter slots diferentes dos
+// slots canónicos atuais (ex: "09:00-10:00" → "09:45-10:10").
+// Resolve pela disciplina + dia da semana usando a tabela PRIMARY_DAYS.
+
+function canonicalizeSlot(day: number, discipline: string, currentSlot: string): string {
+  if (day >= 1 && day <= 4) {
+    const found = PRIMARY_DAYS[day - 1].find((s) => s.discipline === discipline);
+    return found ? found.slot : currentSlot;
+  }
+  if (day === 5) {
+    // Para a sexta-feira, usamos FRIDAY_VARIABLE. Se houver duas entradas para
+    // a mesma disciplina (world_visit), .find() devolve a primeira (o bloco grande).
+    const found = FRIDAY_VARIABLE.find((s) => s.discipline === discipline);
+    return found ? found.slot : currentSlot;
+  }
+  return currentSlot;
+}
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
@@ -94,6 +184,11 @@ export default function SchedulePDF({ children, planItems, weekStart, familyName
   const fixedBlocks = getFixedScheduleBlocks(children);
   const allItems = [...planItems, ...fixedBlocks];
 
+  // Detetar se existe pelo menos uma criança no ensino primário na família
+  const hasPrimaryChild = children.some(
+    (c) => !c.school_year.toLowerCase().startsWith("pré"),
+  );
+
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={S.page}>
@@ -106,8 +201,48 @@ export default function SchedulePDF({ children, planItems, weekStart, familyName
 
         {/* Horário por criança */}
         {children.map((child) => {
-          const childItems = allItems.filter((i) => i.child_id === child.id);
-          const allSlots = [...new Set(childItems.map((i) => i.time_slot))].sort();
+          const isPreSchool = child.school_year.toLowerCase().startsWith("pré");
+          // Pré-escolar alinhado usa a mesma estrutura canónica do primário
+          const usePrimaryCanonical = !isPreSchool || (isPreSchool && hasPrimaryChild);
+
+          // Itens desta criança, com slots normalizados para canónico (apenas
+          // para primário / pré-escolar alinhado)
+          const childItemsRaw = allItems.filter((i) => i.child_id === child.id);
+          const childItems = childItemsRaw.map((item) => {
+            if (!item.is_fixed && usePrimaryCanonical) {
+              return {
+                ...item,
+                time_slot: canonicalizeSlot(item.day_of_week, item.discipline, item.time_slot),
+              };
+            }
+            return item;
+          });
+
+          // Slots a usar nas linhas da tabela
+          // Primário / alinhado: conjuntos canónicos predefinidos (Seg–Qui e Sex)
+          // Pré-escolar autónomo: descoberta dinâmica (não tem conflito)
+          const weekSlots = usePrimaryCanonical
+            ? CANONICAL_PRIMARY_WEEK
+            : [...new Set(
+                childItems
+                  .filter((i) => i.day_of_week >= 1 && i.day_of_week <= 4)
+                  .map((i) => i.time_slot),
+              )].sort();
+
+          const fridaySlots = usePrimaryCanonical
+            ? CANONICAL_PRIMARY_FRIDAY
+            : [...new Set(
+                childItems
+                  .filter((i) => i.day_of_week === 5)
+                  .map((i) => i.time_slot),
+              )].sort();
+
+          // Linhas da tabela: usamos apenas weekSlots como base.
+          // Os itens de sexta com slots mais longos (ex: "09:45-11:50") são
+          // mostrados via findCellItem com lógica de span — sem criar linhas extra.
+          const allSlots = usePrimaryCanonical
+            ? weekSlots
+            : [...new Set([...weekSlots, ...fridaySlots])].sort();
 
           return (
             <View key={child.id} wrap={false}>
@@ -125,41 +260,109 @@ export default function SchedulePDF({ children, planItems, weekStart, familyName
                   ))}
                 </View>
 
-                {/* Linhas do horário */}
-                {allSlots.map((slot) => (
-                  <View key={slot} style={S.tableRow}>
-                    <Text style={S.timeCell}>{slot}</Text>
-                    {[1, 2, 3, 4, 5].map((day) => {
-                      const item = childItems.find(
-                        (i) => i.day_of_week === day && i.time_slot === slot,
-                      );
-                      if (!item) return <View key={day} style={S.cell} />;
+                {/* Corpo da tabela — layout em colunas para suportar spans reais */}
+                <View style={{ flexDirection: "row" }}>
 
-                      const color = DISCIPLINE_COLORS[item.discipline] ?? "#E5E7EB";
-                      const label = DISCIPLINE_LABELS[item.discipline] ?? item.discipline;
-
-                      if (item.is_fixed) {
-                        // Bloco fixo: só o nome, estilo neutro/italico
-                        return (
-                          <View key={day} style={S.cell}>
-                            <View style={[S.fixedPill, { backgroundColor: color + "40" }]}>
-                              <Text style={S.fixedLabel}>{item.title}</Text>
-                            </View>
-                          </View>
-                        );
-                      }
-
-                      // Bloco variável: só o nome da disciplina (sem título da atividade)
+                  {/* Coluna de horas */}
+                  <View style={{ width: 58 }}>
+                    {allSlots.map((slot) => {
+                      const h   = slotHeight(slot);
+                      const med = MEDIUM_SLOTS.has(slot);
                       return (
-                        <View key={day} style={S.cell}>
-                          <View style={[S.pill, { backgroundColor: color + "55" }]}>
-                            <Text style={S.pillLabel}>{label}</Text>
-                          </View>
+                        <View
+                          key={slot}
+                          style={{
+                            height: h, padding: "3 5", justifyContent: "center",
+                            borderBottomWidth: 1,
+                            borderColor: med ? "#FEF9C3" : "#F3F4F6",
+                            backgroundColor: med ? "#FEFCE8" : undefined,
+                          }}
+                        >
+                          <Text style={med ? S.timeCellMedium : S.timeCell}>{slot}</Text>
                         </View>
                       );
                     })}
                   </View>
-                ))}
+
+                  {/* Uma coluna por dia */}
+                  {[1, 2, 3, 4, 5].map((day) => {
+                    const cells: React.ReactNode[] = [];
+                    const skipped = new Set<string>();
+
+                    for (const slot of allSlots) {
+                      if (skipped.has(slot)) continue;
+
+                      const h   = slotHeight(slot);
+                      const med = MEDIUM_SLOTS.has(slot);
+                      const sStart = timeToMin(slot.split("-")[0]);
+
+                      // Item que começa exatamente neste slot (ou que começa aqui via span)
+                      const item = childItems.find((i) => {
+                        if (i.day_of_week !== day) return false;
+                        return timeToMin(i.time_slot.split("-")[0]) === sStart;
+                      });
+
+                      if (item) {
+                        const totalH       = itemSpanHeight(item.time_slot, allSlots);
+                        const isSpanning   = totalH > h;
+                        const isItemBig    = BIG_SLOTS.has(item.time_slot);
+                        const isItemMedium = !isItemBig && MEDIUM_SLOTS.has(item.time_slot);
+                        const color        = DISCIPLINE_COLORS[item.discipline] ?? "#E5E7EB";
+
+                        // Marcar slots cobertos pelo span para saltar
+                        if (isSpanning) {
+                          const [iStart, iEnd] = item.time_slot.split("-").map(timeToMin);
+                          allSlots.forEach((s) => {
+                            const [ss, se] = s.split("-").map(timeToMin);
+                            if (ss > iStart && se <= iEnd) skipped.add(s);
+                          });
+                        }
+
+                        const cellContent = item.is_fixed ? (
+                          <View style={[S.fixedPill, { backgroundColor: color + "60" }]}>
+                            <Text style={[S.fixedLabel, isItemMedium ? { fontSize: 7 } : {}]}>
+                              {item.title}
+                            </Text>
+                          </View>
+                        ) : (
+                          <View style={[S.pill, { backgroundColor: color + (isItemBig || isSpanning ? "88" : "55") }]}>
+                            <Text style={isItemBig || isSpanning ? S.pillLabelBig : S.pillLabel}>
+                              {item.title}
+                            </Text>
+                          </View>
+                        );
+
+                        cells.push(
+                          <View
+                            key={slot}
+                            style={{
+                              height: totalH, padding: "3 4", justifyContent: "center",
+                              borderBottomWidth: 1,
+                              borderColor: isItemMedium ? "#FEF9C3" : "#F3F4F6",
+                              backgroundColor: isItemMedium ? "#FEFCE8" : undefined,
+                            }}
+                          >
+                            {cellContent}
+                          </View>
+                        );
+                      } else {
+                        cells.push(
+                          <View
+                            key={slot}
+                            style={{
+                              height: h,
+                              borderBottomWidth: 1,
+                              borderColor: med ? "#FEF9C3" : "#F3F4F6",
+                              backgroundColor: med ? "#FEFCE8" : undefined,
+                            }}
+                          />
+                        );
+                      }
+                    }
+
+                    return <View key={day} style={{ flex: 1 }}>{cells}</View>;
+                  })}
+                </View>
               </View>
             </View>
           );

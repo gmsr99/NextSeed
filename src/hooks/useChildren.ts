@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Child } from "@/lib/types";
 
 type NewChild = Omit<Child, "id" | "created_at" | "updated_at">;
@@ -7,13 +8,16 @@ type UpdateChild = Partial<Omit<Child, "id" | "created_at" | "updated_at" | "fam
 
 export function useChildren() {
   const queryClient = useQueryClient();
+  const { family } = useAuth();
 
   const { data: children = [], isLoading } = useQuery({
-    queryKey: ["children"],
+    queryKey: ["children", family?.id],
+    enabled: !!family,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("children")
         .select("*")
+        .eq("family_id", family!.id)  // defesa extra além do RLS
         .order("created_at");
       if (error) throw error;
       return data as Child[];
@@ -30,7 +34,7 @@ export function useChildren() {
       if (error) throw error;
       return data as Child;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["children"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["children", family?.id] }),
   });
 
   const updateChild = useMutation({
@@ -44,7 +48,7 @@ export function useChildren() {
       if (error) throw error;
       return data as Child;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["children"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["children", family?.id] }),
   });
 
   return { children, isLoading, createChild, updateChild };
