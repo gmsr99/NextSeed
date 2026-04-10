@@ -8,7 +8,8 @@ create table if not exists calendar_events (
   start_time time,
   end_time time,
   notes text,
-  type text not null default 'evento',
+  type text not null default 'evento'
+    check (type in ('evento', 'consulta', 'saida', 'visita')),
   created_at timestamptz not null default now()
 );
 

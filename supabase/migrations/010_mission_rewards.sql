@@ -39,3 +39,5 @@ create policy "family_reward_redemptions" on reward_redemptions
   );
 
 create index on reward_redemptions (child_id, status);
+
+create index if not exists idx_reward_redemptions_reward_id on reward_redemptions (reward_id);
