@@ -81,7 +81,7 @@ export function useMissionRewards() {
   });
 
   const updateReward = useMutation({
-    mutationFn: async ({ id, ...patch }: Partial<MissionReward> & { id: string }) => {
+    mutationFn: async ({ id, ...patch }: { id: string } & Partial<Omit<MissionReward, 'id' | 'family_id' | 'created_at'>>) => {
       const { error } = await supabase
         .from('mission_rewards')
         .update(patch)
