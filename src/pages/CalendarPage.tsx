@@ -8,7 +8,7 @@ import {
   CalendarDays, MapPin, List, Clock, Users,
   ChevronLeft, ChevronRight,
   TreePine, FlaskConical, Palette, Hammer, BookOpen,
-  Eye, Filter, Home, Plus,
+  Eye, Filter, Home,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
