@@ -37,7 +37,7 @@ export function useLiteracyProgress(childId: string | null, area: 'financial' | 
 
   const setStatus = useMutation({
     mutationFn: async ({ moduleId, status }: { moduleId: string; status: LiteracyStatus }) => {
-      if (!childId) return;
+      if (!childId) throw new Error('childId is required');
       const { error } = await supabase
         .from('literacy_progress')
         .upsert(
