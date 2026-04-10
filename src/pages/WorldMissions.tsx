@@ -17,6 +17,10 @@ import { ReflectionDialog } from "@/components/ReflectionDialog";
 import { toast } from "@/hooks/use-toast";
 import { Clock, Users, Home, TreePine, CheckCircle2, ChevronRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RewardsManager } from '@/components/missions/RewardsManager';
+import { ChildRewardsProgress } from '@/components/missions/ChildRewardsProgress';
+import { RedemptionRequests } from '@/components/missions/RedemptionRequests';
 
 // ─── Filter chip ──────────────────────────────────────────────
 const FilterChip = ({
@@ -419,102 +423,131 @@ export default function WorldMissions() {
           )}
         </AnimatePresence>
 
-        {/* ── Filters ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4"
-        >
-          <h2 className="font-heading text-sm font-semibold text-foreground uppercase tracking-wider">
-            Filtrar missões
-          </h2>
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground font-medium">Idade</p>
-            <div className="flex flex-wrap gap-2">
-              {ageGroups.map((ag) => (
-                <FilterChip key={ag.value} active={selectedAge === ag.value} onClick={() => setSelectedAge(ag.value)}>
-                  {ag.label}
-                </FilterChip>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground font-medium">Espaço</p>
-            <div className="flex flex-wrap gap-2">
-              <FilterChip active={selectedType === "all"} onClick={() => setSelectedType("all")}>Todos</FilterChip>
-              <FilterChip active={selectedType === "interior"} onClick={() => setSelectedType("interior")}>
-                <span className="flex items-center gap-1.5"><Home className="h-3.5 w-3.5" /> Interior</span>
-              </FilterChip>
-              <FilterChip active={selectedType === "exterior"} onClick={() => setSelectedType("exterior")}>
-                <span className="flex items-center gap-1.5"><TreePine className="h-3.5 w-3.5" /> Exterior</span>
-              </FilterChip>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground font-medium">Modalidade</p>
-            <div className="flex flex-wrap gap-2">
-              <FilterChip active={selectedMode === "all"} onClick={() => setSelectedMode("all")}>Todas</FilterChip>
-              <FilterChip active={selectedMode === "individual"} onClick={() => setSelectedMode("individual")}>👤 Individual</FilterChip>
-              <FilterChip active={selectedMode === "equipa"} onClick={() => setSelectedMode("equipa")}>
-                <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Equipa</span>
-              </FilterChip>
-            </div>
-          </div>
-        </motion.div>
+        {/* ── Tabs ── */}
+        <Tabs defaultValue="missoes">
+          <TabsList className="bg-muted/60">
+            <TabsTrigger value="missoes">🌍 Missões</TabsTrigger>
+            <TabsTrigger value="recompensas">🎁 Recompensas</TabsTrigger>
+          </TabsList>
 
-        {/* ── Mission Grid ── */}
-        <div>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-heading text-lg font-semibold text-foreground">
-              {filtered.length === missions.length
-                ? "Todas as missões"
-                : `${filtered.length} missão${filtered.length !== 1 ? "ões" : ""} encontrada${filtered.length !== 1 ? "s" : ""}`}
-            </h2>
-            {state.completed.length > 0 && (
-              <span className="text-xs text-muted-foreground">
-                {state.completed.length} concluída{state.completed.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-
-          {filtered.length === 0 ? (
+          <TabsContent value="missoes" className="space-y-6 mt-6">
+            {/* ── Filters ── */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-16 text-muted-foreground"
+              transition={{ delay: 0.2 }}
+              className="bg-card border border-border rounded-2xl p-5 shadow-soft space-y-4"
             >
-              <div className="text-5xl mb-4">🌱</div>
-              <p className="font-heading text-lg font-medium">Nenhuma missão encontrada</p>
-              <p className="text-sm mt-1">Tenta ajustar os filtros para descobrir mais missões.</p>
+              <h2 className="font-heading text-sm font-semibold text-foreground uppercase tracking-wider">
+                Filtrar missões
+              </h2>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground font-medium">Idade</p>
+                <div className="flex flex-wrap gap-2">
+                  {ageGroups.map((ag) => (
+                    <FilterChip key={ag.value} active={selectedAge === ag.value} onClick={() => setSelectedAge(ag.value)}>
+                      {ag.label}
+                    </FilterChip>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground font-medium">Espaço</p>
+                <div className="flex flex-wrap gap-2">
+                  <FilterChip active={selectedType === "all"} onClick={() => setSelectedType("all")}>Todos</FilterChip>
+                  <FilterChip active={selectedType === "interior"} onClick={() => setSelectedType("interior")}>
+                    <span className="flex items-center gap-1.5"><Home className="h-3.5 w-3.5" /> Interior</span>
+                  </FilterChip>
+                  <FilterChip active={selectedType === "exterior"} onClick={() => setSelectedType("exterior")}>
+                    <span className="flex items-center gap-1.5"><TreePine className="h-3.5 w-3.5" /> Exterior</span>
+                  </FilterChip>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground font-medium">Modalidade</p>
+                <div className="flex flex-wrap gap-2">
+                  <FilterChip active={selectedMode === "all"} onClick={() => setSelectedMode("all")}>Todas</FilterChip>
+                  <FilterChip active={selectedMode === "individual"} onClick={() => setSelectedMode("individual")}>👤 Individual</FilterChip>
+                  <FilterChip active={selectedMode === "equipa"} onClick={() => setSelectedMode("equipa")}>
+                    <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Equipa</span>
+                  </FilterChip>
+                </div>
+              </div>
             </motion.div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map((mission, i) => (
-                <MissionCard
-                  key={mission.id}
-                  mission={mission}
-                  index={i}
-                  completed={isMissionCompleted(mission.id)}
-                  onStart={setActiveMission}
-                />
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* ── Footer ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="border-t border-border pt-8 pb-4 text-center"
-        >
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-            As missões são sugestões de ponto de partida. Adapta-as ao ritmo, ao espaço
-            e à personalidade de cada criança.
-          </p>
-        </motion.div>
+            {/* ── Mission Grid ── */}
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-heading text-lg font-semibold text-foreground">
+                  {filtered.length === missions.length
+                    ? "Todas as missões"
+                    : `${filtered.length} missão${filtered.length !== 1 ? "ões" : ""} encontrada${filtered.length !== 1 ? "s" : ""}`}
+                </h2>
+                {state.completed.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {state.completed.length} concluída{state.completed.length !== 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
+
+              {filtered.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-16 text-muted-foreground"
+                >
+                  <div className="text-5xl mb-4">🌱</div>
+                  <p className="font-heading text-lg font-medium">Nenhuma missão encontrada</p>
+                  <p className="text-sm mt-1">Tenta ajustar os filtros para descobrir mais missões.</p>
+                </motion.div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filtered.map((mission, i) => (
+                    <MissionCard
+                      key={mission.id}
+                      mission={mission}
+                      index={i}
+                      completed={isMissionCompleted(mission.id)}
+                      onStart={setActiveMission}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── Footer ── */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="border-t border-border pt-8 pb-4 text-center"
+            >
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+                As missões são sugestões de ponto de partida. Adapta-as ao ritmo, ao espaço
+                e à personalidade de cada criança.
+              </p>
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="recompensas" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <RewardsManager />
+                <RedemptionRequests />
+              </div>
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Progresso por criança</h3>
+                {children.map(child => (
+                  <div key={child.id} className="border rounded-xl p-4 space-y-2">
+                    <p className="font-medium">{child.name}</p>
+                    <ChildRewardsProgress child={child} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
       </div>
 
       {/* ── Reflection Dialog ── */}
