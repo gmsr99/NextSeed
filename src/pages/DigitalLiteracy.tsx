@@ -85,40 +85,45 @@ const levelColor: Record<string, string> = {
   Avançado: "bg-destructive/15 text-destructive",
 };
 
+interface StatusButtonProps {
+  status: LiteracyStatus;
+  disabled: boolean;
+  onSetStatus: (status: LiteracyStatus) => void;
+}
+
+function StatusButton({ status, disabled, onSetStatus }: StatusButtonProps) {
+  if (status === 'completed') {
+    return (
+      <Button size="sm" variant="ghost" className="w-full text-green-600 gap-1.5"
+        disabled={disabled}
+        onClick={() => onSetStatus('not_started')}>
+        <Check className="h-4 w-4" /> Concluído
+      </Button>
+    );
+  }
+  if (status === 'in_progress') {
+    return (
+      <Button size="sm" variant="outline" className="w-full gap-1.5"
+        disabled={disabled}
+        onClick={() => onSetStatus('completed')}>
+        Marcar concluído
+      </Button>
+    );
+  }
+  return (
+    <Button size="sm" variant="outline" className="w-full gap-1.5"
+      disabled={disabled}
+      onClick={() => onSetStatus('in_progress')}>
+      <PlayCircle className="h-4 w-4" /> Começar
+    </Button>
+  );
+}
+
 const DigitalLiteracy = () => {
   const { children } = useChildren();
   const [selectedChildId, setSelectedChildId] = useState<string>('');
   const { getStatus, completionPct, setStatus } = useLiteracyProgress(selectedChildId || null, 'digital');
   const totalPct = completionPct(ALL_DIGITAL_MODULES);
-
-  function StatusButton({ moduleId }: { moduleId: string }) {
-    const status: LiteracyStatus = getStatus(moduleId);
-    if (status === 'completed') {
-      return (
-        <Button size="sm" variant="ghost" className="w-full text-green-600 gap-1.5"
-          disabled={!selectedChildId}
-          onClick={() => setStatus.mutate({ moduleId, status: 'not_started' })}>
-          <Check className="h-4 w-4" /> Concluído
-        </Button>
-      );
-    }
-    if (status === 'in_progress') {
-      return (
-        <Button size="sm" variant="outline" className="w-full gap-1.5"
-          disabled={!selectedChildId}
-          onClick={() => setStatus.mutate({ moduleId, status: 'completed' })}>
-          Marcar concluído
-        </Button>
-      );
-    }
-    return (
-      <Button size="sm" variant="outline" className="w-full gap-1.5"
-        disabled={!selectedChildId}
-        onClick={() => setStatus.mutate({ moduleId, status: 'in_progress' })}>
-        <PlayCircle className="h-4 w-4" /> Começar
-      </Button>
-    );
-  }
 
   return (
     <AppLayout>
@@ -192,7 +197,11 @@ const DigitalLiteracy = () => {
                       </CardHeader>
                       <CardContent className="flex-1 flex flex-col justify-between gap-4">
                         <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-                        <StatusButton moduleId={item.moduleId} />
+                        <StatusButton
+                          status={getStatus(item.moduleId)}
+                          disabled={!selectedChildId}
+                          onSetStatus={(s) => setStatus.mutate({ moduleId: item.moduleId, status: s })}
+                        />
                       </CardContent>
                     </Card>
                   </motion.div>
