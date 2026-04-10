@@ -23,8 +23,12 @@ export function RedemptionRequests() {
   }
 
   async function handle(id: string, status: 'approved' | 'rejected') {
-    await resolveRedemption.mutateAsync({ id, status });
-    toast({ title: status === 'approved' ? 'Aprovado! 🎉' : 'Rejeitado.' });
+    try {
+      await resolveRedemption.mutateAsync({ id, status });
+      toast({ title: status === 'approved' ? 'Aprovado! 🎉' : 'Rejeitado.' });
+    } catch (e: unknown) {
+      toast({ title: (e as Error).message ?? 'Erro ao processar pedido', variant: 'destructive' });
+    }
   }
 
   if (pending.length === 0) {

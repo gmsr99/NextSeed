@@ -21,25 +21,37 @@ export function RewardsManager() {
       toast({ title: 'Preenche o título e os pontos', variant: 'destructive' });
       return;
     }
-    await createReward.mutateAsync({
-      title: form.title.trim(),
-      emoji: form.emoji.trim() || null,
-      points_cost: cost,
-      description: form.description.trim() || null,
-      is_active: true,
-    });
-    setForm({ title: '', emoji: '', points_cost: '', description: '' });
-    setShowForm(false);
-    toast({ title: 'Recompensa criada!' });
+    try {
+      await createReward.mutateAsync({
+        title: form.title.trim(),
+        emoji: form.emoji.trim() || null,
+        points_cost: cost,
+        description: form.description.trim() || null,
+        is_active: true,
+      });
+      setForm({ title: '', emoji: '', points_cost: '', description: '' });
+      setShowForm(false);
+      toast({ title: 'Recompensa criada!' });
+    } catch (e: unknown) {
+      toast({ title: (e as Error).message ?? 'Erro ao criar recompensa', variant: 'destructive' });
+    }
   }
 
   async function handleToggle(r: MissionReward) {
-    await updateReward.mutateAsync({ id: r.id, is_active: !r.is_active });
+    try {
+      await updateReward.mutateAsync({ id: r.id, is_active: !r.is_active });
+    } catch (e: unknown) {
+      toast({ title: (e as Error).message ?? 'Erro ao atualizar recompensa', variant: 'destructive' });
+    }
   }
 
   async function handleDelete(id: string) {
-    await deleteReward.mutateAsync(id);
-    toast({ title: 'Recompensa eliminada' });
+    try {
+      await deleteReward.mutateAsync(id);
+      toast({ title: 'Recompensa eliminada' });
+    } catch (e: unknown) {
+      toast({ title: (e as Error).message ?? 'Erro ao eliminar recompensa', variant: 'destructive' });
+    }
   }
 
   return (
