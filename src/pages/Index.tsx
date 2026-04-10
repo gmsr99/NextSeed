@@ -1,306 +1,213 @@
-import { motion, type Easing } from "framer-motion";
-import { Link } from "react-router-dom";
-import { format } from "date-fns";
-import { pt } from "date-fns/locale";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import AppLayout from "@/components/AppLayout";
-import { useDashboard } from "@/hooks/useDashboard";
-import { useWorldMissions } from "@/hooks/useWorldMissions";
-import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
-import {
-  BookOpen,
-  Users,
-  CalendarCheck,
-  Clock,
-  Sparkles,
-  AlertCircle,
-  ArrowRight,
-  Globe,
-} from "lucide-react";
+// src/pages/Index.tsx
+import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
+import { pt } from 'date-fns/locale';
+import { motion } from 'framer-motion';
+import { CalendarCheck, Plus, ArrowRight, Trophy, BookOpen, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import AppLayout from '@/components/AppLayout';
+import { useTodayDashboard } from '@/hooks/useTodayDashboard';
+import { useMissionRewards } from '@/hooks/useMissionRewards';
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" as Easing },
-  }),
+const DISCIPLINE_COLORS: Record<string, string> = {
+  'Português': 'bg-blue-100 text-blue-800',
+  'Matemática': 'bg-purple-100 text-purple-800',
+  'Estudo do Meio': 'bg-green-100 text-green-800',
+  'Inglês': 'bg-yellow-100 text-yellow-800',
+  'Ed. Artística': 'bg-pink-100 text-pink-800',
+  'Ed. Física': 'bg-orange-100 text-orange-800',
+  'Cidadania': 'bg-teal-100 text-teal-800',
 };
+
+function disciplineColor(d: string) {
+  return DISCIPLINE_COLORS[d] ?? 'bg-gray-100 text-gray-800';
+}
 
 function greeting() {
   const h = new Date().getHours();
-  if (h < 12) return "Bom dia";
-  if (h < 19) return "Boa tarde";
-  return "Boa noite";
+  if (h < 12) return 'Bom dia';
+  if (h < 19) return 'Boa tarde';
+  return 'Boa noite';
 }
 
-const Index = () => {
+export default function Index() {
+  const navigate = useNavigate();
   const {
-    isLoading,
-    hasPlan,
-    planStatus,
-    totalActivities,
-    todayItems,
-    children,
-    pastPlans,
-    isWeekend,
-    weekStart,
-    familyName,
-  } = useDashboard();
+    isLoading, hasPlan, todayItems, totalRegistered, totalPlannedWeek,
+    children, upcomingExtras, getPointsBalance, isWeekend, familyName,
+  } = useTodayDashboard();
+  const { rewards } = useMissionRewards();
 
-  const { weeklyStats } = useWorldMissions();
-  const missionsThisWeek = weeklyStats.reduce((acc, d) => acc + d.count, 0);
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-64 text-muted-foreground">A carregar...</div>
+      </AppLayout>
+    );
+  }
 
   const todayLabel = format(new Date(), "EEEE, d 'de' MMMM", { locale: pt });
 
   return (
     <AppLayout>
-      <div className="space-y-8">
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
-        {/* Welcome */}
-        <motion.div initial="hidden" animate="visible" custom={0} variants={fadeUp}>
-          <h1 className="text-3xl lg:text-4xl font-heading font-bold text-foreground capitalize">
-            {greeting()}, {familyName || "família"} 🌿
-          </h1>
-          <p className="text-muted-foreground mt-1 text-lg capitalize">{todayLabel}</p>
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
+          <h1 className="text-2xl font-bold">{greeting()}, família {familyName}! 🌱</h1>
+          <p className="text-muted-foreground capitalize">{todayLabel}</p>
         </motion.div>
 
-        {/* Stats */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="border-border/60">
-                <CardContent className="p-5 space-y-2">
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="h-7 w-12" />
-                  <Skeleton className="h-3 w-20" />
-                </CardContent>
-              </Card>
-            ))}
+        {/* Bloco 1 — Hoje */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-lg flex items-center gap-2">
+              <CalendarCheck className="w-5 h-5 text-primary" /> Hoje
+            </h2>
+            {hasPlan && (
+              <Button variant="ghost" size="sm" onClick={() => navigate('/weekly-planner')}>
+                Ver plano completo <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <motion.div initial="hidden" animate="visible" custom={1} variants={fadeUp}>
-              <Card className="shadow-card hover:shadow-elevated transition-all duration-300 border-border/60">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Atividades esta semana</p>
-                      <p className="text-2xl font-heading font-bold mt-1">
-                        {hasPlan ? totalActivities : "—"}
-                      </p>
-                      {hasPlan && planStatus === "sent" && (
-                        <span className="text-xs font-semibold text-accent">Plano enviado</span>
-                      )}
-                    </div>
-                    <div className="rounded-xl p-2.5 bg-primary/10 text-primary">
-                      <BookOpen className="h-5 w-5" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
 
-            <motion.div initial="hidden" animate="visible" custom={2} variants={fadeUp}>
-              <Card className="shadow-card hover:shadow-elevated transition-all duration-300 border-border/60">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Crianças</p>
-                      <p className="text-2xl font-heading font-bold mt-1">{children.length}</p>
-                      <span className="text-xs text-muted-foreground">
-                        {children.map((c) => c.name.split(" ")[0]).join(" · ")}
+          {!hasPlan ? (
+            <div className="border-2 border-dashed rounded-xl p-6 text-center space-y-3">
+              <p className="text-muted-foreground">Não há plano para esta semana.</p>
+              <Button onClick={() => navigate('/weekly-planner')}>
+                <Plus className="w-4 h-4 mr-2" /> Gerar plano semanal
+              </Button>
+            </div>
+          ) : isWeekend ? (
+            <div className="border rounded-xl p-4 bg-muted/30 text-center text-muted-foreground">
+              É fim de semana! Aproveita o descanso. 🌿
+            </div>
+          ) : todayItems.length === 0 ? (
+            <div className="border rounded-xl p-4 text-center text-muted-foreground">
+              Sem atividades planeadas para hoje.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {todayItems.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="flex items-center gap-3 border rounded-xl p-3 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="w-16 text-xs text-muted-foreground text-center font-mono shrink-0">
+                    {item.time_slot}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{item.title}</p>
+                    {item.discipline && (
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${disciplineColor(item.discipline)}`}>
+                        {item.discipline}
                       </span>
-                    </div>
-                    <div className="rounded-xl p-2.5 bg-accent/10 text-accent">
-                      <Users className="h-5 w-5" />
-                    </div>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={() => navigate('/activities')}
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Registar
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </section>
 
-            <motion.div initial="hidden" animate="visible" custom={3} variants={fadeUp}>
-              <Card className="shadow-card hover:shadow-elevated transition-all duration-300 border-border/60">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Semana de</p>
-                      <p className="text-2xl font-heading font-bold mt-1">
-                        {format(weekStart, "d MMM", { locale: pt })}
-                      </p>
-                      <span className={`text-xs font-semibold ${hasPlan ? "text-accent" : "text-orange-500"}`}>
-                        {hasPlan ? "Plano gerado" : "Sem plano"}
-                      </span>
+        {/* Bloco 2 — Missões ativas */}
+        {children.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-500" /> Missões
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/world-missions')}>
+                Ver missões <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {children.map(child => {
+                const balance = getPointsBalance(child.id);
+                const nearest = rewards
+                  .filter(r => r.is_active && balance < r.points_cost)
+                  .sort((a, b) => (a.points_cost - balance) - (b.points_cost - balance))[0];
+                const pct = nearest ? Math.min(100, Math.round((balance / nearest.points_cost) * 100)) : 100;
+                return (
+                  <div key={child.id} className="border rounded-xl p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-sm">{child.name}</p>
+                      <Badge variant="secondary">{balance} pts</Badge>
                     </div>
-                    <div className="rounded-xl p-2.5 bg-nexseed-moss/10 text-nexseed-moss">
-                      <CalendarCheck className="h-5 w-5" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div initial="hidden" animate="visible" custom={4} variants={fadeUp}>
-              <Card className="shadow-card hover:shadow-elevated transition-all duration-300 border-border/60">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Missões esta semana</p>
-                      <p className="text-2xl font-heading font-bold mt-1">{missionsThisWeek}</p>
-                      <span className="text-xs text-muted-foreground">
-                        {missionsThisWeek === 0 ? "Nenhuma ainda" : missionsThisWeek === 1 ? "missão concluída" : "missões concluídas"}
-                      </span>
-                    </div>
-                    <div className="rounded-xl p-2.5 bg-violet-100 text-violet-600">
-                      <Globe className="h-5 w-5" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        )}
-
-        {/* CTA se não há plano */}
-        {!isLoading && !hasPlan && (
-          <motion.div initial="hidden" animate="visible" custom={4} variants={fadeUp}>
-            <Card className="border-orange-200 bg-orange-50/50 shadow-card">
-              <CardContent className="p-5 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="h-5 w-5 text-orange-500 shrink-0" />
-                  <div>
-                    <p className="font-semibold text-foreground">Ainda não há plano para esta semana</p>
-                    <p className="text-sm text-muted-foreground">Gera o plano agora e recebe os PDFs por email.</p>
-                  </div>
-                </div>
-                <Button asChild size="sm" className="shrink-0 gap-2">
-                  <Link to="/weekly-planner">
-                    <Sparkles className="h-4 w-4" /> Gerar Plano
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Atividades de hoje */}
-        <motion.div initial="hidden" animate="visible" custom={5} variants={fadeUp}>
-          <Card className="shadow-card border-border/60">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <div>
-                <CardTitle className="font-heading text-lg">
-                  {isWeekend ? "Fim de semana" : "Hoje"}
-                </CardTitle>
-                <CardDescription>
-                  {isWeekend
-                    ? "Descansem e recarreguem energias!"
-                    : hasPlan && todayItems.length > 0
-                    ? `${todayItems.length} atividades planeadas`
-                    : "Sem atividades planeadas"}
-                </CardDescription>
-              </div>
-              {hasPlan && (
-                <Button asChild variant="ghost" size="sm" className="gap-1 text-xs">
-                  <Link to="/weekly-planner">
-                    Ver plano <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {isLoading ? (
-                <div className="space-y-2 py-2">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 px-3 py-2">
-                      <Skeleton className="h-2.5 w-2.5 rounded-full shrink-0" />
-                      <div className="flex-1 space-y-1">
-                        <Skeleton className="h-3.5 w-48" />
-                        <Skeleton className="h-3 w-32" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : isWeekend ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">🌳 Tempo livre</p>
-              ) : !hasPlan ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
-                  Gera o plano semanal para ver as atividades de hoje.
-                </p>
-              ) : todayItems.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Nenhuma atividade para hoje.</p>
-              ) : (
-                todayItems.map((item) => {
-                  const color = DISCIPLINE_COLORS[item.discipline] ?? "#E5E7EB";
-                  const label = DISCIPLINE_LABELS[item.discipline] ?? item.discipline;
-                  const child = children.find((c) => c.id === item.child_id);
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-3 rounded-xl p-3 hover:bg-muted/50 transition-colors"
-                    >
-                      <div
-                        className="h-2.5 w-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: color }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
+                    {nearest ? (
+                      <>
+                        <div className="w-full bg-muted rounded-full h-1.5">
+                          <div className="bg-amber-400 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                          {item.time_slot} · {label}
-                          {child ? ` · ${child.name.split(" ")[0]}` : ""}
+                          {nearest.emoji ?? ''} {nearest.title} — faltam {nearest.points_cost - balance} pts
                         </p>
-                      </div>
-                      <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    </div>
-                  );
-                })
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Planos anteriores */}
-        {!isLoading && pastPlans.length > 0 && (
-          <motion.div initial="hidden" animate="visible" custom={6} variants={fadeUp}>
-            <Card className="shadow-card border-border/60">
-              <CardHeader className="pb-3">
-                <CardTitle className="font-heading text-lg">Planos anteriores</CardTitle>
-                <CardDescription>Últimas semanas geradas</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                {pastPlans.map((plan) => {
-                  const d = new Date(plan.week_start + "T00:00:00");
-                  const label = format(d, "'Semana de' d 'de' MMMM", { locale: pt });
-                  const interests = plan.child_interests as Record<string, string[]> | null;
-                  const allInterests = interests
-                    ? [...new Set(Object.values(interests).flat())].slice(0, 4).join(", ")
-                    : null;
-                  return (
-                    <div key={plan.id} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">{label}</p>
-                        {allInterests && (
-                          <p className="text-xs text-muted-foreground truncate">{allInterests}</p>
-                        )}
-                      </div>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ml-3 ${
-                        plan.status === "sent" ? "bg-accent/15 text-accent" : "bg-muted text-muted-foreground"
-                      }`}>
-                        {plan.status === "sent" ? "Enviado" : "Gerado"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          </motion.div>
+                      </>
+                    ) : rewards.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        <button className="underline" onClick={() => navigate('/world-missions')}>Cria uma recompensa</button> para motivar!
+                      </p>
+                    ) : (
+                      <p className="text-xs text-green-600 font-medium">🎉 Pode resgatar recompensas!</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         )}
+
+        {/* Bloco 3 — Esta semana */}
+        <section className="space-y-3">
+          <h2 className="font-semibold text-lg flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-primary" /> Esta semana
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="border rounded-xl p-4 text-center">
+              <p className="text-3xl font-bold text-primary">{totalRegistered}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {hasPlan ? `de ${totalPlannedWeek} atividades` : 'atividades registadas'}
+              </p>
+            </div>
+            {upcomingExtras.length > 0 && (
+              <div className="border rounded-xl p-4 col-span-1 sm:col-span-2 space-y-1">
+                <p className="text-sm font-medium flex items-center gap-1">
+                  <Clock className="w-4 h-4" /> Próximos extracurriculares
+                </p>
+                {upcomingExtras.slice(0, 3).map(e => (
+                  <p key={e.id} className="text-xs text-muted-foreground">{e.name} — {e.start_time?.slice(0, 5)}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Ações rápidas */}
+        <section className="flex flex-wrap gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={() => navigate('/activities')}>
+            <Plus className="w-4 h-4 mr-1" /> Registar atividade
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/calendar')}>
+            Ver agenda
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/portfolio')}>
+            Ver portfólio
+          </Button>
+        </section>
 
       </div>
     </AppLayout>
   );
-};
-
-export default Index;
+}
