@@ -13,6 +13,8 @@ import { useActivities } from "@/hooks/useActivities";
 import { useProjects } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
+import { useLiteracyProgress } from '@/hooks/useLiteracyProgress';
+import { ALL_FINANCIAL_MODULES, ALL_DIGITAL_MODULES } from '@/lib/literacyContent';
 
 const PERIODS = [
   { id: "week",    label: "Esta semana" },
@@ -88,6 +90,35 @@ const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4 } }),
 };
+
+function LiteracyChildCard({ child }: { child: { id: string; name: string } }) {
+  const financial = useLiteracyProgress(child.id, 'financial');
+  const digital = useLiteracyProgress(child.id, 'digital');
+  const finPct = financial.completionPct(ALL_FINANCIAL_MODULES);
+  const digPct = digital.completionPct(ALL_DIGITAL_MODULES);
+
+  return (
+    <div className="border rounded-xl p-4 space-y-3">
+      <p className="font-medium">{child.name}</p>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Literacia Financeira</span>
+          <span className="font-medium">{finPct}%</span>
+        </div>
+        <div className="w-full bg-muted rounded-full h-2">
+          <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${finPct}%` }} />
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Literacia Digital</span>
+          <span className="font-medium">{digPct}%</span>
+        </div>
+        <div className="w-full bg-muted rounded-full h-2">
+          <div className="bg-indigo-400 h-2 rounded-full transition-all" style={{ width: `${digPct}%` }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Reports() {
   const { family } = useAuth();
@@ -415,6 +446,26 @@ export default function Reports() {
                 </Card>
               </motion.div>
             </div>
+
+            {/* Literacia */}
+            {children.length > 0 && (
+              <motion.div initial="hidden" animate="visible" custom={6} variants={fadeUp}>
+                <Card className="border-primary/10">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-heading flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-primary" /> Literacia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {children.map(child => (
+                        <LiteracyChildCard key={child.id} child={child} />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </>
         )}
       </motion.div>

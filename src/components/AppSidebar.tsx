@@ -8,7 +8,7 @@ import {
   FlaskConical,
   FolderKanban,
   Sparkles,
-  Landmark,
+  Coins,
   Monitor,
   FileImage,
   MessagesSquare,
@@ -65,8 +65,8 @@ const aprenderItems: NavItem[] = [
 const explorarItems: NavItem[] = [
   { title: "Missões do Mundo",     url: "/world-missions",     icon: Globe },
   { title: "Extracurriculares",    url: "/extracurricular",    icon: Trophy },
-  { title: "Literacia Financeira", url: "/financial-literacy", icon: Landmark, disabled: true },
-  { title: "Literacia Digital",    url: "/digital-literacy",   icon: Monitor,   disabled: true },
+  { title: "Literacia Financeira", url: "/financial-literacy", icon: Coins },
+  { title: "Literacia Digital",    url: "/digital-literacy",   icon: Monitor },
 ];
 
 const comunidadeItems: NavItem[] = [
