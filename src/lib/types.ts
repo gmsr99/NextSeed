@@ -770,14 +770,16 @@ export interface RewardRedemption {
   notes: string | null;
 }
 
+export type RewardRedemptionInsert = Omit<RewardRedemption, 'id' | 'requested_at' | 'resolved_at'>;
+
 // ─── Literacy Progress ─────────────────────────────────────────────
+export type LiteracyStatus = 'not_started' | 'in_progress' | 'completed';
+
 export interface LiteracyProgress {
   id: string;
   child_id: string;
   area: 'financial' | 'digital';
   module_id: string;
-  status: 'not_started' | 'in_progress' | 'completed';
+  status: LiteracyStatus;
   updated_at: string;
 }
-
-export type LiteracyStatus = 'not_started' | 'in_progress' | 'completed';
