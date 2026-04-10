@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,19 +8,18 @@ import {
   CalendarDays, MapPin, List, Clock, Users,
   ChevronLeft, ChevronRight,
   TreePine, FlaskConical, Palette, Hammer, BookOpen,
-  Eye, Filter, Home, GraduationCap, Dumbbell, FlaskRound,
+  Eye, Filter, Home, Plus,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-import { addDays, format, startOfWeek, isSameDay, parseISO } from "date-fns";
+import { addDays, format, startOfWeek, isSameDay, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
 import { pt } from "date-fns/locale";
-import { useAuth } from "@/contexts/AuthContext";
-import { useExtracurricular } from "@/hooks/useExtracurricular";
 import { useChildren } from "@/hooks/useChildren";
-import { supabase } from "@/lib/supabase";
-import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
-import { EXTRACURRICULAR_COLORS } from "@/lib/constants";
+import { MonthView } from '@/components/calendar/MonthView';
+import { DayPanel } from '@/components/calendar/DayPanel';
+import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useCalendarData } from '@/hooks/useCalendarData';
 
 // ─── Community events (static for now) ───────────────────────────────────────
 
@@ -64,19 +62,6 @@ const regionPositions: Record<string, { top: string; left: string }> = {
   Algarve:  { top: "88%", left: "38%" },
 };
 
-// ─── Family calendar event types ─────────────────────────────────────────────
-
-type FamilyEventKind = "plan" | "extra" | "activity";
-
-interface FamilyEvent {
-  id: string;
-  kind: FamilyEventKind;
-  title: string;
-  time: string;
-  color: string;
-  childName?: string;
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 
 const CalendarPage = () => {
@@ -85,12 +70,7 @@ const CalendarPage = () => {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [themeFilter, setThemeFilter] = useState("all");
 
-  // Family calendar state
-  const [famWeekOffset, setFamWeekOffset] = useState(0);
-
-  const { family } = useAuth();
   const { children } = useChildren();
-  const { activities: extracurriculars } = useExtracurricular();
 
   // ── Community events helpers ────────────────────────────────────────────────
   const commWeekStart = addDays(BASE, commWeekOffset * 7);
@@ -103,117 +83,16 @@ const CalendarPage = () => {
     toast({ title: ev.title, description: `${ev.location} · ${ev.time} · ${ev.spots} vagas` });
   };
 
-  // ── Family calendar helpers ────────────────────────────────────────────────
-  const famWeekStart = useMemo(() => {
-    const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
-    return addDays(monday, famWeekOffset * 7);
-  }, [famWeekOffset]);
+  // ── Family calendar state ──────────────────────────────────────────────────
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
+  const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
 
-  const famWeekDays = useMemo(
-    () => Array.from({ length: 7 }, (_, i) => addDays(famWeekStart, i)),
-    [famWeekStart]
-  );
+  const { events: manualEvents } = useCalendarEvents(monthStart, monthEnd);
+  const { eventsByDate } = useCalendarData(monthStart, monthEnd, manualEvents, children);
 
-  const weekKey = format(famWeekStart, "yyyy-MM-dd");
-
-  // Query: weekly plan items for this week
-  const { data: planItems = [] } = useQuery({
-    queryKey: ["calendar-plan-items", family?.id, weekKey],
-    enabled: !!family,
-    queryFn: async () => {
-      const { data: plans } = await supabase
-        .from("weekly_plans")
-        .select("id")
-        .eq("family_id", family!.id)
-        .eq("week_start", weekKey)
-        .order("version", { ascending: false })
-        .limit(1);
-
-      if (!plans?.length) return [];
-
-      const { data: items } = await supabase
-        .from("weekly_plan_items")
-        .select("day_of_week, time_slot, discipline, title, child_id")
-        .eq("plan_id", plans[0].id)
-        .order("day_of_week")
-        .order("sort_order");
-
-      return items ?? [];
-    },
-  });
-
-  // Query: diary activities for this week
-  const { data: diaryActivities = [] } = useQuery({
-    queryKey: ["calendar-activities", family?.id, weekKey],
-    enabled: !!family,
-    queryFn: async () => {
-      const weekEnd = format(addDays(famWeekStart, 6), "yyyy-MM-dd");
-      const { data } = await supabase
-        .from("activities")
-        .select("id, title, activity_date, discipline, child_id")
-        .eq("family_id", family!.id)
-        .gte("activity_date", weekKey)
-        .lte("activity_date", weekEnd)
-        .order("activity_date");
-      return data ?? [];
-    },
-  });
-
-  // Build events per day for family calendar
-  const familyEventsByDay = useMemo(() => {
-    const map = new Map<string, FamilyEvent[]>();
-    famWeekDays.forEach((d) => map.set(format(d, "yyyy-MM-dd"), []));
-
-    // Plan items (Mon-Fri = day_of_week 1-5)
-    for (const item of planItems) {
-      const day = famWeekDays[item.day_of_week - 1];
-      if (!day) continue;
-      const key = format(day, "yyyy-MM-dd");
-      const childName = children.find((c) => c.id === item.child_id)?.name;
-      map.get(key)?.push({
-        id: `plan-${key}-${item.time_slot}-${item.discipline}`,
-        kind: "plan",
-        title: item.title,
-        time: item.time_slot?.split("-")[0] ?? "",
-        color: DISCIPLINE_COLORS[item.discipline] ?? "#9CA3AF",
-        childName,
-      });
-    }
-
-    // Extracurriculars (recurring by day_of_week)
-    for (const act of extracurriculars) {
-      if (!act.day_of_week) continue;
-      const day = famWeekDays[act.day_of_week - 1];
-      if (!day) continue;
-      const key = format(day, "yyyy-MM-dd");
-      const childName = act.child_id ? children.find((c) => c.id === act.child_id)?.name : undefined;
-      map.get(key)?.push({
-        id: `extra-${act.id}`,
-        kind: "extra",
-        title: act.name,
-        time: act.start_time ?? "",
-        color: EXTRACURRICULAR_COLORS[act.type ?? "Outro"] ?? "#9CA3AF",
-        childName,
-      });
-    }
-
-    // Diary activities
-    for (const act of diaryActivities) {
-      const key = act.activity_date;
-      if (!map.has(key)) continue;
-      const childName = act.child_id ? children.find((c) => c.id === act.child_id)?.name : undefined;
-      map.get(key)?.push({
-        id: `diary-${act.id}`,
-        kind: "activity",
-        title: act.title,
-        time: "",
-        color: DISCIPLINE_COLORS[act.discipline ?? ""] ?? "#9CA3AF",
-        childName,
-      });
-    }
-
-    return map;
-  }, [planItems, extracurriculars, diaryActivities, famWeekDays, children]);
+  const selectedEvents = selectedDate ? (eventsByDate[selectedDate] ?? []) : [];
 
   return (
     <AppLayout>
@@ -253,106 +132,52 @@ const CalendarPage = () => {
 
           {/* ── Família tab ─────────────────────────────────────────────────── */}
           <TabsContent value="familia" className="space-y-4">
-            {/* Week nav */}
+            {/* Month navigation */}
             <div className="flex items-center justify-between">
-              <Button variant="ghost" size="sm" onClick={() => setFamWeekOffset((w) => w - 1)}>
-                <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
+              <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(m => subMonths(m, 1))}>
+                <ChevronLeft className="h-4 w-4" />
               </Button>
-              <p className="text-sm font-semibold text-muted-foreground">
-                {format(famWeekDays[0], "d MMM", { locale: pt })} — {format(famWeekDays[4], "d MMM yyyy", { locale: pt })}
-              </p>
-              <Button variant="ghost" size="sm" onClick={() => setFamWeekOffset((w) => w + 1)}>
-                Seguinte <ChevronRight className="h-4 w-4 ml-1" />
+              <h2 className="font-semibold capitalize text-lg">
+                {format(currentMonth, 'MMMM yyyy', { locale: pt })}
+              </h2>
+              <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(m => addMonths(m, 1))}>
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
 
             {/* Legend */}
-            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-primary inline-block" />Plano semanal</span>
-              <span className="flex items-center gap-1.5"><Dumbbell className="h-3 w-3" />Extracurricular</span>
-              <span className="flex items-center gap-1.5"><FlaskRound className="h-3 w-3" />Diário</span>
+            <div className="flex gap-4 text-xs text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block"/> Plano semanal</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block"/> Extracurricular</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400 inline-block"/> Evento da família</span>
             </div>
 
-            {/* Week grid — only Mon-Fri (5 days) */}
-            <div className="grid grid-cols-5 gap-2">
-              {famWeekDays.slice(0, 5).map((day) => {
-                const key   = format(day, "yyyy-MM-dd");
-                const evts  = familyEventsByDay.get(key) ?? [];
-                const isToday = isSameDay(day, new Date());
-                const planEvts  = evts.filter((e) => e.kind === "plan");
-                const extraEvts = evts.filter((e) => e.kind === "extra");
-                const diaryEvts = evts.filter((e) => e.kind === "activity");
-
-                return (
-                  <div key={key} className="min-h-[180px]">
-                    {/* Day header */}
-                    <div className={`text-center text-xs font-semibold mb-2 pb-1 border-b ${
-                      isToday ? "text-primary border-primary" : "text-muted-foreground border-border"
-                    }`}>
-                      <span className="block uppercase">{format(day, "EEE", { locale: pt })}</span>
-                      <span className={`block text-lg ${isToday ? "text-primary" : "text-foreground"}`}>
-                        {format(day, "d")}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      {/* Plan items */}
-                      {planEvts.map((ev) => (
-                        <div
-                          key={ev.id}
-                          className="rounded-md px-1.5 py-1 text-[10px] leading-tight"
-                          style={{ backgroundColor: ev.color + "22", borderLeft: `2px solid ${ev.color}` }}
-                          title={ev.title + (ev.childName ? ` · ${ev.childName}` : "")}
-                        >
-                          {ev.time && <span className="text-muted-foreground block">{ev.time}</span>}
-                          <span className="font-medium line-clamp-2 text-foreground">{ev.title}</span>
-                        </div>
-                      ))}
-
-                      {/* Extracurriculars */}
-                      {extraEvts.map((ev) => (
-                        <div
-                          key={ev.id}
-                          className="rounded-md px-1.5 py-1 text-[10px] leading-tight flex items-start gap-1"
-                          style={{ backgroundColor: ev.color + "22", borderLeft: `2px solid ${ev.color}` }}
-                          title={ev.title + (ev.childName ? ` · ${ev.childName}` : "")}
-                        >
-                          <Dumbbell className="h-2.5 w-2.5 shrink-0 mt-0.5" style={{ color: ev.color }} />
-                          <span className="font-medium line-clamp-2 text-foreground">{ev.title}</span>
-                        </div>
-                      ))}
-
-                      {/* Diary activities */}
-                      {diaryEvts.map((ev) => (
-                        <div
-                          key={ev.id}
-                          className="rounded-md px-1.5 py-1 text-[10px] leading-tight flex items-start gap-1 bg-muted/60"
-                          title={ev.title + (ev.childName ? ` · ${ev.childName}` : "")}
-                        >
-                          <FlaskRound className="h-2.5 w-2.5 shrink-0 mt-0.5 text-muted-foreground" />
-                          <span className="line-clamp-2 text-muted-foreground">{ev.title}</span>
-                        </div>
-                      ))}
-
-                      {evts.length === 0 && (
-                        <p className="text-[10px] text-muted-foreground/40 text-center pt-2">-</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Weekday empty state */}
-            {planItems.length === 0 && extracurriculars.length === 0 && diaryActivities.length === 0 && (
-              <div className="text-center py-10">
-                <CalendarDays className="h-10 w-10 mx-auto text-muted-foreground/20 mb-3" />
-                <p className="text-sm font-semibold text-muted-foreground">Sem eventos esta semana</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Gera um plano no Planeador Semanal para ver os teus eventos aqui.
-                </p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-2">
+                <MonthView
+                  month={currentMonth}
+                  eventsByDate={eventsByDate}
+                  onDayClick={setSelectedDate}
+                  selectedDate={selectedDate}
+                />
               </div>
-            )}
+              <div>
+                {selectedDate ? (
+                  <DayPanel
+                    date={selectedDate}
+                    events={selectedEvents}
+                    children={children}
+                    monthStart={monthStart}
+                    monthEnd={monthEnd}
+                    onClose={() => setSelectedDate(null)}
+                  />
+                ) : (
+                  <div className="border-2 border-dashed rounded-xl p-6 text-center text-muted-foreground text-sm h-full flex items-center justify-center">
+                    Clica num dia para ver os eventos e adicionar novos.
+                  </div>
+                )}
+              </div>
+            </div>
           </TabsContent>
 
           {/* ── Community events — week view ───────────────────────────────── */}
