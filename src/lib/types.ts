@@ -727,3 +727,57 @@ export interface FamilyMethodology {
   adopted_at: string;
   methodology?: Methodology;
 }
+
+// ─── Calendar Events ───────────────────────────────────────────────
+export interface CalendarEvent {
+  id: string;
+  family_id: string;
+  child_id: string | null;
+  title: string;
+  date: string; // YYYY-MM-DD
+  start_time: string | null; // HH:MM:SS
+  end_time: string | null;
+  notes: string | null;
+  type: 'consulta' | 'saida' | 'visita' | 'evento';
+  created_at: string;
+}
+
+export type CalendarEventInsert = Omit<CalendarEvent, 'id' | 'created_at'>;
+export type CalendarEventUpdate = Partial<CalendarEventInsert> & { id: string };
+
+// ─── Mission Rewards ───────────────────────────────────────────────
+export interface MissionReward {
+  id: string;
+  family_id: string;
+  title: string;
+  description: string | null;
+  points_cost: number;
+  emoji: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export type MissionRewardInsert = Omit<MissionReward, 'id' | 'created_at'>;
+
+export interface RewardRedemption {
+  id: string;
+  child_id: string;
+  reward_id: string;
+  points_spent: number;
+  status: 'pending' | 'approved' | 'rejected';
+  requested_at: string;
+  resolved_at: string | null;
+  notes: string | null;
+}
+
+// ─── Literacy Progress ─────────────────────────────────────────────
+export interface LiteracyProgress {
+  id: string;
+  child_id: string;
+  area: 'financial' | 'digital';
+  module_id: string;
+  status: 'not_started' | 'in_progress' | 'completed';
+  updated_at: string;
+}
+
+export type LiteracyStatus = 'not_started' | 'in_progress' | 'completed';
