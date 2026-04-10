@@ -13,7 +13,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-import { addDays, format, startOfWeek, isSameDay, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
+import { addDays, format, startOfWeek, isSameDay, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
 import { pt } from "date-fns/locale";
 import { useChildren } from "@/hooks/useChildren";
 import { MonthView } from '@/components/calendar/MonthView';
