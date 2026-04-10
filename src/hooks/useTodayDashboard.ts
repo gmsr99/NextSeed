@@ -72,7 +72,7 @@ export function useTodayDashboard() {
 
   // ── Próximos extracurriculares (hoje e restante semana) ─────────
   const { data: upcomingExtras = [] } = useQuery({
-    queryKey: ['upcoming_extras', family?.id, todayDow],
+    queryKey: ['upcoming_extras', family?.id, format(weekStart, 'yyyy-MM-dd'), todayDow],
     enabled: !!family?.id,
     staleTime: 60_000,
     queryFn: async () => {
@@ -88,57 +88,18 @@ export function useTodayDashboard() {
     },
   });
 
-  // ── Pontos por criança (para missões) ───────────────────────────
-  const { data: missionPoints = [] } = useQuery({
-    queryKey: ['mission_points_summary', family?.id],
-    enabled: !!family?.id,
-    staleTime: 30_000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('mission_completions')
-        .select('child_id, points_earned');
-      return data ?? [];
-    },
-  });
-
-  const { data: approvedRedemptions = [] } = useQuery({
-    queryKey: ['approved_redemptions', family?.id],
-    enabled: !!family?.id,
-    staleTime: 30_000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('reward_redemptions')
-        .select('child_id, points_spent')
-        .eq('status', 'approved');
-      return data ?? [];
-    },
-  });
-
-  function getPointsBalance(childId: string) {
-    const earned = missionPoints
-      .filter(r => r.child_id === childId)
-      .reduce((s, r) => s + (r.points_earned ?? 0), 0);
-    const spent = approvedRedemptions
-      .filter(r => r.child_id === childId)
-      .reduce((s, r) => s + r.points_spent, 0);
-    return earned - spent;
-  }
-
   const totalPlannedWeek = planData?.allItems.length ?? 0;
   const totalRegistered = weekActivities.length;
 
   return {
     isLoading: planLoading || childrenLoading,
     hasPlan: !!planData?.plan,
-    planStatus: planData?.plan?.status ?? null,
     todayItems: planData?.todayItems ?? [],
     totalRegistered,
     totalPlannedWeek,
     children,
     upcomingExtras,
-    getPointsBalance,
     isWeekend,
-    weekStart,
     familyName: family?.name ?? '',
   };
 }

@@ -35,9 +35,9 @@ export default function Index() {
   const navigate = useNavigate();
   const {
     isLoading, hasPlan, todayItems, totalRegistered, totalPlannedWeek,
-    children, upcomingExtras, getPointsBalance, isWeekend, familyName,
+    children, upcomingExtras, isWeekend, familyName,
   } = useTodayDashboard();
-  const { rewards } = useMissionRewards();
+  const { rewards, getBalance } = useMissionRewards();
 
   if (isLoading) {
     return (
@@ -135,7 +135,7 @@ export default function Index() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {children.map(child => {
-                const balance = getPointsBalance(child.id);
+                const balance = getBalance(child.id);
                 const nearest = rewards
                   .filter(r => r.is_active && balance < r.points_cost)
                   .sort((a, b) => (a.points_cost - balance) - (b.points_cost - balance))[0];
@@ -157,7 +157,7 @@ export default function Index() {
                       </>
                     ) : rewards.length === 0 ? (
                       <p className="text-xs text-muted-foreground">
-                        <button className="underline" onClick={() => navigate('/world-missions')}>Cria uma recompensa</button> para motivar!
+                        <Button variant="link" className="h-auto p-0 text-xs" onClick={() => navigate('/world-missions')}>Cria uma recompensa</Button> para motivar!
                       </p>
                     ) : (
                       <p className="text-xs text-green-600 font-medium">🎉 Pode resgatar recompensas!</p>
