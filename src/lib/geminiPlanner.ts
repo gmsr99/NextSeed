@@ -394,7 +394,7 @@ ${skeletonSection}
 1. **Prioridade**: NexSeed (se existir) → Conteúdos GC em foco → Conteúdos GC por dominar → interesses.
 2. Usa os **interesses** para tematizar — nunca como objetivo. Ex: objetivo GC "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo.
 3. **Conteúdos dominados** NÃO devem voltar a aparecer nas atividades.
-4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Descrição = resumo (2 frases) + 1 pergunta de compreensão.
+4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[2-3 parágrafos em português, adequados à idade, continuação da narrativa do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
 5. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
 6. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
 7. **Encerramento Reflexivo** (14:45-15:15): partilha emocional e síntese do dia.

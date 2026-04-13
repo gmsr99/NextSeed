@@ -52,7 +52,10 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
 
         {[1, 2, 3, 4, 5].map((day) => {
           // Filtra blocos fixos — o Guia mostra apenas atividades com conteúdo pedagógico
-          const dayItems = planItems.filter((i) => i.day_of_week === day && !i.is_fixed);
+          // Exclui blocos fixos e episódios de leitura (têm documento próprio: ReadingGuidePDF)
+          const dayItems = planItems.filter(
+            (i) => i.day_of_week === day && !i.is_fixed && i.discipline !== "reading",
+          );
           if (dayItems.length === 0) return null;
 
           return (
