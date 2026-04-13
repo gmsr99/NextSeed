@@ -165,7 +165,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "math",       sort: 1 },
     { slot: "11:05-11:50", discipline: "world",      sort: 2 },
     { slot: "14:00-14:30", discipline: "english",    sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 1 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 1 },
   ],
   // Ter
   [
@@ -173,7 +173,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "language",   sort: 1 },
     { slot: "11:05-11:50", discipline: "world",      sort: 2 },
     { slot: "14:00-14:30", discipline: "expression", sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 2 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 2 },
   ],
   // Qua
   [
@@ -181,7 +181,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "math",       sort: 1 },
     { slot: "11:05-11:50", discipline: "project",    sort: 2 },
     { slot: "14:00-14:30", discipline: "expression", sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 3 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 3 },
   ],
   // Qui
   [
@@ -189,7 +189,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "language",   sort: 1 },
     { slot: "11:05-11:50", discipline: "world",      sort: 2 },
     { slot: "14:00-14:30", discipline: "project",    sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 4 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 4 },
   ],
 ];
 
@@ -256,7 +256,7 @@ function buildSkeleton(children: Child[]): SkeletonItem[] {
       });
       skeleton.push({
         child_id: child.id, child_name: child.name, school_year: child.school_year,
-        day_of_week: 5, time_slot: "15:00-15:30", discipline: "world_visit",
+        day_of_week: 5, time_slot: "14:45-15:15", discipline: "world_visit",
         discipline_label: "Encerramento Reflexivo", is_friday_world: false, sort_order: 2,
       });
     } else {
