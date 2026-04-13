@@ -399,6 +399,19 @@ export default function WeeklyPlanner() {
     a2.href = URL.createObjectURL(guideBlob);
     a2.download = `nexseed-guia-${format(weekStart, "yyyy-MM-dd")}.pdf`;
     a2.click();
+
+    // Guia de Leitura — só gera se existirem episódios
+    const readingItems = planItems.filter((i) => i.discipline === "reading");
+    if (readingItems.length > 0) {
+      const { default: ReadingGuidePDFComp } = await import("@/components/pdf/ReadingGuidePDF");
+      const readingGuideBlob = await pdf(
+        <ReadingGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
+      ).toBlob();
+      const a3 = document.createElement("a");
+      a3.href = URL.createObjectURL(readingGuideBlob);
+      a3.download = `nexseed-leitura-${format(weekStart, "yyyy-MM-dd")}.pdf`;
+      a3.click();
+    }
   };
 
   const handleSendEmail = async () => {
@@ -432,6 +445,17 @@ export default function WeeklyPlanner() {
       const scheduleB64 = await toBase64(scheduleBlob);
       const guideB64 = await toBase64(guideBlob);
 
+      // Guia de Leitura — opcional, só gerado se existirem episódios
+      let readingGuideB64: string | null = null;
+      const readingItems = planItems.filter((i) => i.discipline === "reading");
+      if (readingItems.length > 0) {
+        const { default: ReadingGuidePDFComp } = await import("@/components/pdf/ReadingGuidePDF");
+        const readingGuideBlob = await pdf(
+          <ReadingGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
+        ).toBlob();
+        readingGuideB64 = await toBase64(readingGuideBlob);
+      }
+
       const { error: fnErr } = await supabase.functions.invoke("send-weekly-plan", {
         body: {
           to: family.email,
@@ -442,6 +466,8 @@ export default function WeeklyPlanner() {
           guideB64,
           scheduleName: `nexseed-horario-${format(weekStart, "yyyy-MM-dd")}.pdf`,
           guideName: `nexseed-guia-${format(weekStart, "yyyy-MM-dd")}.pdf`,
+          readingGuideB64,
+          readingGuideName: `nexseed-leitura-${format(weekStart, "yyyy-MM-dd")}.pdf`,
         },
       });
 
