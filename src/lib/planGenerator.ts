@@ -89,7 +89,7 @@ export const PRIMARY_DAYS: PrimarySlot[][] = [
     { slot: "10:17-10:42", discipline: "math",        tIdx: 0 },
     { slot: "11:05-11:50", discipline: "world",       tIdx: 0 },
     { slot: "14:00-14:30", discipline: "english",     tIdx: 0 },
-    { slot: "15:00-15:30", discipline: "reading",     tIdx: 0, episode: 0 },
+    { slot: "14:45-15:15", discipline: "reading",     tIdx: 0, episode: 0 },
   ],
   // Ter
   [
@@ -97,7 +97,7 @@ export const PRIMARY_DAYS: PrimarySlot[][] = [
     { slot: "10:17-10:42", discipline: "language",    tIdx: 1 },
     { slot: "11:05-11:50", discipline: "world",       tIdx: 1 },
     { slot: "14:00-14:30", discipline: "expression",  tIdx: 0 },
-    { slot: "15:00-15:30", discipline: "reading",     tIdx: 0, episode: 1 },
+    { slot: "14:45-15:15", discipline: "reading",     tIdx: 0, episode: 1 },
   ],
   // Qua
   [
@@ -105,7 +105,7 @@ export const PRIMARY_DAYS: PrimarySlot[][] = [
     { slot: "10:17-10:42", discipline: "math",        tIdx: 2 },
     { slot: "11:05-11:50", discipline: "project",     tIdx: 0 },
     { slot: "14:00-14:30", discipline: "expression",  tIdx: 1 }, // Texto Livre
-    { slot: "15:00-15:30", discipline: "reading",     tIdx: 0, episode: 2 },
+    { slot: "14:45-15:15", discipline: "reading",     tIdx: 0, episode: 2 },
   ],
   // Qui
   [
@@ -113,7 +113,7 @@ export const PRIMARY_DAYS: PrimarySlot[][] = [
     { slot: "10:17-10:42", discipline: "language",    tIdx: 3 },
     { slot: "11:05-11:50", discipline: "world",       tIdx: 2 },
     { slot: "14:00-14:30", discipline: "project",     tIdx: 1 }, // Educação Emocional
-    { slot: "15:00-15:30", discipline: "reading",     tIdx: 0, episode: 3 },
+    { slot: "14:45-15:15", discipline: "reading",     tIdx: 0, episode: 3 },
   ],
 ];
 
@@ -121,7 +121,7 @@ export const PRIMARY_DAYS: PrimarySlot[][] = [
 export const FRIDAY_VARIABLE = [
   { slot: "09:45-11:50", discipline: "world_visit",  tIdx: 0, isFridayWorld: true  },
   { slot: "14:00-14:30", discipline: "expression",   tIdx: 0, isFridayWorld: false }, // Registo da visita
-  { slot: "15:00-15:30", discipline: "world_visit",  tIdx: 1, isFridayWorld: false }, // Encerramento
+  { slot: "14:45-15:15", discipline: "world_visit",  tIdx: 1, isFridayWorld: false }, // Encerramento
 ];
 
 // ─── Blocos fixos (mostrados no horário PDF mas NÃO guardados na BD) ──────────

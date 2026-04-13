@@ -165,7 +165,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "math",       sort: 1 },
     { slot: "11:05-11:50", discipline: "world",      sort: 2 },
     { slot: "14:00-14:30", discipline: "english",    sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 1 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 1 },
   ],
   // Ter
   [
@@ -173,7 +173,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "language",   sort: 1 },
     { slot: "11:05-11:50", discipline: "world",      sort: 2 },
     { slot: "14:00-14:30", discipline: "expression", sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 2 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 2 },
   ],
   // Qua
   [
@@ -181,7 +181,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "math",       sort: 1 },
     { slot: "11:05-11:50", discipline: "project",    sort: 2 },
     { slot: "14:00-14:30", discipline: "expression", sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 3 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 3 },
   ],
   // Qui
   [
@@ -189,7 +189,7 @@ const PRIMARY_DAYS_SKELETON = [
     { slot: "10:17-10:42", discipline: "language",   sort: 1 },
     { slot: "11:05-11:50", discipline: "world",      sort: 2 },
     { slot: "14:00-14:30", discipline: "project",    sort: 3 },
-    { slot: "15:00-15:30", discipline: "reading",    sort: 4, episode: 4 },
+    { slot: "14:45-15:15", discipline: "reading",    sort: 4, episode: 4 },
   ],
 ];
 
@@ -256,7 +256,7 @@ function buildSkeleton(children: Child[]): SkeletonItem[] {
       });
       skeleton.push({
         child_id: child.id, child_name: child.name, school_year: child.school_year,
-        day_of_week: 5, time_slot: "15:00-15:30", discipline: "world_visit",
+        day_of_week: 5, time_slot: "14:45-15:15", discipline: "world_visit",
         discipline_label: "Encerramento Reflexivo", is_friday_world: false, sort_order: 2,
       });
     } else {
@@ -397,7 +397,7 @@ ${skeletonSection}
 4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Descrição = resumo (2 frases) + 1 pergunta de compreensão.
 5. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
 6. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
-7. **Encerramento Reflexivo** (15:00-15:30): partilha emocional e síntese do dia.
+7. **Encerramento Reflexivo** (14:45-15:15): partilha emocional e síntese do dia.
 8. **Pré-escolar**: atividades lúdicas, sensoriais, máx. 30 min, sem escrita formal.
 9. Títulos específicos e criativos — NUNCA genéricos. Máx. 8 palavras.
 10. Descrições CURTAS: máx. 2 frases diretas com passos concretos.
