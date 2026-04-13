@@ -406,3 +406,33 @@ describe("suggestPreSchoolYear", () => {
     expect(suggestPreSchoolYear(birth).length).toBeGreaterThan(0);
   });
 });
+
+describe("slot de leitura sem gap", () => {
+  const child = makeChild({ id: "p1", school_year: "2º ano" });
+
+  it("itens de leitura usam slot 14:45-15:15", () => {
+    const items = generateWeeklyPlan([child], { p1: ["pokémon"] }, "", "pokémon");
+    const readingItems = items.filter((i) => i.discipline === "reading");
+    expect(readingItems.length).toBeGreaterThan(0);
+    readingItems.forEach((i) => {
+      expect(i.time_slot).toBe("14:45-15:15");
+    });
+  });
+
+  it("nenhum item de leitura usa o slot antigo 15:00-15:30", () => {
+    const items = generateWeeklyPlan([child], { p1: ["dinossauros"] }, "");
+    const oldSlot = items.filter(
+      (i) => i.discipline === "reading" && i.time_slot === "15:00-15:30",
+    );
+    expect(oldSlot).toHaveLength(0);
+  });
+
+  it("encerramento reflexivo da sexta usa 14:45-15:15", () => {
+    const items = generateWeeklyPlan([child], { p1: ["arte"] }, "Museu");
+    const encerramento = items.find(
+      (i) => i.day_of_week === 5 && i.discipline === "world_visit" && !i.is_friday_world,
+    );
+    expect(encerramento).toBeDefined();
+    expect(encerramento!.time_slot).toBe("14:45-15:15");
+  });
+});
