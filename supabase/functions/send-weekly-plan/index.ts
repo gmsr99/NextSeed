@@ -17,8 +17,11 @@ serve(async (req) => {
   }
 
   try {
-    const { to, familyId, familyName, weekLabel, scheduleB64, guideB64, scheduleName, guideName } =
-      await req.json();
+    const {
+      to, familyId, familyName, weekLabel,
+      scheduleB64, guideB64, scheduleName, guideName,
+      readingGuideB64, readingGuideName,
+    } = await req.json();
 
     // Collect all recipient emails: owner + family members
     const recipients = new Set<string>([to]);
@@ -60,6 +63,7 @@ serve(async (req) => {
             <ul>
               <li><strong>Horário Semanal</strong> — blocos de tempo e atividades de cada dia</li>
               <li><strong>Guia de Atividades</strong> — descrição passo a passo e lista de materiais</li>
+              ${readingGuideB64 ? "<li><strong>Guia de Leitura</strong> — episódios semanais com perguntas de compreensão e conversa</li>" : ""}
             </ul>
             <p style="color:#6B7280;font-size:14px;">Bom trabalho esta semana! 🌿</p>
             <hr style="border:none;border-top:1px solid #E5E7EB;margin:24px 0;" />
@@ -69,6 +73,9 @@ serve(async (req) => {
         attachments: [
           { filename: scheduleName, content: scheduleB64 },
           { filename: guideName, content: guideB64 },
+          ...(readingGuideB64 && readingGuideName
+            ? [{ filename: readingGuideName, content: readingGuideB64 }]
+            : []),
         ],
       }),
     });
