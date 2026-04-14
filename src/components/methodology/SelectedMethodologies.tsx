@@ -1,5 +1,4 @@
 import { ArrowUp, ArrowDown, X, Leaf } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import type { FamilyMethodology } from "@/lib/types";
 import { PRIORITY_LABELS, CATEGORY_COLORS } from "./constants";
 import { cn } from "@/lib/utils";
@@ -44,7 +43,7 @@ export function SelectedMethodologies({
 
         return (
           <div
-            key={fm.id}
+            key={fm.methodology_id}
             className={cn(
               "flex items-center gap-3 rounded-xl border bg-card px-4 py-3 transition-all",
               fm.priority === 1 && "border-primary/30 bg-primary/5",
@@ -74,7 +73,7 @@ export function SelectedMethodologies({
             {/* Reorder + Remove */}
             <div className="flex items-center gap-1 shrink-0">
               <button
-                onClick={() => onMoveUp(fm.id)}
+                onClick={() => onMoveUp(fm.methodology_id)}
                 disabled={isFirst || isPending}
                 className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 title="Mover para cima"
@@ -82,7 +81,7 @@ export function SelectedMethodologies({
                 <ArrowUp className="h-3.5 w-3.5" />
               </button>
               <button
-                onClick={() => onMoveDown(fm.id)}
+                onClick={() => onMoveDown(fm.methodology_id)}
                 disabled={isLast || isPending}
                 className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 title="Mover para baixo"
@@ -90,7 +89,7 @@ export function SelectedMethodologies({
                 <ArrowDown className="h-3.5 w-3.5" />
               </button>
               <button
-                onClick={() => onDeselect(fm.id)}
+                onClick={() => onDeselect(fm.methodology_id)}
                 disabled={isPending}
                 className="rounded-lg p-1.5 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 disabled:opacity-30 transition-colors"
                 title="Remover"

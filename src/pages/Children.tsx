@@ -16,7 +16,7 @@ import ChildCurriculumView from "@/components/ChildCurriculumView";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import TagInput from "@/components/TagInput";
+import InterestPicker from "@/components/InterestPicker";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAuth } from "@/contexts/AuthContext";
@@ -117,8 +117,8 @@ export default function Children() {
   };
 
   const getAge = (birthDate: string) => differenceInYears(new Date(), parseISO(birthDate));
-  const getInitials = (name: string) =>
-    name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const getInitials = (name: string | null | undefined) =>
+    name ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "?";
 
   return (
     <AppLayout>
@@ -194,7 +194,7 @@ export default function Children() {
                 </div>
                 <div className="space-y-2">
                   <Label>Interesses</Label>
-                  <TagInput value={form.interests} onChange={(tags) => setForm({ ...form, interests: tags })} placeholder="Escreve um interesse e pressiona Enter" />
+                  <InterestPicker value={form.interests} onChange={(tags) => setForm({ ...form, interests: tags })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Preferências de aprendizagem</Label>
@@ -367,7 +367,7 @@ export default function Children() {
             </div>
             <div className="space-y-2">
               <Label>Interesses</Label>
-              <TagInput value={editForm.interests} onChange={(tags) => setEditForm({ ...editForm, interests: tags })} placeholder="Escreve um interesse e pressiona Enter" />
+              <InterestPicker value={editForm.interests} onChange={(tags) => setEditForm({ ...editForm, interests: tags })} />
             </div>
             <div className="space-y-2">
               <Label>Preferências de aprendizagem</Label>

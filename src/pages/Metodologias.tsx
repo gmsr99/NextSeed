@@ -168,7 +168,7 @@ export default function Metodologias() {
                       familyMethodologies={familyMethodologies}
                       compatibility={compatibility}
                       onSelect={() => handleSelect(methodology.id)}
-                      onDeselect={() => fm && handleDeselect(fm.id)}
+                      onDeselect={() => fm && handleDeselect(fm.methodology_id)}
                       isPending={isPending}
                     />
                   );

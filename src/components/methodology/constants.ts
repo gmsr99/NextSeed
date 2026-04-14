@@ -32,9 +32,10 @@ export const CATEGORY_COLORS: Record<MethodologyCategory, { badge: string; card:
 };
 
 export const INTENSITY_LABELS: Record<MethodologyIntensity, string> = {
-  baixa: 'Intensidade baixa',
-  media: 'Intensidade média',
-  alta:  'Intensidade alta',
+  'muito-baixa': 'Intensidade muito baixa',
+  baixa:         'Intensidade baixa',
+  media:         'Intensidade média',
+  alta:          'Intensidade alta',
 };
 
 export const COST_LABELS: Record<MethodologyMaterialsCost, string> = {
@@ -50,7 +51,8 @@ export const PRIORITY_LABELS: Record<1 | 2 | 3, string> = {
 };
 
 export const COMPATIBILITY_LABELS: Record<string, { label: string; color: string }> = {
-  alta:  { label: 'Muito compatível',  color: 'text-green-600 bg-green-50 border-green-200' },
-  media: { label: 'Compatível',        color: 'text-yellow-600 bg-yellow-50 border-yellow-200' },
-  baixa: { label: 'Pouco compatível',  color: 'text-red-500 bg-red-50 border-red-200' },
+  'excelente': { label: 'Excelente',  color: 'text-green-700 bg-green-50 border-green-200' },
+  'muito-boa': { label: 'Muito boa',  color: 'text-green-600 bg-green-50 border-green-200' },
+  'boa':       { label: 'Boa',        color: 'text-yellow-600 bg-yellow-50 border-yellow-200' },
+  'limitada':  { label: 'Limitada',   color: 'text-red-500 bg-red-50 border-red-200' },
 };

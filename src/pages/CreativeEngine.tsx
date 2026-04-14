@@ -6,14 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
 import {
   Sparkles, Wand2, BookmarkPlus, BookOpen, Target,
-  Lightbulb, Loader2, CheckCircle2, CalendarClock,
+  Lightbulb, Loader2, CheckCircle2, BookHeart,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useChildren } from "@/hooks/useChildren";
 import { useProjects } from "@/hooks/useProjects";
+import { useMethodologies } from "@/hooks/useMethodologies";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 import { getCurriculumObjectives } from "@/lib/curriculumLoader";
+import type { FamilyMethodology } from "@/lib/types";
+import { PRIORITY_LABELS } from "@/components/methodology/constants";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -65,18 +68,44 @@ function getCurriculumItems(schoolYear: string): CurriculumItem[] {
 
 // ── Gemini call ────────────────────────────────────────────────────────────────
 
+// ── Constrói o bloco de contexto pedagógico a partir das metodologias ativas ──
+
+function buildMethodologyContext(methodologies: FamilyMethodology[]): string {
+  if (methodologies.length === 0) return "";
+
+  const priorityLabel = (p: 1 | 2 | 3) =>
+    p === 1 ? "METODOLOGIA PRINCIPAL" : p === 2 ? "METODOLOGIA SECUNDÁRIA" : "METODOLOGIA COMPLEMENTAR";
+
+  const blocks = methodologies
+    .sort((a, b) => a.priority - b.priority)
+    .map((fm) => {
+      const m = fm.methodology;
+      if (!m) return null;
+      const keywordsStr = m.keywords?.length ? `\nPalavras-chave: ${m.keywords.join(", ")}` : "";
+      return `${priorityLabel(fm.priority)}: ${m.name}\nAbordagem: "${m.ai_generation_style}"${keywordsStr}`;
+    })
+    .filter(Boolean)
+    .join("\n\n");
+
+  return blocks
+    ? `[CONTEXTO PEDAGÓGICO DA FAMÍLIA]\n${blocks}\n\nOs projetos gerados DEVEM refletir esta(s) abordagem(ns) pedagógica(s), especialmente a principal.\n`
+    : "";
+}
+
 async function generateWithGemini(
   childName: string,
   schoolYear: string,
   interests: string[],
   disciplineLabel: string,
   objective: string,
+  activeMethodologies: FamilyMethodology[],
 ): Promise<Suggestion[]> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string;
 
   const interestStr = interests.join(", ") || "variados";
+  const methodologyContext = buildMethodologyContext(activeMethodologies);
 
-  const prompt = `Gera 3 sugestões de PROJETOS para uma criança portuguesa do ${schoolYear}, chamada ${childName}, com os seguintes interesses: ${interestStr}.
+  const prompt = `${methodologyContext}Gera 3 sugestões de PROJETOS para uma criança portuguesa do ${schoolYear}, chamada ${childName}, com os seguintes interesses: ${interestStr}.
 
 Um projeto desenvolve-se ao longo de vários dias, semanas ou meses (ex: plantar e cuidar de uma árvore, escrever um diário, construir algo progressivamente). Tem fases distintas que se sucedem no tempo.
 
@@ -146,6 +175,7 @@ Cada projeto deve ter entre 3 e 5 fases. O campo "type" é sempre "Projeto".`;
 export default function CreativeEngine() {
   const { children } = useChildren();
   const { createProject } = useProjects();
+  const { familyMethodologies } = useMethodologies();
 
   const [selectedChildId, setSelectedChildId]           = useState("");
   const [selectedCurriculumId, setSelectedCurriculumId] = useState("");
@@ -189,6 +219,7 @@ export default function CreativeEngine() {
         selectedChild.interests ?? [],
         selectedCurriculum.disciplineLabel,
         selectedCurriculum.objective,
+        familyMethodologies,
       );
       setSuggestions(results);
       setHasGenerated(true);
@@ -285,7 +316,7 @@ export default function CreativeEngine() {
                       <p className="text-xs text-muted-foreground font-medium">Interesses</p>
                       <div className="flex flex-wrap gap-1.5">
                         {(selectedChild.interests ?? []).length > 0
-                          ? selectedChild.interests.map((i) => (
+                          ? (selectedChild.interests ?? []).map((i) => (
                               <Badge key={i} variant="secondary" className="text-xs">{i}</Badge>
                             ))
                           : <span className="text-xs text-muted-foreground italic">Sem interesses definidos</span>
@@ -347,6 +378,31 @@ export default function CreativeEngine() {
               </AnimatePresence>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Metodologias ativas */}
+        <div className="flex flex-col items-center gap-2">
+          {familyMethodologies.length > 0 ? (
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <BookHeart className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              {familyMethodologies
+                .sort((a, b) => a.priority - b.priority)
+                .map((fm) => (
+                  <span
+                    key={fm.methodology_id}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-xs text-muted-foreground"
+                  >
+                    <span className="font-semibold text-primary">{fm.priority}</span>
+                    {fm.methodology?.name ?? "—"}
+                  </span>
+                ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground/60 flex items-center gap-1.5">
+              <BookHeart className="h-3.5 w-3.5" />
+              Sem metodologias selecionadas — os projetos serão gerados de forma genérica.
+            </p>
+          )}
         </div>
 
         {/* Generate button */}

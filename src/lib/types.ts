@@ -615,6 +615,171 @@ export type Database = {
         }
         Relationships: []
       }
+      methodologies: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          category: 'pedagogias-classicas' | 'natureza-experiencia' | 'alta-autonomia' | 'aprendizagem-ativa' | 'contemporaneo'
+          short_description: string
+          philosophy_summary: string | null
+          intensity: 'muito-baixa' | 'baixa' | 'media' | 'alta'
+          materials_cost: 'baixo' | 'medio' | 'alto'
+          age_min: number
+          age_max: number
+          ai_generation_style: string
+          keywords: string[]
+          sort_order: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          category: 'pedagogias-classicas' | 'natureza-experiencia' | 'alta-autonomia' | 'aprendizagem-ativa' | 'contemporaneo'
+          short_description: string
+          philosophy_summary?: string | null
+          intensity: 'muito-baixa' | 'baixa' | 'media' | 'alta'
+          materials_cost: 'baixo' | 'medio' | 'alto'
+          age_min: number
+          age_max: number
+          ai_generation_style?: string
+          keywords?: string[]
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          category?: 'pedagogias-classicas' | 'natureza-experiencia' | 'alta-autonomia' | 'aprendizagem-ativa' | 'contemporaneo'
+          short_description?: string
+          philosophy_summary?: string | null
+          intensity?: 'muito-baixa' | 'baixa' | 'media' | 'alta'
+          materials_cost?: 'baixo' | 'medio' | 'alto'
+          age_min?: number
+          age_max?: number
+          ai_generation_style?: string
+          keywords?: string[]
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      methodology_principles: {
+        Row: {
+          id: string
+          methodology_id: string
+          title: string
+          description: string
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          methodology_id: string
+          title: string
+          description: string
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          methodology_id?: string
+          title?: string
+          description?: string
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      methodology_activities: {
+        Row: {
+          id: string
+          methodology_id: string
+          discipline_key: 'language' | 'math' | 'science' | 'arts' | 'music' | 'movement' | 'life_skills' | 'project' | 'social_emotional'
+          age_min: number
+          age_max: number
+          activity_title: string
+          activity_description: string
+          materials: string[]
+          duration_minutes: number | null
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          methodology_id: string
+          discipline_key: 'language' | 'math' | 'science' | 'arts' | 'music' | 'movement' | 'life_skills' | 'project' | 'social_emotional'
+          age_min: number
+          age_max: number
+          activity_title: string
+          activity_description: string
+          materials?: string[]
+          duration_minutes?: number | null
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          methodology_id?: string
+          discipline_key?: 'language' | 'math' | 'science' | 'arts' | 'music' | 'movement' | 'life_skills' | 'project' | 'social_emotional'
+          age_min?: number
+          age_max?: number
+          activity_title?: string
+          activity_description?: string
+          materials?: string[]
+          duration_minutes?: number | null
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      methodology_compatibility: {
+        Row: {
+          methodology_a_id: string
+          methodology_b_id: string
+          compatibility: 'excelente' | 'muito-boa' | 'boa' | 'limitada'
+          notes: string | null
+        }
+        Insert: {
+          methodology_a_id: string
+          methodology_b_id: string
+          compatibility: 'excelente' | 'muito-boa' | 'boa' | 'limitada'
+          notes?: string | null
+        }
+        Update: {
+          methodology_a_id?: string
+          methodology_b_id?: string
+          compatibility?: 'excelente' | 'muito-boa' | 'boa' | 'limitada'
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      family_methodologies: {
+        Row: {
+          family_id: string
+          methodology_id: string
+          priority: number
+          selected_at: string
+        }
+        Insert: {
+          family_id: string
+          methodology_id: string
+          priority?: number
+          selected_at?: string
+        }
+        Update: {
+          family_id?: string
+          methodology_id?: string
+          priority?: number
+          selected_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -677,7 +842,7 @@ export type MethodologyCategory =
   | 'aprendizagem-ativa'
   | 'contemporaneo';
 
-export type MethodologyIntensity = 'baixa' | 'media' | 'alta';
+export type MethodologyIntensity = 'muito-baixa' | 'baixa' | 'media' | 'alta';
 export type MethodologyMaterialsCost = 'baixo' | 'medio' | 'alto';
 
 export interface MethodologyPrinciple {
@@ -689,10 +854,9 @@ export interface MethodologyPrinciple {
 }
 
 export interface MethodologyCompatibility {
-  id: string;
   methodology_a_id: string;
   methodology_b_id: string;
-  compatibility_level: string; // 'alta' | 'media' | 'baixa'
+  compatibility: string; // 'excelente' | 'muito-boa' | 'boa' | 'limitada'
   notes: string | null;
 }
 
@@ -718,13 +882,12 @@ export interface Methodology {
 // Priority 1 = Principal (plano gerado com pleno peso)
 // Priority 2 = Secundária (peso parcial)
 // Priority 3 = Complementar (referência)
+// PK composta: (family_id, methodology_id) — sem coluna id
 export interface FamilyMethodology {
-  id: string;
   family_id: string;
   methodology_id: string;
   priority: 1 | 2 | 3;
-  notes: string | null;
-  adopted_at: string;
+  selected_at: string;
   methodology?: Methodology;
 }
 

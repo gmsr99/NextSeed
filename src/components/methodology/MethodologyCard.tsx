@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Check, Plus, Sparkles } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Methodology, FamilyMethodology, MethodologyCompatibility } from "@/lib/types";
 import {
@@ -198,12 +197,12 @@ export function MethodologyCard({
               </p>
               <div className="flex flex-wrap gap-2">
                 {compatibilityWithSelected.map(({ fm, pair }) => {
-                  const level = pair!.compatibility_level as keyof typeof COMPATIBILITY_LABELS;
-                  const style = COMPATIBILITY_LABELS[level] ?? COMPATIBILITY_LABELS['media'];
+                  const level = pair!.compatibility as keyof typeof COMPATIBILITY_LABELS;
+                  const style = COMPATIBILITY_LABELS[level] ?? COMPATIBILITY_LABELS['boa'];
                   const name = fm.methodology?.name ?? "Metodologia";
                   return (
                     <span
-                      key={fm.id}
+                      key={fm.methodology_id}
                       className={cn(
                         "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium",
                         style.color
