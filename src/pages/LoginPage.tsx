@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NexSeedLogo from "@/components/NexSeedLogo";
@@ -14,6 +15,7 @@ export default function LoginPage() {
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({ email: "", password: "", familyName: "" });
+  const [consented, setConsented] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,9 +31,18 @@ export default function LoginPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!consented) {
+      setError("Deves aceitar a Política de Privacidade e os Termos e Condições para criar uma conta.");
+      return;
+    }
     setError(null);
     setLoading(true);
-    const { error } = await signUp(registerForm.email, registerForm.password, registerForm.familyName);
+    const { error } = await signUp(
+      registerForm.email,
+      registerForm.password,
+      registerForm.familyName,
+      new Date().toISOString(),
+    );
     setLoading(false);
     if (error) return setError(error);
     navigate("/");
@@ -131,8 +142,26 @@ export default function LoginPage() {
                       minLength={6}
                     />
                   </div>
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id="consent"
+                      checked={consented}
+                      onCheckedChange={(v) => { setConsented(!!v); setError(null); }}
+                      className="mt-0.5"
+                    />
+                    <Label htmlFor="consent" className="text-sm font-normal leading-snug cursor-pointer">
+                      Li e aceito a{" "}
+                      <Link to="/privacidade" className="text-primary underline" target="_blank">
+                        Política de Privacidade
+                      </Link>{" "}
+                      e os{" "}
+                      <Link to="/termos" className="text-primary underline" target="_blank">
+                        Termos e Condições
+                      </Link>
+                    </Label>
+                  </div>
                   {error && <p className="text-sm text-destructive">{error}</p>}
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading || !consented}>
                     {loading ? "A criar conta..." : "Criar conta"}
                   </Button>
                 </form>

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CookieBanner from "@/components/CookieBanner";
 
 // ─── Lazy imports — cada rota só carrega quando visitada ─────────────────────
 const LoginPage         = React.lazy(() => import("./pages/LoginPage"));
@@ -29,6 +30,8 @@ const WorldMissions     = React.lazy(() => import("./pages/WorldMissions"));
 const Extracurricular   = React.lazy(() => import("./pages/Extracurricular"));
 const AcceptInvite      = React.lazy(() => import("./pages/AcceptInvite"));
 const Metodologias      = React.lazy(() => import("./pages/Metodologias"));
+const PrivacyPolicy     = React.lazy(() => import("./pages/PrivacyPolicy"));
+const TermsAndConditions = React.lazy(() => import("./pages/TermsAndConditions"));
 const NotFound          = React.lazy(() => import("./pages/NotFound"));
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
@@ -141,6 +144,8 @@ function AppRoutes() {
     <Suspense fallback={<AppLoader />}>
       <Routes>
         <Route path="/login"          element={session ? <Navigate to="/" replace /> : <LoginPage />} />
+        <Route path="/privacidade"    element={<PrivacyPolicy />} />
+        <Route path="/termos"         element={<TermsAndConditions />} />
         <Route path="/accept-invite"  element={<AcceptInvite />} />
         <Route path="/"               element={<ProtectedRoute><Index /></ProtectedRoute>} />
         <Route path="/weekly-planner" element={<ProtectedRoute><WeeklyPlanner /></ProtectedRoute>} />
@@ -178,6 +183,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <AppRoutes />
+            <CookieBanner />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

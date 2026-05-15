@@ -9,7 +9,7 @@ interface AuthContextValue {
   family: Family | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, familyName: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, familyName: string, consentedAt: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   updateFamilyName: (name: string) => Promise<{ error: string | null }>;
   deleteAccount: () => Promise<{ error: string | null }>;
@@ -73,8 +73,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error?.message ?? null };
   };
 
-  const signUp = async (email: string, password: string, familyName: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  const signUp = async (email: string, password: string, familyName: string, consentedAt: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { consented_at: consentedAt, terms_version: "1.0" } },
+    });
     if (error) return { error: error.message };
     if (data.user) {
       const { error: familyError } = await supabase
