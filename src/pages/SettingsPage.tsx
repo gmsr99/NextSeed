@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Mail, X, Loader2, UserPlus, Crown } from "lucide-react";
+import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink } from "lucide-react";
 
 type Member = { id: string; user_id: string; email: string; joined_at: string };
 type Invite = { id: string; email: string; created_at: string };
@@ -239,6 +239,41 @@ const SettingsPage = () => {
               )}
             </div>
           )}
+        </section>
+
+        {/* Privacidade e dados */}
+        <section className="rounded-2xl border bg-card p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">Privacidade e dados</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Consulta os documentos legais relativos ao tratamento dos teus dados pessoais (RGPD).
+          </p>
+          <div className="space-y-2">
+            <Link
+              to="/privacidade"
+              target="_blank"
+              className="flex items-center justify-between w-full rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                Política de Privacidade
+              </span>
+              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+            </Link>
+            <Link
+              to="/termos"
+              target="_blank"
+              className="flex items-center justify-between w-full rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                Termos e Condições
+              </span>
+              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+            </Link>
+          </div>
         </section>
 
         {/* Conta */}
