@@ -309,6 +309,7 @@ function buildPrompt(
   nexseedByYear: Record<string, Record<string, string[]>>,
   gcProgressByChild: Record<string, Record<string, string[]>>,
   gcAllByChild: Record<string, Record<string, string[]>>,
+  weeklyContent: Record<string, Record<string, string>> = {},
 ): string {
   const hasPrimary = children.some((c) => !c.school_year.toLowerCase().startsWith("pré"));
   const hasPreSchool = children.some((c) => c.school_year.toLowerCase().startsWith("pré"));
@@ -362,6 +363,25 @@ function buildPrompt(
     return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep} | interesses: ${interests}`;
   }).join("\n");
 
+  // Conteúdos específicos que o educador quer trabalhar esta semana por disciplina
+  const WEEKLY_CONTENT_DISC_LABELS: Record<string, string> = {
+    language: "Português", math: "Matemática", world: "Estudo do Meio",
+    english: "Inglês", expression: "Expressão Artística", project: "Projeto",
+  };
+  const weeklyContentLines = children.map((c) => {
+    const content = weeklyContent[c.id];
+    if (!content || Object.keys(content).length === 0) return null;
+    const lines = Object.entries(content)
+      .filter(([, v]) => v.trim())
+      .map(([disc, v]) => `  - ${WEEKLY_CONTENT_DISC_LABELS[disc] ?? disc}: "${v.trim()}"`)
+      .join("\n");
+    if (!lines) return null;
+    return `### ${c.name} (${c.school_year})\n${lines}`;
+  }).filter(Boolean);
+  const weeklyContentSection = weeklyContentLines.length > 0
+    ? `\n## CONTEÚDOS A ENSINAR ESTA SEMANA ⚠️ PRIORIDADE MÁXIMA\nO educador especificou o que quer trabalhar. TODAS as atividades das disciplinas listadas DEVEM ensinar diretamente estes conteúdos. Os interesses apenas tematizam (ex: se conteúdo é "adição até 20" e interesse é "dinossauros" → conta dinossauros em somas).\n${weeklyContentLines.join("\n\n")}\n`
+    : "";
+
   const fridayNote = fridayActivity
     ? `Atividade de sexta-feira planeada: "${fridayActivity}"`
     : "Sexta-feira: exploração livre — sugere algo concreto e local";
@@ -380,7 +400,7 @@ Na **descrição** das atividades do pré-escolar menciona (1 frase) como o adul
 
 ## CRIANÇAS
 ${childrenSection}
-${multiLevelNote}${nexseedSection}${gcSection}${gcAllSection}
+${multiLevelNote}${weeklyContentSection}${nexseedSection}${gcSection}${gcAllSection}
 ## SEXTA-FEIRA
 ${fridayNote}
 
@@ -391,7 +411,7 @@ ${readingNote}
 ${skeletonSection}
 
 ## REGRAS DE TRIANGULAÇÃO
-1. **Prioridade**: NexSeed (se existir) → Conteúdos GC em foco → Conteúdos GC por dominar → interesses.
+1. **Prioridade**: Conteúdos desta semana (se existirem) → NexSeed → Conteúdos GC em foco → Conteúdos GC por dominar → interesses.
 2. Usa os **interesses** para tematizar — nunca como objetivo. Ex: objetivo GC "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo.
 3. **Conteúdos dominados** NÃO devem voltar a aparecer nas atividades.
 4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[2-3 parágrafos em português, adequados à idade, continuação da narrativa do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
@@ -402,6 +422,13 @@ ${skeletonSection}
 9. Títulos específicos e criativos — NUNCA genéricos. Máx. 8 palavras.
 10. Descrições CURTAS: máx. 2 frases diretas com passos concretos.
 11. Materiais: máx. 4 itens simples disponíveis em casa ou papelaria.
+12. **DIVERSIDADE OBRIGATÓRIA**: Para cada criança e cada disciplina, NUNCA repitas o mesmo formato de atividade em dias diferentes da mesma semana. Usa formatos distintos de entre:
+    - Português: leitura+compreensão, escrita/ditado, jogo de fonética/sílabas, exercício de gramática, produção oral/narração, caligrafia, caça-palavras, jogo de palavras
+    - Matemática: contagem/operações escritas, jogo com objetos físicos, resolução de problema contextualizado, medição no mundo real, padrões/sequências, estimativa, jogo de cartas/dados
+    - Estudo do Meio: observação direta, experiência simples, registo desenhado/mapa, entrevista, pesquisa guiada, saída de campo, construção de modelo
+    - Inglês: canção/rima, flashcards, jogo de mímica/charadas, produção oral curta, mini-diálogo, colorir com vocabulário
+    - Expressão: desenho, pintura, colagem, escultura/modelagem, dança/teatro, fotografia, construção 3D
+    Verifica a tua lista antes de devolver o JSON — se repetiste formato numa disciplina, substitui.
 
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
@@ -437,13 +464,14 @@ export async function generateWithGemini(
   nexseedByYear: Record<string, Record<string, string[]>> = {},
   gcProgressByChild: Record<string, Record<string, string[]>> = {},
   gcAllByChild: Record<string, Record<string, string[]>> = {},
+  weeklyContent: Record<string, Record<string, string>> = {},
 ): Promise<GeneratedPlanItem[]> {
   const apiKey1 = import.meta.env.VITE_GEMINI_API_KEY as string;
   const apiKey2 = import.meta.env.VITE_GEMINI_API_KEY_2 as string;
   if (!apiKey1) throw new Error("VITE_GEMINI_API_KEY não definida");
 
   const skeleton = buildSkeleton(children);
-  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild);
+  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent);
 
   let res = await callGemini(apiKey1, prompt);
 

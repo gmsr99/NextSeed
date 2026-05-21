@@ -19,6 +19,7 @@ import {
   LogOut,
   Trophy,
   BookHeart,
+  Map,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -48,6 +49,7 @@ type NavItem = {
 const planearItems: NavItem[] = [
   { title: "Dashboard",         url: "/",               icon: Home },
   { title: "Planeador Semanal", url: "/weekly-planner", icon: CalendarCheck },
+  { title: "Roteiro Anual",     url: "/roteiro-anual",  icon: Map },
   { title: "Agenda",            url: "/calendar",        icon: CalendarDays },
   { title: "Crianças",          url: "/children",        icon: Users },
   { title: "Metodologias",      url: "/metodologias",    icon: BookHeart },

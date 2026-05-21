@@ -1,14 +1,15 @@
 // src/pages/Index.tsx
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, differenceInYears, parseISO } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { CalendarCheck, Plus, ArrowRight, Trophy, BookOpen, Clock } from 'lucide-react';
+import { CalendarCheck, Plus, ArrowRight, Trophy, BookOpen, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/components/AppLayout';
 import { useTodayDashboard } from '@/hooks/useTodayDashboard';
 import { useMissionRewards } from '@/hooks/useMissionRewards';
+import { useChildMilestones, MILESTONE_CATEGORIES } from '@/hooks/useChildMilestones';
 
 const DISCIPLINE_COLORS: Record<string, string> = {
   'Português': 'bg-blue-100 text-blue-800',
@@ -38,6 +39,13 @@ export default function Index() {
     children, upcomingExtras, isWeekend, familyName,
   } = useTodayDashboard();
   const { rewards, getBalance } = useMissionRewards();
+  const { milestones: recentMilestones } = useChildMilestones();
+
+  // Children under 3 years old — milestone tracking focus
+  const youngChildren = children.filter((c) => {
+    if (!c.birth_date) return false;
+    return differenceInYears(new Date(), parseISO(c.birth_date)) < 3;
+  });
 
   if (isLoading) {
     return (
@@ -121,6 +129,62 @@ export default function Index() {
             </div>
           )}
         </section>
+
+        {/* Bloco 1.5 — Marcos de bebés/crianças pequenas */}
+        {youngChildren.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-500" /> Marcos recentes
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/portfolio')}>
+                Ver todos <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {youngChildren.map((child) => {
+                const childMilestones = recentMilestones
+                  .filter((m) => m.child_id === child.id)
+                  .slice(0, 2);
+                return (
+                  <div key={child.id} className="border rounded-xl p-4 space-y-2 bg-amber-50/40 border-amber-100">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-sm">{child.name}</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7 border-amber-200 bg-white"
+                        onClick={() => navigate('/portfolio')}
+                      >
+                        <Plus className="w-3 h-3 mr-1" /> Marco
+                      </Button>
+                    </div>
+                    {childMilestones.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        Nenhum marco registado ainda. Regista o primeiro momento especial!
+                      </p>
+                    ) : (
+                      <div className="space-y-1">
+                        {childMilestones.map((m) => {
+                          const cat = MILESTONE_CATEGORIES.find((c) => c.key === m.category);
+                          return (
+                            <div key={m.id} className="flex items-center gap-2 text-sm">
+                              <span>{cat?.emoji ?? '⭐'}</span>
+                              <span className="font-medium">{m.title}</span>
+                              <span className="text-xs text-muted-foreground ml-auto">
+                                {format(new Date(m.date + 'T00:00:00'), "d MMM", { locale: pt })}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Bloco 2 — Missões ativas */}
         {children.length > 0 && (

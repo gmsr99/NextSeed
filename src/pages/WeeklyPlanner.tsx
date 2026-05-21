@@ -55,6 +55,7 @@ export default function WeeklyPlanner() {
   const [weekStart, setWeekStart] = useState<Date>(getNextMonday());
   const [weekStartReady, setWeekStartReady] = useState(false);
   const [childInterests, setChildInterests] = useState<Record<string, string[]>>({});
+  const [weeklyContent, setWeeklyContent] = useState<Record<string, Record<string, string>>>({});
   const [fridayActivity, setFridayActivity] = useState("");
   const [notes, setNotes] = useState("");
   const [weeklyReadingTheme, setWeeklyReadingTheme] = useState("");
@@ -118,13 +119,14 @@ export default function WeeklyPlanner() {
     setError(null);
     setStep("form");
     setWeeklyReadingTheme("");
+    setWeeklyContent({});
     setLoadingExisting(true);
 
     const loadExisting = async () => {
       try {
         const { data: plans } = await supabase
           .from("weekly_plans")
-          .select("id, version, generated_at, child_interests, friday_activity, notes, reading_theme, status")
+          .select("id, version, generated_at, child_interests, friday_activity, notes, reading_theme, status, weekly_content")
           .eq("family_id", family.id)
           .eq("week_start", format(weekStart, "yyyy-MM-dd"))
           .order("version", { ascending: false });
@@ -138,6 +140,7 @@ export default function WeeklyPlanner() {
           setFridayActivity("");
           setNotes("");
           setWeeklyReadingTheme("");
+          setWeeklyContent({});
           return;
         }
 
@@ -175,6 +178,8 @@ export default function WeeklyPlanner() {
 
         const interests = plan.child_interests as Record<string, string[]> | null;
         if (interests) setChildInterests(interests);
+        const wc = plan.weekly_content as Record<string, Record<string, string>> | null;
+        if (wc) setWeeklyContent(wc);
         if (plan.status === "sent") setSent(true);
         setStep("preview");
       } finally {
@@ -257,7 +262,7 @@ export default function WeeklyPlanner() {
       }
 
       setGeneratingStep("A gerar atividades com IA...");
-      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild);
+      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent);
 
       setGeneratingStep("A montar o horário...");
       setPlanItems(items);
@@ -280,10 +285,14 @@ export default function WeeklyPlanner() {
     if (!family) throw new Error("Família não encontrada");
 
     const weekKey = format(weekStart, "yyyy-MM-dd");
+    const hasWeeklyContent = Object.values(weeklyContent).some(
+      (disc) => Object.values(disc).some((v) => v.trim())
+    );
     const planPayload = {
       family_id: family.id,
       week_start: weekKey,
       child_interests: childInterests,
+      weekly_content: hasWeeklyContent ? weeklyContent : null,
       friday_activity: fridayActivity || null,
       notes: notes || null,
       reading_theme: weeklyReadingTheme || null,
@@ -526,6 +535,13 @@ export default function WeeklyPlanner() {
             childInterests={childInterests}
             onChildInterestsChange={(childId, tags) =>
               setChildInterests((prev) => ({ ...prev, [childId]: tags }))
+            }
+            weeklyContent={weeklyContent}
+            onWeeklyContentChange={(childId, discipline, value) =>
+              setWeeklyContent((prev) => ({
+                ...prev,
+                [childId]: { ...(prev[childId] ?? {}), [discipline]: value },
+              }))
             }
             fridayActivity={fridayActivity}
             onFridayActivityChange={setFridayActivity}

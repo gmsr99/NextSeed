@@ -5,7 +5,7 @@ import { pdf } from "@react-pdf/renderer";
 import {
   Trophy, Leaf, ImageIcon, Filter, ChevronDown, Trash2,
   Sparkles, Loader2, BookOpen, FolderKanban, CheckCircle2, Download,
-  X, ChevronLeft, ChevronRight, ZoomIn,
+  X, ChevronLeft, ChevronRight, ZoomIn, Star, Plus,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -26,6 +26,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useChildMilestones, MILESTONE_CATEGORIES } from "@/hooks/useChildMilestones";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { usePortfolio, type PortfolioEntry } from "@/hooks/usePortfolio";
@@ -205,6 +216,20 @@ export default function Portfolio() {
   const [entryToDelete, setEntryToDelete]      = useState<string | null>(null);
   const [analyzing, setAnalyzing]              = useState(false);
   const [exportingPDF, setExportingPDF]        = useState(false);
+
+  // Milestones
+  const { milestones, isLoading: milestonesLoading, createMilestone, deleteMilestone } = useChildMilestones(
+    selectedChildId !== "all" ? selectedChildId : undefined
+  );
+  const [showMilestoneDialog, setShowMilestoneDialog] = useState(false);
+  const [milestoneForm, setMilestoneForm] = useState({
+    child_id: "",
+    date: new Date().toISOString().split("T")[0],
+    title: "",
+    description: "",
+    category: "geral",
+  });
+  const [savingMilestone, setSavingMilestone] = useState(false);
 
   // Lightbox state
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null);
@@ -437,6 +462,9 @@ export default function Portfolio() {
           <TabsList className="mb-4">
             <TabsTrigger value="portfolio" className="gap-1.5">
               <Trophy className="h-3.5 w-3.5" /> Portfólio
+            </TabsTrigger>
+            <TabsTrigger value="marcos" className="gap-1.5">
+              <Star className="h-3.5 w-3.5" /> Marcos
             </TabsTrigger>
             <TabsTrigger value="curriculum" className="gap-1.5">
               <BookOpen className="h-3.5 w-3.5" /> Currículo NexSeed
@@ -694,8 +722,196 @@ export default function Portfolio() {
         )}
 
           </TabsContent>
+
+          {/* ── Marcos tab ──────────────────────────────────────────────────── */}
+          <TabsContent value="marcos" className="mt-0 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Regista momentos importantes do desenvolvimento de cada criança.
+              </p>
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  setMilestoneForm({
+                    child_id: selectedChildId !== "all" ? selectedChildId : (children[0]?.id ?? ""),
+                    date: new Date().toISOString().split("T")[0],
+                    title: "",
+                    description: "",
+                    category: "geral",
+                  });
+                  setShowMilestoneDialog(true);
+                }}
+              >
+                <Plus className="h-4 w-4" /> Novo Marco
+              </Button>
+            </div>
+
+            {milestonesLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : milestones.length === 0 ? (
+              <div className="text-center py-16">
+                <Star className="h-12 w-12 mx-auto text-primary/20 mb-3" />
+                <p className="font-heading font-semibold text-foreground">Nenhum marco registado</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Regista as primeiras palavras, primeiros passos, e outros momentos especiais.
+                </p>
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-300/50 via-amber-200/30 to-transparent hidden sm:block" />
+                <div className="space-y-3">
+                  {milestones.map((m) => {
+                    const cat = MILESTONE_CATEGORIES.find((c) => c.key === m.category);
+                    const child = children.find((c) => c.id === m.child_id);
+                    return (
+                      <motion.div key={m.id} initial="hidden" animate="visible" custom={0} variants={fadeUp} className="flex gap-4">
+                        <div className="hidden sm:flex flex-col items-center pt-3">
+                          <div className="h-10 w-10 rounded-full bg-amber-50 border-2 border-amber-200 flex items-center justify-center text-lg z-10">
+                            {cat?.emoji ?? "⭐"}
+                          </div>
+                        </div>
+                        <Card className="flex-1 border-amber-100">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 flex-wrap mb-1">
+                                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                    {cat?.label ?? m.category}
+                                  </span>
+                                  {selectedChildId === "all" && child && (
+                                    <span className="text-xs text-muted-foreground">{child.name}</span>
+                                  )}
+                                  <span className="text-xs text-muted-foreground ml-auto">
+                                    {format(new Date(m.date + "T00:00:00"), "d MMM yyyy", { locale: pt })}
+                                  </span>
+                                </div>
+                                <p className="font-semibold text-foreground">{m.title}</p>
+                                {m.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{m.description}</p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => deleteMilestone.mutate(m.id)}
+                                className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5 shrink-0"
+                                title="Remover marco"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </motion.div>
+
+      {/* Add Milestone Dialog */}
+      <Dialog open={showMilestoneDialog} onOpenChange={setShowMilestoneDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Marco</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {children.length > 1 && (
+              <div className="space-y-1.5">
+                <Label>Criança</Label>
+                <Select
+                  value={milestoneForm.child_id}
+                  onValueChange={(v) => setMilestoneForm((f) => ({ ...f, child_id: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleciona a criança" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {children.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="space-y-1.5">
+              <Label>Data</Label>
+              <Input
+                type="date"
+                value={milestoneForm.date}
+                onChange={(e) => setMilestoneForm((f) => ({ ...f, date: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Marco</Label>
+              <Input
+                value={milestoneForm.title}
+                onChange={(e) => setMilestoneForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="Ex: Primeiros passos, Primeira palavra 'mamã'..."
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Categoria</Label>
+              <Select
+                value={milestoneForm.category}
+                onValueChange={(v) => setMilestoneForm((f) => ({ ...f, category: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {MILESTONE_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.key} value={cat.key}>
+                      {cat.emoji} {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Notas (opcional)</Label>
+              <Textarea
+                value={milestoneForm.description}
+                onChange={(e) => setMilestoneForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Descreve o momento com mais detalhe..."
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMilestoneDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              disabled={!milestoneForm.title.trim() || !milestoneForm.child_id || savingMilestone}
+              onClick={async () => {
+                setSavingMilestone(true);
+                try {
+                  await createMilestone.mutateAsync({
+                    child_id: milestoneForm.child_id,
+                    date: milestoneForm.date,
+                    title: milestoneForm.title.trim(),
+                    description: milestoneForm.description.trim() || undefined,
+                    category: milestoneForm.category,
+                  });
+                  setShowMilestoneDialog(false);
+                  toast({ title: "Marco registado!" });
+                } catch (e) {
+                  toast({ title: "Erro ao guardar", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+                } finally {
+                  setSavingMilestone(false);
+                }
+              }}
+            >
+              {savingMilestone ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm delete */}
       <AlertDialog open={!!entryToDelete} onOpenChange={(open) => !open && setEntryToDelete(null)}>
