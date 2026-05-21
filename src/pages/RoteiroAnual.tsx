@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Map, CheckCircle2, Circle, Clock } from "lucide-react";
+import { Map as MapIcon, CheckCircle2, Circle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
@@ -112,7 +112,7 @@ export default function RoteiroAnual() {
         <div className="flex flex-col sm:flex-row sm:items-end gap-4">
           <div className="flex-1">
             <h1 className="text-3xl font-heading font-bold text-foreground flex items-center gap-2">
-              <Map className="h-7 w-7 text-primary" /> Roteiro Anual
+              <MapIcon className="h-7 w-7 text-primary" /> Roteiro Anual
             </h1>
             <p className="text-muted-foreground mt-1">
               Conteúdos curriculares organizados por período escolar.
@@ -136,7 +136,7 @@ export default function RoteiroAnual() {
         {eligibleChildren.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="py-12 text-center text-muted-foreground">
-              <Map className="h-10 w-10 mx-auto mb-3 opacity-20" />
+              <MapIcon className="h-10 w-10 mx-auto mb-3 opacity-20" />
               <p className="font-semibold">Nenhuma criança com currículo nacional</p>
               <p className="text-sm mt-1">Adiciona uma criança com ano escolar (1º ao 4º ano) para ver o roteiro.</p>
             </CardContent>
@@ -253,7 +253,7 @@ export default function RoteiroAnual() {
         {!isLoading && selectedChild && roadmap.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="py-12 text-center text-muted-foreground">
-              <Map className="h-10 w-10 mx-auto mb-3 opacity-20" />
+              <MapIcon className="h-10 w-10 mx-auto mb-3 opacity-20" />
               <p className="font-semibold">Currículo não encontrado</p>
               <p className="text-sm mt-1">
                 Não há conteúdos curriculares registados para {selectedChild.school_year}.
