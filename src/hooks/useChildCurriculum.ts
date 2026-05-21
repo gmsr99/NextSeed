@@ -57,13 +57,35 @@ export function useChildCurriculum(childId: string | null, schoolYear: string | 
   // Join and group by discipline → domain
   const progressMap = new Map(progressList.map((p) => [p.content_id, p]));
 
-  const disciplineMap = new Map<string, Map<string, ContentWithProgress[]>>();
+  // Deduplicate by content text within each discipline — same text in multiple
+  // periods means the GC repeats it; we keep one entry with the best status.
+  const STATUS_PRIORITY: Record<string, number> = { dominado: 3, em_progresso: 2, a_aprender: 1 };
+  const deduped = new Map<string, ContentWithProgress>(); // key: discipline||contentText
   for (const c of contents) {
+    const key = `${c.discipline}||${c.content.trim()}`;
+    const prog = progressMap.get(c.id) ?? null;
+    const existing = deduped.get(key);
+    if (!existing) {
+      deduped.set(key, { ...c, progress: prog });
+    } else {
+      const existingPriority = STATUS_PRIORITY[existing.progress?.status ?? ""] ?? 0;
+      const myPriority = STATUS_PRIORITY[prog?.status ?? ""] ?? 0;
+      const mergedPeriod = existing.period === c.period ? c.period : "all";
+      if (myPriority > existingPriority) {
+        deduped.set(key, { ...existing, id: c.id, period: mergedPeriod, progress: prog });
+      } else if (mergedPeriod !== existing.period) {
+        deduped.set(key, { ...existing, period: mergedPeriod });
+      }
+    }
+  }
+
+  const disciplineMap = new Map<string, Map<string, ContentWithProgress[]>>();
+  for (const c of deduped.values()) {
     if (!disciplineMap.has(c.discipline)) disciplineMap.set(c.discipline, new Map());
     const domainKey = `${c.period}||${c.domain}`;
     const dm = disciplineMap.get(c.discipline)!;
     if (!dm.has(domainKey)) dm.set(domainKey, []);
-    dm.get(domainKey)!.push({ ...c, progress: progressMap.get(c.id) ?? null });
+    dm.get(domainKey)!.push(c);
   }
 
   const grouped: DisciplineGroup[] = [];

@@ -1,9 +1,37 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users } from "lucide-react";
+import { Users, HelpCircle } from "lucide-react";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, type GeneratedPlanItem } from "@/lib/planGenerator";
 import type { Child } from "@/lib/types";
+
+// Detects and parses inline reading text: "texto... | Pergunta: ..."
+function parseInlineText(description: string): { text: string; question: string } | null {
+  const idx = description.indexOf(" | Pergunta:");
+  if (idx === -1) return null;
+  return {
+    text: description.slice(0, idx).trim(),
+    question: description.slice(idx + " | Pergunta:".length).trim(),
+  };
+}
+
+function ActivityDescription({ description }: { description: string }) {
+  const inline = parseInlineText(description);
+  if (!inline) {
+    return <p className="text-xs text-muted-foreground mt-1">{description}</p>;
+  }
+  return (
+    <div className="mt-1 space-y-1.5">
+      <p className="text-xs text-foreground/80 leading-relaxed bg-white/60 rounded-lg p-2 border border-border/40">
+        {inline.text}
+      </p>
+      <div className="flex items-start gap-1.5">
+        <HelpCircle className="h-3.5 w-3.5 text-primary/60 shrink-0 mt-0.5" />
+        <p className="text-xs text-primary/80 font-medium">{inline.question}</p>
+      </div>
+    </div>
+  );
+}
 
 // Color palette for children in the family view (up to 5 children)
 const CHILD_COLORS = [
@@ -59,7 +87,7 @@ function ChildView({ child, planItems }: { child: Child; planItems: GeneratedPla
                         </Badge>
                       </div>
                       <p className="text-sm font-medium text-foreground">{item.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                      <ActivityDescription description={item.description} />
                       {item.materials.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {item.materials.map((m, mi) => (

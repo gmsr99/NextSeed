@@ -20,6 +20,7 @@ import InterestPicker from "@/components/InterestPicker";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAllMethodologies } from "@/hooks/useMethodologies";
 import type { Child } from "@/lib/types";
 
 const interestIcons: Record<string, React.ReactNode> = {
@@ -47,11 +48,13 @@ const emptyForm = {
   interests: [] as string[],
   learningPreferences: "",
   learningPace: "",
+  methodologyId: "",
 };
 
 export default function Children() {
   const { children, isLoading, createChild, updateChild } = useChildren();
   const { family } = useAuth();
+  const { data: allMethodologies = [] } = useAllMethodologies();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
@@ -76,6 +79,7 @@ export default function Children() {
       interests: form.interests,
       learning_preferences: form.learningPreferences || null,
       learning_pace: form.learningPace || null,
+      methodology_id: form.methodologyId || null,
     });
     resetForm();
     setDialogOpen(false);
@@ -93,6 +97,7 @@ export default function Children() {
       interests: child.interests ?? [],
       learningPreferences: child.learning_preferences ?? "",
       learningPace: child.learning_pace ?? "",
+      methodologyId: child.methodology_id ?? "",
     });
     setEditDialogOpen(true);
   };
@@ -111,6 +116,7 @@ export default function Children() {
       interests: editForm.interests,
       learning_preferences: editForm.learningPreferences || null,
       learning_pace: editForm.learningPace || null,
+      methodology_id: editForm.methodologyId || null,
     });
     setEditDialogOpen(false);
     setEditingChild(null);
@@ -218,6 +224,18 @@ export default function Children() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label>Metodologia preferencial</Label>
+                  <Select value={form.methodologyId} onValueChange={(v) => setForm({ ...form, methodologyId: v === "__none__" ? "" : v })}>
+                    <SelectTrigger><SelectValue placeholder="Padrão da família" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Padrão da família</SelectItem>
+                      {allMethodologies.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex justify-end gap-3 pt-2">
                   <Button type="button" variant="ghost" onClick={() => { resetForm(); setDialogOpen(false); }}>Cancelar</Button>
                   <Button type="submit" disabled={createChild.isPending}>
@@ -257,6 +275,10 @@ export default function Children() {
                               {interestIcons[interest] || null}{interest}
                             </Badge>
                           ))}
+                          {child.methodology_id && (() => {
+                            const m = allMethodologies.find((m) => m.id === child.methodology_id);
+                            return m ? <Badge variant="outline" className="text-xs border-primary/30 text-primary/80">{m.name}</Badge> : null;
+                          })()}
                         </div>
                       )}
                       <div className="flex gap-2">
@@ -387,6 +409,18 @@ export default function Children() {
                 <SelectContent>
                   {["Rápido", "Moderado", "Calmo", "Variável"].map((r) => (
                     <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Metodologia preferencial</Label>
+              <Select value={editForm.methodologyId} onValueChange={(v) => setEditForm({ ...editForm, methodologyId: v === "__none__" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="Padrão da família" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Padrão da família</SelectItem>
+                  {allMethodologies.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

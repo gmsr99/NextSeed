@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
-import { parseISO, differenceInCalendarWeeks } from "date-fns";
+import { parseISO, differenceInCalendarWeeks, format } from "date-fns";
+import { pt } from "date-fns/locale";
 import { motion } from "framer-motion";
-import { BarChart3, FileDown, BookOpen, FolderOpen, ImageIcon, Activity, TrendingUp, Award, Loader2 } from "lucide-react";
+import { BarChart3, FileDown, BookOpen, FolderOpen, ImageIcon, Activity, TrendingUp, Award, Loader2, Star } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 import { useLiteracyProgress } from '@/hooks/useLiteracyProgress';
 import { ALL_FINANCIAL_MODULES, ALL_DIGITAL_MODULES } from '@/lib/literacyContent';
+import { useChildMilestones, MILESTONE_CATEGORIES } from "@/hooks/useChildMilestones";
 
 const PERIODS = [
   { id: "week",    label: "Esta semana" },
@@ -130,6 +132,8 @@ export default function Reports() {
   const [selectedPeriod, setSelectedPeriod] = useState<string>("month");
   const [exporting, setExporting] = useState(false);
 
+  const { milestones: allMilestones } = useChildMilestones(selectedChildId === "all" ? undefined : selectedChildId);
+
   const isLoading = childrenLoading || activitiesLoading || projectsLoading;
   const range = useMemo(() => getRange(selectedPeriod), [selectedPeriod]);
 
@@ -178,6 +182,19 @@ export default function Reports() {
     [periodActivities]
   );
 
+  // Milestones in the selected period
+  const periodMilestones = useMemo(() =>
+    allMilestones
+      .filter(m => m.date >= range.start && m.date <= range.end)
+      .sort((a, b) => a.date.localeCompare(b.date)),
+    [allMilestones, range]
+  );
+
+  const childNameMap = useMemo(
+    () => new Map(children.map(c => [c.id, c.name.split(" ")[0]])),
+    [children]
+  );
+
   // PDF export — qualquer trimestre (auto ou específico)
   const canExportPDF = ["quarter", "q1", "q2", "q3"].includes(selectedPeriod) && selectedChildId !== "all";
 
@@ -194,6 +211,7 @@ export default function Reports() {
       const blob = await pdf(
         <TrimesterReportPDF
           activities={periodActivities}
+          milestones={periodMilestones}
           child={child}
           trimesterLabel={range.label}
           startDate={range.start}
@@ -447,9 +465,50 @@ export default function Reports() {
               </motion.div>
             </div>
 
+            {/* Milestones */}
+            {periodMilestones.length > 0 && (
+              <motion.div initial="hidden" animate="visible" custom={6} variants={fadeUp}>
+                <Card className="border-primary/10">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-heading flex items-center gap-2">
+                      <Star className="h-4 w-4 text-amber-500" /> Marcos do Período
+                      <Badge variant="secondary" className="ml-auto text-xs">{periodMilestones.length}</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {periodMilestones.map(m => {
+                        const cat = MILESTONE_CATEGORIES.find(c => c.key === m.category);
+                        const childName = selectedChildId === "all" ? childNameMap.get(m.child_id) : null;
+                        return (
+                          <div key={m.id} className="flex items-start gap-3 rounded-lg bg-amber-50/60 border border-amber-100 px-4 py-3">
+                            <span className="text-lg shrink-0 mt-0.5">{cat?.emoji ?? "⭐"}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-sm font-medium text-foreground">{m.title}</p>
+                                {childName && (
+                                  <span className="text-xs text-muted-foreground">{childName}</span>
+                                )}
+                              </div>
+                              {m.description && (
+                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{m.description}</p>
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
+                              {format(parseISO(m.date + "T00:00:00"), "d MMM", { locale: pt })}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
             {/* Literacia */}
             {children.length > 0 && (
-              <motion.div initial="hidden" animate="visible" custom={6} variants={fadeUp}>
+              <motion.div initial="hidden" animate="visible" custom={7} variants={fadeUp}>
                 <Card className="border-primary/10">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base font-heading flex items-center gap-2">

@@ -2,6 +2,8 @@ import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/render
 import { format, parseISO } from "date-fns";
 import { pt } from "date-fns/locale";
 import type { Activity, Child } from "@/lib/types";
+import type { Milestone } from "@/hooks/useChildMilestones";
+import { MILESTONE_CATEGORIES } from "@/hooks/useChildMilestones";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 
 const S = StyleSheet.create({
@@ -94,6 +96,25 @@ const S = StyleSheet.create({
   photo: { width: 54, height: 54, borderRadius: 3 },
   photoCount: { fontSize: 7, color: "#6B7280", marginTop: 4 },
 
+  // Milestones
+  milestonesSection: { marginTop: 24, paddingTop: 14, borderTopWidth: 1, borderColor: "#E5E7EB" },
+  milestonesSectionTitle: { fontSize: 10, fontWeight: "bold", color: "#92400E", marginBottom: 8 },
+  milestoneRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 6,
+    padding: "6 8",
+    borderRadius: 4,
+    backgroundColor: "#FFFBEB",
+    borderLeftWidth: 3,
+    borderLeftColor: "#F59E0B",
+  },
+  milestoneDate: { fontSize: 7.5, color: "#6B7280", width: 40, paddingRight: 6, lineHeight: 1.4 },
+  milestoneCategory: { fontSize: 8, color: "#92400E", width: 56, paddingRight: 6 },
+  milestoneBody: { flex: 1 },
+  milestoneTitle: { fontSize: 9, fontWeight: "bold", color: "#1F2937", marginBottom: 1 },
+  milestoneDesc: { fontSize: 7.5, color: "#6B7280", lineHeight: 1.5 },
+
   // Declaration
   declarationSection: { marginTop: 30, paddingTop: 14, borderTopWidth: 1, borderColor: "#E5E7EB" },
   declarationTitle: { fontSize: 10, fontWeight: "bold", color: "#2D4A2D", marginBottom: 8 },
@@ -122,6 +143,7 @@ interface Props {
   child: Child;
   familyName: string;
   activities: Activity[];
+  milestones?: Milestone[];
   trimesterLabel: string;
   startDate: string; // "yyyy-MM-dd"
   endDate: string;   // "yyyy-MM-dd"
@@ -138,6 +160,7 @@ export default function TrimesterReportPDF({
   child,
   familyName,
   activities,
+  milestones = [],
   trimesterLabel,
   startDate,
   endDate,
@@ -285,6 +308,29 @@ export default function TrimesterReportPDF({
           <Text style={{ fontSize: 10, color: "#9CA3AF", textAlign: "center", marginTop: 48 }}>
             Nenhuma atividade registada neste período.
           </Text>
+        )}
+
+        {/* Milestones */}
+        {milestones.length > 0 && (
+          <View style={S.milestonesSection} wrap={false}>
+            <Text style={S.milestonesSectionTitle}>Marcos do Trimestre</Text>
+            {milestones.map((m) => {
+              const cat = MILESTONE_CATEGORIES.find(c => c.key === m.category);
+              const d = parseISO(m.date + "T00:00:00");
+              return (
+                <View key={m.id} style={S.milestoneRow} wrap={false}>
+                  <Text style={S.milestoneDate}>{format(d, "d MMM", { locale: pt })}</Text>
+                  <Text style={S.milestoneCategory}>{cat?.emoji ?? "⭐"} {cat?.label ?? m.category}</Text>
+                  <View style={S.milestoneBody}>
+                    <Text style={S.milestoneTitle}>{m.title}</Text>
+                    {m.description ? (
+                      <Text style={S.milestoneDesc}>{m.description}</Text>
+                    ) : null}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
         )}
 
         {/* Declaration */}

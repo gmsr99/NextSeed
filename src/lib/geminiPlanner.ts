@@ -310,6 +310,7 @@ function buildPrompt(
   gcProgressByChild: Record<string, Record<string, string[]>>,
   gcAllByChild: Record<string, Record<string, string[]>>,
   weeklyContent: Record<string, Record<string, string>> = {},
+  childMethodologyStyle: Record<string, string> = {},
 ): string {
   const hasPrimary = children.some((c) => !c.school_year.toLowerCase().startsWith("pré"));
   const hasPreSchool = children.some((c) => c.school_year.toLowerCase().startsWith("pré"));
@@ -317,7 +318,8 @@ function buildPrompt(
 
   const childrenSection = children.map((c) => {
     const interests = (childInterests[c.id] || []).join(", ") || "livre";
-    return `- **${c.name}** (${c.school_year}) | Interesses: ${interests} | Estilo: ${c.learning_preferences ?? "misto"} | Ritmo: ${c.learning_pace ?? "moderado"}`;
+    const methodStyle = childMethodologyStyle[c.id] ? ` | Metodologia: ${childMethodologyStyle[c.id]}` : "";
+    return `- **${c.name}** (${c.school_year}) | Interesses: ${interests} | Estilo: ${c.learning_preferences ?? "misto"} | Ritmo: ${c.learning_pace ?? "moderado"}${methodStyle}`;
   }).join("\n");
 
   // Conteúdos GC activos (a aprender / em progresso) por criança — TRIANGULAÇÃO PRINCIPAL
@@ -429,6 +431,12 @@ ${skeletonSection}
     - Inglês: canção/rima, flashcards, jogo de mímica/charadas, produção oral curta, mini-diálogo, colorir com vocabulário
     - Expressão: desenho, pintura, colagem, escultura/modelagem, dança/teatro, fotografia, construção 3D
     Verifica a tua lista antes de devolver o JSON — se repetiste formato numa disciplina, substitui.
+13. **TEXTO INLINE — leitura+compreensão** (Português e Estudo do Meio): quando este é o formato escolhido, NUNCA escrevas "Lê um texto sobre X" nem deixes o educador à procura de um livro. Em vez disso:
+    - No `title`: "Leitura: [tema em 4 palavras max]"
+    - Na `description`: escreve um texto narrativo ou informativo curto (1 parágrafo, 4-6 frases simples, vocabulário adequado à idade da criança, em português de Portugal), seguido do separador " | " e de "Pergunta: [1 pergunta de compreensão concreta]".
+    - Exemplo para 1º ano: "A Marta foi à quinta com o avô e viu muitos animais. O cavalo comia feno e a cabra saltava nas pedras. No fim, o avô ordenhou a vaca e Marta provou leite fresquinho. | Pergunta: Que animal comia feno?"
+    - Exemplo para 3º ano: "Os polvos são animais marinhos com oito tentáculos e um cérebro surpreendente. Conseguem mudar de cor em menos de um segundo para se camuflar dos predadores. Alguns polvos usam conchas como casas portáteis. | Pergunta: Para que serve a mudança de cor no polvo?"
+    - Neste caso a `description` pode ter mais de 2 frases — ignora a regra 10 apenas para este formato.
 
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
@@ -465,13 +473,14 @@ export async function generateWithGemini(
   gcProgressByChild: Record<string, Record<string, string[]>> = {},
   gcAllByChild: Record<string, Record<string, string[]>> = {},
   weeklyContent: Record<string, Record<string, string>> = {},
+  childMethodologyStyle: Record<string, string> = {},
 ): Promise<GeneratedPlanItem[]> {
   const apiKey1 = import.meta.env.VITE_GEMINI_API_KEY as string;
   const apiKey2 = import.meta.env.VITE_GEMINI_API_KEY_2 as string;
   if (!apiKey1) throw new Error("VITE_GEMINI_API_KEY não definida");
 
   const skeleton = buildSkeleton(children);
-  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent);
+  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, childMethodologyStyle);
 
   let res = await callGemini(apiKey1, prompt);
 

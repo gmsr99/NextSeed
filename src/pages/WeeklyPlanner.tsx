@@ -261,8 +261,26 @@ export default function WeeklyPlanner() {
         }
       }
 
+      // Load per-child methodology styles
+      const childMethodologyIds = children
+        .map((c) => c.methodology_id)
+        .filter((id): id is string => !!id);
+      const childMethodologyStyle: Record<string, string> = {};
+      if (childMethodologyIds.length > 0) {
+        const { data: methodRows } = await supabase
+          .from("methodologies")
+          .select("id, ai_generation_style")
+          .in("id", childMethodologyIds);
+        const styleMap = new Map((methodRows ?? []).map((m) => [m.id, m.ai_generation_style]));
+        for (const child of children) {
+          if (child.methodology_id && styleMap.has(child.methodology_id)) {
+            childMethodologyStyle[child.id] = styleMap.get(child.methodology_id)!;
+          }
+        }
+      }
+
       setGeneratingStep("A gerar atividades com IA...");
-      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent);
+      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, childMethodologyStyle);
 
       setGeneratingStep("A montar o horário...");
       setPlanItems(items);

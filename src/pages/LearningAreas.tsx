@@ -81,8 +81,8 @@ function DomainSection({
         <div className="flex items-center gap-2 min-w-0">
           {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
           <span className="text-sm font-medium truncate">{group.domain}</span>
-          {group.period !== "all" && (
-            <Badge variant="outline" className="text-xs shrink-0">{PERIOD_LABELS[group.period] ?? group.period}</Badge>
+          {group.period === "all" && (
+            <Badge variant="outline" className="text-xs shrink-0">{PERIOD_LABELS["all"]}</Badge>
           )}
         </div>
         <span className="text-xs text-muted-foreground shrink-0 ml-3">{mastered}/{total} dominados</span>
