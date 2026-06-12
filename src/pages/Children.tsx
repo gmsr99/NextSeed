@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format, differenceInYears, parseISO } from "date-fns";
+import { format, differenceInYears, parseISO, isValid } from "date-fns";
 import { SCHOOL_YEARS, suggestPreSchoolYear } from "@/lib/planGenerator";
 import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2, GraduationCap, BarChart2 } from "lucide-react";
 import CurriculumCoverageReport from "@/components/CurriculumCoverageReport";
@@ -122,7 +122,11 @@ export default function Children() {
     setEditingChild(null);
   };
 
-  const getAge = (birthDate: string) => differenceInYears(new Date(), parseISO(birthDate));
+  const getAge = (birthDate: string | null | undefined) => {
+    if (!birthDate) return null;
+    const d = parseISO(birthDate);
+    return isValid(d) ? differenceInYears(new Date(), d) : null;
+  };
   const getInitials = (name: string | null | undefined) =>
     name ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "?";
 
@@ -265,7 +269,7 @@ export default function Children() {
                         </div>
                         <div className="min-w-0">
                           <h3 className="font-heading font-bold text-foreground truncate">{child.name}</h3>
-                          <p className="text-sm text-muted-foreground">{getAge(child.birth_date)} anos · {child.school_year}</p>
+                          <p className="text-sm text-muted-foreground">{getAge(child.birth_date) ?? "?"} anos · {child.school_year}</p>
                         </div>
                       </div>
                       {(child.interests ?? []).length > 0 && (
