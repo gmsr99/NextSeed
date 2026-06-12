@@ -2,6 +2,16 @@
 **Objetivo:** reduzir o modelo mental da app a 4 verbos (Planear · Fazer · Registar · Provar), remover conteúdo mock, integrar o Motor Criativo no fluxo principal, e endurecer a robustez (parsing IA, erros, mobile).
 **Depende de:** FASE 1 (motor server-side). Pode intercalar com a FASE 2.
 
+---
+## ESTADO DA EXECUÇÃO (atualizado 2026-06-12) — branch `new-ui`
+
+- ✅ **3.1** — Sidebar em 4 grupos (Planear / Aprender / Registar & Provar / Sistema). Crianças, Metodologias e Extracurriculares movidos para Sistema. Rotas mock `/forum`, `/community`, `/parent-training` removidas (+ imports); páginas ficam no repo mas inalcançáveis (caem no NotFound).
+- 🟡 **3.2** — Parcial: "Motor Criativo" renomeado para **"Ideias Rápidas"** (sidebar + página). **Por fazer:** regeneração inline de uma atividade no `PlanPreview` (3.2.1).
+- ✅ **3.3** — Edge function `generate-weekly-plan` (v18) aceita `responseSchema` + `temperature`; `geminiPlanner` passa o schema do array (structured output) e tenta até 2x. Erros acionáveis.
+- ⏳ **3.4** — Dashboard "Hoje": **por fazer** (o `Index.tsx` já tem um bom bloco "Hoje"; falta checkboxes de conclusão + CTA contextual de sexta/domingo).
+- ⏳ **3.5** — Mobile + PWA: **por fazer** (auditoria responsiva; manifest + service worker via vite-plugin-pwa).
+- ✅ **3.6** — README reescrito (era boilerplate Lovable); `*.timestamp-*.mjs` ignorado e artefacto removido. **Por fazer (menor):** decidir destino das pastas soltas da raiz; resolver o estado do branch.
+
 > **Agente executor — contexto mínimo:** por passo, ler apenas os ficheiros indicados. Não redesenhar visualmente páginas que funcionam — esta fase é de **reorganização e robustez**, não de redesign estético.
 
 ---
