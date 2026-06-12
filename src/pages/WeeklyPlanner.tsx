@@ -279,7 +279,7 @@ export default function WeeklyPlanner() {
         }
       }
 
-      setGeneratingStep("A gerar atividades com IA...");
+      setGeneratingStep("A gerar atividades com IA... (pode demorar até um minuto)");
       const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, childMethodologyStyle);
 
       setGeneratingStep("A montar o horário...");

@@ -74,7 +74,10 @@ Deno.serve(async (req) => {
   const generationConfig: Record<string, any> = {
     responseMimeType: "application/json",
     temperature: typeof temperature === "number" ? temperature : 0.85,
-    maxOutputTokens: 65536,
+    maxOutputTokens: 32768,
+    // O "thinking" do 2.5 Flash está ON por defeito e adicionava ~50-60s de
+    // latência (geração demorava ~75s → timeouts/UX partida). Desligado.
+    thinkingConfig: { thinkingBudget: 0 },
   };
   if (responseSchema && typeof responseSchema === "object") {
     generationConfig.responseSchema = responseSchema;
