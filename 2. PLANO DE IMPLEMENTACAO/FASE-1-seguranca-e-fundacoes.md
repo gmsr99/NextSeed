@@ -2,6 +2,26 @@
 **Objetivo:** eliminar os bloqueadores de mercado: segredos fora do cliente, motor de IA único no servidor, storage privado, advisors de segurança limpos, currículo com fonte única de verdade.
 **Critério de conclusão da fase:** `grep -r "VITE_GEMINI" src/` devolve vazio; `get_advisors(security)` sem WARN relevantes; bucket de fotos privado; app a gerar planos via edge function com sessão autenticada.
 
+---
+## ESTADO DA EXECUÇÃO (atualizado 2026-06-12)
+
+Trabalho feito no branch `new-ui` (commits `a628b4c`, `fd69a8e`). **NÃO fazer merge para `main` até concluir o handoff humano abaixo** — senão o planeador parte em produção.
+
+- ✅ **1.2** — Motor movido para a edge function `generate-weekly-plan` (proxy autenticado, `verify_jwt=true`, v15). `geminiPlanner.ts` e `CreativeEngine.tsx` invocam o proxy. `grep VITE_GEMINI src/` = vazio.
+- ✅ **1.1 (código)** — `VITE_GEMINI_*` removido de `.env.local`. **Falta ação humana** (ver handoff).
+- ✅ **1.3** — `invite-family-member` com `verify_jwt=true` + rate limit 10/dia (v12). (Já tinha verificação de owner/family via `my_family_id`.)
+- ✅ **1.5** — Advisors: `search_path` fixo + `EXECUTE` revogado de anon/PUBLIC nas 4 funções (migração 014). Os 3 WARN "authenticated SECURITY DEFINER" remanescentes são **esperados/by-design** (funções que têm de ser chamáveis por utilizadores autenticados, com authz interna).
+- ✅ **1.4 (parcial)** — Fechada a vulnerabilidade de **listagem** do bucket de fotos + policies de escrita corrigidas para `my_family_id()` (migração 015). Advisor `public_bucket_allows_listing` limpo. **Adiado:** bucket totalmente privado + signed URLs (refactor do cliente através dos PDFs; risco atual baixo — 0 fotos, paths UUID não enumeráveis).
+- ✅ **1.6 (parcial)** — Bloco morto `_UNUSED` (~150 ln) removido de `geminiPlanner.ts`. **Adiado:** apagar JSONs de currículo duplicados (`CreativeEngine.tsx` ainda depende de `curriculumLoader.ts` → migrar primeiro para hooks da BD).
+- ⏳ **1.7** — Por fazer. **Atenção:** a sugestão de `UNIQUE(family_id, week_start)` em `weekly_plans` está ERRADA — a tabela tem `version` (versionamento de planos, migração 003). Usar `UNIQUE(family_id, week_start, version)` ou nenhum. Verificar dados antes.
+
+### HANDOFF HUMANO (bloqueia o merge para `main`)
+1. **Rodar as chaves Gemini** no Google AI Studio (as antigas estiveram no bundle público → comprometidas) e revogar as antigas.
+2. **Definir o secret** no Supabase: `supabase secrets set GEMINI_API_KEY=<nova>` (e opcional `GEMINI_API_KEY_2`). Sem isto, o proxy devolve 500 e o planeador não gera.
+3. **Remover** `VITE_GEMINI_API_KEY*` das env vars da Vercel.
+4. **Ativar** leaked-password protection no dashboard Supabase (Auth → Passwords) — limpa o último advisor.
+5. Depois de 1–2: **merge `new-ui` → `main`** para deploy.
+
 > **Agente executor — contexto mínimo:** lê apenas os ficheiros indicados em cada passo. O schema da BD obtém-se via MCP Supabase (`list_tables`), não pelos ficheiros de `supabase/migrations/`. Secrets de edge functions gerem-se no dashboard/CLI Supabase (`supabase secrets set`), nunca em código.
 
 ---
