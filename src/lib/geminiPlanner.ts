@@ -295,6 +295,20 @@ Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma
 // A chave Gemini vive apenas como secret do servidor. O prompt é construído aqui
 // e enviado à edge function `generate-weekly-plan`, que faz o relay para o Gemini.
 
+// Structured output: garante que a resposta é um array de atividades bem formado.
+const PLAN_RESPONSE_SCHEMA = {
+  type: "ARRAY",
+  items: {
+    type: "OBJECT",
+    properties: {
+      title: { type: "STRING" },
+      description: { type: "STRING" },
+      materials: { type: "ARRAY", items: { type: "STRING" } },
+    },
+    required: ["title", "description", "materials"],
+  },
+};
+
 export async function generateWithGemini(
   children: Child[],
   childInterests: Record<string, string[]>,
@@ -309,24 +323,30 @@ export async function generateWithGemini(
   const skeleton = buildSkeleton(children);
   const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, childMethodologyStyle);
 
-  const { data, error } = await supabase.functions.invoke("generate-weekly-plan", {
-    body: { prompt },
-  });
+  // Até 2 tentativas: cobre falhas transitórias (429/502) e parsing.
+  let aiContent: { title: string; description: string; materials: string[] }[] | null = null;
+  let lastError = "erro desconhecido";
 
-  if (error) {
-    throw new Error(`Falha ao gerar o plano: ${error.message}`);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { data, error } = await supabase.functions.invoke("generate-weekly-plan", {
+      body: { prompt, responseSchema: PLAN_RESPONSE_SCHEMA },
+    });
+
+    if (error) { lastError = error.message; continue; }
+    if (data?.error) { lastError = `${data.error}${data.detail ? ` — ${data.detail}` : ""}`; continue; }
+
+    const raw: string = data?.text ?? "[]";
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) { aiContent = parsed; break; }
+      lastError = "a resposta não é um array";
+    } catch {
+      lastError = `JSON inválido: ${raw.slice(0, 120)}`;
+    }
   }
-  if (data?.error) {
-    throw new Error(`Gemini: ${data.error}${data.detail ? ` — ${data.detail}` : ""}`);
-  }
 
-  const raw: string = data?.text ?? "[]";
-
-  let aiContent: { title: string; description: string; materials: string[] }[];
-  try {
-    aiContent = JSON.parse(raw);
-  } catch {
-    throw new Error(`JSON inválido do Gemini: ${raw.slice(0, 200)}`);
+  if (!aiContent) {
+    throw new Error(`Falha ao gerar o plano: ${lastError}`);
   }
 
   return skeleton.map((s, idx) => ({
