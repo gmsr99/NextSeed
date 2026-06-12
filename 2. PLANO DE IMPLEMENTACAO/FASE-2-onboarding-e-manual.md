@@ -2,6 +2,15 @@
 **Objetivo:** um pai que se regista hoje chega ao primeiro plano semanal gerado em menos de 10 minutos, sem ajuda externa; e tem um "Manual de Instruções" permanente em `/ajuda`.
 **Depende de:** FASE 1 Passo 1.2 (geração server-side) — o onboarding culmina na geração do primeiro plano.
 
+---
+## ESTADO DA EXECUÇÃO (atualizado 2026-06-12) — branch `new-ui`
+
+- ✅ **2.1** — Migração 016 (`families.onboarding_completed_at`, `onboarding_step`) + backfill das famílias existentes. Tipo `families` atualizado; `updateOnboarding()` no `AuthContext`.
+- ✅ **2.2** — Wizard `/onboarding` (5 passos: boas-vindas com modelo 4-verbos → família → crianças → metodologia → gerar 1º plano). Progresso persistido em `onboarding_step` (retoma após refresh). `ProtectedRoute` redireciona famílias sem onboarding (exceto `/onboarding` e `/ajuda`). **Simplificação deliberada:** o passo final leva ao `/weekly-planner` (em vez de gerar o plano inline) — mais robusto e não bloqueia no secret do Gemini. Geração inline pode ser refinamento futuro.
+- ✅ **2.3** — Manual completo em `/ajuda` (+ `/ajuda/:slug`): 10 secções PT-PT (`src/content/manual`), pesquisa, deep-links, entrada na sidebar, botão `?` contextual no header global (`HelpLink` + `AppLayout`). Secção `relatorios` marcada `draft: true` (validação legal pelos fundadores).
+- ⏳ **2.4** — Empty states orientados a ação: **por fazer** (o dashboard já tem um bom estado vazio; falta varrer Activities/Portfolio/Reports/Projects/WorldMissions/Calendar).
+- ⏳ **2.5** — Email de boas-vindas (`send-welcome-email`): **por fazer** (requer Resend configurado).
+
 > **Agente executor — contexto mínimo:** ler `src/App.tsx`, `src/contexts/AuthContext.tsx`, `src/components/AppSidebar.tsx` e, por passo, apenas os ficheiros indicados. Reutilizar componentes shadcn existentes (`Dialog`, `Card`, `Progress`, `Accordion`) — não criar primitivos novos. Estilo visual: seguir `src/index.css` e padrões das páginas existentes.
 
 ---
