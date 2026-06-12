@@ -17,15 +17,12 @@ const Activities        = React.lazy(() => import("./pages/Activities"));
 const Projects          = React.lazy(() => import("./pages/Projects"));
 const Portfolio         = React.lazy(() => import("./pages/Portfolio"));
 const Reports           = React.lazy(() => import("./pages/Reports"));
-const Community         = React.lazy(() => import("./pages/Community"));
 const CalendarPage      = React.lazy(() => import("./pages/CalendarPage"));
 const SettingsPage      = React.lazy(() => import("./pages/SettingsPage"));
 const CreativeEngine    = React.lazy(() => import("./pages/CreativeEngine"));
 const FinancialLiteracy = React.lazy(() => import("./pages/FinancialLiteracy"));
 const DigitalLiteracy   = React.lazy(() => import("./pages/DigitalLiteracy"));
-const Forum             = React.lazy(() => import("./pages/Forum"));
 const LearningAreas     = React.lazy(() => import("./pages/LearningAreas"));
-const ParentTraining    = React.lazy(() => import("./pages/ParentTraining"));
 const WorldMissions     = React.lazy(() => import("./pages/WorldMissions"));
 const Extracurricular   = React.lazy(() => import("./pages/Extracurricular"));
 const AcceptInvite      = React.lazy(() => import("./pages/AcceptInvite"));
@@ -169,17 +166,14 @@ function AppRoutes() {
         <Route path="/digital-literacy"   element={<ProtectedRoute><DigitalLiteracy /></ProtectedRoute>} />
         <Route path="/portfolio"      element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
         <Route path="/reports"        element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-        <Route path="/community"      element={<ProtectedRoute><Community /></ProtectedRoute>} />
         <Route path="/calendar"       element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         <Route path="/settings"       element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="/metodologias"   element={<ProtectedRoute><Metodologias /></ProtectedRoute>} />
-        <Route path="/forum"          element={<ProtectedRoute><Forum /></ProtectedRoute>} />
         <Route path="/learning-areas" element={<ProtectedRoute><LearningAreas /></ProtectedRoute>} />
         <Route path="/roteiro-anual"  element={<ProtectedRoute><RoteiroAnual /></ProtectedRoute>} />
         <Route path="/ajuda"          element={<ProtectedRoute><Manual /></ProtectedRoute>} />
         <Route path="/ajuda/:slug"    element={<ProtectedRoute><Manual /></ProtectedRoute>} />
         <Route path="/onboarding"     element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-        <Route path="/parent-training"element={<ProtectedRoute><ParentTraining /></ProtectedRoute>} />
         <Route path="/world-missions" element={<ProtectedRoute><WorldMissions /></ProtectedRoute>} />
         <Route path="/extracurricular"element={<ProtectedRoute><Extracurricular /></ProtectedRoute>} />
         <Route path="*"               element={<NotFound />} />

@@ -11,9 +11,6 @@ import {
   Coins,
   Monitor,
   FileImage,
-  MessagesSquare,
-  MessageCircle,
-  HeartHandshake,
   Globe,
   CalendarCheck,
   LogOut,
@@ -52,44 +49,37 @@ const planearItems: NavItem[] = [
   { title: "Planeador Semanal", url: "/weekly-planner", icon: CalendarCheck },
   { title: "Roteiro Anual",     url: "/roteiro-anual",  icon: Map },
   { title: "Agenda",            url: "/calendar",        icon: CalendarDays },
-  { title: "Crianças",          url: "/children",        icon: Users },
-  { title: "Metodologias",      url: "/metodologias",    icon: BookHeart },
 ];
 
 const aprenderItems: NavItem[] = [
-  { title: "Áreas de Aprendizagem", url: "/learning-areas",  icon: BookOpen },
-  { title: "Motor Criativo",        url: "/creative-engine", icon: Sparkles },
-  { title: "Projetos",              url: "/projects",         icon: FolderKanban },
-  { title: "Diário",                url: "/activities",       icon: FlaskConical },
-  { title: "Portfólio",             url: "/portfolio",        icon: FileImage },
-  { title: "Relatórios",            url: "/reports",          icon: BarChart3 },
+  { title: "Áreas de Aprendizagem", url: "/learning-areas",     icon: BookOpen },
+  { title: "Projetos",              url: "/projects",            icon: FolderKanban },
+  { title: "Ideias Rápidas",        url: "/creative-engine",     icon: Sparkles },
+  { title: "Missões do Mundo",      url: "/world-missions",      icon: Globe },
+  { title: "Literacia Financeira",  url: "/financial-literacy",  icon: Coins },
+  { title: "Literacia Digital",     url: "/digital-literacy",    icon: Monitor },
 ];
 
-const explorarItems: NavItem[] = [
-  { title: "Missões do Mundo",     url: "/world-missions",     icon: Globe },
-  { title: "Extracurriculares",    url: "/extracurricular",    icon: Trophy },
-  { title: "Literacia Financeira", url: "/financial-literacy", icon: Coins },
-  { title: "Literacia Digital",    url: "/digital-literacy",   icon: Monitor },
-];
-
-const comunidadeItems: NavItem[] = [
-  { title: "Formação para Pais", url: "/parent-training", icon: HeartHandshake, disabled: true },
-  { title: "Comunidade",         url: "/community",        icon: MessagesSquare, disabled: true },
-  { title: "Fórum",              url: "/forum",            icon: MessageCircle,  disabled: true },
+const registarItems: NavItem[] = [
+  { title: "Diário",     url: "/activities", icon: FlaskConical },
+  { title: "Portfólio",  url: "/portfolio",  icon: FileImage },
+  { title: "Relatórios", url: "/reports",    icon: BarChart3 },
 ];
 
 const sistemaItems: NavItem[] = [
-  { title: "Ajuda / Manual", url: "/ajuda",     icon: LifeBuoy },
-  { title: "Definições",     url: "/settings",  icon: Settings },
+  { title: "Crianças",          url: "/children",        icon: Users },
+  { title: "Metodologias",      url: "/metodologias",    icon: BookHeart },
+  { title: "Extracurriculares", url: "/extracurricular", icon: Trophy },
+  { title: "Ajuda / Manual",    url: "/ajuda",           icon: LifeBuoy },
+  { title: "Definições",        url: "/settings",        icon: Settings },
 ];
 
 // ─── Grupos com label ─────────────────────────────────────────────────────────
 const navGroups = [
-  { label: "Planear",     items: planearItems },
-  { label: "Aprender",    items: aprenderItems },
-  { label: "Explorar",    items: explorarItems },
-  { label: "Comunidade",  items: comunidadeItems },
-  { label: "Sistema",     items: sistemaItems },
+  { label: "Planear",           items: planearItems },
+  { label: "Aprender",          items: aprenderItems },
+  { label: "Registar & Provar", items: registarItems },
+  { label: "Sistema",           items: sistemaItems },
 ];
 
 // ─── Item renderer ────────────────────────────────────────────────────────────

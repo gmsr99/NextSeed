@@ -256,7 +256,7 @@ export default function CreativeEngine() {
             <div className="h-10 w-10 rounded-xl gradient-warmth flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-3xl font-heading font-bold">Motor Criativo</h1>
+            <h1 className="text-3xl font-heading font-bold">Ideias Rápidas</h1>
           </div>
           <p className="text-muted-foreground mt-1 ml-[52px]">
             A IA transforma objetivos curriculares em projetos personalizados para cada criança.
