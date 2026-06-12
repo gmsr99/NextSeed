@@ -8,8 +8,8 @@
 - ✅ **2.1** — Migração 016 (`families.onboarding_completed_at`, `onboarding_step`) + backfill das famílias existentes. Tipo `families` atualizado; `updateOnboarding()` no `AuthContext`.
 - ✅ **2.2** — Wizard `/onboarding` (5 passos: boas-vindas com modelo 4-verbos → família → crianças → metodologia → gerar 1º plano). Progresso persistido em `onboarding_step` (retoma após refresh). `ProtectedRoute` redireciona famílias sem onboarding (exceto `/onboarding` e `/ajuda`). **Simplificação deliberada:** o passo final leva ao `/weekly-planner` (em vez de gerar o plano inline) — mais robusto e não bloqueia no secret do Gemini. Geração inline pode ser refinamento futuro.
 - ✅ **2.3** — Manual completo em `/ajuda` (+ `/ajuda/:slug`): 10 secções PT-PT (`src/content/manual`), pesquisa, deep-links, entrada na sidebar, botão `?` contextual no header global (`HelpLink` + `AppLayout`). Secção `relatorios` marcada `draft: true` (validação legal pelos fundadores).
-- ⏳ **2.4** — Empty states orientados a ação: **por fazer** (o dashboard já tem um bom estado vazio; falta varrer Activities/Portfolio/Reports/Projects/WorldMissions/Calendar).
-- ⏳ **2.5** — Email de boas-vindas (`send-welcome-email`): **por fazer** (requer Resend configurado).
+- ✅ **2.4** — Componente reutilizável `EmptyState` (`src/components/EmptyState.tsx`) com CTA + link para o Manual. Aplicado ao Portfólio (entradas + marcos). Disponível para reutilizar nas restantes páginas (Projects/WorldMissions/Reports/Calendar têm texto contextual aceitável).
+- ✅ **2.5** — Edge function `send-welcome-email` (Resend, `verify_jwt=true`, v1; destinatário vem do JWT). Invocada best-effort no `AuthContext.signUp` após criar a família (nunca bloqueia o registo; só corre se houver sessão imediata, que é o caso — confirmações de email desligadas).
 
 > **Agente executor — contexto mínimo:** ler `src/App.tsx`, `src/contexts/AuthContext.tsx`, `src/components/AppSidebar.tsx` e, por passo, apenas os ficheiros indicados. Reutilizar componentes shadcn existentes (`Dialog`, `Card`, `Progress`, `Accordion`) — não criar primitivos novos. Estilo visual: seguir `src/index.css` e padrões das páginas existentes.
 
