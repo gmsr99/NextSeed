@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "geral@nexseed.pt";
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://nexseed.vercel.app";
+const MAX_INVITES_PER_DAY = 10;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -44,6 +45,21 @@ serve(async (req) => {
     const { data: familyId } = await supabaseUser.rpc("my_family_id");
     if (!familyId) {
       return new Response(JSON.stringify({ error: "Família não encontrada" }), { status: 404, headers: corsHeaders });
+    }
+
+    // Rate limit: máximo de convites por família por dia (anti-abuso do envio de emails)
+    const since = new Date();
+    since.setHours(0, 0, 0, 0);
+    const { count: invitesToday } = await supabaseAdmin
+      .from("family_invites")
+      .select("id", { count: "exact", head: true })
+      .eq("family_id", familyId)
+      .gte("created_at", since.toISOString());
+    if ((invitesToday ?? 0) >= MAX_INVITES_PER_DAY) {
+      return new Response(
+        JSON.stringify({ error: `Limite diário de convites atingido (${MAX_INVITES_PER_DAY}). Tenta novamente amanhã.` }),
+        { status: 429, headers: corsHeaders }
+      );
     }
 
     const { data: familyData } = await supabaseUser

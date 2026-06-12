@@ -15,6 +15,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useMethodologies } from "@/hooks/useMethodologies";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 import { getCurriculumObjectives } from "@/lib/curriculumLoader";
+import { supabase } from "@/lib/supabase";
 import type { FamilyMethodology } from "@/lib/types";
 import { PRIORITY_LABELS } from "@/components/methodology/constants";
 
@@ -100,8 +101,6 @@ async function generateWithGemini(
   objective: string,
   activeMethodologies: FamilyMethodology[],
 ): Promise<Suggestion[]> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string;
-
   const interestStr = interests.join(", ") || "variados";
   const methodologyContext = buildMethodologyContext(activeMethodologies);
 
@@ -124,25 +123,14 @@ Formato exato:
 ]
 Cada projeto deve ter entre 3 e 5 fases. O campo "type" é sempre "Projeto".`;
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: 2048 },
-      }),
-    }
-  );
+  const { data, error } = await supabase.functions.invoke("generate-weekly-plan", {
+    body: { prompt },
+  });
 
-  if (!res.ok) throw new Error(`Gemini error ${res.status}`);
-  const data = await res.json();
+  if (error) throw new Error(`Falha ao gerar sugestões: ${error.message}`);
+  if (data?.error) throw new Error(`Gemini: ${data.error}`);
 
-  const parts: { text: string; thought?: boolean }[] =
-    data.candidates?.[0]?.content?.parts ?? [];
-  const responsePart = parts.filter((p) => !p.thought).pop();
-  const raw = responsePart?.text ?? "";
+  const raw: string = data?.text ?? "";
 
   const cleaned = raw
     .replace(/```(?:json)?/gi, "")
