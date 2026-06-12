@@ -20,6 +20,7 @@ import {
   Trophy,
   BookHeart,
   Map,
+  LifeBuoy,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -78,7 +79,8 @@ const comunidadeItems: NavItem[] = [
 ];
 
 const sistemaItems: NavItem[] = [
-  { title: "Definições", url: "/settings", icon: Settings },
+  { title: "Ajuda / Manual", url: "/ajuda",     icon: LifeBuoy },
+  { title: "Definições",     url: "/settings",  icon: Settings },
 ];
 
 // ─── Grupos com label ─────────────────────────────────────────────────────────
@@ -133,7 +135,10 @@ export function AppSidebar() {
   const location = useLocation();
   const { family, signOut } = useAuth();
 
-  const isActive = (url: string) => location.pathname === url;
+  const isActive = (url: string) =>
+    url === "/"
+      ? location.pathname === "/"
+      : location.pathname === url || location.pathname.startsWith(url + "/");
 
   return (
     <Sidebar
