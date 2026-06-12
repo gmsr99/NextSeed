@@ -432,11 +432,11 @@ ${skeletonSection}
     - Expressão: desenho, pintura, colagem, escultura/modelagem, dança/teatro, fotografia, construção 3D
     Verifica a tua lista antes de devolver o JSON — se repetiste formato numa disciplina, substitui.
 13. **TEXTO INLINE — leitura+compreensão** (Português e Estudo do Meio): quando este é o formato escolhido, NUNCA escrevas "Lê um texto sobre X" nem deixes o educador à procura de um livro. Em vez disso:
-    - No `title`: "Leitura: [tema em 4 palavras max]"
-    - Na `description`: escreve um texto narrativo ou informativo curto (1 parágrafo, 4-6 frases simples, vocabulário adequado à idade da criança, em português de Portugal), seguido do separador " | " e de "Pergunta: [1 pergunta de compreensão concreta]".
+    - No \`title\`: "Leitura: [tema em 4 palavras max]"
+    - Na \`description\`: escreve um texto narrativo ou informativo curto (1 parágrafo, 4-6 frases simples, vocabulário adequado à idade da criança, em português de Portugal), seguido do separador " | " e de "Pergunta: [1 pergunta de compreensão concreta]".
     - Exemplo para 1º ano: "A Marta foi à quinta com o avô e viu muitos animais. O cavalo comia feno e a cabra saltava nas pedras. No fim, o avô ordenhou a vaca e Marta provou leite fresquinho. | Pergunta: Que animal comia feno?"
     - Exemplo para 3º ano: "Os polvos são animais marinhos com oito tentáculos e um cérebro surpreendente. Conseguem mudar de cor em menos de um segundo para se camuflar dos predadores. Alguns polvos usam conchas como casas portáteis. | Pergunta: Para que serve a mudança de cor no polvo?"
-    - Neste caso a `description` pode ter mais de 2 frases — ignora a regra 10 apenas para este formato.
+    - Neste caso a \`description\` pode ter mais de 2 frases — ignora a regra 10 apenas para este formato.
 
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
