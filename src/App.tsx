@@ -2,7 +2,7 @@ import React, { Suspense, Component } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ const AcceptInvite      = React.lazy(() => import("./pages/AcceptInvite"));
 const Metodologias      = React.lazy(() => import("./pages/Metodologias"));
 const RoteiroAnual      = React.lazy(() => import("./pages/RoteiroAnual"));
 const Manual            = React.lazy(() => import("./pages/Manual"));
+const Onboarding        = React.lazy(() => import("./pages/Onboarding"));
 const PrivacyPolicy     = React.lazy(() => import("./pages/PrivacyPolicy"));
 const TermsAndConditions = React.lazy(() => import("./pages/TermsAndConditions"));
 const NotFound          = React.lazy(() => import("./pages/NotFound"));
@@ -119,11 +120,19 @@ function NoFamilyScreen() {
 
 // ─── Rota protegida ───────────────────────────────────────────────────────────
 
+// Rotas acessíveis mesmo com o onboarding por concluir (o próprio wizard e o manual).
+const onboardingExempt = (path: string) =>
+  path === "/onboarding" || path === "/ajuda" || path.startsWith("/ajuda/");
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { session, family, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <AppLoader />;
   if (!session) return <Navigate to="/login" replace />;
   if (!family) return <NoFamilyScreen />;
+  if (!family.onboarding_completed_at && !onboardingExempt(location.pathname)) {
+    return <Navigate to="/onboarding" replace />;
+  }
   return <>{children}</>;
 }
 
@@ -169,6 +178,7 @@ function AppRoutes() {
         <Route path="/roteiro-anual"  element={<ProtectedRoute><RoteiroAnual /></ProtectedRoute>} />
         <Route path="/ajuda"          element={<ProtectedRoute><Manual /></ProtectedRoute>} />
         <Route path="/ajuda/:slug"    element={<ProtectedRoute><Manual /></ProtectedRoute>} />
+        <Route path="/onboarding"     element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
         <Route path="/parent-training"element={<ProtectedRoute><ParentTraining /></ProtectedRoute>} />
         <Route path="/world-missions" element={<ProtectedRoute><WorldMissions /></ProtectedRoute>} />
         <Route path="/extracurricular"element={<ProtectedRoute><Extracurricular /></ProtectedRoute>} />

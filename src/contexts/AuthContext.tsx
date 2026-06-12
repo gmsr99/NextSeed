@@ -12,6 +12,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, familyName: string, consentedAt: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   updateFamilyName: (name: string) => Promise<{ error: string | null }>;
+  updateOnboarding: (patch: { onboarding_step?: number; onboarding_completed_at?: string | null }) => Promise<{ error: string | null }>;
   deleteAccount: () => Promise<{ error: string | null }>;
   reloadFamily: () => Promise<void>;
 }
@@ -106,6 +107,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: null };
   };
 
+  const updateOnboarding = async (patch: { onboarding_step?: number; onboarding_completed_at?: string | null }) => {
+    if (!family) return { error: "Sem família ativa" };
+    const { data, error } = await supabase
+      .from("families")
+      .update(patch)
+      .eq("id", family.id)
+      .select()
+      .single();
+    if (error) return { error: error.message };
+    setFamily(data as Family);
+    return { error: null };
+  };
+
   const reloadFamily = async () => {
     const { data: { user: u } } = await supabase.auth.getUser();
     if (u) await loadFamily(u.id);
@@ -120,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, family, loading, signIn, signUp, signOut, updateFamilyName, deleteAccount, reloadFamily }}>
+    <AuthContext.Provider value={{ session, user, family, loading, signIn, signUp, signOut, updateFamilyName, updateOnboarding, deleteAccount, reloadFamily }}>
       {children}
     </AuthContext.Provider>
   );
