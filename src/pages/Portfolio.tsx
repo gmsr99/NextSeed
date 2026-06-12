@@ -10,6 +10,7 @@ import {
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
+import EmptyState from "@/components/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -708,15 +709,18 @@ export default function Portfolio() {
 
             {/* Empty state */}
             {filtered.length === 0 && !isLoading && (
-              <div className="text-center py-16">
-                <Trophy className="h-12 w-12 mx-auto text-primary/20 mb-3" />
-                <p className="font-heading font-semibold text-foreground">Portfólio vazio</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {entries.length > 0
-                    ? "Nenhuma entrada com este filtro."
-                    : "Regista atividades e projetos para construir o portfólio."}
-                </p>
-              </div>
+              entries.length > 0 ? (
+                <EmptyState icon={Trophy} title="Portfólio vazio" description="Nenhuma entrada com este filtro." />
+              ) : (
+                <EmptyState
+                  icon={Trophy}
+                  title="Portfólio vazio"
+                  description="O portfólio constrói-se a partir do que registam no Diário. Comecem por registar a primeira atividade."
+                  actionLabel="Registar atividade"
+                  actionTo="/activities"
+                  helpSlug="diario-portfolio"
+                />
+              )
             )}
           </div>
         )}
@@ -752,13 +756,22 @@ export default function Portfolio() {
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : milestones.length === 0 ? (
-              <div className="text-center py-16">
-                <Star className="h-12 w-12 mx-auto text-primary/20 mb-3" />
-                <p className="font-heading font-semibold text-foreground">Nenhum marco registado</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Regista as primeiras palavras, primeiros passos, e outros momentos especiais.
-                </p>
-              </div>
+              <EmptyState
+                icon={Star}
+                title="Nenhum marco registado"
+                description="Registem as primeiras palavras, os primeiros passos e outros momentos especiais do desenvolvimento."
+                actionLabel="Registar marco"
+                onAction={() => {
+                  setMilestoneForm({
+                    child_id: selectedChildId !== "all" ? selectedChildId : (children[0]?.id ?? ""),
+                    date: new Date().toISOString().split("T")[0],
+                    title: "",
+                    description: "",
+                    category: "geral",
+                  });
+                  setShowMilestoneDialog(true);
+                }}
+              />
             ) : (
               <div className="relative">
                 <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-300/50 via-amber-200/30 to-transparent hidden sm:block" />

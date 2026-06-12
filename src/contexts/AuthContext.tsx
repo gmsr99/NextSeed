@@ -86,6 +86,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from("families")
         .insert({ user_id: data.user.id, name: familyName, email });
       if (familyError) return { error: familyError.message };
+
+      // Email de boas-vindas — best-effort, nunca bloqueia o registo.
+      if (data.session) {
+        supabase.functions
+          .invoke("send-welcome-email", { body: { familyName } })
+          .catch(() => { /* silencioso: o email é secundário */ });
+      }
     }
     return { error: null };
   };
