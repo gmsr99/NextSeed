@@ -32,6 +32,13 @@ export interface Instrument {
   id: Extract<InstrumentId, "A" | "B1" | "B2" | "B3" | "B4" | "B5" | "C">;
   /** Título curto mostrado no topo do survey. */
   title: string;
+  /**
+   * "corner": cartão leve e não-bloqueante num canto do ecrã, sem tapar o
+   * conteúdo por trás — é o que a spec pede para o Instrumento B ("sobreposição
+   * leve"). "dialog": modal centrado a ecrã inteiro, para os pulsos A e C, que
+   * são mais substanciais e deliberados.
+   */
+  presentation: "dialog" | "corner";
   questions: SurveyQuestion[];
 }
 
@@ -44,6 +51,7 @@ export const OTHER_VALUE = "__outra__";
 const INSTRUMENT_A: Instrument = {
   id: "A",
   title: "Como correu a tua primeira semana?",
+  presentation: "dialog",
   questions: [
     {
       key: "A_Q1",
@@ -79,6 +87,7 @@ const INSTRUMENT_A: Instrument = {
 const INSTRUMENT_B1: Instrument = {
   id: "B1",
   title: "Sobre o plano que acabaste de gerar",
+  presentation: "corner",
   questions: [
     {
       key: "B1_Q1",
@@ -123,6 +132,7 @@ const INSTRUMENT_B1: Instrument = {
 const INSTRUMENT_B2: Instrument = {
   id: "B2",
   title: "A semana do plano terminou",
+  presentation: "corner",
   questions: [
     {
       key: "B2_Q1",
@@ -155,6 +165,7 @@ const INSTRUMENT_B2: Instrument = {
 const INSTRUMENT_B3: Instrument = {
   id: "B3",
   title: "Sobre o documento que geraste",
+  presentation: "corner",
   questions: [
     {
       key: "B3_Q1",
@@ -178,6 +189,7 @@ const INSTRUMENT_B3: Instrument = {
 const INSTRUMENT_B4: Instrument = {
   id: "B4",
   title: "Sobre as ideias que geraste",
+  presentation: "corner",
   questions: [
     {
       key: "B4_Q1",
@@ -207,6 +219,7 @@ const INSTRUMENT_B4: Instrument = {
 const INSTRUMENT_B5: Instrument = {
   id: "B5",
   title: "Sobre a tua primeira partilha",
+  presentation: "corner",
   questions: [
     {
       key: "B5_Q1",
@@ -230,6 +243,7 @@ const INSTRUMENT_B5: Instrument = {
 const INSTRUMENT_C: Instrument = {
   id: "C",
   title: "Um minuto para nos ajudares a melhorar",
+  presentation: "dialog",
   questions: [
     {
       key: "C_Q1",

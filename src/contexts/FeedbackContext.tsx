@@ -26,6 +26,10 @@ import { createSubmission, dismissSubmission, notifyTeam } from "@/lib/feedback/
 /** Pulso mensal (Instrumento C) — ativado no Passo 5.5. */
 const MONTHLY_ENABLED = true;
 
+/** Atraso pós-evento antes de mostrar B1/B3/B4 — dá tempo de ver o resultado
+ * (plano/documento/ideias) antes do cartão leve aparecer no canto. */
+const POST_EVENT_SURVEY_DELAY_MS = 6000;
+
 export type FeedbackEventKind = "plan_generated" | "portfolio_report" | "ai_idea" | "community_post";
 
 interface FeedbackContextValue {
@@ -108,14 +112,14 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
             const n = await bumpCounter("plan_generated");
             await scheduleB2((meta?.planId as string) ?? null);
             if (shouldShowB1(n)) {
-              setTimeout(() => showSurvey("B1", `plan_generated_n${n}`), 1500);
+              setTimeout(() => showSurvey("B1", `plan_generated_n${n}`), POST_EVENT_SURVEY_DELAY_MS);
             }
           } else if (kind === "portfolio_report") {
             const n = await bumpCounter("portfolio_report");
-            if (shouldShowB3(n)) setTimeout(() => showSurvey("B3", `portfolio_report_n${n}`), 1500);
+            if (shouldShowB3(n)) setTimeout(() => showSurvey("B3", `portfolio_report_n${n}`), POST_EVENT_SURVEY_DELAY_MS);
           } else if (kind === "ai_idea") {
             const n = await bumpCounter("ai_idea");
-            if (shouldShowB4(n)) setTimeout(() => showSurvey("B4", `ai_idea_n${n}`), 1500);
+            if (shouldShowB4(n)) setTimeout(() => showSurvey("B4", `ai_idea_n${n}`), POST_EVENT_SURVEY_DELAY_MS);
           }
           // community_post → B5 dormente (comunidade inativa).
         } catch { /* silencioso */ }

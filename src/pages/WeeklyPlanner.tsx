@@ -80,34 +80,12 @@ export default function WeeklyPlanner() {
   const [error, setError] = useState<string | null>(null);
   const [loadingExisting, setLoadingExisting] = useState(true);
 
-  // Seleciona automaticamente a semana mais próxima sem plano
+  // Semana inicial é sempre a semana atual/próxima — o plano existente (se houver)
+  // é carregado no efeito seguinte. Navegar para outra semana é feito manualmente
+  // com as setas (goToPrevWeek/goToNextWeek).
   useEffect(() => {
     if (!family || childrenLoading) return;
-
-    const pickInitialWeek = async () => {
-      const thisMonday = getNextMonday();
-      const nextMonday = addDays(thisMonday, 7);
-
-      const { data: plans } = await supabase
-        .from("weekly_plans")
-        .select("week_start")
-        .eq("family_id", family.id)
-        .in("week_start", [format(thisMonday, "yyyy-MM-dd"), format(nextMonday, "yyyy-MM-dd")]);
-
-      const planned = new Set(plans?.map((p) => p.week_start) ?? []);
-
-      if (!planned.has(format(thisMonday, "yyyy-MM-dd"))) {
-        setWeekStart(thisMonday);
-      } else if (!planned.has(format(nextMonday, "yyyy-MM-dd"))) {
-        setWeekStart(nextMonday);
-      } else {
-        setWeekStart(thisMonday);
-      }
-
-      setWeekStartReady(true);
-    };
-
-    pickInitialWeek();
+    setWeekStartReady(true);
   }, [family, childrenLoading]);
 
   // Carrega (ou limpa) o plano sempre que a semana selecionada muda

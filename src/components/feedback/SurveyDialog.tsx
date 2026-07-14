@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MessageCircleHeart } from "lucide-react";
+import { MessageCircleHeart, X } from "lucide-react";
 import { nextQuestion, type AnswerMap } from "@/lib/feedback/engine";
 import {
   type Instrument,
@@ -63,23 +63,47 @@ export default function SurveyDialog({
 
   const dismiss = () => onDismiss(visited.size > 0, answers);
 
+  const body = done ? (
+    <div className="py-6 text-center space-y-3">
+      <MessageCircleHeart className="h-10 w-10 text-primary mx-auto" />
+      <p className="text-sm text-foreground leading-relaxed max-w-xs mx-auto">{FEEDBACK_CONFIRMATION}</p>
+    </div>
+  ) : current ? (
+    <QuestionStep
+      key={current.key}
+      instrumentTitle={instrument.title}
+      question={current}
+      onNext={(a, m) => advance(current, a, m)}
+      onDismiss={dismiss}
+    />
+  ) : null;
+
+  // Instrumento B (micro-questionários): a spec pede "sobreposição leve" — um
+  // cartão no canto que não bloqueia nem esconde o que a pessoa acabou de ver
+  // (ex.: o plano recém-gerado), em vez de um modal a ecrã inteiro.
+  if (instrument.presentation === "corner") {
+    return (
+      <div
+        className="fixed z-50 inset-x-4 bottom-20 sm:inset-x-auto sm:right-4 sm:w-96 rounded-2xl border border-border bg-card p-5 shadow-elevated animate-in fade-in-0 slide-in-from-bottom-4 duration-300"
+        role="dialog"
+        aria-label={instrument.title}
+      >
+        <button
+          onClick={dismiss}
+          aria-label="Fechar"
+          className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        {body}
+      </div>
+    );
+  }
+
   return (
     <Dialog open onOpenChange={(o) => { if (!o) dismiss(); }}>
       <DialogContent className="max-w-md rounded-2xl p-6" onInteractOutside={(e) => { e.preventDefault(); dismiss(); }}>
-        {done ? (
-          <div className="py-6 text-center space-y-3">
-            <MessageCircleHeart className="h-10 w-10 text-primary mx-auto" />
-            <p className="text-sm text-foreground leading-relaxed max-w-xs mx-auto">{FEEDBACK_CONFIRMATION}</p>
-          </div>
-        ) : current ? (
-          <QuestionStep
-            key={current.key}
-            instrumentTitle={instrument.title}
-            question={current}
-            onNext={(a, m) => advance(current, a, m)}
-            onDismiss={dismiss}
-          />
-        ) : null}
+        {body}
       </DialogContent>
     </Dialog>
   );
