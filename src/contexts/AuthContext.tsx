@@ -91,15 +91,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { consented_at: consentedAt, terms_version: "1.0" } },
+      // family_name vai nos metadados: a família é criada no servidor por um
+      // trigger (migração 019), não pelo cliente — funciona mesmo quando a
+      // confirmação de email está ligada e signUp() não devolve sessão.
+      options: { data: { consented_at: consentedAt, terms_version: "1.0", family_name: familyName } },
     });
     if (error) return { error: error.message };
     if (data.user) {
-      const { error: familyError } = await supabase
-        .from("families")
-        .insert({ user_id: data.user.id, name: familyName, email });
-      if (familyError) return { error: familyError.message };
-
       track("signup", {});
 
       // Email de boas-vindas — best-effort, nunca bloqueia o registo.
