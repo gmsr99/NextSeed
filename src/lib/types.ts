@@ -789,6 +789,183 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          id: string
+          user_id: string
+          family_id: string | null
+          event: string
+          props: Json
+          screen: string | null
+          session_id: string | null
+          app_version: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          family_id?: string | null
+          event: string
+          props?: Json
+          screen?: string | null
+          session_id?: string | null
+          app_version?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          family_id?: string | null
+          event?: string
+          props?: Json
+          screen?: string | null
+          session_id?: string | null
+          app_version?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      feedback_submissions: {
+        Row: {
+          id: string
+          user_id: string
+          family_id: string | null
+          instrument: string
+          status: string
+          evento_gatilho: string | null
+          ecra_origem: string | null
+          app_version: string | null
+          session_id: string | null
+          created_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          family_id?: string | null
+          instrument: string
+          status?: string
+          evento_gatilho?: string | null
+          ecra_origem?: string | null
+          app_version?: string | null
+          session_id?: string | null
+          created_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          family_id?: string | null
+          instrument?: string
+          status?: string
+          evento_gatilho?: string | null
+          ecra_origem?: string | null
+          app_version?: string | null
+          session_id?: string | null
+          created_at?: string
+          completed_at?: string | null
+        }
+        Relationships: []
+      }
+      feedback_answers: {
+        Row: {
+          id: string
+          submission_id: string
+          user_id: string
+          question_key: string
+          value: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          submission_id: string
+          user_id?: string
+          question_key: string
+          value: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          submission_id?: string
+          user_id?: string
+          question_key?: string
+          value?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
+      feedback_trigger_state: {
+        Row: {
+          user_id: string
+          key: string
+          counter: number
+          shown_count: number
+          last_shown_at: string | null
+          scheduled_for: string | null
+          consumed: boolean
+          meta: Json
+          updated_at: string
+        }
+        Insert: {
+          user_id?: string
+          key: string
+          counter?: number
+          shown_count?: number
+          last_shown_at?: string | null
+          scheduled_for?: string | null
+          consumed?: boolean
+          meta?: Json
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          key?: string
+          counter?: number
+          shown_count?: number
+          last_shown_at?: string | null
+          scheduled_for?: string | null
+          consumed?: boolean
+          meta?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      feedback_config: {
+        Row: {
+          key: string
+          value: Json
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value: Json
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      team_admins: {
+        Row: {
+          user_id: string
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          user_id: string
+          note?: string | null
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -797,6 +974,28 @@ export type Database = {
       accept_family_invite: {
         Args: { p_family_id: string }
         Returns: undefined
+      }
+      admin_funnel: {
+        Args: Record<PropertyKey, never>
+        Returns: { registos: number; com_primeiro_plano: number; mediana_horas: number }[]
+      }
+      admin_weekly_metrics: {
+        Args: { p_weeks?: number }
+        Returns: {
+          week_start: string
+          active_families: number
+          plans_generated: number
+          plans_viewed_midweek: number
+          plan_edit_rate: number
+        }[]
+      }
+      bump_trigger_counter: {
+        Args: { p_key: string }
+        Returns: number
+      }
+      is_team_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       my_family_id: {
         Args: Record<PropertyKey, never>

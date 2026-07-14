@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChildren } from "@/hooks/useChildren";
 import { useAllMethodologies } from "@/hooks/useMethodologies";
+import { track } from "@/lib/analytics";
+import { daysSince } from "@/lib/feedback/time";
 import InterestPicker from "@/components/InterestPicker";
 import { SCHOOL_YEARS } from "@/lib/planGenerator";
 import { Button } from "@/components/ui/button";
@@ -103,6 +105,9 @@ export default function Onboarding() {
   const finish = async (destination: string) => {
     setBusy(true);
     await updateOnboarding({ onboarding_completed_at: new Date().toISOString(), onboarding_step: STEPS.length - 1 });
+    track("onboarding_completed", {
+      days_since_signup: family?.created_at ? daysSince(family.created_at) : null,
+    });
     toast({ title: "Tudo pronto!", description: "Bem-vindos à NexSeed 🌱" });
     navigate(destination, { replace: true });
   };

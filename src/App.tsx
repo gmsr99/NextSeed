@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { FeedbackProvider } from "@/contexts/FeedbackContext";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CookieBanner from "@/components/CookieBanner";
@@ -31,6 +32,7 @@ const RoteiroAnual      = React.lazy(() => import("./pages/RoteiroAnual"));
 const Manual            = React.lazy(() => import("./pages/Manual"));
 const Onboarding        = React.lazy(() => import("./pages/Onboarding"));
 const PrivacyPolicy     = React.lazy(() => import("./pages/PrivacyPolicy"));
+const AdminFeedback     = React.lazy(() => import("./pages/AdminFeedback"));
 const TermsAndConditions = React.lazy(() => import("./pages/TermsAndConditions"));
 const NotFound          = React.lazy(() => import("./pages/NotFound"));
 
@@ -176,6 +178,7 @@ function AppRoutes() {
         <Route path="/onboarding"     element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
         <Route path="/world-missions" element={<ProtectedRoute><WorldMissions /></ProtectedRoute>} />
         <Route path="/extracurricular"element={<ProtectedRoute><Extracurricular /></ProtectedRoute>} />
+        <Route path="/admin/feedback" element={<ProtectedRoute><AdminFeedback /></ProtectedRoute>} />
         <Route path="*"               element={<NotFound />} />
       </Routes>
     </Suspense>
@@ -191,8 +194,10 @@ const App = () => (
         <Toaster />
         <BrowserRouter>
           <AuthProvider>
-            <AppRoutes />
-            <CookieBanner />
+            <FeedbackProvider>
+              <AppRoutes />
+              <CookieBanner />
+            </FeedbackProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

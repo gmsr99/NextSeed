@@ -13,6 +13,8 @@ import { useChildren } from "@/hooks/useChildren";
 import { useActivities } from "@/hooks/useActivities";
 import { useProjects } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFeedback } from "@/contexts/FeedbackContext";
+import { track } from "@/lib/analytics";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 import { useLiteracyProgress } from '@/hooks/useLiteracyProgress';
 import { ALL_FINANCIAL_MODULES, ALL_DIGITAL_MODULES } from '@/lib/literacyContent';
@@ -124,6 +126,7 @@ function LiteracyChildCard({ child }: { child: { id: string; name: string } }) {
 
 export default function Reports() {
   const { family } = useAuth();
+  const { notifyEvent } = useFeedback();
   const { children, isLoading: childrenLoading } = useChildren();
   const { activities, isLoading: activitiesLoading } = useActivities();
   const { projects, isLoading: projectsLoading } = useProjects();
@@ -225,6 +228,8 @@ export default function Reports() {
       a.download = `relatorio_${child.name.replace(/\s+/g, "_")}_${range.label.replace(/\s+/g, "_")}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      track("report_generated", { period: range.label });
+      notifyEvent("portfolio_report");
     } finally {
       setExporting(false);
     }

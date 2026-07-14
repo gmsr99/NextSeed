@@ -13,6 +13,8 @@ import { toast } from "@/hooks/use-toast";
 import { useChildren } from "@/hooks/useChildren";
 import { useProjects } from "@/hooks/useProjects";
 import { useMethodologies } from "@/hooks/useMethodologies";
+import { useFeedback } from "@/contexts/FeedbackContext";
+import { track } from "@/lib/analytics";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 import { getCurriculumObjectives } from "@/lib/curriculumLoader";
 import { supabase } from "@/lib/supabase";
@@ -164,6 +166,7 @@ export default function CreativeEngine() {
   const { children } = useChildren();
   const { createProject } = useProjects();
   const { familyMethodologies } = useMethodologies();
+  const { notifyEvent } = useFeedback();
 
   const [selectedChildId, setSelectedChildId]           = useState("");
   const [selectedCurriculumId, setSelectedCurriculumId] = useState("");
@@ -211,6 +214,8 @@ export default function CreativeEngine() {
       );
       setSuggestions(results);
       setHasGenerated(true);
+      track("ai_idea_generated", { count: results.length });
+      notifyEvent("ai_idea");
     } catch (e) {
       toast({
         title: "IA indisponível",
@@ -238,6 +243,7 @@ export default function CreativeEngine() {
         phases,
       });
       setDoneIds((prev) => new Set(prev).add(s.id));
+      track("ai_idea_added_to_plan", {});
       toast({ title: "Projeto guardado! 🚀" });
     } catch (e) {
       toast({ title: "Erro ao guardar", description: e instanceof Error ? e.message : String(e), variant: "destructive" });

@@ -14,6 +14,9 @@ import {
 import { useChildren } from "@/hooks/useChildren";
 import { useExtracurricular } from "@/hooks/useExtracurricular";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFeedback } from "@/contexts/FeedbackContext";
+import { track } from "@/lib/analytics";
+import { daysSince, isoDayOfWeek } from "@/lib/feedback/time";
 import { supabase } from "@/lib/supabase";
 import {
   generateWeeklyPlan,
@@ -49,7 +52,8 @@ void serializeNotesField;
 
 export default function WeeklyPlanner() {
   const { children, isLoading: childrenLoading } = useChildren();
-  const { family } = useAuth();
+  const { family, registeredAt } = useAuth();
+  const { notifyEvent } = useFeedback();
   const { activities: extracurriculars } = useExtracurricular();
 
   const [weekStart, setWeekStart] = useState<Date>(getNextMonday());
@@ -182,6 +186,15 @@ export default function WeeklyPlanner() {
         if (wc) setWeeklyContent(wc);
         if (plan.status === "sent") setSent(true);
         setStep("preview");
+
+        // plan_viewed — 1× por plano e por sessão (guard contra StrictMode / re-mount).
+        try {
+          const viewKey = `plan_viewed_${plan.id}`;
+          if (!sessionStorage.getItem(viewKey)) {
+            sessionStorage.setItem(viewKey, "1");
+            track("plan_viewed", { plan_id: plan.id, day_of_week: isoDayOfWeek() });
+          }
+        } catch { /* sessionStorage indisponível — ignora */ }
       } finally {
         setLoadingExisting(false);
       }
@@ -285,6 +298,12 @@ export default function WeeklyPlanner() {
       setGeneratingStep("A montar o horário...");
       setPlanItems(items);
       setStep("preview");
+      track("plan_generated", {
+        source: "ai",
+        days_since_registration: registeredAt ? daysSince(registeredAt) : null,
+        children_count: children.length,
+      });
+      notifyEvent("plan_generated");
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.warn("AI falhou:", msg);
@@ -293,6 +312,12 @@ export default function WeeklyPlanner() {
       setPlanItems(items);
       setStep("preview");
       setError(`IA indisponível (${msg}) — plano gerado com templates.`);
+      track("plan_generated", {
+        source: "fallback",
+        days_since_registration: registeredAt ? daysSince(registeredAt) : null,
+        children_count: children.length,
+      });
+      notifyEvent("plan_generated");
     } finally {
       setGenerating(false);
       setGeneratingStep("");
@@ -331,6 +356,7 @@ export default function WeeklyPlanner() {
       if (planErr) throw planErr;
       savedPlanId = plan.id;
       savedVersion = plan.version ?? planVersion;
+      track("plan_edited", { items_count: planItems.length });
     } else {
       const { data: versionRows } = await supabase
         .from("weekly_plans")
@@ -516,6 +542,7 @@ export default function WeeklyPlanner() {
         .update({ status: "sent", sent_at: new Date().toISOString() })
         .eq("id", savedPlanId);
 
+      track("plan_emailed", {});
       setSent(true);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao enviar email");

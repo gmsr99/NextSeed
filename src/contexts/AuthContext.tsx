@@ -1,12 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/analytics";
 import type { Family } from "@/lib/types";
 
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
   family: Family | null;
+  /** Data de registo do adulto: `families.created_at` (dono) ou `family_members.joined_at` (convidado). */
+  registeredAt: string | null;
+  /** True se o utilizador é o dono da família (não um adulto convidado). */
+  isOwner: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, familyName: string, consentedAt: string) => Promise<{ error: string | null }>;
@@ -23,6 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [family, setFamily] = useState<Family | null>(null);
+  const [registeredAt, setRegisteredAt] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadFamily = async (userId: string) => {
@@ -35,17 +42,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (owned) {
       setFamily(owned as Family);
+      setRegisteredAt((owned as Family).created_at ?? null);
+      setIsOwner(true);
       return;
     }
 
     // Verifica se é membro convidado
     const { data: membership } = await supabase
       .from("family_members")
-      .select("families(*)")
+      .select("joined_at, families(*)")
       .eq("user_id", userId)
       .maybeSingle();
 
-    setFamily((membership?.families as Family) ?? null);
+    setFamily((membership?.families as unknown as Family) ?? null);
+    setRegisteredAt(membership?.joined_at ?? null);
+    setIsOwner(false);
   };
 
   useEffect(() => {
@@ -63,6 +74,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loadFamily(session.user.id);
       } else {
         setFamily(null);
+        setRegisteredAt(null);
+        setIsOwner(false);
       }
     });
 
@@ -86,6 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from("families")
         .insert({ user_id: data.user.id, name: familyName, email });
       if (familyError) return { error: familyError.message };
+
+      track("signup", {});
 
       // Email de boas-vindas — best-effort, nunca bloqueia o registo.
       if (data.session) {
@@ -141,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, family, loading, signIn, signUp, signOut, updateFamilyName, updateOnboarding, deleteAccount, reloadFamily }}>
+    <AuthContext.Provider value={{ session, user, family, registeredAt, isOwner, loading, signIn, signUp, signOut, updateFamilyName, updateOnboarding, deleteAccount, reloadFamily }}>
       {children}
     </AuthContext.Provider>
   );

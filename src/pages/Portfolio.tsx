@@ -41,6 +41,8 @@ import { useChildMilestones, MILESTONE_CATEGORIES } from "@/hooks/useChildMilest
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { usePortfolio, type PortfolioEntry } from "@/hooks/usePortfolio";
+import { useFeedback } from "@/contexts/FeedbackContext";
+import { track } from "@/lib/analytics";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -207,6 +209,7 @@ function NexseedCurriculumTab({
 export default function Portfolio() {
   const { children, isLoading: childrenLoading } = useChildren();
   const { entries, isLoading: portfolioLoading, analyze, deleteActivity, coverageCountByCurriculum } = usePortfolio();
+  const { notifyEvent } = useFeedback();
 
   const schoolYears = useMemo(() => [...new Set(children.map((c) => c.school_year))], [children]);
 
@@ -344,6 +347,8 @@ export default function Portfolio() {
         : "portfolio";
       a.download = `nexseed-portfolio-${childLabel}-${format(new Date(), "yyyy-MM-dd")}.pdf`;
       a.click();
+      track("portfolio_generated", { entries: entriesToExport.length });
+      notifyEvent("portfolio_report");
     } catch (e) {
       toast({
         title: "Erro ao exportar PDF",

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { track } from "@/lib/analytics";
 import type { Activity } from "@/lib/types";
 
 export type { Activity };
@@ -87,6 +88,7 @@ export function useActivities() {
         photos: photoUrls,
       });
       if (error) throw error;
+      track("activity_logged", { type: input.discipline ?? null });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["activities", family?.id] });

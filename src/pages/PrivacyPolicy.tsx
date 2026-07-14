@@ -35,6 +35,7 @@ export default function PrivacyPolicy() {
               <li><strong>Dados dos filhos:</strong> nome, data de nascimento, ano escolar e interesses (introduzidos pelos pais/tutores)</li>
               <li><strong>Dados pedagógicos:</strong> atividades, planos semanais, portfólios, relatórios e progressos educativos criados pelos utilizadores</li>
               <li><strong>Dados técnicos:</strong> endereço IP e logs de acesso, necessários para a segurança do serviço</li>
+              <li><strong>Dados de utilização e feedback:</strong> durante a fase piloto, registamos internamente eventos de uso da aplicação (por exemplo, quando é gerado um plano) e as respostas que dás, de forma voluntária, aos questionários de feedback. Servem apenas para melhorar o produto, são medidos com meios próprios (na nossa base de dados, na União Europeia) e não recorrem a cookies de rastreamento nem a serviços de publicidade de terceiros. Os questionários pedem-te para não incluíres dados pessoais dos teus filhos nas respostas.</li>
               <li><strong>Consentimento:</strong> data e hora de aceitação destes termos aquando do registo</li>
             </ul>
           </section>
