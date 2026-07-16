@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChildren } from "@/hooks/useChildren";
 import { supabase } from "@/lib/supabase";
+import { signPhotoUrls } from "@/lib/photoStorage";
 import type { Activity, NexseedCurriculum, CurriculumCoverage } from "@/lib/types";
 import type { Project } from "@/hooks/useProjects";
 
@@ -48,7 +49,13 @@ export function usePortfolio() {
         .eq("family_id", family!.id)
         .order("activity_date", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Activity[];
+      // Bucket privado: trocar os paths guardados por signed URLs (TTL 1h)
+      return Promise.all(
+        ((data ?? []) as Activity[]).map(async (a) => ({
+          ...a,
+          photos: await signPhotoUrls(a.photos ?? []),
+        })),
+      );
     },
   });
 

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { track } from "@/lib/analytics";
+import { signPhotoUrls } from "@/lib/photoStorage";
 import type { Activity } from "@/lib/types";
 
 export type { Activity };
@@ -45,7 +46,13 @@ export function useActivities() {
         .eq("family_id", family!.id)
         .order("activity_date", { ascending: false })
         .order("created_at", { ascending: false });
-      return (data ?? []) as Activity[];
+      // Bucket privado: trocar os paths guardados por signed URLs (TTL 1h)
+      return Promise.all(
+        ((data ?? []) as Activity[]).map(async (a) => ({
+          ...a,
+          photos: await signPhotoUrls(a.photos ?? []),
+        })),
+      );
     },
   });
 
@@ -60,7 +67,8 @@ export function useActivities() {
       }
 
       const activityId = crypto.randomUUID();
-      const photoUrls: string[] = [];
+      // Bucket privado: guarda-se o PATH na BD; as signed URLs geram-se na leitura
+      const photoPaths: string[] = [];
 
       if (input.photoFiles?.length) {
         for (const file of input.photoFiles) {
@@ -70,10 +78,7 @@ export function useActivities() {
             .from("activity-photos")
             .upload(path, file, { upsert: false });
           if (uploadErr) throw new Error(`Erro ao carregar "${file.name}": ${uploadErr.message}`);
-          const { data: { publicUrl } } = supabase.storage
-            .from("activity-photos")
-            .getPublicUrl(path);
-          photoUrls.push(publicUrl);
+          photoPaths.push(path);
         }
       }
 
@@ -85,7 +90,7 @@ export function useActivities() {
         description: input.description || null,
         discipline: input.discipline || null,
         activity_date: input.activity_date,
-        photos: photoUrls,
+        photos: photoPaths,
       });
       if (error) throw error;
       track("activity_logged", { type: input.discipline ?? null });
