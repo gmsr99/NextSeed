@@ -1,20 +1,35 @@
 // src/hooks/useTodayDashboard.ts
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { startOfWeek, endOfWeek, format, getISODay } from 'date-fns';
+import { startOfWeek, endOfWeek, format, getISODay, addWeeks } from 'date-fns';
+
+export interface TodayPlanItem {
+  id: string;
+  child_id: string;
+  day_of_week: number;
+  time_slot: string;
+  discipline: string;
+  title: string;
+  is_friday_world: boolean;
+  completed_at: string | null;
+}
 
 export function useTodayDashboard() {
   const { family } = useAuth();
+  const qc = useQueryClient();
   const today = new Date();
   const todayDow = getISODay(today); // 1=Mon ... 7=Sun
   const isWeekend = todayDow >= 6;
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+  const nextWeekStart = addWeeks(weekStart, 1);
+
+  const planQueryKey = ['today_plan', family?.id, format(weekStart, 'yyyy-MM-dd')];
 
   // ── Plano ativo desta semana ────────────────────────────────────
   const { data: planData, isLoading: planLoading } = useQuery({
-    queryKey: ['today_plan', family?.id, format(weekStart, 'yyyy-MM-dd')],
+    queryKey: planQueryKey,
     enabled: !!family?.id,
     staleTime: 60_000,
     queryFn: async () => {
@@ -27,17 +42,43 @@ export function useTodayDashboard() {
         .limit(1)
         .maybeSingle();
 
-      if (!plan) return { plan: null, todayItems: [], allItems: [] };
+      if (!plan) return { plan: null, todayItems: [] as TodayPlanItem[], allItems: [] as TodayPlanItem[] };
 
       const { data: items } = await supabase
         .from('weekly_plan_items')
-        .select('id, child_id, day_of_week, time_slot, discipline, title, is_friday_world')
+        .select('id, child_id, day_of_week, time_slot, discipline, title, is_friday_world, completed_at')
         .eq('plan_id', plan.id)
         .order('time_slot', { ascending: true });
 
-      const allItems = items ?? [];
+      const allItems = (items ?? []) as TodayPlanItem[];
       const todayItems = allItems.filter(i => i.day_of_week === todayDow);
       return { plan, todayItems, allItems };
+    },
+  });
+
+  // ── Conclusão de um item (checkbox do dashboard) ─────────────────
+  const toggleItemDone = useMutation({
+    mutationFn: async ({ itemId, done }: { itemId: string; done: boolean }) => {
+      const { error } = await supabase
+        .from('weekly_plan_items')
+        .update({ completed_at: done ? new Date().toISOString() : null })
+        .eq('id', itemId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: planQueryKey }),
+  });
+
+  // ── Já existe plano para a próxima semana? (CTA de sexta-feira) ──
+  const { data: nextWeekPlanned = true } = useQuery({
+    queryKey: ['next_week_plan', family?.id, format(nextWeekStart, 'yyyy-MM-dd')],
+    enabled: !!family?.id && todayDow >= 5,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('weekly_plans')
+        .select('id', { count: 'exact', head: true })
+        .eq('week_start', format(nextWeekStart, 'yyyy-MM-dd'));
+      return (count ?? 0) > 0;
     },
   });
 
@@ -64,7 +105,7 @@ export function useTodayDashboard() {
     queryFn: async () => {
       const { data } = await supabase
         .from('children')
-        .select('id, name, school_year')
+        .select('id, name, school_year, birth_date')
         .order('name');
       return data ?? [];
     },
@@ -91,6 +132,9 @@ export function useTodayDashboard() {
   const totalPlannedWeek = planData?.allItems.length ?? 0;
   const totalRegistered = weekActivities.length;
 
+  // CTA contextual: a partir de sexta-feira, sem plano para a próxima semana
+  const showNextWeekCta = todayDow >= 5 && !nextWeekPlanned;
+
   return {
     isLoading: planLoading || childrenLoading,
     hasPlan: !!planData?.plan,
@@ -101,5 +145,7 @@ export function useTodayDashboard() {
     upcomingExtras,
     isWeekend,
     familyName: family?.name ?? '',
+    toggleItemDone,
+    showNextWeekCta,
   };
 }

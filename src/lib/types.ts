@@ -351,6 +351,7 @@ export type Database = {
       weekly_plan_items: {
         Row: {
           child_id: string
+          completed_at: string | null
           created_at: string | null
           day_of_week: number
           description: string | null
@@ -365,6 +366,7 @@ export type Database = {
         }
         Insert: {
           child_id: string
+          completed_at?: string | null
           created_at?: string | null
           day_of_week: number
           description?: string | null
@@ -379,6 +381,7 @@ export type Database = {
         }
         Update: {
           child_id?: string
+          completed_at?: string | null
           created_at?: string | null
           day_of_week?: number
           description?: string | null

@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { format, differenceInYears, parseISO } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { CalendarCheck, Plus, ArrowRight, Trophy, BookOpen, Clock, Star } from 'lucide-react';
+import { CalendarCheck, Plus, ArrowRight, Trophy, BookOpen, Clock, Star, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/components/AppLayout';
 import { useTodayDashboard } from '@/hooks/useTodayDashboard';
 import { useMissionRewards } from '@/hooks/useMissionRewards';
@@ -37,6 +38,7 @@ export default function Index() {
   const {
     isLoading, hasPlan, todayItems, totalRegistered, totalPlannedWeek,
     children, upcomingExtras, isWeekend, familyName,
+    toggleItemDone, showNextWeekCta,
   } = useTodayDashboard();
   const { rewards, getBalance } = useMissionRewards();
   const { milestones: recentMilestones } = useChildMilestones();
@@ -80,6 +82,22 @@ export default function Index() {
             )}
           </div>
 
+          {/* CTA contextual: a partir de sexta-feira, sem plano para a próxima semana */}
+          {showNextWeekCta && hasPlan && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 bg-primary/5 border border-primary/20 shadow-soft"
+            >
+              <p className="text-sm font-medium flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" /> Já planearam a próxima semana?
+              </p>
+              <Button size="sm" onClick={() => navigate('/weekly-planner')}>
+                Planear agora <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </motion.div>
+          )}
+
           {!hasPlan ? (
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
@@ -105,36 +123,45 @@ export default function Index() {
             </div>
           ) : (
             <div className="space-y-3">
-              {todayItems.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ y: -2, scale: 1.01 }}
-                  className="flex items-center gap-4 bg-card shadow-soft rounded-2xl p-4 hover:shadow-elevated transition-all border border-transparent hover:border-primary/20"
-                >
-                  <div className="w-16 text-sm text-muted-foreground text-center font-mono shrink-0 bg-muted/30 py-1 px-2 rounded-lg">
-                    {item.time_slot}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-base truncate">{item.title}</p>
-                    {item.discipline && (
-                      <span className={`inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full font-medium shadow-sm ${disciplineColor(item.discipline)}`}>
-                        {item.discipline}
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="shrink-0 hover:shadow-glow hover:border-primary/50 transition-all"
-                    onClick={() => navigate('/activities')}
+              {todayItems.map((item, i) => {
+                const done = !!item.completed_at;
+                return (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    whileHover={{ y: -2, scale: 1.01 }}
+                    className={`flex items-center gap-4 bg-card shadow-soft rounded-2xl p-4 hover:shadow-elevated transition-all border border-transparent hover:border-primary/20 ${done ? 'opacity-60' : ''}`}
                   >
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Registar
-                  </Button>
-                </motion.div>
-              ))}
+                    <Checkbox
+                      checked={done}
+                      onCheckedChange={(checked) => toggleItemDone.mutate({ itemId: item.id, done: checked === true })}
+                      aria-label={done ? 'Marcar como por fazer' : 'Marcar como concluída'}
+                      className="shrink-0 h-5 w-5"
+                    />
+                    <div className="w-16 text-sm text-muted-foreground text-center font-mono shrink-0 bg-muted/30 py-1 px-2 rounded-lg">
+                      {item.time_slot}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-semibold text-base truncate ${done ? 'line-through text-muted-foreground' : ''}`}>{item.title}</p>
+                      {item.discipline && (
+                        <span className={`inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full font-medium shadow-sm ${disciplineColor(item.discipline)}`}>
+                          {item.discipline}
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="shrink-0 hover:shadow-glow hover:border-primary/50 transition-all"
+                      onClick={() => navigate('/activities')}
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Registar
+                    </Button>
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </section>
