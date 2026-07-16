@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink } from "lucide-react";
+import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink, Download } from "lucide-react";
 
 type Member = { id: string; user_id: string; email: string; joined_at: string };
 type Invite = { id: string; email: string; created_at: string };
@@ -21,6 +21,9 @@ const SettingsPage = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Membros ativos
   const [members, setMembers] = useState<Member[]>([]);
@@ -101,6 +104,24 @@ const SettingsPage = () => {
     setNameLoading(false);
     if (error) setNameError(error);
     else setNameSuccess(true);
+  };
+
+  const handleExportData = async () => {
+    setExportLoading(true);
+    setExportError(null);
+    const { data, error } = await supabase.functions.invoke("export-family-data");
+    setExportLoading(false);
+    if (error || data?.error) {
+      setExportError(data?.error ?? error?.message ?? "Erro ao exportar os dados.");
+      return;
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `nexseed-dados-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleDelete = async () => {
@@ -273,6 +294,19 @@ const SettingsPage = () => {
               </span>
               <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
             </Link>
+            <button
+              onClick={handleExportData}
+              disabled={exportLoading}
+              className="flex items-center justify-between w-full rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
+            >
+              <span className="flex items-center gap-2">
+                {exportLoading
+                  ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  : <Download className="h-4 w-4 text-muted-foreground" />}
+                {exportLoading ? "A preparar o ficheiro…" : "Exportar os dados da família (JSON)"}
+              </span>
+            </button>
+            {exportError && <p className="text-sm text-destructive">{exportError}</p>}
           </div>
         </section>
 
@@ -297,7 +331,9 @@ const SettingsPage = () => {
             ) : (
               <div className="rounded-lg border border-destructive/40 p-4 space-y-3">
                 <p className="text-sm text-destructive font-medium">
-                  Tens a certeza? Esta ação é irreversível e apaga todos os dados da família.
+                  {isOwner
+                    ? "Tens a certeza? Esta ação é irreversível e apaga todos os dados da família — contas, crianças, planos, atividades e fotos."
+                    : "Tens a certeza? Esta ação é irreversível e apaga a tua conta, removendo-te desta família."}
                 </p>
                 {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
                 <div className="flex gap-2">

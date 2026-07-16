@@ -147,9 +147,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const deleteAccount = async () => {
     if (!family) return { error: "Sem família ativa" };
-    const { error } = await supabase.from("families").delete().eq("id", family.id);
-    if (error) return { error: error.message };
-    await supabase.auth.signOut();
+    // Eliminação RGPD-completa no servidor: Storage + utilizadores auth +
+    // dados da BD em cascata (ver edge function delete-family-account).
+    const { data, error } = await supabase.functions.invoke("delete-family-account");
+    if (error || data?.error) return { error: data?.error ?? error?.message ?? "Erro ao eliminar a conta" };
+    // O utilizador já não existe no servidor — limpar apenas a sessão local
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     return { error: null };
   };
 
