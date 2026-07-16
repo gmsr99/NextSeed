@@ -198,7 +198,8 @@ export function PlanPreview({ children, planItems }: PlanPreviewProps) {
 
   return (
     <Tabs defaultValue={defaultTab}>
-      <TabsList>
+      {/* max-w-full + overflow: em mobile com várias crianças as tabs deslizam */}
+      <TabsList className="max-w-full overflow-x-auto justify-start">
         {showFamilyTab && (
           <TabsTrigger value="familia" className="gap-1.5">
             <Users className="h-3.5 w-3.5" /> Família
