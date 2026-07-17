@@ -16,10 +16,9 @@ import { useMethodologies } from "@/hooks/useMethodologies";
 import { useFeedback } from "@/contexts/FeedbackContext";
 import { track } from "@/lib/analytics";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
-import { getCurriculumObjectives } from "@/lib/curriculumLoader";
+import { useCurriculum } from "@/hooks/useCurriculum";
 import { supabase } from "@/lib/supabase";
 import type { FamilyMethodology } from "@/lib/types";
-import { PRIORITY_LABELS } from "@/components/methodology/constants";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -49,25 +48,6 @@ const PRESCHOOL_ITEMS: CurriculumItem[] = [
   { id: "ps-6", discipline: "expression", disciplineLabel: "Artes",      objective: "Música, dança e movimento rítmico expressivo" },
   { id: "ps-7", discipline: "world",      disciplineLabel: "Est. Meio",  objective: "Observação do ambiente natural próximo" },
 ];
-
-function getCurriculumItems(schoolYear: string): CurriculumItem[] {
-  const objectives = getCurriculumObjectives(schoolYear);
-  const items: CurriculumItem[] = [];
-
-  for (const [discipline, objs] of Object.entries(objectives)) {
-    const label = DISCIPLINE_LABELS[discipline] ?? discipline;
-    for (let i = 0; i < Math.min((objs as string[]).length, 5); i++) {
-      items.push({
-        id: `${discipline}-${i}`,
-        discipline,
-        disciplineLabel: label,
-        objective: (objs as string[])[i],
-      });
-    }
-  }
-
-  return items.length > 0 ? items : PRESCHOOL_ITEMS;
-}
 
 // ── Gemini call ────────────────────────────────────────────────────────────────
 
@@ -176,11 +156,26 @@ export default function CreativeEngine() {
   const [savingId, setSavingId]                         = useState<string | null>(null);
   const [doneIds, setDoneIds]                           = useState<Set<string>>(new Set());
 
-  const selectedChild   = children.find((c) => c.id === selectedChildId);
-  const curriculumItems = useMemo(
-    () => selectedChild ? getCurriculumItems(selectedChild.school_year) : [],
-    [selectedChild],
-  );
+  const selectedChild = children.find((c) => c.id === selectedChildId);
+
+  // Fonte única do currículo: BD (curriculum_disciplines) — FASE 1.6.
+  // Variações de pré-escolar ("Pré-escolar 3 anos"…) mapeiam para "Pré-escolar".
+  const curriculumYear = selectedChild
+    ? (selectedChild.school_year.toLowerCase().startsWith("pré") ? "Pré-escolar" : selectedChild.school_year)
+    : null;
+  const { disciplines } = useCurriculum(curriculumYear);
+
+  const curriculumItems = useMemo(() => {
+    if (!selectedChild) return [];
+    const items: CurriculumItem[] = [];
+    for (const d of disciplines) {
+      const label = DISCIPLINE_LABELS[d.discipline_key] ?? d.discipline_name;
+      for (const [i, objective] of (d.objectives ?? []).slice(0, 5).entries()) {
+        items.push({ id: `${d.discipline_key}-${i}`, discipline: d.discipline_key, disciplineLabel: label, objective });
+      }
+    }
+    return items.length > 0 ? items : PRESCHOOL_ITEMS;
+  }, [disciplines, selectedChild]);
   const selectedCurriculum = curriculumItems.find((c) => c.id === selectedCurriculumId);
   const canGenerate        = !!selectedChild && !!selectedCurriculum;
 

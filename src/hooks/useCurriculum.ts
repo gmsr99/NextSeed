@@ -1,3 +1,5 @@
+// Fonte única do currículo: tabelas curriculum_contents / curriculum_disciplines /
+// nexseed_curriculum na BD (FASE 1.6). Os JSONs locais foram removidos do repo.
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
