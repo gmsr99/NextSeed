@@ -75,7 +75,7 @@ export function PlannerForm({
   return (
     <div className="space-y-6">
       {/* Week selector */}
-      <Card className="border-border/60">
+      <Card className="border-border/60" data-tour="planner-semana">
         <CardContent className="flex items-center gap-3 p-5">
           <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <CalendarDays className="h-5 w-5 text-primary" />
@@ -96,7 +96,7 @@ export function PlannerForm({
       </Card>
 
       {/* Children interests + weekly content */}
-      {children.map((child) => {
+      {children.map((child, childIdx) => {
         const isExpanded = expandedContent[child.id] ?? false;
         const disciplines = getDisciplines(child.school_year);
         const childContent = weeklyContent[child.id] ?? {};
@@ -109,7 +109,8 @@ export function PlannerForm({
               <CardDescription>{child.school_year} · {child.curriculum}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              {/* As âncoras do walkthrough só apontam para a primeira criança */}
+              <div className="space-y-2" data-tour={childIdx === 0 ? "planner-interesses" : undefined}>
                 <Label>Interesses desta semana</Label>
                 <TagInput
                   value={childInterests[child.id] ?? child.interests ?? []}
@@ -122,7 +123,7 @@ export function PlannerForm({
               </div>
 
               {/* Weekly curriculum content toggle */}
-              <div className="border-t pt-3">
+              <div className="border-t pt-3" data-tour={childIdx === 0 ? "planner-conteudos" : undefined}>
                 <button
                   type="button"
                   onClick={() => toggleContent(child.id)}
@@ -174,7 +175,7 @@ export function PlannerForm({
       })}
 
       {/* Friday activity */}
-      <Card className="border-border/60">
+      <Card className="border-border/60" data-tour="planner-sexta">
         <CardHeader className="pb-3">
           <CardTitle className="font-heading text-lg">Sexta-feira — Ver Mundo</CardTitle>
           <CardDescription>Actividade de saída planeada (opcional)</CardDescription>
@@ -189,7 +190,7 @@ export function PlannerForm({
       </Card>
 
       {/* Tema Semanal de Leitura */}
-      <Card className="border-border/60">
+      <Card className="border-border/60" data-tour="planner-leitura">
         <CardHeader className="pb-3">
           <CardTitle className="font-heading text-lg">Leitura e Portefólio — Tema da semana</CardTitle>
           <CardDescription>
@@ -230,6 +231,7 @@ export function PlannerForm({
         className="w-full gap-2"
         onClick={onGenerate}
         disabled={children.length === 0 || generating}
+        data-tour="planner-gerar"
       >
         {generating ? (
           <><Loader2 className="h-5 w-5 animate-spin" /> {generatingStep || "A preparar..."}</>

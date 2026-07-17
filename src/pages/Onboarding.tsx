@@ -306,7 +306,8 @@ export default function Onboarding() {
               <Button variant="ghost" onClick={() => finish("/")} disabled={busy}>Ir para o painel</Button>
             </div>
             <p className="text-xs text-muted-foreground pt-2">
-              Podem consultar o <Link to="/ajuda" className="underline">Manual de Instruções</Link> a qualquer momento.
+              Nas próximas páginas vamos guiar-vos passo a passo. A qualquer momento, o botão de ajuda no canto
+              do ecrã dá acesso às visitas guiadas e ao <Link to="/ajuda" className="underline">Manual de Instruções</Link>.
             </p>
           </div>
         )}

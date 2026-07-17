@@ -16,6 +16,7 @@ import { useChildren } from "@/hooks/useChildren";
 import { useExtracurricular } from "@/hooks/useExtracurricular";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFeedback } from "@/contexts/FeedbackContext";
+import { useTour } from "@/contexts/TourContext";
 import { track } from "@/lib/analytics";
 import { daysSince, isoDayOfWeek } from "@/lib/feedback/time";
 import { supabase } from "@/lib/supabase";
@@ -55,6 +56,7 @@ export default function WeeklyPlanner() {
   const { children, isLoading: childrenLoading } = useChildren();
   const { family, registeredAt } = useAuth();
   const { notifyEvent } = useFeedback();
+  const { startTourIfUnseen } = useTour();
   const { activities: extracurriculars } = useExtracurricular();
 
   const [weekStart, setWeekStart] = useState<Date>(getNextMonday());
@@ -88,6 +90,18 @@ export default function WeeklyPlanner() {
     if (!family || childrenLoading) return;
     setWeekStartReady(true);
   }, [family, childrenLoading]);
+
+  // Visitas guiadas do planeador — dependem do estado do ecrã (form vs preview),
+  // por isso arrancam aqui e não no auto-start por rota do TourProvider.
+  useEffect(() => {
+    if (loadingExisting || childrenLoading || generating) return;
+    if (step === "form" && children.length === 0) return;
+    const timer = setTimeout(
+      () => startTourIfUnseen(step === "form" ? "planeador" : "plano-gerado"),
+      600,
+    );
+    return () => clearTimeout(timer);
+  }, [step, loadingExisting, childrenLoading, generating, children.length, startTourIfUnseen]);
 
   // Carrega (ou limpa) o plano sempre que a semana selecionada muda
   useEffect(() => {
@@ -620,12 +634,14 @@ export default function WeeklyPlanner() {
               </div>
             )}
 
-            <VersionBadge
-              version={planVersion}
-              history={planHistory}
-              isUnsaved={isNewGeneration && !planId}
-              onRestore={handleRestoreVersion}
-            />
+            <div data-tour="plano-versoes">
+              <VersionBadge
+                version={planVersion}
+                history={planHistory}
+                isUnsaved={isNewGeneration && !planId}
+                onRestore={handleRestoreVersion}
+              />
+            </div>
 
             <ExtracurricularsCard
               extracurriculars={extracurriculars}

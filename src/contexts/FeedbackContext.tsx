@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTour } from "@/contexts/TourContext";
 import { initAnalytics } from "@/lib/analytics";
 import FeedbackButton from "@/components/feedback/FeedbackButton";
 import FeedbackDialog from "@/components/feedback/FeedbackDialog";
@@ -56,6 +57,7 @@ interface ActiveSurvey {
 
 export function FeedbackProvider({ children }: { children: React.ReactNode }) {
   const { user, family, registeredAt } = useAuth();
+  const { isTourActive } = useTour();
   const location = useLocation();
   const initedRef = useRef(false);
   const showingRef = useRef(false);
@@ -79,6 +81,9 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
     async (instrumentId: Instrument["id"], eventoGatilho: string) => {
       if (showingRef.current) return;
       if (activeSurvey || feedbackOpen) return;
+      // Nunca sobrepor um survey a uma visita guiada — o gatilho não é
+      // consumido e volta a ser avaliado na próxima sessão.
+      if (isTourActive()) return;
       if (sessionCapUsed()) return;
       showingRef.current = true;
       try {
@@ -99,7 +104,7 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
         showingRef.current = false;
       }
     },
-    [activeSurvey, feedbackOpen, family],
+    [activeSurvey, feedbackOpen, family, isTourActive],
   );
 
   // Gatilhos pós-evento (B1/B3/B4) + agendamento de B2.

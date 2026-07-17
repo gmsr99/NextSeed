@@ -20,7 +20,10 @@ export type AnalyticsEvent =
   | "ai_idea_added_to_plan"
   | "community_post"
   | "community_comment"
-  | "feedback_submitted";
+  | "feedback_submitted"
+  | "tour_started"
+  | "tour_completed"
+  | "tour_dismissed";
 
 interface AnalyticsContext {
   userId: string;

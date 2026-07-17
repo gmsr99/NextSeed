@@ -70,7 +70,7 @@ export default function Index() {
         </motion.div>
 
         {/* Bloco 1 — Hoje */}
-        <section className="space-y-4">
+        <section className="space-y-4" data-tour="dashboard-hoje">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-xl flex items-center gap-2">
               <CalendarCheck className="w-6 h-6 text-primary animate-pulse-soft" /> Hoje

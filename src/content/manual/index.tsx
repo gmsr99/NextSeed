@@ -33,7 +33,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     title: "Como começar",
     icon: Rocket,
     summary: "O que é a NexSeed e como está organizada em quatro passos simples.",
-    keywords: ["onboarding", "primeiros passos", "introdução", "começar", "tutorial"],
+    keywords: ["onboarding", "primeiros passos", "introdução", "começar", "tutorial", "visita guiada", "tour", "ajuda"],
     blocks: [
       { type: "p", text: "A **NexSeed** é a vossa companheira de ensino doméstico. Foi pensada para famílias que educam os filhos em casa e que querem estrutura e tranquilidade — sem precisarem de formação pedagógica. A ideia é simples: a app trata do planeamento pesado para que vocês fiquem com a parte boa, que é aprender com os vossos filhos." },
       { type: "h", text: "A NexSeed em quatro passos" },
@@ -52,6 +52,9 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "Vão ao [Planeador Semanal](/weekly-planner), indiquem os interesses da semana e gerem o primeiro plano.",
         "Recebem o plano por email em PDF. A partir daí, é rock and roll.",
       ]},
+      { type: "h", text: "Visitas guiadas e ajuda sempre à mão" },
+      { type: "p", text: "Nas primeiras visitas às páginas principais, a NexSeed mostra **visitas guiadas** passo a passo sobre o próprio ecrã. Podem sair a qualquer momento — e repeti-las quando quiserem." },
+      { type: "callout", text: "O **botão de ajuda** (a boia 🛟, no canto inferior direito) está sempre disponível: repete as visitas guiadas, abre este manual na secção certa, mostra as perguntas frequentes e permite falar diretamente connosco." },
     ],
   },
   {
@@ -219,6 +222,8 @@ export const MANUAL_SECTIONS: ManualSection[] = [
       { type: "p", text: "Não. O guia de atividades explica cada passo e os materiais. Foi desenhado para pais sem qualquer formação pedagógica." },
       { type: "h", text: "Os meus filhos têm idades muito diferentes. Funciona?" },
       { type: "p", text: "Funciona. Desde o pré-escolar ao 4.º ano, a app adapta o nível de cada criança e, havendo irmãos, sugere como aproveitar a mesma atividade em níveis diferentes." },
+      { type: "h", text: "Como revejo as visitas guiadas?" },
+      { type: "p", text: "Cliquem no botão de ajuda (a boia, no canto inferior direito de qualquer página) e escolham a visita guiada. Cada página principal tem a sua — e a visita de boas-vindas pode ser revista a partir de qualquer sítio." },
     ],
   },
 ];

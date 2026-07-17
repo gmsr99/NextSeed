@@ -111,7 +111,7 @@ const Activities = () => {
         </div>
 
         {/* Form */}
-        <Card className="border-border/60 shadow-card">
+        <Card className="border-border/60 shadow-card" data-tour="diario-form">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-heading">Nova Atividade</CardTitle>
           </CardHeader>
@@ -181,7 +181,7 @@ const Activities = () => {
             </div>
 
             {/* Fotos */}
-            <div className="space-y-3">
+            <div className="space-y-3" data-tour="diario-fotos">
               <Label>Fotos</Label>
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -224,7 +224,7 @@ const Activities = () => {
             </div>
 
             {/* Botão */}
-            <div className="pt-1">
+            <div className="pt-1" data-tour="diario-guardar">
               <Button
                 onClick={handleSave}
                 disabled={!isFormValid || createActivity.isPending || saved}

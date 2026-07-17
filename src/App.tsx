@@ -5,9 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FeedbackProvider } from "@/contexts/FeedbackContext";
+import { TourProvider } from "@/contexts/TourContext";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CookieBanner from "@/components/CookieBanner";
+import HelpMenu from "@/components/help/HelpMenu";
+import TourOverlay from "@/components/tour/TourOverlay";
 
 // ─── Lazy imports — cada rota só carrega quando visitada ─────────────────────
 const LoginPage         = React.lazy(() => import("./pages/LoginPage"));
@@ -194,10 +197,14 @@ const App = () => (
         <Toaster />
         <BrowserRouter>
           <AuthProvider>
-            <FeedbackProvider>
-              <AppRoutes />
-              <CookieBanner />
-            </FeedbackProvider>
+            <TourProvider>
+              <FeedbackProvider>
+                <AppRoutes />
+                <HelpMenu />
+                <TourOverlay />
+                <CookieBanner />
+              </FeedbackProvider>
+            </TourProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

@@ -75,11 +75,12 @@ const sistemaItems: NavItem[] = [
 ];
 
 // ─── Grupos com label ─────────────────────────────────────────────────────────
+// tourId liga cada grupo aos passos da visita de boas-vindas (lib/tours.ts).
 const navGroups = [
-  { label: "Planear",           items: planearItems },
-  { label: "Aprender",          items: aprenderItems },
-  { label: "Registar & Provar", items: registarItems },
-  { label: "Sistema",           items: sistemaItems },
+  { label: "Planear",           items: planearItems,  tourId: "nav-planear" },
+  { label: "Aprender",          items: aprenderItems, tourId: "nav-aprender" },
+  { label: "Registar & Provar", items: registarItems, tourId: "nav-registar" },
+  { label: "Sistema",           items: sistemaItems,  tourId: "nav-sistema" },
 ];
 
 // ─── Item renderer ────────────────────────────────────────────────────────────
@@ -140,8 +141,8 @@ export function AppSidebar() {
       </div>
 
       <SidebarContent className="px-2">
-        {navGroups.map(({ label, items }) => (
-          <SidebarGroup key={label}>
+        {navGroups.map(({ label, items, tourId }) => (
+          <SidebarGroup key={label} data-tour={tourId}>
             <SidebarGroupLabel className="text-sidebar-foreground/40 text-xs uppercase tracking-wider font-semibold mb-1">
               {!collapsed && label}
             </SidebarGroupLabel>
