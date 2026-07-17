@@ -22,10 +22,10 @@ import {
 const STEPS = ["Boas-vindas", "Família", "Crianças", "Metodologia", "Pronto"];
 
 const VERBS = [
-  { icon: CalendarCheck, title: "Planear", text: "Todas as semanas, podes gerar um plano de atividades para cada criança — currículo, metodologia e os interesses do momento." },
-  { icon: ListChecks, title: "Fazer", text: "Recebem o plano em PDF, com horário e guia de materiais. Imprimem e fazem com as crianças." },
-  { icon: BookHeart, title: "Registar", text: "Registam no Diário o que foram fazendo, com fotos e notas. Demora segundos." },
-  { icon: BarChart3, title: "Provar", text: "Esses registos viram o Portfólio e os relatórios trimestrais para a escola, sem trabalho extra." },
+  { icon: CalendarCheck, title: "Planear", text: "Todas as semanas, podem gerar um plano de atividades para cada criança: currículo, metodologia e os interesses do momento." },
+  { icon: ListChecks, title: "Fazer", text: "Recebem o plano em PDF, com horário e guia de materiais. Só têm de o seguir e aproveitar o tempo com as crianças." },
+  { icon: BookHeart, title: "Registar", text: "Ao longo da semana, podem registar no Diário as atividades e projetos realizados, com fotografias e notas. Demora apenas alguns segundos." },
+  { icon: BarChart3, title: "Provar", text: "Os registos transformam-se automaticamente no Portfólio da criança e nos relatórios para a escola, sem trabalho duplicado." },
 ];
 
 const MAX_METHODOLOGIES = 3;
@@ -156,7 +156,7 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tight">Bem-vindos à NexSeed 🌱</h1>
-              <p className="text-muted-foreground text-lg">A vossa companheira de ensino doméstico. Tratamos do planeamento pesado para que fiquem com a parte boa. Funciona em quatro passos:</p>
+              <p className="text-muted-foreground text-lg">A plataforma que simplifica o ensino doméstico. Agilizamos o planeamento e simplificamos a burocracia para ganharem tempo para ensinar, aprender e desfrutar deste percurso em família. Funciona em quatro passos:</p>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               {VERBS.map((v, i) => (
@@ -266,7 +266,7 @@ export default function Onboarding() {
             <div className="space-y-2">
               <h1 className="text-2xl font-bold tracking-tight">Metodologia (opcional)</h1>
               <p className="text-muted-foreground">
-                Podem escolher até {MAX_METHODOLOGIES} — a IA cruza-as ao gerar as atividades, dando mais peso à primeira. A ordem em que escolherem define a prioridade. Na dúvida, deixem em “Sem preferência”.{" "}
+                Escolham até {MAX_METHODOLOGIES} metodologias. A IA combina as suas características ao criar as atividades, dando maior prioridade à primeira opção. Se não tiverem uma preferência definida, deixem “Sem preferência”.{" "}
                 <Link to="/ajuda/metodologias" className="text-primary underline underline-offset-2">Saber mais</Link>.
               </p>
             </div>
@@ -277,7 +277,7 @@ export default function Onboarding() {
                 className={`text-left rounded-xl border p-4 transition-colors ${methodologyIds.length === 0 ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:bg-accent"}`}
               >
                 <p className="font-semibold">Sem preferência</p>
-                <p className="text-sm text-muted-foreground">Atividades equilibradas e variadas. Podem escolher mais tarde.</p>
+                <p className="text-sm text-muted-foreground">A IA combina diferentes abordagens para um plano equilibrado.</p>
               </button>
               {methodologies.map((m) => {
                 const rank = methodologyIds.indexOf(m.id);
