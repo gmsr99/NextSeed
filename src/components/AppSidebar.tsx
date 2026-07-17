@@ -18,11 +18,14 @@ import {
   BookHeart,
   Map,
   LifeBuoy,
+  MessageSquareText,
 } from "lucide-react";
+import { useMemo } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import NexSeedLogo from "@/components/NexSeedLogo";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsTeamAdmin } from "@/hooks/useIsTeamAdmin";
 import {
   Sidebar,
   SidebarContent,
@@ -40,6 +43,7 @@ type NavItem = {
   url: string;
   icon: React.ElementType;
   disabled?: boolean;
+  badge?: string;
 };
 
 // ─── Grupos de navegação ──────────────────────────────────────────────────────
@@ -74,6 +78,12 @@ const sistemaItems: NavItem[] = [
   { title: "Definições",        url: "/settings",        icon: Settings },
 ];
 
+// Só visível a membros da equipa (team_admins). A página tem o seu próprio
+// guard — isto apenas evita que o link apareça a quem não pode lá entrar.
+const adminItems: NavItem[] = [
+  { title: "Feedback", url: "/admin/feedback", icon: MessageSquareText, badge: "Admin" },
+];
+
 // ─── Grupos com label ─────────────────────────────────────────────────────────
 // tourId liga cada grupo aos passos da visita de boas-vindas (lib/tours.ts).
 const navGroups = [
@@ -105,7 +115,11 @@ function NavItem({
   }
 
   return (
-    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+    <SidebarMenuButton
+      asChild
+      isActive={isActive}
+      tooltip={item.badge ? `${item.title} (${item.badge})` : item.title}
+    >
       <NavLink
         to={item.url}
         end
@@ -114,6 +128,11 @@ function NavItem({
       >
         <item.icon className="h-[18px] w-[18px] shrink-0" />
         {!collapsed && <span className="truncate">{item.title}</span>}
+        {!collapsed && item.badge && (
+          <span className="ml-auto shrink-0 rounded border border-sidebar-primary/30 bg-sidebar-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-sidebar-primary">
+            {item.badge}
+          </span>
+        )}
       </NavLink>
     </SidebarMenuButton>
   );
@@ -125,6 +144,17 @@ export function AppSidebar() {
   const collapsed = sidebar?.state === "collapsed";
   const location = useLocation();
   const { family, signOut } = useAuth();
+  const { isAdmin } = useIsTeamAdmin();
+
+  const groups = useMemo(
+    () =>
+      navGroups.map((group) =>
+        group.label === "Sistema" && isAdmin
+          ? { ...group, items: [...group.items, ...adminItems] }
+          : group,
+      ),
+    [isAdmin],
+  );
 
   const isActive = (url: string) =>
     url === "/"
@@ -141,7 +171,7 @@ export function AppSidebar() {
       </div>
 
       <SidebarContent className="px-2">
-        {navGroups.map(({ label, items, tourId }) => (
+        {groups.map(({ label, items, tourId }) => (
           <SidebarGroup key={label} data-tour={tourId}>
             <SidebarGroupLabel className="text-sidebar-foreground/40 text-xs uppercase tracking-wider font-semibold mb-1">
               {!collapsed && label}

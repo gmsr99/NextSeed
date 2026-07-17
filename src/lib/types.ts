@@ -116,7 +116,6 @@ export type Database = {
           learning_pace: string | null
           learning_preferences: string | null
           manuals: string | null
-          methodology_id: string | null
           name: string
           school: string | null
           school_year: string
@@ -132,7 +131,6 @@ export type Database = {
           learning_pace?: string | null
           learning_preferences?: string | null
           manuals?: string | null
-          methodology_id?: string | null
           name: string
           school?: string | null
           school_year: string
@@ -148,7 +146,6 @@ export type Database = {
           learning_pace?: string | null
           learning_preferences?: string | null
           manuals?: string | null
-          methodology_id?: string | null
           name?: string
           school?: string | null
           school_year?: string

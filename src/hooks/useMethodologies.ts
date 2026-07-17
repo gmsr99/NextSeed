@@ -60,6 +60,46 @@ export function useFamilyMethodologies() {
   });
 }
 
+// ─── Bulk replace — used by the onboarding ───────────────────────────────────
+
+/**
+ * Substitui toda a seleção da família por `methodologyIds`, cuja ordem define a
+ * prioridade (1=principal). Em bloco, porque o onboarding grava as escolhas de
+ * uma vez — chamar `select` em série leria prioridades de uma cache desatualizada.
+ */
+export function useSetFamilyMethodologies() {
+  const queryClient = useQueryClient();
+  const { family } = useAuth();
+
+  return useMutation({
+    mutationFn: async (methodologyIds: string[]) => {
+      if (!family) throw new Error("Sem família");
+
+      const { error: delError } = await supabase
+        .from("family_methodologies")
+        .delete()
+        .eq("family_id", family.id);
+      if (delError) throw delError;
+
+      if (methodologyIds.length === 0) return;
+
+      const rows = methodologyIds.slice(0, 3).map((id, idx) => ({
+        family_id: family.id,
+        methodology_id: id,
+        priority: (idx + 1) as 1 | 2 | 3,
+      }));
+      const { error: insError } = await supabase
+        .from("family_methodologies")
+        .insert(rows);
+      if (insError) throw insError;
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["family_methodologies", family?.id],
+      }),
+  });
+}
+
 // ─── Combined hook — used by the page ────────────────────────────────────────
 
 export function useMethodologies() {

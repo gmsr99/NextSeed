@@ -1,7 +1,8 @@
-import type { Child } from "./types";
+import type { Child, FamilyMethodology } from "./types";
 import type { GeneratedPlanItem } from "./planGenerator";
 import { DISCIPLINE_LABELS, DAY_LABELS, getAlignedPreSchoolSlots } from "./planGenerator";
 import { GC_DISCIPLINE_LABELS } from "./gcConstants";
+import { buildMethodologyContext } from "./methodologyContext";
 import { supabase } from "./supabase";
 
 // ─── Estrutura do horário (espelho do planGenerator.ts — só slots variáveis) ──
@@ -158,16 +159,17 @@ function buildPrompt(
   gcProgressByChild: Record<string, Record<string, string[]>>,
   gcAllByChild: Record<string, Record<string, string[]>>,
   weeklyContent: Record<string, Record<string, string>> = {},
-  childMethodologyStyle: Record<string, string> = {},
+  familyMethodologies: FamilyMethodology[] = [],
 ): string {
   const hasPrimary = children.some((c) => !c.school_year.toLowerCase().startsWith("pré"));
   const hasPreSchool = children.some((c) => c.school_year.toLowerCase().startsWith("pré"));
   const multiLevel = hasPrimary && hasPreSchool;
 
+  const methodologySection = buildMethodologyContext(familyMethodologies, "atividades");
+
   const childrenSection = children.map((c) => {
     const interests = (childInterests[c.id] || []).join(", ") || "livre";
-    const methodStyle = childMethodologyStyle[c.id] ? ` | Metodologia: ${childMethodologyStyle[c.id]}` : "";
-    return `- **${c.name}** (${c.school_year}) | Interesses: ${interests} | Estilo: ${c.learning_preferences ?? "misto"} | Ritmo: ${c.learning_pace ?? "moderado"}${methodStyle}`;
+    return `- **${c.name}** (${c.school_year}) | Interesses: ${interests} | Estilo: ${c.learning_preferences ?? "misto"} | Ritmo: ${c.learning_pace ?? "moderado"}`;
   }).join("\n");
 
   // Conteúdos GC activos (a aprender / em progresso) por criança — TRIANGULAÇÃO PRINCIPAL
@@ -246,7 +248,7 @@ Os horários do pré-escolar estão alinhados com o ensino primário: à mesma h
 Na **descrição** das atividades do pré-escolar menciona (1 frase) como o adulto pode aproveitar a atividade do irmão mais velho como ponto de partida.`
     : "";
 
-  return `És um especialista em educação e homeschooling português. Gera ${skeleton.length} atividades para um plano semanal NexSeed.
+  return `${methodologySection}És um especialista em educação e homeschooling português. Gera ${skeleton.length} atividades para um plano semanal NexSeed.
 
 ## CRIANÇAS
 ${childrenSection}
@@ -325,11 +327,13 @@ export async function regenerateActivity(
   child: Child,
   item: GeneratedPlanItem,
   interests: string[],
+  familyMethodologies: FamilyMethodology[] = [],
 ): Promise<Pick<GeneratedPlanItem, "title" | "description" | "materials">> {
   const disciplineLabel = DISCIPLINE_LABELS[item.discipline] ?? item.discipline;
   const interestsStr = interests.join(", ") || "livre";
+  const methodologySection = buildMethodologyContext(familyMethodologies, "atividades");
 
-  const prompt = `És um especialista em educação e homeschooling português. Substitui UMA atividade de um plano semanal NexSeed por uma alternativa DIFERENTE.
+  const prompt = `${methodologySection}És um especialista em educação e homeschooling português. Substitui UMA atividade de um plano semanal NexSeed por uma alternativa DIFERENTE.
 
 ## CRIANÇA
 - ${child.name} (${child.school_year}) | Interesses: ${interestsStr} | Estilo: ${child.learning_preferences ?? "misto"} | Ritmo: ${child.learning_pace ?? "moderado"}
@@ -383,10 +387,10 @@ export async function generateWithGemini(
   gcProgressByChild: Record<string, Record<string, string[]>> = {},
   gcAllByChild: Record<string, Record<string, string[]>> = {},
   weeklyContent: Record<string, Record<string, string>> = {},
-  childMethodologyStyle: Record<string, string> = {},
+  familyMethodologies: FamilyMethodology[] = [],
 ): Promise<GeneratedPlanItem[]> {
   const skeleton = buildSkeleton(children);
-  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, childMethodologyStyle);
+  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
 
   // Até 2 tentativas: cobre falhas transitórias (429/502) e parsing.
   let aiContent: { title: string; description: string; materials: string[] }[] | null = null;

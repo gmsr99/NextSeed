@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChildren } from "@/hooks/useChildren";
-import { useAllMethodologies } from "@/hooks/useMethodologies";
+import { useAllMethodologies, useSetFamilyMethodologies } from "@/hooks/useMethodologies";
 import { track } from "@/lib/analytics";
 import { daysSince } from "@/lib/feedback/time";
 import InterestPicker from "@/components/InterestPicker";
@@ -22,19 +22,21 @@ import {
 const STEPS = ["Boas-vindas", "Família", "Crianças", "Metodologia", "Pronto"];
 
 const VERBS = [
-  { icon: CalendarCheck, title: "Planear", text: "Todas as semanas, geramos um plano de atividades para cada criança — currículo, metodologia e os interesses do momento." },
+  { icon: CalendarCheck, title: "Planear", text: "Todas as semanas, podes gerar um plano de atividades para cada criança — currículo, metodologia e os interesses do momento." },
   { icon: ListChecks, title: "Fazer", text: "Recebem o plano em PDF, com horário e guia de materiais. Imprimem e fazem com as crianças." },
   { icon: BookHeart, title: "Registar", text: "Registam no Diário o que foram fazendo, com fotos e notas. Demora segundos." },
   { icon: BarChart3, title: "Provar", text: "Esses registos viram o Portfólio e os relatórios trimestrais para a escola, sem trabalho extra." },
 ];
 
-const NONE = "__none__";
+const MAX_METHODOLOGIES = 3;
+const PRIORITY_HINTS = ["Principal", "Secundária", "Complementar"];
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const { family, updateFamilyName, updateOnboarding } = useAuth();
-  const { children, createChild, updateChild } = useChildren();
+  const { children, createChild } = useChildren();
   const { data: methodologies = [] } = useAllMethodologies();
+  const setFamilyMethodologies = useSetFamilyMethodologies();
 
   const initialStep = Math.min(Math.max(family?.onboarding_step ?? 0, 0), STEPS.length - 1);
   const [step, setStep] = useState(initialStep);
@@ -47,7 +49,22 @@ export default function Onboarding() {
   const [schoolYear, setSchoolYear] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
 
-  const [methodologyId, setMethodologyId] = useState<string>(NONE);
+  // Ordem de seleção = prioridade (1=principal). A IA cruza as escolhidas.
+  const [methodologyIds, setMethodologyIds] = useState<string[]>([]);
+
+  const toggleMethodology = (id: string) => {
+    setMethodologyIds((prev) => {
+      if (prev.includes(id)) return prev.filter((m) => m !== id);
+      if (prev.length >= MAX_METHODOLOGIES) {
+        toast({
+          title: "Máximo de 3 metodologias",
+          description: "Remove uma antes de escolher outra. Podem ajustar depois em Metodologias.",
+        });
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
 
   const go = async (next: number) => {
     setStep(next);
@@ -79,7 +96,6 @@ export default function Onboarding() {
         interests,
         learning_preferences: null,
         learning_pace: null,
-        methodology_id: null,
       });
       setChildName(""); setBirthDate(""); setSchoolYear(""); setInterests([]);
       toast({ title: "Criança adicionada 🌱" });
@@ -91,14 +107,15 @@ export default function Onboarding() {
   };
 
   const applyMethodologyAndContinue = async () => {
-    if (methodologyId !== NONE && children.length > 0) {
-      setBusy(true);
-      try {
-        await Promise.all(children.map((c) => updateChild.mutateAsync({ id: c.id, methodology_id: methodologyId })));
-      } finally {
-        setBusy(false);
-      }
+    setBusy(true);
+    try {
+      await setFamilyMethodologies.mutateAsync(methodologyIds);
+    } catch (e) {
+      toast({ title: "Não foi possível guardar as metodologias", description: (e as Error).message, variant: "destructive" });
+      setBusy(false);
+      return;
     }
+    setBusy(false);
     await go(4);
   };
 
@@ -249,29 +266,41 @@ export default function Onboarding() {
             <div className="space-y-2">
               <h1 className="text-2xl font-bold tracking-tight">Metodologia (opcional)</h1>
               <p className="text-muted-foreground">
-                Têm uma abordagem preferida? Influencia o estilo das atividades. Na dúvida, deixem em “Sem preferência”.{" "}
+                Podem escolher até {MAX_METHODOLOGIES} — a IA cruza-as ao gerar as atividades, dando mais peso à primeira. A ordem em que escolherem define a prioridade. Na dúvida, deixem em “Sem preferência”.{" "}
                 <Link to="/ajuda/metodologias" className="text-primary underline underline-offset-2">Saber mais</Link>.
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
               <button
-                onClick={() => setMethodologyId(NONE)}
-                className={`text-left rounded-xl border p-4 transition-colors ${methodologyId === NONE ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:bg-accent"}`}
+                onClick={() => setMethodologyIds([])}
+                className={`text-left rounded-xl border p-4 transition-colors ${methodologyIds.length === 0 ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:bg-accent"}`}
               >
                 <p className="font-semibold">Sem preferência</p>
                 <p className="text-sm text-muted-foreground">Atividades equilibradas e variadas. Podem escolher mais tarde.</p>
               </button>
-              {methodologies.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setMethodologyId(m.id)}
-                  className={`text-left rounded-xl border p-4 transition-colors ${methodologyId === m.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:bg-accent"}`}
-                >
-                  <p className="font-semibold">{m.name}</p>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{m.short_description}</p>
-                </button>
-              ))}
+              {methodologies.map((m) => {
+                const rank = methodologyIds.indexOf(m.id);
+                const selected = rank >= 0;
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => toggleMethodology(m.id)}
+                    aria-pressed={selected}
+                    className={`text-left rounded-xl border p-4 transition-colors ${selected ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:bg-accent"}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold">{m.name}</p>
+                      {selected && (
+                        <span className="shrink-0 inline-flex items-center gap-1 rounded-full gradient-warmth px-2 py-0.5 text-[10px] font-semibold text-white">
+                          {rank + 1} · {PRIORITY_HINTS[rank]}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{m.short_description}</p>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="flex justify-between">

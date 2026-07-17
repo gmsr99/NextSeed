@@ -18,6 +18,7 @@ import { track } from "@/lib/analytics";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 import { useCurriculum } from "@/hooks/useCurriculum";
 import { supabase } from "@/lib/supabase";
+import { buildMethodologyContext } from "@/lib/methodologyContext";
 import type { FamilyMethodology } from "@/lib/types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -50,30 +51,6 @@ const PRESCHOOL_ITEMS: CurriculumItem[] = [
 ];
 
 // ── Gemini call ────────────────────────────────────────────────────────────────
-
-// ── Constrói o bloco de contexto pedagógico a partir das metodologias ativas ──
-
-function buildMethodologyContext(methodologies: FamilyMethodology[]): string {
-  if (methodologies.length === 0) return "";
-
-  const priorityLabel = (p: 1 | 2 | 3) =>
-    p === 1 ? "METODOLOGIA PRINCIPAL" : p === 2 ? "METODOLOGIA SECUNDÁRIA" : "METODOLOGIA COMPLEMENTAR";
-
-  const blocks = methodologies
-    .sort((a, b) => a.priority - b.priority)
-    .map((fm) => {
-      const m = fm.methodology;
-      if (!m) return null;
-      const keywordsStr = m.keywords?.length ? `\nPalavras-chave: ${m.keywords.join(", ")}` : "";
-      return `${priorityLabel(fm.priority)}: ${m.name}\nAbordagem: "${m.ai_generation_style}"${keywordsStr}`;
-    })
-    .filter(Boolean)
-    .join("\n\n");
-
-  return blocks
-    ? `[CONTEXTO PEDAGÓGICO DA FAMÍLIA]\n${blocks}\n\nOs projetos gerados DEVEM refletir esta(s) abordagem(ns) pedagógica(s), especialmente a principal.\n`
-    : "";
-}
 
 async function generateWithGemini(
   childName: string,
