@@ -6,11 +6,11 @@
 ## ESTADO DA EXECUÇÃO (atualizado 2026-06-12) — branch `new-ui`
 
 - ✅ **3.1** — Sidebar em 4 grupos (Planear / Aprender / Registar & Provar / Sistema). Crianças, Metodologias e Extracurriculares movidos para Sistema. Rotas mock `/forum`, `/community`, `/parent-training` removidas (+ imports); páginas ficam no repo mas inalcançáveis (caem no NotFound).
-- 🟡 **3.2** — Parcial: "Motor Criativo" renomeado para **"Ideias Rápidas"** (sidebar + página). **Por fazer:** regeneração inline de uma atividade no `PlanPreview` (3.2.1).
-- ✅ **3.3** — Edge function `generate-weekly-plan` (v18) aceita `responseSchema` + `temperature`; `geminiPlanner` passa o schema do array (structured output) e tenta até 2x. Erros acionáveis.
-- ⏳ **3.4** — Dashboard "Hoje": **por fazer** (o `Index.tsx` já tem um bom bloco "Hoje"; falta checkboxes de conclusão + CTA contextual de sexta/domingo).
-- ⏳ **3.5** — Mobile + PWA: **por fazer** (auditoria responsiva; manifest + service worker via vite-plugin-pwa).
-- ✅ **3.6** — README reescrito (era boilerplate Lovable); `*.timestamp-*.mjs` ignorado e artefacto removido. **Por fazer (menor):** decidir destino das pastas soltas da raiz; resolver o estado do branch.
+- ✅ **3.2 (COMPLETO 2026-07-17)** — "Ideias Rápidas" (renomeado) + **3.2.1 regeneração inline**: botão ↻ por atividade no `PlanPreview` (vista por criança) → `regenerateActivity()` no `geminiPlanner` (structured output, formato diferente, mesma disciplina). Leitura excluída (episódios contínuos). O "Guardar" existente persiste.
+- ✅ **3.3** — Edge function `generate-weekly-plan` (v20) aceita `responseSchema` + `temperature`; `geminiPlanner` passa o schema do array (structured output) e tenta até 2x. Erros acionáveis.
+- ✅ **3.4 (COMPLETO 2026-07-17)** — Migração 021 (`weekly_plan_items.completed_at`): checkboxes de conclusão nas atividades de hoje + CTA "Já planearam a próxima semana?" (sexta→domingo sem plano futuro). Fix: `birth_date` em falta no select → bloco de marcos nunca aparecia.
+- 🟡 **3.5 (2026-07-17)** — PWA feita: `vite-plugin-pwa` (autoUpdate), manifest pt-PT standalone, ícones 192/512/maskable + apple-touch-icon, `theme-color`. Tabs do PlanPreview deslizam em mobile. **Por fazer:** auditoria responsiva manual em dispositivo real (upload câmara, touch targets).
+- ✅ **3.6** — README reescrito (era boilerplate Lovable); `*.timestamp-*.mjs` ignorado e artefacto removido. **Por fazer (menor):** decidir destino das pastas soltas da raiz (`Curriculo_Nexseed/`, `gestao_de_conteudos/`, `Ponto de situação/` — decisão dos fundadores).
 
 > **Agente executor — contexto mínimo:** por passo, ler apenas os ficheiros indicados. Não redesenhar visualmente páginas que funcionam — esta fase é de **reorganização e robustez**, não de redesign estético.
 

@@ -11,16 +11,14 @@ Trabalho feito no branch `new-ui` (commits `a628b4c`, `fd69a8e`). **NÃO fazer m
 - ✅ **1.1 (código)** — `VITE_GEMINI_*` removido de `.env.local`. **Falta ação humana** (ver handoff).
 - ✅ **1.3** — `invite-family-member` com `verify_jwt=true` + rate limit 10/dia (v12). (Já tinha verificação de owner/family via `my_family_id`.)
 - ✅ **1.5** — Advisors: `search_path` fixo + `EXECUTE` revogado de anon/PUBLIC nas 4 funções (migração 014). Os 3 WARN "authenticated SECURITY DEFINER" remanescentes são **esperados/by-design** (funções que têm de ser chamáveis por utilizadores autenticados, com authz interna).
-- ✅ **1.4 (parcial)** — Fechada a vulnerabilidade de **listagem** do bucket de fotos + policies de escrita corrigidas para `my_family_id()` (migração 015). Advisor `public_bucket_allows_listing` limpo. **Adiado:** bucket totalmente privado + signed URLs (refactor do cliente através dos PDFs; risco atual baixo — 0 fotos, paths UUID não enumeráveis).
-- ✅ **1.6 (parcial)** — Bloco morto `_UNUSED` (~150 ln) removido de `geminiPlanner.ts`. **Adiado:** apagar JSONs de currículo duplicados (`CreativeEngine.tsx` ainda depende de `curriculumLoader.ts` → migrar primeiro para hooks da BD).
-- ⏳ **1.7** — Por fazer. **Atenção:** a sugestão de `UNIQUE(family_id, week_start)` em `weekly_plans` está ERRADA — a tabela tem `version` (versionamento de planos, migração 003). Usar `UNIQUE(family_id, week_start, version)` ou nenhum. Verificar dados antes.
+- ✅ **1.4 (COMPLETO 2026-07-17)** — Migração 020 aplicada em produção: bucket `activity-photos` **privado**, policies legadas amplas (migração 002) removidas. Cliente guarda o *path* na BD e lê via `createSignedUrls` TTL 1h (`src/lib/photoStorage.ts`, aplicado em `useActivities`/`usePortfolio` — cobre Portfólio, Reports e PDFs).
+- ✅ **1.6 (COMPLETO 2026-07-17)** — `CreativeEngine` migrado para `useCurriculum` (BD). Apagados: `curriculumLoader.ts`, `src/data/curriculos/`, `curriculos/` (raiz), `curriculo_2ano_portugal.json` (raiz e src/lib). Fonte única documentada em `useCurriculum.ts`.
+- ✅ **1.7 (COMPLETO 2026-07-17)** — Migração 022 aplicada: `UNIQUE(family_id, week_start, version)` em `weekly_plans` (com `version`, como avisado) + CHECK de `children.school_year` (10 valores da app).
 
-### HANDOFF HUMANO (bloqueia o merge para `main`)
-1. **Rodar as chaves Gemini** no Google AI Studio (as antigas estiveram no bundle público → comprometidas) e revogar as antigas.
-2. **Definir o secret** no Supabase: `supabase secrets set GEMINI_API_KEY=<nova>` (e opcional `GEMINI_API_KEY_2`). Sem isto, o proxy devolve 500 e o planeador não gera.
-3. **Remover** `VITE_GEMINI_API_KEY*` das env vars da Vercel.
-4. **Ativar** leaked-password protection no dashboard Supabase (Auth → Passwords) — limpa o último advisor.
-5. Depois de 1–2: **merge `new-ui` → `main`** para deploy.
+### HANDOFF HUMANO — resta 1 item (2026-07-17)
+1. ✅ Chaves Gemini rodadas; secret definido (geração a funcionar em produção — fluxo real 2026-07-14).
+2. ✅ `new-ui` merged para `main`.
+3. ⏳ **Ativar** leaked-password protection no dashboard Supabase (Auth → Passwords) — limpa o último advisor. **Continua por fazer.**
 
 > **Agente executor — contexto mínimo:** lê apenas os ficheiros indicados em cada passo. O schema da BD obtém-se via MCP Supabase (`list_tables`), não pelos ficheiros de `supabase/migrations/`. Secrets de edge functions gerem-se no dashboard/CLI Supabase (`supabase secrets set`), nunca em código.
 

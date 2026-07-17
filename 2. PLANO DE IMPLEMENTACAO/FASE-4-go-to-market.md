@@ -3,6 +3,18 @@
 **Depende de:** FASES 1–3 concluídas. Vários passos requerem ações humanas (contas Stripe/PostHog, conteúdo, jurídico) — estão marcadas **[HUMANO]**.
 
 ---
+## ESTADO DA EXECUÇÃO (2026-07-17)
+
+Decisão do fundador (fase de testes): **adiar 4.1 (Stripe) e 4.4 (landing page)** por agora.
+
+- ⏸️ **4.1** — Adiado deliberadamente (sem pagamentos na fase de testes).
+- 🟡 **4.2** — Boas-vindas feito (FASE 2.5). Fim de trial não se aplica ainda; lembrete de sexta é dispensável (existe CTA de sexta no dashboard, FASE 3.4). [HUMANO] confirmar domínio nexseed.pt verificado no Resend.
+- ✅ **4.3** — Coberto pela FASE 5 (analytics first-party em `analytics_events` + `/admin/feedback`); PostHog dispensado por decisão.
+- ⏸️ **4.4** — Adiado deliberadamente (testes com utilizadores convidados; login é a porta de entrada).
+- 🟡 **4.5** — Feito 2026-07-17: **export de dados** (edge `export-family-data` v1 + botão nas Definições) e **eliminação de conta completa** (edge `delete-family-account` v1: Storage + auth users + cascata BD; membro convidado apaga só a própria conta). **Falta:** [HUMANO] revisão jurídica de termos/privacidade; avaliar minimização do nome da criança no prompt Gemini (4.5.4).
+- ⏳ **4.6** — Beta: [HUMANO] recrutar famílias. A infra de escuta (FASE 5) está pronta.
+
+---
 
 ## Passo 4.1 — Subscrição (Stripe)
 
