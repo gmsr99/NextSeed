@@ -15,6 +15,16 @@ export function toStoragePath(value: string): string {
 }
 
 /**
+ * Apaga ficheiros do bucket. O cascade da BD remove as linhas mas nunca os
+ * ficheiros, por isso quem apaga uma atividade/criança tem de chamar isto.
+ */
+export async function removePhotos(values: string[]): Promise<void> {
+  if (!values.length) return;
+  const { error } = await supabase.storage.from(BUCKET).remove(values.map(toStoragePath));
+  if (error) throw error;
+}
+
+/**
  * Troca paths de fotos por signed URLs prontas a usar em <img>/PDF.
  * Best-effort: se a assinatura falhar, a foto é omitida (nunca rebenta a página).
  */

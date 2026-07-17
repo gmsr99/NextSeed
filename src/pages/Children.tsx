@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { format, differenceInYears, parseISO, isValid } from "date-fns";
 import { SCHOOL_YEARS, suggestPreSchoolYear } from "@/lib/planGenerator";
-import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2, GraduationCap, BarChart2 } from "lucide-react";
+import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2, GraduationCap, BarChart2, Trash2 } from "lucide-react";
 import CurriculumCoverageReport from "@/components/CurriculumCoverageReport";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
@@ -12,6 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import ChildCurriculumView from "@/components/ChildCurriculumView";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -20,6 +30,7 @@ import InterestPicker from "@/components/InterestPicker";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 import type { Child } from "@/lib/types";
 
 const interestIcons: Record<string, React.ReactNode> = {
@@ -50,13 +61,15 @@ const emptyForm = {
 };
 
 export default function Children() {
-  const { children, isLoading, createChild, updateChild } = useChildren();
+  const { children, isLoading, createChild, updateChild, deleteChild } = useChildren();
   const { family } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [curriculumChild, setCurriculumChild] = useState<Child | null>(null);
   const [reportChild, setReportChild] = useState<Child | null>(null);
+  const [childToDelete, setChildToDelete] = useState<Child | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [form, setForm] = useState(emptyForm);
   const [editForm, setEditForm] = useState(emptyForm);
 
@@ -114,6 +127,26 @@ export default function Children() {
     });
     setEditDialogOpen(false);
     setEditingChild(null);
+  };
+
+  const askDelete = (child: Child) => {
+    setChildToDelete(child);
+    setDeleteConfirmName("");
+  };
+
+  const handleDelete = async () => {
+    if (!childToDelete) return;
+    try {
+      await deleteChild.mutateAsync(childToDelete.id);
+      toast({ title: `Perfil de ${childToDelete.name} eliminado.` });
+      setChildToDelete(null);
+    } catch (e) {
+      toast({
+        title: "Erro ao eliminar",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    }
   };
 
   const getAge = (birthDate: string | null | undefined) => {
@@ -273,6 +306,16 @@ export default function Children() {
                         <Button variant="outline" size="sm" title="Relatório de cobertura" onClick={() => setReportChild(child)}>
                           <BarChart2 className="h-4 w-4" />
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          title="Eliminar perfil"
+                          aria-label={`Eliminar perfil de ${child.name}`}
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => askDelete(child)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -404,6 +447,42 @@ export default function Children() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmação de eliminação */}
+      <AlertDialog open={!!childToDelete} onOpenChange={(o) => { if (!o) setChildToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar o perfil de {childToDelete?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação é permanente e não pode ser anulada. São também eliminados os planos
+              semanais, atividades do portefólio, projetos, marcos, progresso curricular e
+              missões desta criança.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="delete-confirm">
+              Escreva <span className="font-semibold text-foreground">{childToDelete?.name}</span> para confirmar
+            </Label>
+            <Input
+              id="delete-confirm"
+              value={deleteConfirmName}
+              onChange={(e) => setDeleteConfirmName(e.target.value)}
+              placeholder={childToDelete?.name}
+              autoComplete="off"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
+              disabled={deleteConfirmName.trim() !== childToDelete?.name.trim() || deleteChild.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteChild.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Eliminar perfil"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }

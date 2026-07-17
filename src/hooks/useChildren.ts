@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { removePhotos } from "@/lib/photoStorage";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Child } from "@/lib/types";
 
@@ -51,5 +52,29 @@ export function useChildren() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["children", family?.id] }),
   });
 
-  return { children, isLoading, createChild, updateChild };
+  const deleteChild = useMutation({
+    mutationFn: async (id: string) => {
+      // O cascade da BD apaga as linhas das atividades mas não os ficheiros:
+      // recolhemos os paths antes, para que as fotos do menor não sobrevivam
+      // ao perfil.
+      const { data: acts, error: photosError } = await supabase
+        .from("activities")
+        .select("photos")
+        .eq("child_id", id);
+      if (photosError) throw photosError;
+      const photos = (acts ?? []).flatMap((a) => a.photos ?? []);
+
+      const { error } = await supabase.from("children").delete().eq("id", id);
+      if (error) throw error;
+
+      await removePhotos(photos);
+    },
+    onSuccess: () => {
+      // As tabelas dependentes têm FK on delete cascade/set null,
+      // por isso invalidamos tudo o que possa referir a criança.
+      queryClient.invalidateQueries();
+    },
+  });
+
+  return { children, isLoading, createChild, updateChild, deleteChild };
 }
