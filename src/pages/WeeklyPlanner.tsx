@@ -10,6 +10,7 @@ import {
   PlanActions,
   ExtracurricularsCard,
   PlanPreview,
+  planItemKey,
 } from "@/components/planner";
 import { useChildren } from "@/hooks/useChildren";
 import { useExtracurricular } from "@/hooks/useExtracurricular";
@@ -24,7 +25,7 @@ import {
   formatWeekRange,
   type GeneratedPlanItem,
 } from "@/lib/planGenerator";
-import { generateWithGemini } from "@/lib/geminiPlanner";
+import { generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 
 type Step = "form" | "preview";
@@ -299,6 +300,27 @@ export default function WeeklyPlanner() {
     } finally {
       setGenerating(false);
       setGeneratingStep("");
+    }
+  };
+
+  // ─── Regeneração inline de UMA atividade (FASE 3.2.1) ───────────────────────
+  const [regeneratingKey, setRegeneratingKey] = useState<string | null>(null);
+
+  const handleRegenerateItem = async (item: GeneratedPlanItem) => {
+    const child = children.find((c) => c.id === item.child_id);
+    if (!child) return;
+    const key = planItemKey(item);
+    setRegeneratingKey(key);
+    setError(null);
+    try {
+      const patch = await regenerateActivity(child, item, childInterests[item.child_id] ?? []);
+      setPlanItems((prev) =>
+        prev.map((i) => (planItemKey(i) === key ? { ...i, ...patch } : i))
+      );
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erro ao regenerar a atividade");
+    } finally {
+      setRegeneratingKey(null);
     }
   };
 
@@ -613,6 +635,8 @@ export default function WeeklyPlanner() {
             <PlanPreview
               children={children}
               planItems={planItems}
+              onRegenerateItem={handleRegenerateItem}
+              regeneratingKey={regeneratingKey}
             />
           </div>
         )}

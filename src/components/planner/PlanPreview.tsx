@@ -1,9 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, HelpCircle } from "lucide-react";
+import { Users, HelpCircle, RefreshCw } from "lucide-react";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, type GeneratedPlanItem } from "@/lib/planGenerator";
 import type { Child } from "@/lib/types";
+
+/** Chave estável de um item do plano (ainda sem id de BD na pré-visualização). */
+export function planItemKey(item: GeneratedPlanItem): string {
+  return `${item.child_id}|${item.day_of_week}|${item.time_slot}|${item.sort_order}`;
+}
 
 // Detects and parses inline reading text: "texto... | Pergunta: ..."
 function parseInlineText(description: string): { text: string; question: string } | null {
@@ -45,10 +51,21 @@ const CHILD_COLORS = [
 interface PlanPreviewProps {
   children: Child[];
   planItems: GeneratedPlanItem[];
+  /** Regenerar uma atividade inline (FASE 3.2.1). Omisso → sem botão. */
+  onRegenerateItem?: (item: GeneratedPlanItem) => void;
+  /** planItemKey do item em regeneração (desativa os restantes botões). */
+  regeneratingKey?: string | null;
+}
+
+interface ChildViewProps {
+  child: Child;
+  planItems: GeneratedPlanItem[];
+  onRegenerateItem?: (item: GeneratedPlanItem) => void;
+  regeneratingKey?: string | null;
 }
 
 // Per-child view (existing)
-function ChildView({ child, planItems }: { child: Child; planItems: GeneratedPlanItem[] }) {
+function ChildView({ child, planItems, onRegenerateItem, regeneratingKey }: ChildViewProps) {
   const childItems = planItems.filter((i) => i.child_id === child.id);
   return (
     <div className="space-y-4 mt-4">
@@ -85,6 +102,21 @@ function ChildView({ child, planItems }: { child: Child; planItems: GeneratedPla
                         >
                           {DISCIPLINE_LABELS[item.discipline] ?? item.discipline}
                         </Badge>
+                        {/* Leitura fica de fora: os 4 episódios são uma história contínua */}
+                        {onRegenerateItem && item.discipline !== "reading" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 ml-auto shrink-0 text-muted-foreground hover:text-primary"
+                            title="Regenerar esta atividade"
+                            disabled={!!regeneratingKey}
+                            onClick={() => onRegenerateItem(item)}
+                          >
+                            <RefreshCw
+                              className={`h-3.5 w-3.5 ${regeneratingKey === planItemKey(item) ? "animate-spin" : ""}`}
+                            />
+                          </Button>
+                        )}
                       </div>
                       <p className="text-sm font-medium text-foreground">{item.title}</p>
                       <ActivityDescription description={item.description} />
@@ -192,14 +224,14 @@ function FamilyView({ children, planItems }: { children: Child[]; planItems: Gen
   );
 }
 
-export function PlanPreview({ children, planItems }: PlanPreviewProps) {
+export function PlanPreview({ children, planItems, onRegenerateItem, regeneratingKey }: PlanPreviewProps) {
   const showFamilyTab = children.length > 1;
   const defaultTab = showFamilyTab ? "familia" : children[0]?.id ?? "familia";
 
   return (
     <Tabs defaultValue={defaultTab}>
       {/* max-w-full + overflow: em mobile com várias crianças as tabs deslizam */}
-      <TabsList className="max-w-full overflow-x-auto justify-start">
+      <TabsList className="max-w-full overflow-x-auto justify-start" data-tour="plano-preview">
         {showFamilyTab && (
           <TabsTrigger value="familia" className="gap-1.5">
             <Users className="h-3.5 w-3.5" /> Família
@@ -220,7 +252,12 @@ export function PlanPreview({ children, planItems }: PlanPreviewProps) {
 
       {children.map((child) => (
         <TabsContent key={child.id} value={child.id}>
-          <ChildView child={child} planItems={planItems} />
+          <ChildView
+            child={child}
+            planItems={planItems}
+            onRegenerateItem={onRegenerateItem}
+            regeneratingKey={regeneratingKey}
+          />
         </TabsContent>
       ))}
     </Tabs>

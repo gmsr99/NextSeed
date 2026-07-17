@@ -309,6 +309,71 @@ const PLAN_RESPONSE_SCHEMA = {
   },
 };
 
+// ─── Regeneração de UMA atividade do plano (FASE 3.2.1) ────────────────────────
+
+const SINGLE_ACTIVITY_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    title: { type: "STRING" },
+    description: { type: "STRING" },
+    materials: { type: "ARRAY", items: { type: "STRING" } },
+  },
+  required: ["title", "description", "materials"],
+};
+
+export async function regenerateActivity(
+  child: Child,
+  item: GeneratedPlanItem,
+  interests: string[],
+): Promise<Pick<GeneratedPlanItem, "title" | "description" | "materials">> {
+  const disciplineLabel = DISCIPLINE_LABELS[item.discipline] ?? item.discipline;
+  const interestsStr = interests.join(", ") || "livre";
+
+  const prompt = `És um especialista em educação e homeschooling português. Substitui UMA atividade de um plano semanal NexSeed por uma alternativa DIFERENTE.
+
+## CRIANÇA
+- ${child.name} (${child.school_year}) | Interesses: ${interestsStr} | Estilo: ${child.learning_preferences ?? "misto"} | Ritmo: ${child.learning_pace ?? "moderado"}
+
+## ATIVIDADE A SUBSTITUIR
+- ${DAY_LABELS[item.day_of_week - 1]} | ${item.time_slot} | ${disciplineLabel}
+- Título atual: "${item.title}"
+- Descrição atual: "${item.description}"
+
+## REGRAS
+1. Mantém a disciplina (${disciplineLabel}) e a duração do bloco; muda o FORMATO da atividade — se era jogo propõe escrita, observação, experiência, construção… nunca uma variação da mesma.
+2. Usa os interesses apenas para tematizar, nunca como objetivo.
+3. Título específico e criativo, máx. 8 palavras. Descrição CURTA: máx. 2 frases diretas com passos concretos. Materiais: máx. 4 itens simples disponíveis em casa.
+4. Se optares por leitura+compreensão (Português/Estudo do Meio): escreve o próprio texto na descrição (1 parágrafo, 4-6 frases adequadas à idade, português de Portugal), seguido de " | Pergunta: [1 pergunta de compreensão concreta]" — só neste formato podes ignorar o limite de 2 frases.
+
+## RESPOSTA
+Devolve APENAS um objeto JSON: {"title":"...","description":"...","materials":["...","..."]}`;
+
+  let lastError = "erro desconhecido";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { data, error } = await supabase.functions.invoke("generate-weekly-plan", {
+      body: { prompt, responseSchema: SINGLE_ACTIVITY_SCHEMA, temperature: 1.0 },
+    });
+
+    if (error) { lastError = error.message; continue; }
+    if (data?.error) { lastError = `${data.error}${data.detail ? ` — ${data.detail}` : ""}`; continue; }
+
+    try {
+      const parsed = JSON.parse(data?.text ?? "");
+      if (parsed && typeof parsed.title === "string" && typeof parsed.description === "string") {
+        return {
+          title: parsed.title,
+          description: parsed.description,
+          materials: Array.isArray(parsed.materials) ? parsed.materials : [],
+        };
+      }
+      lastError = "resposta sem os campos esperados";
+    } catch {
+      lastError = "JSON inválido";
+    }
+  }
+  throw new Error(`Falha ao regenerar a atividade: ${lastError}`);
+}
+
 export async function generateWithGemini(
   children: Child[],
   childInterests: Record<string, string[]>,

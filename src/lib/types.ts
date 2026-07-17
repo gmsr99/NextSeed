@@ -411,6 +411,7 @@ export type Database = {
           updated_at: string | null
           version: number
           week_start: string
+          weekly_content: Json | null
         }
         Insert: {
           child_interests?: Json | null
@@ -426,6 +427,7 @@ export type Database = {
           updated_at?: string | null
           version?: number
           week_start: string
+          weekly_content?: Json | null
         }
         Update: {
           child_interests?: Json | null
@@ -441,6 +443,7 @@ export type Database = {
           updated_at?: string | null
           version?: number
           week_start?: string
+          weekly_content?: Json | null
         }
         Relationships: []
       }
