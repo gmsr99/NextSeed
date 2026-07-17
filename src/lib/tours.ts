@@ -42,13 +42,13 @@ export const TOURS: TourDef[] = [
         target: "nav-planear",
         desktopOnly: true,
         title: "Planear",
-        body: "O coração da NexSeed. No Planeador Semanal geram o plano de atividades de cada semana; o Roteiro Anual e a Agenda dão-vos a visão de conjunto.",
+        body: "O coração da NexSeed. No Planeador Semanal geram o plano de atividades de cada semana; a Agenda dá-vos a visão de conjunto.",
       },
       {
         target: "nav-aprender",
         desktopOnly: true,
         title: "Aprender",
-        body: "Bibliotecas de ideias e conteúdos prontos a usar: projetos, missões do mundo, literacia financeira e digital.",
+        body: "Bibliotecas de ideias e conteúdos prontos a usar: áreas de aprendizagem, projetos e missões do mundo.",
       },
       {
         target: "nav-registar",

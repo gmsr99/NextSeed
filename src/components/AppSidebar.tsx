@@ -8,13 +8,10 @@ import {
   FlaskConical,
   FolderKanban,
   Sparkles,
-  Coins,
-  Monitor,
   FileImage,
   Globe,
   CalendarCheck,
   LogOut,
-  Trophy,
   BookHeart,
   Map,
   LifeBuoy,
@@ -51,7 +48,6 @@ type NavItem = {
 const planearItems: NavItem[] = [
   { title: "Dashboard",         url: "/",               icon: Home },
   { title: "Planeador Semanal", url: "/weekly-planner", icon: CalendarCheck },
-  { title: "Roteiro Anual",     url: "/roteiro-anual",  icon: Map },
   { title: "Agenda",            url: "/calendar",        icon: CalendarDays },
 ];
 
@@ -60,8 +56,6 @@ const aprenderItems: NavItem[] = [
   { title: "Projetos",              url: "/projects",            icon: FolderKanban },
   { title: "Ideias Rápidas",        url: "/creative-engine",     icon: Sparkles },
   { title: "Missões do Mundo",      url: "/world-missions",      icon: Globe },
-  { title: "Literacia Financeira",  url: "/financial-literacy",  icon: Coins },
-  { title: "Literacia Digital",     url: "/digital-literacy",    icon: Monitor },
 ];
 
 const registarItems: NavItem[] = [
@@ -71,11 +65,11 @@ const registarItems: NavItem[] = [
 ];
 
 const sistemaItems: NavItem[] = [
-  { title: "Crianças",          url: "/children",        icon: Users },
-  { title: "Metodologias",      url: "/metodologias",    icon: BookHeart },
-  { title: "Extracurriculares", url: "/extracurricular", icon: Trophy },
-  { title: "Ajuda / Manual",    url: "/ajuda",           icon: LifeBuoy },
-  { title: "Definições",        url: "/settings",        icon: Settings },
+  { title: "Crianças",        url: "/children",       icon: Users },
+  { title: "Metodologias",    url: "/metodologias",   icon: BookHeart },
+  { title: "Currículo Anual", url: "/roteiro-anual",  icon: Map },
+  { title: "Ajuda / Manual",  url: "/ajuda",          icon: LifeBuoy },
+  { title: "Definições",      url: "/settings",       icon: Settings },
 ];
 
 // Só visível a membros da equipa (team_admins). A página tem o seu próprio
