@@ -1,6 +1,6 @@
 import {
   Rocket, CalendarCheck, ListChecks, BookHeart, FlaskConical,
-  BarChart3, Map, Globe, Users, HelpCircle, type LucideIcon,
+  BarChart3, Map, Globe, Users, HelpCircle, BookOpen, type LucideIcon,
 } from "lucide-react";
 
 // ─── Modelo de conteúdo do Manual ───────────────────────────────────────────────
@@ -118,6 +118,35 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "Algumas metodologias combinam melhor do que outras — a página [Metodologias](/metodologias) mostra a compatibilidade entre elas.",
         "A metodologia influencia o estilo das atividades, mas o currículo nacional é sempre respeitado.",
       ]},
+    ],
+  },
+  {
+    slug: "areas-aprendizagem",
+    title: "Áreas de Aprendizagem",
+    icon: BookOpen,
+    summary: "Gerir o currículo de cada criança e avaliar conteúdos de 1 (a aprender) a 3 (dominado).",
+    keywords: ["áreas de aprendizagem", "currículo", "conteúdos", "avaliação", "dominado", "progresso", "disciplinas", "gestão de conteúdos"],
+    blocks: [
+      { type: "p", text: "As [Áreas de Aprendizagem](/learning-areas) são o vosso painel de gestão curricular por criança. Aqui veem **todos os conteúdos do currículo nacional** (DGE) do ano da criança, organizados por disciplina, e podem avaliar cada conteúdo à medida que ele é trabalhado." },
+      { type: "h", text: "O sistema de avaliação 1-2-3" },
+      { type: "p", text: "Cada conteúdo pode estar num de três estados:" },
+      { type: "ul", items: [
+        "**1 — A aprender** (círculo vazio): ainda não foi trabalhado, ou mal foi introduzido.",
+        "**2 — Em progresso** (relógio): a criança está a trabalhar o conteúdo mas ainda não domina.",
+        "**3 — Dominado** (visto verde): a criança consolidou o conteúdo.",
+      ]},
+      { type: "p", text: "Para avaliar, clicam nos três botões circulares à direita de cada conteúdo. A mudança é imediata e fica associada a essa criança." },
+      { type: "h", text: "Como isto afeta o Planeador" },
+      { type: "callout", text: "Os conteúdos marcados como **Dominado** deixam automaticamente de entrar nos planos seguintes gerados pela IA. Assim, a NexSeed concentra-se no que a criança ainda precisa de aprender — sem repetir o que já sabe." },
+      { type: "p", text: "Isto significa que manter as Áreas de Aprendizagem atualizadas ajuda a IA a gerar planos cada vez mais certeiros: quanto mais preciso for o vosso registo, mais útil é o próximo plano." },
+      { type: "h", text: "Diferença face ao Roteiro Anual" },
+      { type: "p", text: "Podem estar a perguntar-se: \"mas isto não é o mesmo que o [Roteiro Anual](/roteiro-anual)?\". São duas vistas do mesmo currículo, com objectivos diferentes:" },
+      { type: "ul", items: [
+        "**Áreas de Aprendizagem** — gestão ativa: avaliam conteúdos, veem percentagens de progresso por disciplina e controlam o que entra (ou não) no próximo plano.",
+        "**Roteiro Anual** — vista de planeamento: os mesmos conteúdos organizados pelos três períodos letivos, para verem o que vem aí e terem uma perspetiva de ano inteiro.",
+      ]},
+      { type: "h", text: "Anos cobertos" },
+      { type: "p", text: "Os conteúdos curriculares estão disponíveis para o **Pré-escolar** e do **1.º ao 4.º ano**. Se uma criança tiver um ano ainda sem currículo detalhado na app, verão uma mensagem a indicar isso." },
     ],
   },
   {
