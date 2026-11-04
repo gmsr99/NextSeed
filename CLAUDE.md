@@ -43,7 +43,7 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 2. **Especificação curta** antes de programar qualquer coisa M ou L: problema, proposta, critérios de aceitação, impacto técnico, riscos (RGPD, regressões), esforço. Esperar pelo OK.
 3. **Implementar num branch** (`feat/…`, `fix/…`, `chore/…`), nunca diretamente no `main`.
 4. **Verificar:** build, testes, e testar o comportamento (browser real quando houver UI).
-5. **Entregar** o link de pré-visualização da Vercel. Merge para `main` só com OK.
+5. **Entregar** o link de pré-visualização da Vercel. Merge para `main` só com OK. O Elton não usa o GitHub: aprova no chat ("aprovado", "podes publicar") e o Claude faz o merge e confirma que a produção atualizou.
 6. **Atualizar** `BACKLOG.md`, o Google Doc espelho e `Ponto de situação/estado_atual.md` no mesmo branch.
 
 ## Regras que não se negociam
