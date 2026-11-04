@@ -72,7 +72,7 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 | ID | Item | Data |
 |---|---|---|
 | OK-01 | Fotos comprimidas no telemóvel antes do upload (cerca de 10 vezes menos armazenamento; remove a localização GPS das fotos) | 4 nov 2026 (branch `chore/auditoria-backlog-claude-md`) |
-| OK-02 | Nomes de famílias e crianças removidos da documentação do repositório | 4 nov 2026 (idem) |
+| OK-02 | Nomes de famílias e crianças removidos da documentação do repositório e do exemplo mostrado no onboarding | 4 nov 2026 (idem) |
 | OK-03 | Gemini só no servidor, chaves rodadas; fotos em bucket privado; funções do servidor com autenticação | julho 2026 (FASE 1) |
 | OK-04 | Onboarding, Manual em `/ajuda`, visitas guiadas, dashboard "Hoje", PWA | julho 2026 (FASES 2 e 3) |
 | OK-05 | Exportar dados e eliminar conta; sistema de feedback e métricas em `/admin/feedback` | julho 2026 (FASES 4.5 e 5) |
