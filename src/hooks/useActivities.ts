@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { track } from "@/lib/analytics";
 import { signPhotoUrls } from "@/lib/photoStorage";
+import { compressImage } from "@/lib/imageCompression";
 import type { Activity } from "@/lib/types";
 
 export type { Activity };
@@ -11,12 +12,16 @@ export type { Activity };
 // Estas regras são reforçadas TAMBÉM pela Supabase storage policy (migration
 // 002_storage_security.sql) — nunca depender só do cliente.
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB — verificado DEPOIS da compressão
 
-function validatePhotoFile(file: File): string | null {
+function validatePhotoType(file: File): string | null {
   if (!ALLOWED_MIME_TYPES.includes(file.type.toLowerCase())) {
     return `"${file.name}" não é uma imagem suportada (JPEG, PNG, WebP, GIF, HEIC).`;
   }
+  return null;
+}
+
+function validatePhotoSize(file: File): string | null {
   if (file.size > MAX_FILE_SIZE_BYTES) {
     return `"${file.name}" excede o limite de 10 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`;
   }
@@ -60,18 +65,25 @@ export function useActivities() {
     mutationFn: async (input: CreateActivityInput) => {
       if (!family) throw new Error("Sem família");
 
-      // Validação antes do upload — camada extra além da storage policy
-      for (const file of input.photoFiles ?? []) {
-        const err = validatePhotoFile(file);
-        if (err) throw new Error(err);
+      // Validação antes do upload — camada extra além da storage policy.
+      // O tipo verifica-se no original; o tamanho, depois de comprimir
+      // (uma foto de telemóvel de 12 MB fica em ~300 KB e passa).
+      const filesToUpload: File[] = [];
+      for (const original of input.photoFiles ?? []) {
+        const typeErr = validatePhotoType(original);
+        if (typeErr) throw new Error(typeErr);
+        const file = await compressImage(original);
+        const sizeErr = validatePhotoSize(file);
+        if (sizeErr) throw new Error(sizeErr);
+        filesToUpload.push(file);
       }
 
       const activityId = crypto.randomUUID();
       // Bucket privado: guarda-se o PATH na BD; as signed URLs geram-se na leitura
       const photoPaths: string[] = [];
 
-      if (input.photoFiles?.length) {
-        for (const file of input.photoFiles) {
+      if (filesToUpload.length) {
+        for (const file of filesToUpload) {
           // O path começa sempre com o family_id — a RLS policy verifica isto
           const path = `${family.id}/${activityId}/${crypto.randomUUID()}-${file.name}`;
           const { error: uploadErr } = await supabase.storage
