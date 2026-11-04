@@ -50,7 +50,7 @@ As chaves em `.env.local` (`VITE_GEMINI_API_KEY`, `VITE_GEMINI_API_KEY_2`) já f
 2. Deploy com `verify_jwt=true` (resolve metade do B3).
 3. Em `src/lib/geminiPlanner.ts`: substituir o corpo de `generateWithGemini` por `supabase.functions.invoke("generate-weekly-plan", { body })`, mantendo a assinatura pública para não tocar em `WeeklyPlanner.tsx`. Apagar o bloco morto `_UNUSED` (~200 linhas) e toda a referência a `import.meta.env.VITE_GEMINI*`.
 4. O **Motor Criativo** (`src/pages/CreativeEngine.tsx`) também chama o Gemini do cliente. Adicionar à mesma edge function um campo `mode: "weekly-plan" | "creative-idea"` (ou criar função `generate-idea` separada se o prompt for muito distinto — preferir a primeira opção).
-5. Testes: atualizar `src/lib/__tests__/planGenerator.test.ts` se partir; smoke test manual com a família Malta (gerar um plano real).
+5. Testes: atualizar `src/lib/__tests__/planGenerator.test.ts` se partir; smoke test manual com a família F-01 (gerar um plano real).
 
 **Aceitação:** plano gera com sessão autenticada; pedido sem JWT → 401; `grep -r "generativelanguage\|VITE_GEMINI" src/` vazio.
 

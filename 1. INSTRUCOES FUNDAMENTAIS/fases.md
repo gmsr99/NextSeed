@@ -6,11 +6,11 @@ O projeto **NexSeed** foi desenhado para gerir e facilitar o ensino em casa (*ho
 
 ## 1. Fase 1: O Fluxo de Automação Urgente (O Foco Atual)
 
-Para aliviar a carga mental da mãe (Andreia) e poupar o tempo gasto na preparação das aulas, a primeira fase do projeto deixa de lado a estrutura visual complexa ("tirando a app") e foca-se estritamente num motor prático e automatizado [1].
+Para aliviar a carga mental da mãe (mãe) e poupar o tempo gasto na preparação das aulas, a primeira fase do projeto deixa de lado a estrutura visual complexa ("tirando a app") e foca-se estritamente num motor prático e automatizado [1].
 
 ### 1.1. O Formulário de Input
-Tudo começa com um formulário simples que a Andreia preenche, tipicamente à sexta-feira [1]. 
-*   **Interesses:** Regista os interesses atuais das crianças (Brian e Noa) para a semana seguinte [1].
+Tudo começa com um formulário simples que a mãe preenche, tipicamente à sexta-feira [1]. 
+*   **Interesses:** Regista os interesses atuais das crianças (C1 e C2) para a semana seguinte [1].
 *   **Projetos e Saídas:** Pode dar inputs específicos sobre projetos a realizar e sugerir ou planear a atividade de sexta-feira, dedicada a "ver mundo" (visitas e saídas) [2].
 
 ### 1.2. O Processamento Automático
@@ -18,14 +18,14 @@ O sistema pega na informação do formulário e cruza os interesses semanais com
 
 ### 1.3. Dinâmicas Específicas Geradas
 Existem três conteúdos principais que fogem à geração automática padrão e têm regras próprias:
-*   **Estímulo à Leitura (Minisséries):** A última atividade da tarde para o Brian é um exercício de leitura criado em formato de minissérie, de segunda a quinta-feira, baseado no seu tema de interesse atual (por exemplo, criar uma história contínua sobre vulcões) [2].
+*   **Estímulo à Leitura (Minisséries):** A última atividade da tarde para o C1 é um exercício de leitura criado em formato de minissérie, de segunda a quinta-feira, baseado no seu tema de interesse atual (por exemplo, criar uma história contínua sobre vulcões) [2].
 *   **Sexta-feira ("Ver Mundo"):** A rotina de sexta-feira é diferente, focada em saídas e visitas, podendo o destino ser sugerido pelo sistema ou introduzido previamente no formulário [2].
 *   **Projetos:** Atividades que podem ser sugeridas automaticamente ou receber inputs diretos dos pais [2].
 
 ### 1.4. A Entrega (Output)
 Após gerar a proposta, o sistema envia automaticamente um email com **dois ficheiros PDF** [1]:
 *   **1º PDF (O Horário):** Um documento com os blocos de tempo definidos (matemática, português, projeto, brincadeira livre, leitura) e uma atividade específica alocada a cada momento [1].
-*   **2º PDF (Guia de Atividades e Materiais):** Um documento com a explicação passo a passo das atividades e uma lista prévia de todos os materiais necessários para a semana, permitindo à Andreia fazer as compras e preparar tudo com antecedência [1].
+*   **2º PDF (Guia de Atividades e Materiais):** Um documento com a explicação passo a passo das atividades e uma lista prévia de todos os materiais necessários para a semana, permitindo à mãe fazer as compras e preparar tudo com antecedência [1].
 
 A partir do momento em que a mãe recebe estes dois PDFs, fica totalmente liberta da carga mental de planear a agenda, restando-lhe apenas aplicar as atividades com as crianças ("é rock and roll") [1].
 

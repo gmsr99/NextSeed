@@ -1,7 +1,7 @@
 {
   "projeto": {
     "nome": "NexSeed V2",
-    "descricao": "Plataforma de homeschooling para a família Malta (Andreia + filhos Bryan e Noa). Gere currículo, atividades, projetos, gamificação e gera relatórios trimestrais obrigatórios para a escola.",
+    "descricao": "Plataforma de homeschooling para a família F-01 (mãe + filhos C1 e C2). Gere currículo, atividades, projetos, gamificação e gera relatórios trimestrais obrigatórios para a escola.",
     "url_producao": "nexseed.pt",
     "deploy": "Vercel ligado ao branch main do GitHub (gmsr99/NexSeed)",
     "data_contexto": "2026-03-25"
@@ -35,14 +35,14 @@
     "pdf_components": "src/components/pdf/"
   },
   "familia": {
-    "nome": "Malta",
+    "nome": "F-01",
     "criancas": [
       {
-        "nome": "Bryan Malta",
+        "nome": "C1",
         "school_year": "2º ano"
       },
       {
-        "nome": "Noa Malta",
+        "nome": "C2",
         "school_year": "Pré-escolar"
       }
     ],

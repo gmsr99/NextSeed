@@ -30,7 +30,7 @@ Transformar o dashboard no "ecrã de abertura da manhã" — a primeira coisa qu
 ### Layout (de cima para baixo)
 
 **Bloco 1 — Hoje** *(proeminente, topo)*
-- Saudação contextual com data: "Bom dia, família Malta! · Sexta, 10 de abril"
+- Saudação contextual com data: "Bom dia, família F-01! · Sexta, 10 de abril"
 - Atividades de hoje extraídas do plano semanal ativo (`weekly_plan_items` filtrado pelo `day_of_week` atual)
 - Se não houver plano ativo: card CTA "Gerar plano para esta semana →"
 - Cada atividade mostra: hora, título, disciplina com cor, botão inline "Registar"

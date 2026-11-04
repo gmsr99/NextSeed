@@ -1,116 +1,40 @@
-# NexSeed V2 — Ponto de Situação
-**Atualizado:** 25 de março de 2026
+# NexSeed — Ponto de situação
+**Atualizado:** 4 de novembro de 2026 (auditoria ao código; substitui a versão de março)
 
----
+O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
-## Stack Técnica
+## Fase do projeto
+Beta com famílias convidadas, sem pagamentos. Lançamento comercial da coorte fundadora previsto para janeiro de 2027. Último trabalho de código antes desta auditoria: julho de 2026 (FASES 1 a 5); setembro só teve um commit de teste.
 
-- **Frontend:** React + TypeScript + Vite + Tailwind CSS + shadcn/ui + framer-motion
-- **Backend:** Supabase (PostgreSQL + Auth + Storage)
-- **IA:** Gemini 2.5 Flash (Motor Criativo)
-- **PDF:** @react-pdf/renderer
-- **Dados:** TanStack React Query (useQuery / useMutation)
-- **Deploy:** Vercel → nexseed.pt (ligado ao branch `main` do GitHub)
+## Stack
+React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (Postgres/RLS, Auth, Storage privado, 8 edge functions) · Gemini 2.5 Flash via edge function · PDFs no browser · PWA · Vercel → nexseed.pt (branch `main`).
 
----
-
-## Fase 1 — Motor de Automação
-
-| # | Funcionalidade | Estado |
-|---|---|---|
-| 1.1 | Formulário de input semanal (interesses, projetos) | ✅ WeeklyPlanner com Gemini |
-| 1.2 | Geração automática cruzando interesses + currículo | ✅ Motor Criativo (Gemini 2.5 Flash) |
-| 1.3 | Dinâmicas específicas (leitura, sexta, projetos) | ✅ Projetos com fases |
-| 1.4 | Email automático com 2 PDFs | ⚠️ PDF trimestral existe; envio por email ainda não implementado |
-
----
-
-## Fase 2 — App Principal
-
-### ✅ Concluído e ligado ao Supabase
-
-| Página | Rota | Detalhe |
-|---|---|---|
-| Dashboard | `/` | Visão geral da semana, atividades recentes |
-| Perfis das Crianças | `/children` | CRUD completo, ligado à tabela `children` |
-| Áreas de Aprendizagem | `/learning-areas` | Currículo DGE real para Pré-escolar, 1º, 2º, 3º e 4º ano |
-| Planeador Semanal | `/weekly-planner` | Geração com Gemini + currículo real |
-| Motor Criativo | `/creative-engine` | Gemini 2.5 Flash; "Realizar" → Atividades; "Guardar" → Projetos |
-| Registo de Atividades | `/activities` | Upload de fotos (Supabase Storage), portfólio, PDF trimestral |
-| Projetos | `/projects` | Fases com checkboxes, biblioteca de templates, ligado à BD |
-| Missões do Mundo | `/world-missions` | Gamificação com pontos, por criança, persistido no Supabase |
-| Portfólio | `/portfolio` | Timeline real com filtros por criança e disciplina |
-| Relatórios | `/reports` | KPIs reais, gráfico de tendência, export PDF trimestral |
-| Literacia Financeira | `/financial-literacy` | Página existente |
-| Literacia Digital | `/digital-literacy` | Página existente |
-
-### ⚠️ Parcialmente implementado
-
-| Página | Rota | Estado |
-|---|---|---|
-| Formação para Pais | `/parent-training` | Estrutura existe, conteúdo mock |
-
-### ⏳ Por fazer (mock ou vazio)
-
-| Página | Rota | Estado |
-|---|---|---|
-| Comunidade | `/community` | Mock — sem ligação a BD |
-| Fórum | `/forum` | Mock — sem ligação a BD |
-| Agenda / Calendário | `/calendar` | Mock — sem eventos reais |
-
----
-
-## Base de Dados (Supabase)
-
-### Tabelas principais
-
-| Tabela | Descrição |
+## Funcionalidades disponíveis (rotas)
+| Área | Rotas |
 |---|---|
-| `families` | Uma família por conta |
-| `children` | Crianças da família (nome, ano escolar, interesses) |
-| `activities` | Atividades registadas (data, disciplina, fotos, descrição) |
-| `projects` | Projetos com fases em JSONB |
-| `mission_completions` | Completações de Missões do Mundo (por criança, com pontos) |
-| `curriculum_disciplines` | Currículo DGE — 5 anos escolares × 6–7 disciplinas |
-| `weekly_plans` | Planos semanais gerados pelo Gemini |
+| Planear | `/` (dashboard "Hoje" com conclusão de atividades), `/weekly-planner` (gerador com regeneração por atividade), `/roteiro-anual`, `/creative-engine` (Ideias Rápidas), `/projects`, `/calendar` |
+| Aprender | `/learning-areas`, `/curriculum`, `/world-missions` (com prémios), `/financial-literacy`, `/digital-literacy` |
+| Registar e provar | `/activities` (com fotos), `/portfolio`, `/reports` (PDF trimestral) |
+| Sistema | `/children`, `/metodologias`, `/extracurricular`, `/settings` (exportar dados, eliminar conta), `/onboarding`, `/ajuda` (manual), `/admin/feedback` (equipa) |
+| Públicas | `/login`, `/privacidade`, `/termos`, `/accept-invite` |
 
-### Storage
+Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
 
-| Bucket | Uso |
+## Segurança e dados: estado verificado no código
+| Tema | Estado |
 |---|---|
-| `activity-photos` | Fotos das atividades (público, upload autenticado) |
+| Chaves do Gemini fora do cliente | Feito (julho). Gemini só via `generate-weekly-plan`, chaves rodadas |
+| Fotos de crianças | Bucket privado, signed URLs de 1 h. Desde 4 nov: compressão no cliente (~≤350 KB) que também remove a localização GPS |
+| Edge functions | Todas com autenticação (`verify_jwt`) |
+| Exportar e apagar dados | Feito (edge functions `export-family-data`, `delete-family-account`) |
+| Gemini em faturação paga | **Por confirmar** (B-01). É o bloqueante de RGPD nº 1 |
+| Proteção de passwords comprometidas | **Por ativar** no Supabase (B-02) |
+| Nomes das crianças no pedido ao Gemini | Ainda são enviados (P-03) |
+| Privacidade e Termos | Páginas existem mas faltam: subcontratantes (Gemini), cessão da posição contratual, reembolso, consentimentos (B-07 a B-09) |
 
-### RLS
-Todas as tabelas usam `my_family_id()` para isolamento de dados por família.
+## Limites desta auditoria
+- **A base de dados não foi verificada ao vivo.** O conector Supabase disponível ao Claude não tem acesso ao projeto da NexSeed (B-04). O estado acima vem do código, das migrações (001 a 025) e dos registos de execução das fases.
+- **Repositório público.** O repositório `gmsr99/NextSeed` é público e o histórico do git ainda contém nomes da família piloto (removidos dos ficheiros atuais em 4 nov). Só o dono da conta `gmsr99` pode torná-lo privado (B-03). Tornar privado **não afeta as famílias** (a app servida pela Vercel não depende da visibilidade do repositório). Ponto a confirmar antes: se o projeto Vercel estiver num plano Hobby, os deploys de commits feitos por colaboradores (Elton, Claude) num repositório privado podem ficar bloqueados; no plano Pro não há esse problema.
 
----
-
-## Currículo DGE (na BD)
-
-| Ano | Disciplinas | Estado |
-|---|---|---|
-| Pré-escolar | Linguagem, Matemática, Expressão Artística, Conhecimento do Mundo, Ed. Física, Formação Pessoal | ✅ |
-| 1º ano | Português, Matemática, Estudo do Meio, Ed. Artística, Ed. Física, Cidadania | ✅ |
-| 2º ano | Português, Matemática, Estudo do Meio, Inglês (AEC), Ed. Artística, Ed. Física, Cidadania | ✅ |
-| 3º ano | Português, Matemática, Estudo do Meio, Inglês, Ed. Artística, Ed. Física, Cidadania | ✅ |
-| 4º ano | Português, Matemática, Estudo do Meio, Inglês, Ed. Artística, Ed. Física, Cidadania | ✅ |
-
-Fontes JSON em `src/data/curriculos/` e `curriculos/` (raiz). Usados pelo Motor Criativo via `curriculumLoader.ts` e pela página `/learning-areas` via `useCurriculum()` (Supabase).
-
----
-
-## Próximos Passos Sugeridos
-
-1. **Email automático** — Edge Function Supabase + Resend API para enviar os 2 PDFs à sexta-feira (o passo mais próximo do objetivo original da Fase 1)
-2. **Prémios (Missões do Mundo)** — sistema de prémios definidos pelos pais, resgatáveis com pontos
-3. **Relatórios estatísticos** — gráficos de progressão face aos objetivos do currículo ao longo do tempo
-4. **Comunidade / Fórum** — se houver interesse em abrir a plataforma a outras famílias
-
----
-
-## Crianças da Família Malta
-
-| Nome | Ano Escolar |
-|---|---|
-| Bryan Malta | 2º ano |
-| Noa Malta | Pré-escolar |
+## Famílias no beta
+Ver documento 10 (base de conhecimento do projeto). Aqui não se registam nomes.

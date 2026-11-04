@@ -38,7 +38,7 @@ Nova página `src/pages/Onboarding.tsx` + rota protegida em `App.tsx`. Redirecio
 5. **Primeiro plano** — formulário mínimo (interesses já preenchidos do passo 3; semana = próxima segunda-feira) → botão "Gerar o nosso primeiro plano" → chama o motor (edge function) → mostra o `PlanPreview` existente → CTA "Enviar por email" (fluxo `send-weekly-plan` existente).
 6. **Fim** — marcar `onboarding_completed_at = now()`, redirecionar para `/` com toast.
 
-**Aceitação:** conta nova criada de raiz percorre o wizard e termina com 1 criança, 1 plano gerado e email recebido; refresh a meio retoma no passo certo; utilizadores existentes (Malta) não são empurrados para o wizard (backfill: `UPDATE families SET onboarding_completed_at = now() WHERE created_at < <data do deploy>`).
+**Aceitação:** conta nova criada de raiz percorre o wizard e termina com 1 criança, 1 plano gerado e email recebido; refresh a meio retoma no passo certo; utilizadores existentes (F-01) não são empurrados para o wizard (backfill: `UPDATE families SET onboarding_completed_at = now() WHERE created_at < <data do deploy>`).
 
 ## Passo 2.3 — Manual de Instruções (`/ajuda`)
 

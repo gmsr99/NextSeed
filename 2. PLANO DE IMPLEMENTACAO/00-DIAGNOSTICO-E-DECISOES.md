@@ -13,7 +13,7 @@ Plataforma web para famílias portuguesas em regime de **ensino doméstico (home
 
 **Stack:** React + Vite + TS + Tailwind + shadcn/ui (frontend), Supabase (Postgres + Auth + Storage + Edge Functions), Gemini 2.5 Flash, @react-pdf/renderer (PDFs no cliente), Resend (email), Vercel → nexseed.pt.
 
-**Estado dos dados (verificado em 2026-06-12):** 1 família (Malta), 3 crianças, 3 utilizadores, 5 planos semanais, 0 atividades registadas. Migrações 012 e 013 **já aplicadas em produção** (colunas `weekly_plans.weekly_content` e `children.methodology_id` confirmadas no schema live).
+**Estado dos dados (verificado em 2026-06-12):** 1 família (F-01), 3 crianças, 3 utilizadores, 5 planos semanais, 0 atividades registadas. Migrações 012 e 013 **já aplicadas em produção** (colunas `weekly_plans.weekly_content` e `children.methodology_id` confirmadas no schema live).
 
 ---
 

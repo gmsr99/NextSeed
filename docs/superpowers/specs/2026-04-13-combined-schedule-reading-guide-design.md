@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-13  
 **Status:** Approved  
-**Source:** Client backlog (Família Malta)
+**Source:** Client backlog (Família F-01)
 
 ---
 
@@ -56,14 +56,14 @@ For each `(timeSlot, day)` cell:
 Below the week title, a colour legend:
 
 ```
-● Bryan   ● Noa   ● Iris
+● C1   ● C2   ● C3
 ```
 
 Dots use the respective child colour.
 
 ### Gap Fix
 
-The reading slot for Bryan currently renders as `15:00–15:30`, leaving a 15-minute gap after Relaxamento (14:30–14:45). The slot is corrected to `14:45–15:15` in the schedule generator (`planGenerator.ts` and `geminiPlanner.ts`).
+The reading slot for C1 currently renders as `15:00–15:30`, leaving a 15-minute gap after Relaxamento (14:30–14:45). The slot is corrected to `14:45–15:15` in the schedule generator (`planGenerator.ts` and `geminiPlanner.ts`).
 
 ### Files Changed
 
@@ -149,5 +149,5 @@ Location: `src/components/pdf/ReadingGuidePDF.tsx`
 1. The weekly PDF email contains three attachments: schedule, activity guide, reading guide.
 2. The schedule PDF shows one unified table; shared activities appear as a single row; child-specific activities show colour-coded stacked blocks.
 3. The reading guide PDF contains 4 episodes, each with story text, comprehension question, and discussion prompt.
-4. Bryan's schedule no longer has a 14:45–15:00 gap.
+4. C1's schedule no longer has a 14:45–15:00 gap.
 5. The activity guide no longer contains reading episode entries.
