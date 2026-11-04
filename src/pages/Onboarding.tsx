@@ -186,7 +186,7 @@ export default function Onboarding() {
             </div>
             <div className="space-y-2 max-w-sm">
               <Label htmlFor="famname">Nome da família</Label>
-              <Input id="famname" value={familyName} onChange={(e) => setFamilyName(e.target.value)} placeholder="Ex: Família Malta" />
+              <Input id="famname" value={familyName} onChange={(e) => setFamilyName(e.target.value)} placeholder="Ex: Família Silva" />
             </div>
             <div className="flex justify-between">
               <Button variant="ghost" onClick={() => go(0)}><ArrowLeft className="mr-2 h-4 w-4" /> Voltar</Button>

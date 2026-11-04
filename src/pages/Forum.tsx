@@ -204,7 +204,7 @@ const Forum = () => {
     const topic: Topic = {
       id: Date.now().toString(),
       title: newTitle.trim(),
-      author: "Família Malta",
+      author: "Família Silva",
       content: newContent.trim(),
       date: new Date(),
       lastActivity: new Date(),
@@ -228,7 +228,7 @@ const Forum = () => {
     if (!replyText.trim() || !selectedTopic) return;
     const reply: Reply = {
       id: Date.now().toString(),
-      author: "Família Malta",
+      author: "Família Silva",
       content: replyText.trim(),
       date: new Date(),
       likes: 0,
