@@ -27,6 +27,7 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 | B-07 | Política de Privacidade: listar os subcontratantes (Google/Gemini, Supabase, Vercel, Resend) e o tratamento de dados de menores | A página `/privacidade` não menciona o Gemini. Fase A, A2 e A9 | M | Claude (rascunho) + revisão jurídica | Por fazer |
 | B-08 | Termos de Utilização: declaração de autoridade parental, cláusula de cessão da posição contratual e política de reembolso | A página `/termos` não tem nenhuma das três. Fase A, A3 e A4; D-014 | M | Claude (rascunho) + revisão jurídica | Por fazer |
 | B-09 | Consentimentos granulares registados no produto (quem, quando, a quê, versão dos termos) | Fase A, A6. Não existe tabela de consentimentos | M | Claude | Por fazer (precisa de especificação) |
+| B-10 | A função `analyze-curriculum-coverage` aceita o `family_id` vindo do pedido e usa a chave de serviço: obter a família a partir do login | Regra das edge functions (CLAUDE.md). Um utilizador autenticado pode escrever cobertura noutra família. Publicar exige acesso ao Supabase | S | Claude | Por fazer (depende de B-04) |
 
 ## 2. Agora: qualidade do plano semanal
 
@@ -34,7 +35,7 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 |---|---|---|---|---|---|
 | P-01 | Deixar de enviar o currículo inteiro do ano ao modelo quando nada está marcado como "em progresso" (heurística de janela ou marcação obrigatória no onboarding) | Planos gerados sem sinal de prioridade na feature que decide o produto. Doc 03 §5.3, INS-06. Problema 3, 7 | M | Claude | Por fazer (precisa de especificação) |
 | P-02 | Tornar visível a marcação "em progresso / dominado" nas Áreas de Aprendizagem | As famílias não a descobrem, e sem ela aplica-se o P-01. INS-06 | S | Claude | Por fazer |
-| P-03 | Pseudonimizar os nomes das crianças no pedido ao Gemini (enviar "Criança A, 8 anos" e repor o nome no resultado) | Minimização de dados enviados a subcontratante. Doc 04 §2, FASE 4.5.4. Remendo, não substitui o B-01 | M | Claude | Aguarda decisão |
+| P-03 | Pseudonimizar os nomes das crianças no pedido ao Gemini (enviar "Criança A, 8 anos" e repor o nome no resultado) | Minimização de dados enviados a subcontratante. Doc 04 §2, FASE 4.5.4. Remendo, não substitui o B-01. Reversível: `SEND_CHILD_NAMES_TO_AI` em `src/lib/aiPrivacy.ts` | M | Claude | Feito, aguarda aprovação (branch `feat/pseudonimizar-nomes-ia`) |
 | P-04 | Envelope de tempo por criança: dias da semana, minutos por dia, datas do ano letivo | O plano é gerado para uma semana que a família não tem. INS-03, decisão em aberto A-08 | L | Claude | Aguarda decisão |
 | P-05 | Decidir se a análise de cobertura curricular mantém o "thinking" do Gemini | Metade do custo dessa função; pode estar a melhorar a qualidade. A-04 | S | Claude + Elton | Por fazer |
 

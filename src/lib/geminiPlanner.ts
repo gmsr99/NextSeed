@@ -4,6 +4,7 @@ import { DISCIPLINE_LABELS, DAY_LABELS, getAlignedPreSchoolSlots } from "./planG
 import { GC_DISCIPLINE_LABELS } from "./gcConstants";
 import { buildMethodologyContext } from "./methodologyContext";
 import { supabase } from "./supabase";
+import { withAiLabels, aiLabel, restoreNames, AI_NAME_RULE } from "./aiPrivacy";
 
 // ─── Estrutura do horário (espelho do planGenerator.ts — só slots variáveis) ──
 
@@ -252,7 +253,7 @@ Na **descrição** das atividades do pré-escolar menciona (1 frase) como o adul
 
 ## CRIANÇAS
 ${childrenSection}
-${multiLevelNote}${weeklyContentSection}${nexseedSection}${gcSection}${gcAllSection}
+${AI_NAME_RULE}${multiLevelNote}${weeklyContentSection}${nexseedSection}${gcSection}${gcAllSection}
 ## SEXTA-FEIRA
 ${fridayNote}
 
@@ -336,7 +337,7 @@ export async function regenerateActivity(
   const prompt = `${methodologySection}És um especialista em educação e homeschooling português. Substitui UMA atividade de um plano semanal NexSeed por uma alternativa DIFERENTE.
 
 ## CRIANÇA
-- ${child.name} (${child.school_year}) | Interesses: ${interestsStr} | Estilo: ${child.learning_preferences ?? "misto"} | Ritmo: ${child.learning_pace ?? "moderado"}
+- ${aiLabel(child.name, 0)} (${child.school_year}) | Interesses: ${interestsStr} | Estilo: ${child.learning_preferences ?? "misto"} | Ritmo: ${child.learning_pace ?? "moderado"}
 
 ## ATIVIDADE A SUBSTITUIR
 - ${DAY_LABELS[item.day_of_week - 1]} | ${item.time_slot} | ${disciplineLabel}
@@ -349,6 +350,7 @@ export async function regenerateActivity(
 3. Título específico e criativo, máx. 8 palavras. Descrição CURTA: máx. 2 frases diretas com passos concretos. Materiais: máx. 4 itens simples disponíveis em casa.
 4. Se optares por leitura+compreensão (Português/Estudo do Meio): escreve o próprio texto na descrição (1 parágrafo, 4-6 frases adequadas à idade, português de Portugal), seguido de " | Pergunta: [1 pergunta de compreensão concreta]" — só neste formato podes ignorar o limite de 2 frases.
 
+${AI_NAME_RULE}
 ## RESPOSTA
 Devolve APENAS um objeto JSON: {"title":"...","description":"...","materials":["...","..."]}`;
 
@@ -364,10 +366,13 @@ Devolve APENAS um objeto JSON: {"title":"...","description":"...","materials":["
     try {
       const parsed = JSON.parse(data?.text ?? "");
       if (parsed && typeof parsed.title === "string" && typeof parsed.description === "string") {
+        const names = [child.name];
         return {
-          title: parsed.title,
-          description: parsed.description,
-          materials: Array.isArray(parsed.materials) ? parsed.materials : [],
+          title: restoreNames(parsed.title, names),
+          description: restoreNames(parsed.description, names),
+          materials: Array.isArray(parsed.materials)
+            ? parsed.materials.map((m: string) => restoreNames(String(m), names))
+            : [],
         };
       }
       lastError = "resposta sem os campos esperados";
@@ -389,8 +394,12 @@ export async function generateWithGemini(
   weeklyContent: Record<string, Record<string, string>> = {},
   familyMethodologies: FamilyMethodology[] = [],
 ): Promise<GeneratedPlanItem[]> {
-  const skeleton = buildSkeleton(children);
-  const prompt = buildPrompt(children, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
+  // O modelo recebe pseudónimos em vez de nomes (P-03). Os ids mantêm-se,
+  // por isso o encaixe das respostas (por posição) não muda.
+  const aiChildren = withAiLabels(children);
+  const realNames = children.map((c) => c.name);
+  const skeleton = buildSkeleton(aiChildren);
+  const prompt = buildPrompt(aiChildren, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
 
   // Até 2 tentativas: cobre falhas transitórias (429/502) e parsing.
   let aiContent: { title: string; description: string; materials: string[] }[] | null = null;
@@ -423,9 +432,9 @@ export async function generateWithGemini(
     day_of_week: s.day_of_week,
     time_slot: s.time_slot,
     discipline: s.discipline,
-    title: aiContent[idx]?.title ?? s.discipline_label,
-    description: aiContent[idx]?.description ?? "",
-    materials: aiContent[idx]?.materials ?? [],
+    title: restoreNames(aiContent[idx]?.title ?? s.discipline_label, realNames),
+    description: restoreNames(aiContent[idx]?.description ?? "", realNames),
+    materials: (aiContent[idx]?.materials ?? []).map((m) => restoreNames(String(m), realNames)),
     is_friday_world: s.is_friday_world,
     sort_order: s.sort_order,
   }));

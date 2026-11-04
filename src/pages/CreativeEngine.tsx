@@ -19,6 +19,7 @@ import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 import { useCurriculum } from "@/hooks/useCurriculum";
 import { supabase } from "@/lib/supabase";
 import { buildMethodologyContext } from "@/lib/methodologyContext";
+import { aiLabel, restoreNames, AI_NAME_RULE, SEND_CHILD_NAMES_TO_AI } from "@/lib/aiPrivacy";
 import type { FamilyMethodology } from "@/lib/types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -63,8 +64,10 @@ async function generateWithGemini(
   const interestStr = interests.join(", ") || "variados";
   const methodologyContext = buildMethodologyContext(activeMethodologies);
 
-  const prompt = `${methodologyContext}Gera 3 sugestões de PROJETOS para uma criança portuguesa do ${schoolYear}, chamada ${childName}, com os seguintes interesses: ${interestStr}.
-
+  // P-03: por defeito o modelo não recebe o nome da criança.
+  const nameClause = SEND_CHILD_NAMES_TO_AI ? `, chamada ${aiLabel(childName, 0)},` : "";
+  const prompt = `${methodologyContext}Gera 3 sugestões de PROJETOS para uma criança portuguesa do ${schoolYear}${nameClause} com os seguintes interesses: ${interestStr}.
+${AI_NAME_RULE}
 Um projeto desenvolve-se ao longo de vários dias, semanas ou meses (ex: plantar e cuidar de uma árvore, escrever um diário, construir algo progressivamente). Tem fases distintas que se sucedem no tempo.
 
 O projeto deve trabalhar o seguinte objetivo curricular de ${disciplineLabel}:
@@ -114,7 +117,14 @@ Cada projeto deve ter entre 3 e 5 fases. O campo "type" é sempre "Projeto".`;
     throw new Error("Resposta da IA com JSON mal-formado");
   }
 
-  return parsed.map((s, i) => ({ ...s, id: String(i) }));
+  const names = [childName];
+  return parsed.map((s, i) => ({
+    ...s,
+    title: restoreNames(s.title, names),
+    description: restoreNames(s.description, names),
+    phases: s.phases?.map((ph) => restoreNames(ph, names)),
+    id: String(i),
+  }));
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────

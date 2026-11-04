@@ -29,7 +29,8 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 | Exportar e apagar dados | Feito (edge functions `export-family-data`, `delete-family-account`) |
 | Gemini em faturação paga | **Por confirmar** (B-01). É o bloqueante de RGPD nº 1 |
 | Proteção de passwords comprometidas | **Por ativar** no Supabase (B-02) |
-| Nomes das crianças no pedido ao Gemini | Ainda são enviados (P-03) |
+| Nomes das crianças no pedido ao Gemini | Substituídos por pseudónimos ("Criança A") no plano semanal, na regeneração e nas Ideias Rápidas; o nome é reposto no resultado (P-03, a aguardar aprovação). A análise de cobertura não envia nomes de crianças, mas envia os títulos e descrições das atividades tal como a família os escreveu |
+| Análise de cobertura | Recebe o `family_id` do pedido em vez do login (B-10) |
 | Privacidade e Termos | Páginas existem mas faltam: subcontratantes (Gemini), cessão da posição contratual, reembolso, consentimentos (B-07 a B-09) |
 
 ## Limites desta auditoria
