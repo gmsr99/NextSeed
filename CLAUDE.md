@@ -35,7 +35,8 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 - **Fotos:** bucket `activity-photos` é privado. Guarda-se o *path* na BD e lê-se com signed URLs (`src/lib/photoStorage.ts`). As fotos são comprimidas no cliente antes do upload (`src/lib/imageCompression.ts`).
 - **Edge functions:** sempre `verify_jwt=true`; o destinatário ou a família vêm do JWT, nunca do corpo do pedido.
 - **Ano escolar:** `children.school_year` tem CHECK com os valores da app; "Pré-escolar" com P maiúsculo.
-- **Migrações:** ficheiros numerados em `supabase/migrations/` (próximo: 026). Nunca aplicar em produção sem OK explícito do Elton.
+- **Supabase (decisão do dono, 5 nov):** o Claude **não** interage com as bases de dados de produção, nem por conector nem por CLI. Migrações e edge functions entregam-se como ficheiros no repositório, com instruções curtas para o dono do repo as publicar. Atenção: alterações em `supabase/functions/` **não** são publicadas pela Vercel.
+- **Migrações:** ficheiros numerados em `supabase/migrations/` (próximo: 026).
 - **Textos da app:** português de Portugal, na voz NexSeed (doc 06): claro, humano, sem alarmismo, nunca comunicar pelo medo.
 
 ## Como trabalhamos

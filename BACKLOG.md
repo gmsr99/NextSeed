@@ -1,6 +1,6 @@
 # NexSeed — Backlog de produto e desenvolvimento
 
-Última atualização: 4 de novembro de 2026
+Última atualização: 5 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -20,14 +20,13 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 |---|---|---|---|---|---|
 | B-01 | Confirmar se a API do Gemini já está em faturação paga; se não, ativar e aceitar os termos de tratamento | No tier gratuito a Google pode usar os dados (de crianças) para treino. D-013, bloqueante nº 1 | S | Elton | Aguarda Elton |
 | B-02 | Ativar a proteção contra passwords comprometidas no Supabase (Auth, Passwords) | Último aviso de segurança do Supabase por resolver (FASE 1) | S | Elton | Aguarda Elton |
-| B-03 | Tornar o repositório privado | Repositório público com histórico que inclui nomes de crianças e planos internos. Ver nota em `estado_atual.md` sobre o plano da Vercel | S | Dono do repo | Aguarda decisão |
-| B-04 | Dar ao Claude acesso ao projeto Supabase da NexSeed (convite para a organização ou ligação do conector a essa conta) | Sem isto não é possível verificar a base de dados real nem aplicar migrações | S | Dono do repo | Aguarda Elton |
-| B-05 | Rotina de export semanal da base de dados para armazenamento próprio | Tier gratuito sem backups. D-025, condição obrigatória | M | Claude | Por fazer (depende de B-04) |
+| B-04 | Dar ao Claude acesso ao projeto Supabase da NexSeed | Decisão do dono (5 nov): o Claude não interage com as bases de dados de produção enquanto não houver backup. Reavaliar depois do B-05 | S | Dono do repo | Em pausa (decisão do dono) |
+| B-05 | Rotina de export semanal da base de dados para armazenamento próprio | Tier gratuito sem backups. D-025, condição obrigatória. É o que desbloqueia o B-04 | M | Dono do repo (o Claude pode preparar o guia) | Por fazer |
 | B-06 | Confirmar regiões UE no Supabase e na Vercel | Fase A, A10 | S | Elton | Aguarda Elton |
 | B-07 | Política de Privacidade: listar os subcontratantes (Google/Gemini, Supabase, Vercel, Resend) e o tratamento de dados de menores | A página `/privacidade` não menciona o Gemini. Fase A, A2 e A9 | M | Claude (rascunho) + revisão jurídica | Por fazer |
 | B-08 | Termos de Utilização: declaração de autoridade parental, cláusula de cessão da posição contratual e política de reembolso | A página `/termos` não tem nenhuma das três. Fase A, A3 e A4; D-014 | M | Claude (rascunho) + revisão jurídica | Por fazer |
 | B-09 | Consentimentos granulares registados no produto (quem, quando, a quê, versão dos termos) | Fase A, A6. Não existe tabela de consentimentos | M | Claude | Por fazer (precisa de especificação) |
-| B-10 | A função `analyze-curriculum-coverage` aceita o `family_id` vindo do pedido e usa a chave de serviço: obter a família a partir do login | Regra das edge functions (CLAUDE.md). Um utilizador autenticado pode escrever cobertura noutra família. Publicar exige acesso ao Supabase | S | Claude | Por fazer (depende de B-04) |
+| B-10 | A função `analyze-curriculum-coverage` aceita o `family_id` vindo do pedido e usa a chave de serviço: obter a família a partir do login | Regra das edge functions (CLAUDE.md). Um utilizador autenticado pode escrever cobertura noutra família. O Claude escreve a correção no repositório; a publicação da função é feita pelo dono do repo | S | Claude + Dono do repo | Por fazer |
 
 ## 2. Agora: qualidade do plano semanal
 
@@ -35,7 +34,6 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 |---|---|---|---|---|---|
 | P-01 | Deixar de enviar o currículo inteiro do ano ao modelo quando nada está marcado como "em progresso" (heurística de janela ou marcação obrigatória no onboarding) | Planos gerados sem sinal de prioridade na feature que decide o produto. Doc 03 §5.3, INS-06. Problema 3, 7 | M | Claude | Por fazer (precisa de especificação) |
 | P-02 | Tornar visível a marcação "em progresso / dominado" nas Áreas de Aprendizagem | As famílias não a descobrem, e sem ela aplica-se o P-01. INS-06 | S | Claude | Por fazer |
-| P-03 | Pseudonimizar os nomes das crianças no pedido ao Gemini (enviar "Criança A, 8 anos" e repor o nome no resultado) | Minimização de dados enviados a subcontratante. Doc 04 §2, FASE 4.5.4. Remendo, não substitui o B-01. Reversível: `SEND_CHILD_NAMES_TO_AI` em `src/lib/aiPrivacy.ts` | M | Claude | Feito, aguarda aprovação (branch `feat/pseudonimizar-nomes-ia`) |
 | P-04 | Envelope de tempo por criança: dias da semana, minutos por dia, datas do ano letivo | O plano é gerado para uma semana que a família não tem. INS-03, decisão em aberto A-08 | L | Claude | Aguarda decisão |
 | P-05 | Decidir se a análise de cobertura curricular mantém o "thinking" do Gemini | Metade do custo dessa função; pode estar a melhorar a qualidade. A-04 | S | Claude + Elton | Por fazer |
 
@@ -55,7 +53,7 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 | T-02 | Limpar os 101 erros do verificador de tipos (sobretudo imports não usados) | A build passa, mas os erros escondem problemas novos | S | Claude | Por fazer |
 | T-03 | Decidir o destino das páginas mock inalcançáveis (Fórum, Comunidade, Formação para Pais) e das pastas soltas na raiz | Código morto e documentação dispersa. FASE 3.6 | S | Elton | Aguarda decisão |
 | T-04 | Corrigir `Ponto de situação/contexto_chat.json` (JSON inválido) ou apagá-lo | Ficheiro de contexto antigo, substituído por `CLAUDE.md` | S | Claude | Por fazer |
-| T-05 | Confirmar que o histórico de migrações local corresponde à produção | Algumas migrações foram aplicadas à mão (B8 do diagnóstico) | S | Claude | Por fazer (depende de B-04) |
+| T-05 | Confirmar que o histórico de migrações local corresponde à produção | Algumas migrações foram aplicadas à mão (B8 do diagnóstico) | S | Dono do repo | Em pausa (depende de B-04) |
 
 ## 5. Ideias e pedidos em estudo
 
@@ -72,8 +70,10 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 
 | ID | Item | Data |
 |---|---|---|
-| OK-01 | Fotos comprimidas no telemóvel antes do upload (cerca de 10 vezes menos armazenamento; remove a localização GPS das fotos) | 4 nov 2026 (branch `chore/auditoria-backlog-claude-md`) |
-| OK-02 | Nomes de famílias e crianças removidos da documentação do repositório e do exemplo mostrado no onboarding | 4 nov 2026 (idem) |
+| OK-01 | Fotos comprimidas no telemóvel antes do upload (cerca de 10 vezes menos armazenamento; remove a localização GPS das fotos) | publicado a 5 nov 2026 |
+| OK-02 | Nomes de famílias e crianças removidos da documentação do repositório e do exemplo mostrado no onboarding | publicado a 5 nov 2026 |
+| OK-06 | Nomes das crianças deixam de ser enviados ao Gemini: pseudónimos no plano semanal, regeneração e Ideias Rápidas (era o P-03). Reversível em `src/lib/aiPrivacy.ts` | publicado a 5 nov 2026 |
+| OK-07 | Repositório tornado privado (era o B-03) | 5 nov 2026 |
 | OK-03 | Gemini só no servidor, chaves rodadas; fotos em bucket privado; funções do servidor com autenticação | julho 2026 (FASE 1) |
 | OK-04 | Onboarding, Manual em `/ajuda`, visitas guiadas, dashboard "Hoje", PWA | julho 2026 (FASES 2 e 3) |
 | OK-05 | Exportar dados e eliminar conta; sistema de feedback e métricas em `/admin/feedback` | julho 2026 (FASES 4.5 e 5) |

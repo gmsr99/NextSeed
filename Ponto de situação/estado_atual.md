@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 4 de novembro de 2026 (auditoria ao código; substitui a versão de março)
+**Atualizado:** 5 de novembro de 2026 (auditoria ao código de 4 nov; substitui a versão de março)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -24,18 +24,18 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 | Tema | Estado |
 |---|---|
 | Chaves do Gemini fora do cliente | Feito (julho). Gemini só via `generate-weekly-plan`, chaves rodadas |
-| Fotos de crianças | Bucket privado, signed URLs de 1 h. Desde 4 nov: compressão no cliente (~≤350 KB) que também remove a localização GPS |
+| Fotos de crianças | Bucket privado, signed URLs de 1 h. Desde 5 nov: compressão no cliente (~≤350 KB) que também remove a localização GPS |
 | Edge functions | Todas com autenticação (`verify_jwt`) |
 | Exportar e apagar dados | Feito (edge functions `export-family-data`, `delete-family-account`) |
 | Gemini em faturação paga | **Por confirmar** (B-01). É o bloqueante de RGPD nº 1 |
 | Proteção de passwords comprometidas | **Por ativar** no Supabase (B-02) |
-| Nomes das crianças no pedido ao Gemini | Substituídos por pseudónimos ("Criança A") no plano semanal, na regeneração e nas Ideias Rápidas; o nome é reposto no resultado (P-03, a aguardar aprovação). A análise de cobertura não envia nomes de crianças, mas envia os títulos e descrições das atividades tal como a família os escreveu |
+| Nomes das crianças no pedido ao Gemini | Substituídos por pseudónimos ("Criança A") no plano semanal, na regeneração e nas Ideias Rápidas; o nome é reposto no resultado (P-03, publicado a 5 nov). A análise de cobertura não envia nomes de crianças, mas envia os títulos e descrições das atividades tal como a família os escreveu |
 | Análise de cobertura | Recebe o `family_id` do pedido em vez do login (B-10) |
 | Privacidade e Termos | Páginas existem mas faltam: subcontratantes (Gemini), cessão da posição contratual, reembolso, consentimentos (B-07 a B-09) |
 
 ## Limites desta auditoria
-- **A base de dados não foi verificada ao vivo.** O conector Supabase disponível ao Claude não tem acesso ao projeto da NexSeed (B-04). O estado acima vem do código, das migrações (001 a 025) e dos registos de execução das fases.
-- **Repositório público.** O repositório `gmsr99/NextSeed` é público e o histórico do git ainda contém nomes da família piloto (removidos dos ficheiros atuais em 4 nov). Só o dono da conta `gmsr99` pode torná-lo privado (B-03). Tornar privado **não afeta as famílias** (a app servida pela Vercel não depende da visibilidade do repositório). Ponto a confirmar antes: se o projeto Vercel estiver num plano Hobby, os deploys de commits feitos por colaboradores (Elton, Claude) num repositório privado podem ficar bloqueados; no plano Pro não há esse problema.
+- **A base de dados não foi verificada ao vivo.** Por decisão do dono do repositório (5 nov), o Claude não interage com as bases de dados de produção enquanto não houver backup (B-04, B-05). O estado acima vem do código, das migrações (001 a 025) e dos registos de execução das fases.
+- **Repositório privado** desde 5 nov. O histórico do git ainda contém nomes da família piloto (removidos dos ficheiros atuais), mas deixou de ser público.
 
 ## Famílias no beta
 Ver documento 10 (base de conhecimento do projeto). Aqui não se registam nomes.
