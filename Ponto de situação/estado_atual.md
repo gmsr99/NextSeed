@@ -35,7 +35,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 
 ## Limites desta auditoria
 - **A base de dados não foi verificada ao vivo.** Por decisão do dono do repositório (5 nov), o Claude não interage com as bases de dados de produção enquanto não houver backup (B-04, B-05). O estado acima vem do código, das migrações (001 a 025) e dos registos de execução das fases.
-- **Repositório privado** desde 5 nov. O histórico do git ainda contém nomes da família piloto (removidos dos ficheiros atuais), mas deixou de ser público.
+- **Repositório público temporariamente** (desde 5 nov à noite) para a Vercel Hobby aceitar publicações de colaboradores; volta a privado no fim desta ronda de trabalho (B-11). O histórico do git ainda contém nomes da família piloto (removidos dos ficheiros atuais).
 
 ## Famílias no beta
 Ver documento 10 (base de conhecimento do projeto). Aqui não se registam nomes.

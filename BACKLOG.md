@@ -27,7 +27,7 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 | B-08 | Termos de Utilização: declaração de autoridade parental, cláusula de cessão da posição contratual e política de reembolso | A página `/termos` não tem nenhuma das três. Fase A, A3 e A4; D-014 | M | Claude (rascunho) + revisão jurídica | Por fazer |
 | B-09 | Consentimentos granulares registados no produto (quem, quando, a quê, versão dos termos) | Fase A, A6. Não existe tabela de consentimentos | M | Claude | Por fazer (precisa de especificação) |
 | B-10 | A função `analyze-curriculum-coverage` aceita o `family_id` vindo do pedido e usa a chave de serviço: obter a família a partir do login | Regra das edge functions (CLAUDE.md). Um utilizador autenticado pode escrever cobertura noutra família. O Claude escreve a correção no repositório; a publicação da função é feita pelo dono do repo | S | Claude + Dono do repo | Por fazer |
-| B-11 | Publicação em produção bloqueada: com o repositório privado e a Vercel no plano Hobby, só os commits do dono da conta publicam. Opções: o dono faz um commit para publicar, passar a Vercel para Pro, ou voltar a tornar o repositório público | Desde 5 nov o nexseed.pt não recebe as alterações aprovadas (OK-01, OK-02, OK-06) | S | Dono do repo | Aguarda decisão |
+| B-11 | Publicação bloqueada com o repositório privado na Vercel Hobby (só os commits do dono publicam). Solução temporária: repositório público durante uns dias de trabalho; voltar a privado no fim | Repositório privado era o OK-07; decisão final entre o dono publicar cada entrega ou Vercel Pro | S | Elton + Dono do repo | Em curso (repositório público temporariamente) |
 
 ## 2. Agora: qualidade do plano semanal
 
@@ -71,10 +71,9 @@ Tarefas de negócio (contabilista, entrevistas, preços, lista de famílias) viv
 
 | ID | Item | Data |
 |---|---|---|
-| OK-01 | Fotos comprimidas no telemóvel antes do upload (cerca de 10 vezes menos armazenamento; remove a localização GPS das fotos) | no `main` a 5 nov 2026; publicação bloqueada (B-11) |
-| OK-02 | Nomes de famílias e crianças removidos da documentação do repositório e do exemplo mostrado no onboarding | no `main` a 5 nov 2026; publicação bloqueada (B-11) |
-| OK-06 | Nomes das crianças deixam de ser enviados ao Gemini: pseudónimos no plano semanal, regeneração e Ideias Rápidas (era o P-03). Reversível em `src/lib/aiPrivacy.ts` | no `main` a 5 nov 2026; publicação bloqueada (B-11) |
-| OK-07 | Repositório tornado privado (era o B-03) | 5 nov 2026 |
+| OK-01 | Fotos comprimidas no telemóvel antes do upload (cerca de 10 vezes menos armazenamento; remove a localização GPS das fotos) | publicado a 5 nov 2026 |
+| OK-02 | Nomes de famílias e crianças removidos da documentação do repositório e do exemplo mostrado no onboarding | publicado a 5 nov 2026 |
+| OK-06 | Nomes das crianças deixam de ser enviados ao Gemini: pseudónimos no plano semanal, regeneração e Ideias Rápidas (era o P-03). Reversível em `src/lib/aiPrivacy.ts` | publicado a 5 nov 2026 |
 | OK-03 | Gemini só no servidor, chaves rodadas; fotos em bucket privado; funções do servidor com autenticação | julho 2026 (FASE 1) |
 | OK-04 | Onboarding, Manual em `/ajuda`, visitas guiadas, dashboard "Hoje", PWA | julho 2026 (FASES 2 e 3) |
 | OK-05 | Exportar dados e eliminar conta; sistema de feedback e métricas em `/admin/feedback` | julho 2026 (FASES 4.5 e 5) |
