@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { format, differenceInYears, parseISO, isValid } from "date-fns";
+import { pt } from "date-fns/locale";
 import { SCHOOL_YEARS, suggestPreSchoolYear } from "@/lib/planGenerator";
 import { CalendarIcon, Plus, Pencil, Palette, BookOpen, Music, FlaskConical, Gamepad2, Loader2, GraduationCap, BarChart2, Trash2 } from "lucide-react";
 import CurriculumCoverageReport from "@/components/CurriculumCoverageReport";
@@ -27,11 +28,23 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import InterestPicker from "@/components/InterestPicker";
+import SchoolYearScopeNotice from "@/components/SchoolYearScopeNotice";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import type { Child } from "@/lib/types";
+
+// Data de nascimento: escolher ano e mês diretamente em listas, em vez de
+// recuar mês a mês (feedback F-03, T-07). Intervalo: crianças até 18 anos.
+const CURRENT_YEAR = new Date().getFullYear();
+const BIRTH_DATE_PICKER = {
+  captionLayout: "dropdown-buttons" as const,
+  fromYear: CURRENT_YEAR - 18,
+  toYear: CURRENT_YEAR,
+  locale: pt,
+};
+const BIRTH_DATE_DEFAULT_MONTH = new Date(CURRENT_YEAR - 6, 0, 1);
 
 const interestIcons: Record<string, React.ReactNode> = {
   Arte: <Palette className="h-3 w-3" />,
@@ -189,7 +202,7 @@ export default function Children() {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={form.birthDate} onSelect={(d) => {
+                        <Calendar mode="single" selected={form.birthDate} {...BIRTH_DATE_PICKER} defaultMonth={form.birthDate ?? BIRTH_DATE_DEFAULT_MONTH} onSelect={(d) => {
                             if (!d) { setForm({ ...form, birthDate: d }); return; }
                             const age = differenceInYears(new Date(), d);
                             const autoYear = age <= 6 && age >= 3 ? suggestPreSchoolYear(d) : form.schoolYear;
@@ -210,6 +223,7 @@ export default function Children() {
                     </Select>
                   </div>
                 </div>
+                <SchoolYearScopeNotice schoolYear={form.schoolYear} />
                 <div className="space-y-2">
                   <Label>Escola / Agrupamento</Label>
                   <Input value={form.school} onChange={(e) => setForm({ ...form, school: e.target.value })} placeholder="Nome da escola ou agrupamento" />
@@ -372,7 +386,7 @@ export default function Children() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={editForm.birthDate} onSelect={(d) => {
+                    <Calendar mode="single" selected={editForm.birthDate} {...BIRTH_DATE_PICKER} defaultMonth={editForm.birthDate ?? BIRTH_DATE_DEFAULT_MONTH} onSelect={(d) => {
                         if (!d) { setEditForm({ ...editForm, birthDate: d }); return; }
                         const age = differenceInYears(new Date(), d);
                         const autoYear = age <= 6 && age >= 3 ? suggestPreSchoolYear(d) : editForm.schoolYear;
@@ -393,6 +407,7 @@ export default function Children() {
                 </Select>
               </div>
             </div>
+            <SchoolYearScopeNotice schoolYear={editForm.schoolYear} />
             <div className="space-y-2">
               <Label>Escola / Agrupamento</Label>
               <Input value={editForm.school} onChange={(e) => setEditForm({ ...editForm, school: e.target.value })} placeholder="Nome da escola ou agrupamento" />

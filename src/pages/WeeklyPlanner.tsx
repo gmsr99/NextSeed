@@ -13,6 +13,7 @@ import {
   planItemKey,
 } from "@/components/planner";
 import { useChildren } from "@/hooks/useChildren";
+import { useChildrenWithoutFocus } from "@/hooks/useChildrenFocus";
 import { useFamilyMethodologies } from "@/hooks/useMethodologies";
 import { useExtracurricular } from "@/hooks/useExtracurricular";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,7 @@ import {
 } from "@/lib/planGenerator";
 import { generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
+import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
 
 type Step = "form" | "preview";
 
@@ -55,6 +57,7 @@ void serializeNotesField;
 
 export default function WeeklyPlanner() {
   const { children, isLoading: childrenLoading } = useChildren();
+  const childrenWithoutFocus = useChildrenWithoutFocus(children);
   const { data: familyMethodologies = [] } = useFamilyMethodologies();
   const { family, registeredAt } = useAuth();
   const { notifyEvent } = useFeedback();
@@ -225,13 +228,17 @@ export default function WeeklyPlanner() {
       const gcProgressByChild: Record<string, Record<string, string[]>> = {};
       const gcAllByChild: Record<string, Record<string, string[]>> = {};
       const gcChildren = children.filter((c) => YEAR_MAP[c.school_year]);
+      const ctxPeriods = contextPeriods(weekStart);
+      const fbPeriods = fallbackPeriods(weekStart);
+      // Conteúdos por dominar do período atual, por criança (para o caso sem marcações)
+      const gcCurrentByChild: Record<string, Record<string, string[]>> = {};
       await Promise.all(
         gcChildren.map(async (child) => {
           const dbYear = YEAR_MAP[child.school_year];
 
           const { data: allContents } = await supabase
             .from("curriculum_contents")
-            .select("id, discipline, content")
+            .select("id, discipline, content, period")
             .eq("school_year", dbYear);
 
           const { data: progressRows } = await supabase
@@ -246,10 +253,18 @@ export default function WeeklyPlanner() {
           for (const c of allContents) {
             const status = progressMap.get(c.id) ?? "a_aprender";
             if (status === "dominado") continue;
+            // P-01: o contexto "por dominar" leva só o período atual e o seguinte
+            if (status !== "em_progresso" && !inPeriods(c.period, ctxPeriods)) continue;
 
             if (!gcAllByChild[child.id]) gcAllByChild[child.id] = {};
             if (!gcAllByChild[child.id][c.discipline]) gcAllByChild[child.id][c.discipline] = [];
             gcAllByChild[child.id][c.discipline].push(c.content);
+
+            if (inPeriods(c.period, fbPeriods)) {
+              if (!gcCurrentByChild[child.id]) gcCurrentByChild[child.id] = {};
+              if (!gcCurrentByChild[child.id][c.discipline]) gcCurrentByChild[child.id][c.discipline] = [];
+              gcCurrentByChild[child.id][c.discipline].push(c.content);
+            }
 
             if (status === "em_progresso") {
               if (!gcProgressByChild[child.id]) gcProgressByChild[child.id] = {};
@@ -260,10 +275,12 @@ export default function WeeklyPlanner() {
         })
       );
 
+      // P-01: sem nada marcado como "em progresso", usar só o período atual
+      // (antes ia o ano inteiro, sem sinal de prioridade)
       for (const child of gcChildren) {
-        if (!gcProgressByChild[child.id] && gcAllByChild[child.id]) {
+        if (!gcProgressByChild[child.id] && gcCurrentByChild[child.id]) {
           gcProgressByChild[child.id] = {};
-          for (const [discipline, contents] of Object.entries(gcAllByChild[child.id])) {
+          for (const [discipline, contents] of Object.entries(gcCurrentByChild[child.id])) {
             gcProgressByChild[child.id][discipline] = contents.map((c) => `[a aprender] ${c}`);
           }
         }
@@ -597,6 +614,7 @@ export default function WeeklyPlanner() {
             onNextWeek={goToNextWeek}
             generating={generating}
             generatingStep={generatingStep}
+            childrenWithoutFocus={childrenWithoutFocus}
             onGenerate={handleGeneratePlan}
           />
         ) : (

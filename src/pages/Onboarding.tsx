@@ -6,6 +6,7 @@ import { useAllMethodologies, useSetFamilyMethodologies } from "@/hooks/useMetho
 import { track } from "@/lib/analytics";
 import { daysSince } from "@/lib/feedback/time";
 import InterestPicker from "@/components/InterestPicker";
+import SchoolYearScopeNotice from "@/components/SchoolYearScopeNotice";
 import { SCHOOL_YEARS } from "@/lib/planGenerator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -241,6 +242,7 @@ export default function Onboarding() {
                   </Select>
                 </div>
               </div>
+              <SchoolYearScopeNotice schoolYear={schoolYear} />
               <div className="space-y-2">
                 <Label>Interesses atuais</Label>
                 <InterestPicker value={interests} onChange={setInterests} />

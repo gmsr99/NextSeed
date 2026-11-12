@@ -147,7 +147,9 @@ export const FIXED_BLOCKS_PRESCHOOL = [
   { slot: "10:30-10:45", discipline: "break",          label: "Pausa Lúdica"              },
   { slot: "11:15-12:00", discipline: "practical_life", label: "Vida Prática / Jogo Livre"  },
   { slot: "12:00-14:00", discipline: "lunch",          label: "Almoço + Tempo Livre"      },
-  { slot: "14:30-14:45", discipline: "meditation",     label: "Relaxamento / Meditação"   },
+  // 14:00–14:30: fecha o intervalo vazio depois do almoço e deixa de se sobrepor
+  // à atividade das 14:30 (backlog R-09)
+  { slot: "14:00-14:30", discipline: "meditation",     label: "Relaxamento / Descanso"    },
 ];
 
 // Pré-escolar autónomo — sexta: world_visit na BD tem slot "09:30-12:00"
@@ -155,7 +157,7 @@ export const FIXED_BLOCKS_PRESCHOOL = [
 export const FIXED_BLOCKS_PRESCHOOL_FRIDAY = [
   { slot: "09:00-09:30", discipline: "ritual",    label: "Saída / Visita de Estudo" },
   { slot: "12:00-14:00", discipline: "lunch",     label: "Almoço fora / Piquenique" },
-  { slot: "14:30-14:45", discipline: "meditation", label: "Relaxamento / Meditação"  },
+  { slot: "14:00-14:30", discipline: "meditation", label: "Relaxamento / Descanso"   },
 ];
 
 /**

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CalendarDays, Sparkles, Loader2, ChevronLeft, ChevronRight, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { CalendarDays, Sparkles, Loader2, ChevronLeft, ChevronRight, BookOpen, ChevronDown, ChevronUp, Target } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,8 @@ interface PlannerFormProps {
   generating: boolean;
   generatingStep: string;
   onGenerate: () => void;
+  /** Crianças sem conteúdos marcados como "em progresso" (aviso P-02) */
+  childrenWithoutFocus?: Set<string>;
 }
 
 export function PlannerForm({
@@ -66,6 +69,7 @@ export function PlannerForm({
   generating,
   generatingStep,
   onGenerate,
+  childrenWithoutFocus,
 }: PlannerFormProps) {
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({});
 
@@ -115,12 +119,31 @@ export function PlannerForm({
                 <TagInput
                   value={childInterests[child.id] ?? child.interests ?? []}
                   onChange={(tags) => onChildInterestsChange(child.id, tags)}
-                  placeholder="Escreve um interesse e pressiona Enter (ex: vulcões, Sonic...)"
+                  placeholder="Escreve os interesses separados por vírgulas (ex: vulcões, Sonic)"
                 />
                 <p className="text-xs text-muted-foreground">
                   Os interesses são usados para tematizar as atividades — não como objetivo de ensino.
                 </p>
               </div>
+
+              {/* P-02: aviso quando não há nada marcado como "em progresso" */}
+              {childrenWithoutFocus?.has(child.id) && (
+                <div
+                  role="note"
+                  className="flex gap-2 rounded-lg border border-primary/25 bg-primary/5 p-3 text-xs text-foreground"
+                >
+                  <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                  <div className="space-y-1.5">
+                    <p>
+                      Para planos mais certeiros, marca nas Áreas de Aprendizagem o que {child.name} está a trabalhar agora.
+                      Sem isso, o plano parte dos conteúdos deste período.
+                    </p>
+                    <Link to="/learning-areas" className="inline-flex font-medium text-primary hover:underline">
+                      Marcar conteúdos em progresso →
+                    </Link>
+                  </div>
+                </div>
+              )}
 
               {/* Weekly curriculum content toggle */}
               <div className="border-t pt-3" data-tour={childIdx === 0 ? "planner-conteudos" : undefined}>

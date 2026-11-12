@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { splitTags, mergeTags } from "@/components/TagInput";
 
 // ─── Taxonomia de interesses ─────────────────────────────────────────────────
 // Vocabulário controlado → a IA pode mapear estes termos de forma fiável para
@@ -67,9 +68,10 @@ export default function InterestPicker({ value, onChange }: InterestPickerProps)
 
   const remove = (interest: string) => onChange(value.filter((i) => i !== interest));
 
+  // Aceita vários de uma vez: "vulcões, Sonic" → dois interesses
   const addCustom = () => {
-    const trimmed = customInput.trim();
-    if (trimmed && !value.includes(trimmed)) onChange([...value, trimmed]);
+    const tags = splitTags(customInput);
+    if (tags.length) onChange(mergeTags(value, tags));
     setCustomInput("");
   };
 
@@ -154,7 +156,7 @@ export default function InterestPicker({ value, onChange }: InterestPickerProps)
               addCustom();
             }
           }}
-          placeholder="Outro interesse..."
+          placeholder="Outros interesses, separados por vírgulas"
           className="h-8 text-sm"
         />
         <Button

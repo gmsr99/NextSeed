@@ -235,9 +235,13 @@ function buildPrompt(
     ? `\n## CONTEÚDOS A ENSINAR ESTA SEMANA ⚠️ PRIORIDADE MÁXIMA\nO educador especificou o que quer trabalhar. TODAS as atividades das disciplinas listadas DEVEM ensinar diretamente estes conteúdos. Os interesses apenas tematizam (ex: se conteúdo é "adição até 20" e interesse é "dinossauros" → conta dinossauros em somas).\n${weeklyContentLines.join("\n\n")}\n`
     : "";
 
-  const fridayNote = fridayActivity
+  const fridayBase = fridayActivity
     ? `Atividade de sexta-feira planeada: "${fridayActivity}"`
     : "Sexta-feira: exploração livre — sugere algo concreto e local";
+  // P-11: com várias crianças, o "Ver Mundo" é uma saída da família, não uma por criança
+  const fridayNote = children.length > 1
+    ? `${fridayBase}\n**"Ver Mundo" é UMA só saída para a família toda:** todas as crianças vão ao MESMO sítio, à mesma hora, com o MESMO título. Na descrição de cada criança, adapta o que ela faz lá à sua idade.`
+    : fridayBase;
 
   const readingNote = weeklyReadingTheme
     ? `Tema semanal para Leitura e Portefólio: **"${weeklyReadingTheme}"** — os 4 episódios (Ep.1 a Ep.4) devem ser capítulos sequenciais sobre este tema.`
@@ -427,7 +431,7 @@ export async function generateWithGemini(
     throw new Error(`Falha ao gerar o plano: ${lastError}`);
   }
 
-  return skeleton.map((s, idx) => ({
+  return unifyFamilyOuting(skeleton.map((s, idx) => ({
     child_id: s.child_id,
     day_of_week: s.day_of_week,
     time_slot: s.time_slot,
@@ -437,5 +441,21 @@ export async function generateWithGemini(
     materials: (aiContent[idx]?.materials ?? []).map((m) => restoreNames(String(m), realNames)),
     is_friday_world: s.is_friday_world,
     sort_order: s.sort_order,
-  }));
+  })));
+}
+
+/**
+ * Garante que a saída "Ver Mundo" de sexta é a mesma para todas as crianças
+ * (backlog P-11): o título (o destino) passa a ser o da primeira criança; a
+ * descrição de cada uma, adaptada à idade, mantém-se.
+ */
+export function unifyFamilyOuting<T extends { day_of_week: number; is_friday_world: boolean; title: string }>(
+  items: T[],
+): T[] {
+  const outings = items.filter((i) => i.day_of_week === 5 && i.is_friday_world);
+  if (outings.length < 2) return items;
+  const sharedTitle = outings[0].title;
+  return items.map((i) =>
+    i.day_of_week === 5 && i.is_friday_world ? { ...i, title: sharedTitle } : i,
+  );
 }
