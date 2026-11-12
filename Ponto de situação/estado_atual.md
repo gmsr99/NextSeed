@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 5 de novembro de 2026 (auditoria ao código de 4 nov; substitui a versão de março)
+**Atualizado:** 12 de novembro de 2026 (auditoria ao código de 4 nov; substitui a versão de março)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -19,6 +19,12 @@ React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (
 | Públicas | `/login`, `/privacidade`, `/termos`, `/accept-invite` |
 
 Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
+
+## Plano semanal: o que o pedido ao Gemini leva (desde 12 nov, a aguardar aprovação)
+- Sem conteúdos marcados como "em progresso": só os conteúdos do período atual (set–dez 1.º, jan–mar 2.º, abr–ago 3.º). Antes ia o ano inteiro, duas vezes.
+- Contexto "por dominar": período atual e seguinte.
+- Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
+- O Plano Semanal avisa quando uma criança não tem nada marcado (P-02).
 
 ## Segurança e dados: estado verificado no código
 | Tema | Estado |

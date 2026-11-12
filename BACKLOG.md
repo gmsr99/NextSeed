@@ -1,6 +1,6 @@
 # NexSeed: backlog de produto e desenvolvimento
 
-Última atualização: 5 de novembro de 2026
+Última atualização: 12 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -21,8 +21,8 @@ Como ler:
 | Ordem | Grande mudança | Porquê nesta posição | Imp. | Urg. | Estado |
 |---|---|---|---|---|---|
 | 1 | E1 · Conformidade e base | Dados de crianças em produção sem backup nem textos legais completos. Corre em paralelo e quase tudo depende do Gil ou de revisão jurídica. | A | A | Em curso |
-| 2 | E8 · Correções rápidas | Pequenos erros que as famílias já encontraram e que tiram confiança. Cabem numa sessão. | M | A | Por fazer |
-| 3 | E2 · Atividades melhores no plano semanal | É a funcionalidade que decide o produto e a queixa mais concreta das famílias: atividades repetitivas, genéricas ou desajustadas. Não precisa de BD. | A | A | P-01 e P-02 aguardam OK |
+| 2 | E8 · Correções rápidas | Pequenos erros que as famílias já encontraram e que tiram confiança. Cabem numa sessão. | M | A | Feito, aguarda aprovação (falta o T-08) |
+| 3 | E2 · Atividades melhores no plano semanal | É a funcionalidade que decide o produto e a queixa mais concreta das famílias: atividades repetitivas, genéricas ou desajustadas. Não precisa de BD. | A | A | P-01 e P-02 feitos, aguardam aprovação |
 | 4 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
 | 5 | E3 · Rumo do ano | As famílias querem saber o que dar e se vão no ritmo certo. É o pedido mais repetido (F-01, F-02, equipa). | A | M | Por fazer |
 | 6 | E5 · Fecho da semana | Liga o que foi feito ao progresso, sem a família ter de ir às Áreas de Aprendizagem. Alimenta o E3 e o portefólio. | A | M | Por fazer |
@@ -54,12 +54,12 @@ Erros já encontrados pelas famílias. Pequenos, mas cada um tira confiança.
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| T-06 | No perfil da criança só deixa escolher um interesse | F-04. O código não tem limite, por isso é erro de interface | M/A | S | Por fazer |
-| T-07 | Data de nascimento: escolher ano, mês e dia diretamente | F-03. Hoje é preciso recuar mês a mês até ao ano certo | M/A | S | Por fazer |
+| T-06 | No perfil da criança só deixa escolher um interesse | F-04. O código não tem limite, por isso é erro de interface | M/A | S | Feito, aguarda aprovação |
+| T-07 | Data de nascimento: escolher ano, mês e dia diretamente | F-03. Hoje é preciso recuar mês a mês até ao ano certo | M/A | S | Feito, aguarda aprovação |
 | T-08 | Página mal apresentada no telemóvel | F-03 enviou uma captura; falta saber qual é a página | M/A | S | Aguarda Elton (captura) |
-| T-09 | Aviso claro de que o currículo só existe até ao 4.º ano | F-04. Uma criança de 5.º ou 6.º ano é criada sem currículo e sem aviso | M/A | S | Por fazer |
-| R-09 | Intervalo vazio entre as 13:45 e as 15:00 no horário | Equipa (backlog da família piloto) | M/A | S | Por fazer |
-| P-11 | "Ver Mundo": uma saída para a família toda, não uma por criança | F-03. O plano mandou duas crianças para dois sítios diferentes no mesmo dia | M/A | S | Por fazer |
+| T-09 | Aviso claro de que o currículo só existe até ao 4.º ano | F-04. Uma criança de 5.º ou 6.º ano é criada sem currículo e sem aviso | M/A | S | Feito, aguarda aprovação |
+| R-09 | Intervalo vazio entre as 13:45 e as 15:00 no horário | Equipa (backlog da família piloto) | M/A | S | Feito, aguarda aprovação |
+| P-11 | "Ver Mundo": uma saída para a família toda, não uma por criança | F-03. O plano mandou duas crianças para dois sítios diferentes no mesmo dia | M/A | S | Feito, aguarda aprovação |
 
 ## E2 · Atividades melhores no plano semanal
 
@@ -67,8 +67,8 @@ A funcionalidade que decide o produto. Tudo isto é trabalho nos pedidos ao Gemi
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| P-01 | Sem conteúdos marcados, enviar só os do período atual em vez do ano inteiro | Docs 03 e 10. Planos sem prioridade clara | A/A | M | Especificado; aguarda OK |
-| P-02 | Aviso no Plano Semanal quando uma criança não tem conteúdos marcados | Docs 10 (INS-06). As famílias não encontram a marcação | A/A | S | Especificado; aguarda OK |
+| P-01 | Sem conteúdos marcados, enviar só os do período atual em vez do ano inteiro | Docs 03 e 10. Planos sem prioridade clara | A/A | M | Feito, aguarda aprovação |
+| P-02 | Aviso no Plano Semanal quando uma criança não tem conteúdos marcados | Docs 10 (INS-06). As famílias não encontram a marcação | A/A | S | Feito, aguarda aprovação |
 | P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Por fazer |
 | P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Por fazer |
 | P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Por fazer |
