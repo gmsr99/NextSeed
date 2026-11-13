@@ -20,14 +20,14 @@ React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (
 
 Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
 
-## Plano semanal: o que o pedido ao Gemini leva (desde 12 nov, a aguardar aprovação)
+## Plano semanal: o que o pedido ao Gemini leva (publicado a 13 nov)
 - Sem conteúdos marcados como "em progresso": os conteúdos dessa semana no Rumo do ano (desde 13 nov, P-12). Em pausas, semanas de balanço e fora do ano letivo: os conteúdos do período atual (set–dez 1.º, jan–mar 2.º, abr–ago 3.º). Antes ia o ano inteiro, duas vezes.
 - Com conteúdos marcados como "em progresso", o plano parte desses, como antes.
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
 - O Plano Semanal mostra, por criança, o que o Rumo do ano traz para a semana, e não pede à família que escolha conteúdos (P-21, P-12).
 
-## Rumo do ano (desde 13 nov, a aguardar aprovação)
+## Rumo do ano (publicado a 13 nov)
 - Página `/roteiro-anual`, no menu como "Rumo do ano" (antes "Currículo Anual"). Mostra o ano letivo semana a semana por criança (1.º ao 4.º ano), um cartão "Esta semana" com todas as crianças e uma vista por disciplina.
 - O plano é calculado, não guardado: `src/lib/annualPlan.ts` distribui os `curriculum_contents` (período, domínio, ordem) pelas semanas. Sem alterações na BD.
 - Calendário: o escolar oficial do 1.º ciclo, à semana, com pausa no Natal e na Páscoa (37 semanas em 2026/27). A última semana de cada período é de balanço. Ainda não há calendário por família (P-24, P-04).
