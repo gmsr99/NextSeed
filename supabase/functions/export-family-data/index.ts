@@ -30,6 +30,7 @@ const TABLES = [
   "reward_redemptions",
   "literacy_progress",
   "child_content_progress",
+  "child_manuals",
   "family_methodologies",
   "feedback_submissions",
   "feedback_answers",

@@ -594,6 +594,42 @@ export type Database = {
         }
         Relationships: []
       }
+      child_manuals: {
+        Row: {
+          id: string
+          family_id: string
+          child_id: string
+          discipline: string
+          title: string
+          entries: Json
+          start_date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          child_id: string
+          discipline: string
+          title: string
+          entries?: Json
+          start_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          child_id?: string
+          discipline?: string
+          title?: string
+          entries?: Json
+          start_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       curriculum_coverage: {
         Row: {
           id: string

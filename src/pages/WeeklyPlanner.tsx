@@ -33,6 +33,7 @@ import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
 import { buildAnnualPlan, weekFocus, schoolYearStartFor, type AnnualContent } from "@/lib/annualPlan";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
+import { fetchChildManuals } from "@/hooks/useChildManuals";
 
 type Step = "form" | "preview";
 
@@ -230,7 +231,12 @@ export default function WeeklyPlanner() {
       setGeneratingStep("A consultar o progresso curricular...");
       const gcProgressByChild: Record<string, Record<string, string[]>> = {};
       const gcAllByChild: Record<string, Record<string, string[]>> = {};
-      const gcChildren = children.filter((c) => YEAR_MAP[c.school_year]);
+      const manuals = (family ? await fetchChildManuals(family.id) : null) ?? [];
+      const manualFocusByChild: Record<string, Record<string, string[]>> = {};
+      // Crianças com currículo carregado ou com um manual (ex.: 5.º ano só com manuais)
+      const gcChildren = children.filter(
+        (c) => YEAR_MAP[c.school_year] || manuals.some((m) => m.child_id === c.id),
+      );
       const ctxPeriods = contextPeriods(weekStart);
       const fbPeriods = fallbackPeriods(weekStart);
       // Conteúdos por dominar do período atual, por criança (para o caso sem marcações)
@@ -239,24 +245,27 @@ export default function WeeklyPlanner() {
         gcChildren.map(async (child) => {
           const dbYear = YEAR_MAP[child.school_year];
 
-          const { data: allContents } = await supabase
-            .from("curriculum_contents")
-            .select("id, discipline, content, period, domain, sort_order")
-            .eq("school_year", dbYear);
+          const { data: allContents } = dbYear
+            ? await supabase
+                .from("curriculum_contents")
+                .select("id, discipline, content, period, domain, sort_order")
+                .eq("school_year", dbYear)
+            : { data: [] };
 
           const { data: progressRows } = await supabase
             .from("child_content_progress")
             .select("content_id, status")
             .eq("child_id", child.id);
 
-          if (!allContents?.length) return;
+          const childManuals = manuals.filter((m) => m.child_id === child.id && m.entries.length > 0);
+          if (!allContents?.length && childManuals.length === 0) return;
 
           const progressMap = new Map((progressRows ?? []).map((p) => [p.content_id, p.status]));
 
           // P-12: sem marcações, o plano parte dos conteúdos desta semana no rumo
           // do ano. Em pausas e semanas de balanço não há foco: usa o período.
           const focus = weekFocus(
-            buildAnnualPlan(allContents as AnnualContent[], schoolYearStartFor(weekStart)),
+            buildAnnualPlan((allContents ?? []) as AnnualContent[], schoolYearStartFor(weekStart), childManuals),
             weekStart,
             (id) => progressMap.get(id) === "dominado",
           );
@@ -266,7 +275,19 @@ export default function WeeklyPlanner() {
             );
           }
 
-          for (const c of allContents) {
+          // I-01: nas disciplinas com manual, a semana segue sempre o manual,
+          // mesmo que haja conteúdos do currículo marcados como "em progresso"
+          for (const m of childManuals) {
+            const list = focus?.[m.discipline];
+            if (!list?.length) continue;
+            (manualFocusByChild[child.id] ??= {})[m.discipline] = list.map(
+              (c) => `[manual «${m.title}»] ${c.content}`,
+            );
+          }
+          const manualDisciplines = new Set(childManuals.map((m) => m.discipline));
+
+          for (const c of allContents ?? []) {
+            if (manualDisciplines.has(c.discipline)) continue;
             const status = progressMap.get(c.id) ?? "a_aprender";
             if (status === "dominado") continue;
             // P-01: o contexto "por dominar" leva só o período atual e o seguinte
@@ -300,6 +321,10 @@ export default function WeeklyPlanner() {
             gcProgressByChild[child.id][discipline] = contents.map((c) => `[a aprender] ${c}`);
           }
         }
+      }
+
+      for (const [childId, byDiscipline] of Object.entries(manualFocusByChild)) {
+        gcProgressByChild[childId] = { ...(gcProgressByChild[childId] ?? {}), ...byDiscipline };
       }
 
       setGeneratingStep("A gerar atividades com IA... (pode demorar até um minuto)");

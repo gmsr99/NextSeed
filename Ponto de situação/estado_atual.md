@@ -31,7 +31,15 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Página `/roteiro-anual`, no menu como "Rumo do ano" (antes "Currículo Anual"). Mostra o ano letivo semana a semana por criança (1.º ao 4.º ano), um cartão "Esta semana" com todas as crianças e uma vista por disciplina.
 - O plano é calculado, não guardado: `src/lib/annualPlan.ts` distribui os `curriculum_contents` (período, domínio, ordem) pelas semanas. Sem alterações na BD.
 - Calendário: o escolar oficial do 1.º ciclo, à semana, com pausa no Natal e na Páscoa (37 semanas em 2026/27). A última semana de cada período é de balanço. Ainda não há calendário por família (P-24, P-04).
-- Limite conhecido: a ordem dentro de cada período vem do currículo carregado (por domínio), não de um manual. Não foi validada por uma família.
+- Limite conhecido: a ordem dentro de cada período vem do currículo carregado (por domínio). Não foi validada por uma família.
+
+## Índices dos manuais (I-01, em pré-visualização desde 13 nov; não publicado)
+- No Rumo do ano, cada criança tem a caixa "Manuais": a família escreve o índice (uma unidade por linha, com a página no fim se quiser). Um manual por disciplina (Português, Matemática, Estudo do Meio, Inglês, Artes).
+- Nessa disciplina, o rumo deixa de usar o currículo e reparte as unidades do manual pelas semanas (mais semanas para unidades com mais páginas), a partir da semana em que o manual é adicionado ou desde o início do ano letivo. O plano semanal envia à IA a unidade e as páginas da semana, com a regra de nunca inventar nem reproduzir o conteúdo do manual.
+- Crianças sem currículo na app (pré-escolar, 5.º e 6.º ano) passam a ter rumo se tiverem um manual.
+- **Depende do Gil:** migração `026_child_manuals.sql` e nova publicação de `export-family-data` (a tabela entra na exportação de dados; a eliminação de conta já a apaga em cascata). Sem a migração, a caixa mostra só um aviso e tudo o resto funciona.
+- Fronteira: só títulos e páginas, escritos pela família e visíveis só para ela (RLS). A questão de direitos de autor A-09 (doc 10) não foi validada por um jurista.
+- Por testar: geração real com a IA e gravação na base de dados real (só testado com dados simulados).
 
 ## Segurança e dados: estado verificado no código
 | Tema | Estado |

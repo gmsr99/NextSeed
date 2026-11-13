@@ -31,6 +31,7 @@ export const GC_DISCIPLINE_LABELS: Record<string, string> = {
   estudo_do_meio:          "Estudo do Meio",
   artes_visuais:           "Artes e Expressão",
   formacao_pessoal_social: "Formação Pessoal e Social",
+  ingles:                  "Inglês",
 };
 
 // ── Labels dos períodos ──────────────────────────────────────────────────────

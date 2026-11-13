@@ -3,7 +3,7 @@
 // este rumo, sem lhe perguntar o que quer ensinar (doc 10, INS-14).
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Map as MapIcon, CheckCircle2, Circle, Clock, CalendarDays, Sparkles } from "lucide-react";
+import { Map as MapIcon, CheckCircle2, Circle, Clock, CalendarDays, Sparkles, BookMarked } from "lucide-react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAnnualPlans } from "@/hooks/useAnnualPlan";
+import ManualsCard from "@/components/ManualsCard";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
   planWeekFor, weekFocus, formatWeekShort, mondayOf,
@@ -37,7 +38,9 @@ function ContentList({ items, status }: { items: AnnualContent[]; status: Status
     <ul className="space-y-1">
       {items.map((c) => (
         <li key={c.id} className="flex gap-2 text-sm">
-          <StatusIcon status={status[c.id]} />
+          {c.fromManual
+            ? <BookMarked className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/60" />
+            : <StatusIcon status={status[c.id]} />}
           <span className={cn(status[c.id] === "dominado" && "text-muted-foreground line-through decoration-muted-foreground/40")}>
             {c.content}
           </span>
@@ -54,6 +57,7 @@ function Disciplines({ byDiscipline, status }: { byDiscipline: Record<string, An
         <div key={d}>
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {GC_DISCIPLINE_LABELS[d] ?? d}
+            {items[0]?.fromManual && <span className="font-normal normal-case tracking-normal"> · {items[0].domain}</span>}
           </p>
           <ContentList items={items} status={status} />
         </div>
@@ -133,15 +137,16 @@ function ByDiscipline({ plan, status }: { plan: AnnualPlan; status: Status }) {
 export default function RoteiroAnual() {
   const { children } = useChildren();
   const today = new Date();
-  const { eligible, plans, progress, isLoading } = useAnnualPlans(children, today);
+  const { plans, progress, isLoading } = useAnnualPlans(children, today);
   const [selectedId, setSelectedId] = useState<string>("");
 
-  const withPlan = eligible.filter((c) => plans[c.id]);
-  const selected = withPlan.find((c) => c.id === selectedId) ?? withPlan[0];
+  const withPlan = children.filter((c) => plans[c.id]);
+  const selected = children.find((c) => c.id === selectedId) ?? withPlan[0] ?? children[0];
   const plan = selected ? plans[selected.id] : undefined;
   const status: Status = selected ? progress[selected.id] ?? {} : {};
   const currentMonday = mondayOf(today).getTime();
-  const currentWeek = plan ? planWeekFor(plan, today) : null;
+  const anyPlan = plan ?? (withPlan[0] ? plans[withPlan[0].id] : undefined);
+  const currentWeek = anyPlan ? planWeekFor(anyPlan, today) : null;
   const yearRoundCount = plan ? Object.values(plan.yearRound).flat().length : 0;
 
   return (
@@ -156,13 +161,13 @@ export default function RoteiroAnual() {
               O ano inteiro, semana a semana. A NexSeed distribui o currículo pelas semanas e o plano semanal segue este rumo.
             </p>
           </div>
-          {withPlan.length > 1 && selected && (
+          {children.length > 1 && selected && (
             <Select value={selected.id} onValueChange={setSelectedId}>
               <SelectTrigger className="w-[180px]" aria-label="Criança">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {withPlan.map((c) => (
+                {children.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -184,14 +189,12 @@ export default function RoteiroAnual() {
           </div>
         )}
 
-        {!isLoading && withPlan.length === 0 && (
+        {!isLoading && children.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="py-12 text-center text-muted-foreground">
               <MapIcon className="mx-auto mb-3 h-10 w-10 opacity-20" />
               <p className="font-semibold">Ainda não há rumo para mostrar</p>
-              <p className="mt-1 text-sm">
-                O rumo do ano parte do currículo do 1.º ao 4.º ano. Adiciona uma criança com um destes anos para o ver aqui.
-              </p>
+              <p className="mt-1 text-sm">Adiciona uma criança para ver aqui o ano dela, semana a semana.</p>
             </CardContent>
           </Card>
         )}
@@ -205,7 +208,7 @@ export default function RoteiroAnual() {
                 Esta semana
                 {currentWeek && (
                   <span className="text-sm font-normal text-muted-foreground">
-                    semana {currentWeek.number} de {plan!.weeks.length} · {formatWeekShort(currentWeek.monday)}
+                    semana {currentWeek.number} de {anyPlan!.weeks.length} · {formatWeekShort(currentWeek.monday)}
                   </span>
                 )}
               </CardTitle>
@@ -243,6 +246,19 @@ export default function RoteiroAnual() {
               <Button asChild size="sm">
                 <Link to="/weekly-planner"><Sparkles className="mr-1.5 h-4 w-4" /> Gerar o plano desta semana</Link>
               </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {!isLoading && selected && <ManualsCard child={selected} />}
+
+        {!isLoading && selected && !plan && (
+          <Card className="border-dashed">
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">
+              <p className="font-semibold text-foreground">{selected.name} ainda não tem rumo</p>
+              <p className="mt-1">
+                O currículo da app vai do 1.º ao 4.º ano. Para os outros anos, o rumo nasce do índice dos manuais que usam.
+              </p>
             </CardContent>
           </Card>
         )}
@@ -296,7 +312,8 @@ export default function RoteiroAnual() {
 
         {!isLoading && plan && (
           <p className="text-xs text-muted-foreground">
-            As semanas seguem o calendário escolar oficial, com pausa no Natal e na Páscoa. O rumo é uma orientação, não uma
+            As semanas seguem o calendário escolar oficial, com pausa no Natal e na Páscoa. Nas disciplinas com manual, o
+            rumo segue o índice que escreveram; nas outras, o currículo. O rumo é uma orientação, não uma
             dívida: se uma semana correr de outra maneira, ele continua aqui e o plano semanal ajusta-se ao que já está dominado.
           </p>
         )}

@@ -131,48 +131,58 @@ export function PlannerForm({
                 </p>
               </div>
 
-              {/* P-12: o que o rumo do ano traz para esta semana. Com conteúdos
-                  marcados como "em progresso", o plano parte desses (P-02). */}
-              {childrenWithoutFocus?.has(child.id) && !child.school_year.toLowerCase().startsWith("pré") && (
-                <div
-                  role="note"
-                  className="flex gap-2 rounded-lg border border-primary/25 bg-primary/5 p-3 text-xs text-foreground"
-                >
-                  <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                  {weekFocusByChild?.[child.id] ? (
-                    <div className="min-w-0 space-y-1.5">
-                      <p className="font-medium">
-                        Esta semana no rumo do ano (semana {weekFocusByChild[child.id].week.number} de{" "}
-                        {weekFocusByChild[child.id].totalWeeks})
-                      </p>
-                      <ul className="space-y-1">
-                        {Object.entries(weekFocusByChild[child.id].focus).map(([d, list]) => (
-                          <li key={d}>
-                            <span className="font-medium">{GC_DISCIPLINE_LABELS[d] ?? d}:</span>{" "}
-                            <span className="text-muted-foreground">{list.map((c) => c.content).join(" · ")}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="text-muted-foreground">
-                        O plano parte daqui. Não precisas de escolher nada.
-                      </p>
-                      <Link to="/roteiro-anual" className="inline-flex font-medium text-primary hover:underline">
-                        Ver o rumo do ano →
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      <p>
-                        Esta semana não tem conteúdos novos no rumo do ano. O plano parte dos conteúdos deste período,
-                        para rever e consolidar.
-                      </p>
-                      <Link to="/roteiro-anual" className="inline-flex font-medium text-primary hover:underline">
-                        Ver o rumo do ano →
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* P-12 / I-01: o que o rumo do ano traz para esta semana. Com conteúdos
+                  marcados como "em progresso", o plano parte desses (P-02), exceto nas
+                  disciplinas com manual, que seguem sempre o manual. */}
+              {(() => {
+                const wf = weekFocusByChild?.[child.id];
+                const noMarks = !!childrenWithoutFocus?.has(child.id);
+                const rows = Object.entries(wf?.focus ?? {}).filter(
+                  ([, list]) => noMarks || list.some((c) => c.fromManual),
+                );
+                const isPreschool = child.school_year.toLowerCase().startsWith("pré");
+                if (rows.length === 0 && (!noMarks || isPreschool)) return null;
+                return (
+                  <div
+                    role="note"
+                    className="flex gap-2 rounded-lg border border-primary/25 bg-primary/5 p-3 text-xs text-foreground"
+                  >
+                    <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    {wf && rows.length > 0 ? (
+                      <div className="min-w-0 space-y-1.5">
+                        <p className="font-medium">
+                          Esta semana no rumo do ano (semana {wf.week.number} de {wf.totalWeeks})
+                        </p>
+                        <ul className="space-y-1">
+                          {rows.map(([d, list]) => (
+                            <li key={d}>
+                              <span className="font-medium">
+                                {GC_DISCIPLINE_LABELS[d] ?? d}
+                                {list[0]?.fromManual ? ` (${list[0].domain})` : ""}:
+                              </span>{" "}
+                              <span className="text-muted-foreground">{list.map((c) => c.content).join(" · ")}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-muted-foreground">O plano parte daqui. Não precisas de escolher nada.</p>
+                        <Link to="/roteiro-anual" className="inline-flex font-medium text-primary hover:underline">
+                          Ver o rumo do ano →
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <p>
+                          Esta semana não tem conteúdos novos no rumo do ano. O plano parte dos conteúdos deste período,
+                          para rever e consolidar.
+                        </p>
+                        <Link to="/roteiro-anual" className="inline-flex font-medium text-primary hover:underline">
+                          Ver o rumo do ano →
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Weekly curriculum content toggle */}
               <div className="border-t pt-3" data-tour={childIdx === 0 ? "planner-conteudos" : undefined}>
