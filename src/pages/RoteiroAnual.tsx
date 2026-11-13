@@ -1,130 +1,168 @@
-import { useState, useMemo } from "react";
-import { Map as MapIcon, CheckCircle2, Circle, Clock } from "lucide-react";
+// Rumo do ano (P-13 fase 1): o ano letivo semana a semana, calculado a partir
+// do currículo. A família vê o ano inteiro de uma vez e o plano semanal segue
+// este rumo, sem lhe perguntar o que quer ensinar (doc 10, INS-14).
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Map as MapIcon, CheckCircle2, Circle, Clock, CalendarDays, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
-import { YEAR_MAP, GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
+import { useAnnualPlans } from "@/hooks/useAnnualPlan";
+import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
+import {
+  planWeekFor, weekFocus, formatWeekShort, mondayOf,
+  type AnnualContent, type AnnualPlan, type Period, type PlanWeek,
+} from "@/lib/annualPlan";
 
-type ProgressStatus = "a_aprender" | "em_progresso" | "dominado";
+const PERIOD_LABELS: Record<Period, string> = { "1": "1.º período", "2": "2.º período", "3": "3.º período" };
+const PERIODS: Period[] = ["1", "2", "3"];
 
-interface CurriculumContent {
-  id: string;
-  discipline: string;
-  domain: string | null;
-  content: string;
+type Status = Record<string, string>;
+
+function StatusIcon({ status }: { status?: string }) {
+  if (status === "dominado") return <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />;
+  if (status === "em_progresso") return <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />;
+  return <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />;
 }
 
-interface ContentProgress {
-  content_id: string;
-  status: ProgressStatus;
+function ContentList({ items, status }: { items: AnnualContent[]; status: Status }) {
+  return (
+    <ul className="space-y-1">
+      {items.map((c) => (
+        <li key={c.id} className="flex gap-2 text-sm">
+          <StatusIcon status={status[c.id]} />
+          <span className={cn(status[c.id] === "dominado" && "text-muted-foreground line-through decoration-muted-foreground/40")}>
+            {c.content}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
-const PERIOD_LABELS = ["1º Período", "2º Período", "3º Período"];
-const PERIOD_MONTHS = ["Set – Dez", "Jan – Mar", "Abr – Jun"];
+function Disciplines({ byDiscipline, status }: { byDiscipline: Record<string, AnnualContent[]>; status: Status }) {
+  return (
+    <div className="space-y-3">
+      {Object.entries(byDiscipline).map(([d, items]) => (
+        <div key={d}>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {GC_DISCIPLINE_LABELS[d] ?? d}
+          </p>
+          <ContentList items={items} status={status} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
-function StatusIcon({ status }: { status: ProgressStatus }) {
-  if (status === "dominado") return <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />;
-  if (status === "em_progresso") return <Clock className="h-4 w-4 text-amber-500 shrink-0" />;
-  return <Circle className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
+function WeekRow({ week, isCurrent, isPast, status }: { week: PlanWeek; isCurrent: boolean; isPast: boolean; status: Status }) {
+  const hasContents = Object.keys(week.byDiscipline).length > 0;
+  return (
+    <div
+      id={isCurrent ? "semana-atual" : undefined}
+      className={cn(
+        "rounded-xl border p-4 sm:flex sm:gap-5",
+        isCurrent ? "border-primary/50 bg-primary/5 ring-1 ring-primary/30" : "border-border/60 bg-card",
+        isPast && "opacity-70",
+      )}
+    >
+      <div className="mb-2 flex items-baseline gap-2 sm:mb-0 sm:w-28 sm:shrink-0 sm:flex-col sm:gap-0.5">
+        <p className="font-heading font-semibold text-foreground">Semana {week.number}</p>
+        <p className="text-xs text-muted-foreground">{formatWeekShort(week.monday)}</p>
+        {isCurrent && <Badge className="sm:mt-1">Esta semana</Badge>}
+      </div>
+      <div className="min-w-0 flex-1">
+        {week.isReview ? (
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">Semana de balanço.</span> Sem conteúdos novos: rever o que
+            ficou menos seguro e escolher o que entra no portefólio.
+          </p>
+        ) : hasContents ? (
+          <Disciplines byDiscipline={week.byDiscipline} status={status} />
+        ) : (
+          <p className="text-sm text-muted-foreground">Semana para consolidar o que já foi trabalhado.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ByDiscipline({ plan, status }: { plan: AnnualPlan; status: Status }) {
+  const disciplines = [...new Set([
+    ...plan.weeks.flatMap((w) => Object.keys(w.byDiscipline)),
+    ...Object.keys(plan.yearRound),
+  ])].sort();
+  return (
+    <div className="space-y-4">
+      {disciplines.map((d) => (
+        <Card key={d} className="border-border/60">
+          <CardHeader className="pb-3">
+            <CardTitle className="font-heading text-base">{GC_DISCIPLINE_LABELS[d] ?? d}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {PERIODS.map((p) => {
+              const items = plan.weeks.filter((w) => w.period === p).flatMap((w) => w.byDiscipline[d] ?? []);
+              if (items.length === 0) return null;
+              return (
+                <div key={p}>
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{PERIOD_LABELS[p]}</p>
+                  <ContentList items={items} status={status} />
+                </div>
+              );
+            })}
+            {plan.yearRound[d]?.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ao longo do ano</p>
+                <ContentList items={plan.yearRound[d]} status={status} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 }
 
 export default function RoteiroAnual() {
   const { children } = useChildren();
-  const { family } = useAuth();
+  const today = new Date();
+  const { eligible, plans, progress, isLoading } = useAnnualPlans(children, today);
+  const [selectedId, setSelectedId] = useState<string>("");
 
-  // Only show children with a mapped school year
-  const eligibleChildren = children.filter((c) => YEAR_MAP[c.school_year]);
-
-  const [selectedChildId, setSelectedChildId] = useState<string>(() => eligibleChildren[0]?.id ?? "");
-
-  const selectedChild = eligibleChildren.find((c) => c.id === selectedChildId);
-  const dbYear = selectedChild ? YEAR_MAP[selectedChild.school_year] : null;
-
-  const { data: contents = [], isLoading: loadingContents } = useQuery<CurriculumContent[]>({
-    queryKey: ["curriculum_contents_roadmap", dbYear],
-    enabled: !!dbYear,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("curriculum_contents")
-        .select("id, discipline, domain, content")
-        .eq("school_year", dbYear!)
-        .order("discipline")
-        .order("id");
-      return (data ?? []) as CurriculumContent[];
-    },
-  });
-
-  const { data: progress = [], isLoading: loadingProgress } = useQuery<ContentProgress[]>({
-    queryKey: ["child_progress_roadmap", selectedChildId],
-    enabled: !!selectedChildId && !!family,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("child_content_progress")
-        .select("content_id, status")
-        .eq("child_id", selectedChildId);
-      return (data ?? []) as ContentProgress[];
-    },
-  });
-
-  const progressMap = useMemo(
-    () => new Map(progress.map((p) => [p.content_id, p.status])),
-    [progress],
-  );
-
-  // Group contents by discipline, split into 3 periods
-  const roadmap = useMemo(() => {
-    const byDiscipline = new Map<string, CurriculumContent[]>();
-    for (const c of contents) {
-      if (!byDiscipline.has(c.discipline)) byDiscipline.set(c.discipline, []);
-      byDiscipline.get(c.discipline)!.push(c);
-    }
-
-    return [...byDiscipline.entries()].map(([disc, items]) => {
-      const chunkSize = Math.ceil(items.length / 3);
-      const periods = [
-        items.slice(0, chunkSize),
-        items.slice(chunkSize, chunkSize * 2),
-        items.slice(chunkSize * 2),
-      ];
-      return { discipline: disc, periods };
-    });
-  }, [contents]);
-
-  const isLoading = loadingContents || loadingProgress;
-
-  const totalContents = contents.length;
-  const dominated = contents.filter((c) => progressMap.get(c.id) === "dominado").length;
-  const inProgress = contents.filter((c) => progressMap.get(c.id) === "em_progresso").length;
+  const withPlan = eligible.filter((c) => plans[c.id]);
+  const selected = withPlan.find((c) => c.id === selectedId) ?? withPlan[0];
+  const plan = selected ? plans[selected.id] : undefined;
+  const status: Status = selected ? progress[selected.id] ?? {} : {};
+  const currentMonday = mondayOf(today).getTime();
+  const currentWeek = plan ? planWeekFor(plan, today) : null;
+  const yearRoundCount = plan ? Object.values(plan.yearRound).flat().length : 0;
 
   return (
     <AppLayout>
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto space-y-6">
-
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-3xl space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
           <div className="flex-1">
-            <h1 className="text-3xl font-heading font-bold text-foreground flex items-center gap-2">
-              <MapIcon className="h-7 w-7 text-primary" /> Roteiro Anual
+            <h1 className="flex items-center gap-2 font-heading text-3xl font-bold text-foreground">
+              <MapIcon className="h-7 w-7 text-primary" /> Rumo do ano
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Conteúdos curriculares organizados por período escolar.
+            <p className="mt-1 text-muted-foreground">
+              O ano inteiro, semana a semana. A NexSeed distribui o currículo pelas semanas e o plano semanal segue este rumo.
             </p>
           </div>
-          {eligibleChildren.length > 1 && (
-            <Select value={selectedChildId} onValueChange={setSelectedChildId}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Selecionar criança" />
+          {withPlan.length > 1 && selected && (
+            <Select value={selected.id} onValueChange={setSelectedId}>
+              <SelectTrigger className="w-[180px]" aria-label="Criança">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {eligibleChildren.map((c) => (
+                {withPlan.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -132,41 +170,11 @@ export default function RoteiroAnual() {
           )}
         </div>
 
-        {/* No eligible children */}
-        {eligibleChildren.length === 0 && (
-          <Card className="border-dashed">
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <MapIcon className="h-10 w-10 mx-auto mb-3 opacity-20" />
-              <p className="font-semibold">Nenhuma criança com currículo nacional</p>
-              <p className="text-sm mt-1">Adiciona uma criança com ano escolar (1º ao 4º ano) para ver o roteiro.</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Progress summary */}
-        {selectedChild && !isLoading && totalContents > 0 && (
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: "Total de conteúdos", value: totalContents, className: "text-foreground" },
-              { label: "Em progresso", value: inProgress, className: "text-amber-600" },
-              { label: "Dominados", value: dominated, className: "text-emerald-600" },
-            ].map((s) => (
-              <Card key={s.label} className="border-border/60 text-center">
-                <CardContent className="pt-4 pb-3">
-                  <p className={cn("text-2xl font-bold", s.className)}>{s.value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Loading */}
         {isLoading && (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="border-border/60">
-                <CardContent className="p-5 space-y-3">
+                <CardContent className="space-y-3 p-5">
                   <Skeleton className="h-5 w-32" />
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-3/4" />
@@ -176,92 +184,122 @@ export default function RoteiroAnual() {
           </div>
         )}
 
-        {/* Roadmap by discipline */}
-        {!isLoading && roadmap.map(({ discipline, periods }) => (
-          <Card key={discipline} className="border-border/60">
-            <CardHeader className="pb-3">
-              <CardTitle className="font-heading text-base">
-                {GC_DISCIPLINE_LABELS[discipline] ?? discipline}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {periods.map((items, pIdx) => {
-                if (items.length === 0) return null;
-                const dominated = items.filter((c) => progressMap.get(c.id) === "dominado").length;
-                const inProg = items.filter((c) => progressMap.get(c.id) === "em_progresso").length;
-                return (
-                  <div key={pIdx}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {PERIOD_LABELS[pIdx]}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{PERIOD_MONTHS[pIdx]}</span>
-                      <div className="flex-1" />
-                      {(dominated > 0 || inProg > 0) && (
-                        <div className="flex gap-2">
-                          {inProg > 0 && (
-                            <Badge variant="outline" className="text-xs border-amber-200 text-amber-700 gap-1">
-                              <Clock className="h-3 w-3" /> {inProg}
-                            </Badge>
-                          )}
-                          {dominated > 0 && (
-                            <Badge variant="outline" className="text-xs border-emerald-200 text-emerald-700 gap-1">
-                              <CheckCircle2 className="h-3 w-3" /> {dominated}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-1.5">
-                      {items.map((c) => {
-                        const status = progressMap.get(c.id) ?? "a_aprender";
-                        return (
-                          <div
-                            key={c.id}
-                            className={cn(
-                              "flex items-start gap-2.5 rounded-lg border px-3 py-2 text-sm",
-                              status === "dominado"
-                                ? "border-emerald-100 bg-emerald-50/50"
-                                : status === "em_progresso"
-                                  ? "border-amber-100 bg-amber-50/50"
-                                  : "border-border bg-card"
-                            )}
-                          >
-                            <StatusIcon status={status} />
-                            <div className="flex-1">
-                              {c.domain && (
-                                <p className="text-xs text-muted-foreground mb-0.5">{c.domain}</p>
-                              )}
-                              <p className={cn(
-                                status === "dominado" && "text-emerald-800 font-medium",
-                                status === "em_progresso" && "text-amber-800",
-                              )}>
-                                {c.content}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        ))}
-
-        {!isLoading && selectedChild && roadmap.length === 0 && (
+        {!isLoading && withPlan.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="py-12 text-center text-muted-foreground">
-              <MapIcon className="h-10 w-10 mx-auto mb-3 opacity-20" />
-              <p className="font-semibold">Currículo não encontrado</p>
-              <p className="text-sm mt-1">
-                Não há conteúdos curriculares registados para {selectedChild.school_year}.
+              <MapIcon className="mx-auto mb-3 h-10 w-10 opacity-20" />
+              <p className="font-semibold">Ainda não há rumo para mostrar</p>
+              <p className="mt-1 text-sm">
+                O rumo do ano parte do currículo do 1.º ao 4.º ano. Adiciona uma criança com um destes anos para o ver aqui.
               </p>
             </CardContent>
           </Card>
         )}
 
+        {/* Esta semana, para todas as crianças de uma vez */}
+        {!isLoading && withPlan.length > 0 && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex flex-wrap items-center gap-2 font-heading text-base">
+                <CalendarDays className="h-4 w-4 text-primary" />
+                Esta semana
+                {currentWeek && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    semana {currentWeek.number} de {plan!.weeks.length} · {formatWeekShort(currentWeek.monday)}
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!currentWeek && (
+                <p className="text-sm text-muted-foreground">
+                  Esta semana fica fora das semanas com aulas do calendário escolar. O rumo continua aqui quando quiserem retomar.
+                </p>
+              )}
+              {currentWeek?.isReview && (
+                <p className="text-sm text-muted-foreground">
+                  Semana de balanço: sem conteúdos novos. É uma boa altura para rever e escolher o que entra no portefólio.
+                </p>
+              )}
+              {currentWeek && !currentWeek.isReview && (
+                <div className={cn("grid gap-4", withPlan.length > 1 && "sm:grid-cols-2")}>
+                  {withPlan.map((c) => {
+                    const focus = weekFocus(plans[c.id], today, (id) => progress[c.id]?.[id] === "dominado");
+                    return (
+                      <div key={c.id} className="rounded-lg border border-border/60 bg-card p-3">
+                        <p className="mb-2 font-semibold text-foreground">
+                          {c.name} <span className="text-xs font-normal text-muted-foreground">{c.school_year}</span>
+                        </p>
+                        {focus ? (
+                          <Disciplines byDiscipline={focus} status={progress[c.id] ?? {}} />
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Tudo dominado por aqui. Semana para consolidar.</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <Button asChild size="sm">
+                <Link to="/weekly-planner"><Sparkles className="mr-1.5 h-4 w-4" /> Gerar o plano desta semana</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {!isLoading && plan && (
+          <Tabs defaultValue="semanas">
+            <TabsList>
+              <TabsTrigger value="semanas">Semana a semana</TabsTrigger>
+              <TabsTrigger value="disciplinas">Por disciplina</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="semanas" className="space-y-6">
+              {PERIODS.map((p) => {
+                const weeks = plan.weeks.filter((w) => w.period === p);
+                return (
+                  <section key={p} className="space-y-2">
+                    <h2 className="font-heading text-lg font-semibold text-foreground">
+                      {PERIOD_LABELS[p]}{" "}
+                      <span className="text-sm font-normal text-muted-foreground">{weeks.length} semanas</span>
+                    </h2>
+                    {weeks.map((w) => (
+                      <WeekRow
+                        key={w.number}
+                        week={w}
+                        status={status}
+                        isCurrent={w.monday.getTime() === currentMonday}
+                        isPast={w.monday.getTime() < currentMonday}
+                      />
+                    ))}
+                  </section>
+                );
+              })}
+              {yearRoundCount > 0 && (
+                <section className="space-y-2">
+                  <h2 className="font-heading text-lg font-semibold text-foreground">
+                    Ao longo do ano{" "}
+                    <span className="text-sm font-normal text-muted-foreground">sem semana marcada</span>
+                  </h2>
+                  <div className="rounded-xl border border-border/60 bg-card p-4">
+                    <Disciplines byDiscipline={plan.yearRound} status={status} />
+                  </div>
+                </section>
+              )}
+            </TabsContent>
+
+            <TabsContent value="disciplinas">
+              <ByDiscipline plan={plan} status={status} />
+            </TabsContent>
+          </Tabs>
+        )}
+
+        {!isLoading && plan && (
+          <p className="text-xs text-muted-foreground">
+            As semanas seguem o calendário escolar oficial, com pausa no Natal e na Páscoa. O rumo é uma orientação, não uma
+            dívida: se uma semana correr de outra maneira, ele continua aqui e o plano semanal ajusta-se ao que já está dominado.
+          </p>
+        )}
       </motion.div>
     </AppLayout>
   );

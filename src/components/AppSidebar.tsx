@@ -67,7 +67,7 @@ const registarItems: NavItem[] = [
 const sistemaItems: NavItem[] = [
   { title: "Crianças",        url: "/children",       icon: Users },
   { title: "Metodologias",    url: "/metodologias",   icon: BookHeart },
-  { title: "Currículo Anual", url: "/roteiro-anual",  icon: Map },
+  { title: "Rumo do ano",     url: "/roteiro-anual",  icon: Map },
   { title: "Ajuda / Manual",  url: "/ajuda",          icon: LifeBuoy },
   { title: "Definições",      url: "/settings",       icon: Settings },
 ];

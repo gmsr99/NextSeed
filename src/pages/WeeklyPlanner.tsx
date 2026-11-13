@@ -31,6 +31,8 @@ import {
 import { generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
+import { buildAnnualPlan, weekFocus, schoolYearStartFor, type AnnualContent } from "@/lib/annualPlan";
+import { useWeekFocus } from "@/hooks/useAnnualPlan";
 
 type Step = "form" | "preview";
 
@@ -66,6 +68,7 @@ export default function WeeklyPlanner() {
 
   const [weekStart, setWeekStart] = useState<Date>(getNextMonday());
   const [weekStartReady, setWeekStartReady] = useState(false);
+  const weekFocusByChild = useWeekFocus(children, weekStart);
   const [childInterests, setChildInterests] = useState<Record<string, string[]>>({});
   const [weeklyContent, setWeeklyContent] = useState<Record<string, Record<string, string>>>({});
   const [fridayActivity, setFridayActivity] = useState("");
@@ -238,7 +241,7 @@ export default function WeeklyPlanner() {
 
           const { data: allContents } = await supabase
             .from("curriculum_contents")
-            .select("id, discipline, content, period")
+            .select("id, discipline, content, period, domain, sort_order")
             .eq("school_year", dbYear);
 
           const { data: progressRows } = await supabase
@@ -250,6 +253,19 @@ export default function WeeklyPlanner() {
 
           const progressMap = new Map((progressRows ?? []).map((p) => [p.content_id, p.status]));
 
+          // P-12: sem marcações, o plano parte dos conteúdos desta semana no rumo
+          // do ano. Em pausas e semanas de balanço não há foco: usa o período.
+          const focus = weekFocus(
+            buildAnnualPlan(allContents as AnnualContent[], schoolYearStartFor(weekStart)),
+            weekStart,
+            (id) => progressMap.get(id) === "dominado",
+          );
+          if (focus) {
+            gcCurrentByChild[child.id] = Object.fromEntries(
+              Object.entries(focus).map(([d, list]) => [d, list.map((c) => c.content)]),
+            );
+          }
+
           for (const c of allContents) {
             const status = progressMap.get(c.id) ?? "a_aprender";
             if (status === "dominado") continue;
@@ -260,7 +276,7 @@ export default function WeeklyPlanner() {
             if (!gcAllByChild[child.id][c.discipline]) gcAllByChild[child.id][c.discipline] = [];
             gcAllByChild[child.id][c.discipline].push(c.content);
 
-            if (inPeriods(c.period, fbPeriods)) {
+            if (!focus && inPeriods(c.period, fbPeriods)) {
               if (!gcCurrentByChild[child.id]) gcCurrentByChild[child.id] = {};
               if (!gcCurrentByChild[child.id][c.discipline]) gcCurrentByChild[child.id][c.discipline] = [];
               gcCurrentByChild[child.id][c.discipline].push(c.content);
@@ -275,8 +291,8 @@ export default function WeeklyPlanner() {
         })
       );
 
-      // P-01: sem nada marcado como "em progresso", usar só o período atual
-      // (antes ia o ano inteiro, sem sinal de prioridade)
+      // Sem nada marcado como "em progresso": conteúdos desta semana no rumo do
+      // ano (P-12) ou, fora das semanas com aulas, o período atual (P-01)
       for (const child of gcChildren) {
         if (!gcProgressByChild[child.id] && gcCurrentByChild[child.id]) {
           gcProgressByChild[child.id] = {};
@@ -615,6 +631,7 @@ export default function WeeklyPlanner() {
             generating={generating}
             generatingStep={generatingStep}
             childrenWithoutFocus={childrenWithoutFocus}
+            weekFocusByChild={weekFocusByChild}
             onGenerate={handleGeneratePlan}
           />
         ) : (

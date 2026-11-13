@@ -182,7 +182,7 @@ function buildPrompt(
     ).join("\n")}`;
   }).filter(Boolean);
   const gcSection = gcLines.length > 0
-    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nO educador marcou estes conteúdos. As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança:\n${gcLines.join("\n\n")}\n`
+    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nSão os conteúdos desta semana (do plano anual ou marcados pelo educador). As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança:\n${gcLines.join("\n\n")}\n`
     : "";
 
   // Contexto GC completo por criança (todos os não dominados) — para orientação geral

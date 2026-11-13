@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import TagInput from "@/components/TagInput";
 import type { Child } from "@/lib/types";
 import { formatWeekRange } from "@/lib/planGenerator";
+import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
+import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
 
 // Disciplines shown per school year type
 const PRESCHOOL_DISCIPLINES = [
@@ -49,6 +51,8 @@ interface PlannerFormProps {
   onGenerate: () => void;
   /** Crianças sem conteúdos marcados como "em progresso" (aviso P-02) */
   childrenWithoutFocus?: Set<string>;
+  /** Conteúdos da semana no rumo do ano, por criança (P-12) */
+  weekFocusByChild?: Record<string, ChildWeekFocus>;
 }
 
 export function PlannerForm({
@@ -68,6 +72,7 @@ export function PlannerForm({
   onNextWeek,
   generating,
   generatingStep,
+  weekFocusByChild,
   onGenerate,
   childrenWithoutFocus,
 }: PlannerFormProps) {
@@ -126,22 +131,46 @@ export function PlannerForm({
                 </p>
               </div>
 
-              {/* P-02: aviso quando não há nada marcado como "em progresso" */}
-              {childrenWithoutFocus?.has(child.id) && (
+              {/* P-12: o que o rumo do ano traz para esta semana. Com conteúdos
+                  marcados como "em progresso", o plano parte desses (P-02). */}
+              {childrenWithoutFocus?.has(child.id) && !child.school_year.toLowerCase().startsWith("pré") && (
                 <div
                   role="note"
                   className="flex gap-2 rounded-lg border border-primary/25 bg-primary/5 p-3 text-xs text-foreground"
                 >
                   <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                  <div className="space-y-1.5">
-                    <p>
-                      Para planos mais certeiros, marca nas Áreas de Aprendizagem o que {child.name} está a trabalhar agora.
-                      Sem isso, o plano parte dos conteúdos deste período.
-                    </p>
-                    <Link to="/learning-areas" className="inline-flex font-medium text-primary hover:underline">
-                      Marcar conteúdos em progresso →
-                    </Link>
-                  </div>
+                  {weekFocusByChild?.[child.id] ? (
+                    <div className="min-w-0 space-y-1.5">
+                      <p className="font-medium">
+                        Esta semana no rumo do ano (semana {weekFocusByChild[child.id].week.number} de{" "}
+                        {weekFocusByChild[child.id].totalWeeks})
+                      </p>
+                      <ul className="space-y-1">
+                        {Object.entries(weekFocusByChild[child.id].focus).map(([d, list]) => (
+                          <li key={d}>
+                            <span className="font-medium">{GC_DISCIPLINE_LABELS[d] ?? d}:</span>{" "}
+                            <span className="text-muted-foreground">{list.map((c) => c.content).join(" · ")}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-muted-foreground">
+                        O plano parte daqui. Não precisas de escolher nada.
+                      </p>
+                      <Link to="/roteiro-anual" className="inline-flex font-medium text-primary hover:underline">
+                        Ver o rumo do ano →
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <p>
+                        Esta semana não tem conteúdos novos no rumo do ano. O plano parte dos conteúdos deste período,
+                        para rever e consolidar.
+                      </p>
+                      <Link to="/roteiro-anual" className="inline-flex font-medium text-primary hover:underline">
+                        Ver o rumo do ano →
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
 
