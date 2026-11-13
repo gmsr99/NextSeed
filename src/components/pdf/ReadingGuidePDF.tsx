@@ -35,7 +35,13 @@ interface EpisodeContent {
   discussion_prompt: string;
 }
 
-function parseEpisodeContent(description: string): EpisodeContent {
+export function splitInlineQuestion(text: string): [string, string] {
+  const m = text.match(/\s*\|\s*Pergunta:\s*/);
+  if (!m || m.index === undefined) return [text, ""];
+  return [text.slice(0, m.index).trim(), text.slice(m.index + m[0].length).trim()];
+}
+
+export function parseEpisodeContent(description: string): EpisodeContent {
   try {
     const parsed = JSON.parse(description);
     if (
@@ -43,9 +49,12 @@ function parseEpisodeContent(description: string): EpisodeContent {
       parsed !== null &&
       typeof parsed.episode_text === "string"
     ) {
+      // Por vezes o modelo repete a pergunta dentro do texto ("… | Pergunta: …").
+      // Tira-se do texto; se não vier pergunta à parte, aproveita-se essa.
+      const [text, inlineQuestion] = splitInlineQuestion(parsed.episode_text ?? "");
       return {
-        episode_text:           parsed.episode_text ?? "",
-        comprehension_question: parsed.comprehension_question ?? "",
+        episode_text:           text,
+        comprehension_question: parsed.comprehension_question || inlineQuestion,
         discussion_prompt:      parsed.discussion_prompt ?? "",
       };
     }

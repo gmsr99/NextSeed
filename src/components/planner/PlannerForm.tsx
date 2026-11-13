@@ -154,7 +154,7 @@ export function PlannerForm({
                 >
                   <span className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    O que quero ensinar esta semana
+                    Ajustar os conteúdos desta semana (opcional)
                     {hasContent && (
                       <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                         preenchido
@@ -169,7 +169,7 @@ export function PlannerForm({
                 </button>
                 {!isExpanded && (
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Especifica os conteúdos curriculares por disciplina — a IA irá ensinar exactamente esses tópicos.
+                    Não precisas de preencher: a NexSeed escolhe os conteúdos a partir do currículo desta altura do ano. Abre só se quiseres trocar algum.
                   </p>
                 )}
 

@@ -19,8 +19,8 @@ export default function SchoolYearScopeNotice({ schoolYear }: { schoolYear: stri
       <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       <p>
         Para o {schoolYear} ainda não temos o currículo carregado: por agora a NexSeed cobre do pré-escolar ao 4.º ano.
-        O plano semanal funciona na mesma. O truque é preencheres, em cada semana, "O que quero ensinar esta semana"
-        com as matérias de cada disciplina.
+        O plano semanal funciona na mesma. O truque é abrires, em cada semana, "Ajustar os conteúdos desta semana"
+        e escreveres as matérias de cada disciplina.
       </p>
     </div>
   );

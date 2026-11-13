@@ -91,8 +91,8 @@ export const TOURS: TourDef[] = [
       },
       {
         target: "planner-conteudos",
-        title: "O que querem ensinar",
-        body: "O campo mais poderoso do planeador: indiquem os conteúdos por disciplina e a IA cria atividades que ensinam exatamente isso.",
+        title: "Ajustar os conteúdos (opcional)",
+        body: "Não é preciso preencher: a NexSeed escolhe os conteúdos a partir do currículo desta altura do ano. Abram só quando quiserem trocar algum.",
       },
       {
         target: "planner-sexta",

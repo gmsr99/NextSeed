@@ -1,6 +1,6 @@
 # NexSeed: backlog de produto e desenvolvimento
 
-Última atualização: 12 de novembro de 2026
+Última atualização: 13 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -21,10 +21,10 @@ Como ler:
 | Ordem | Grande mudança | Porquê nesta posição | Imp. | Urg. | Estado |
 |---|---|---|---|---|---|
 | 1 | E1 · Conformidade e base | Dados de crianças em produção sem backup nem textos legais completos. Corre em paralelo e quase tudo depende do Gil ou de revisão jurídica. | A | A | Em curso |
-| 2 | E8 · Correções rápidas | Pequenos erros que as famílias já encontraram e que tiram confiança. Cabem numa sessão. | M | A | Feito, aguarda aprovação (falta o T-08) |
-| 3 | E2 · Atividades melhores no plano semanal | É a funcionalidade que decide o produto e a queixa mais concreta das famílias: atividades repetitivas, genéricas ou desajustadas. Não precisa de BD. | A | A | P-01 e P-02 feitos, aguardam aprovação |
-| 4 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
-| 5 | E3 · Rumo do ano | As famílias querem saber o que dar e se vão no ritmo certo. É o pedido mais repetido (F-01, F-02, equipa). | A | M | Por fazer |
+| 2 | E8 · Correções rápidas | Pequenos erros que as famílias já encontraram e que tiram confiança. | M | A | Feito, aguarda aprovação (falta o T-08) |
+| 3 | E3 · Rumo do ano | Mudança de fundo (13 nov): o ano planeia-se primeiro e a semana deriva dele. A app deixa de perguntar e passa a propor. É o pedido mais repetido (F-01, F-02, equipa). | A | A | Especificação pronta; aguarda OK |
+| 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-01, P-02 e P-21 feitos, aguardam aprovação |
+| 5 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
 | 6 | E5 · Fecho da semana | Liga o que foi feito ao progresso, sem a família ter de ir às Áreas de Aprendizagem. Alimenta o E3 e o portefólio. | A | M | Por fazer |
 | 7 | E4 · Horário e tempo flexíveis | O plano é gerado para uma semana que muitas famílias não têm. Precisa de BD e é o maior bloco de trabalho. | A | M | Aguarda decisão |
 | 8 | E7 · Impressão e documentos | As famílias imprimem demasiadas folhas. Alguns pontos são rápidos e podem entrar antes. | M | M | Por fazer |
@@ -60,6 +60,7 @@ Erros já encontrados pelas famílias. Pequenos, mas cada um tira confiança.
 | T-09 | Aviso claro de que o currículo só existe até ao 4.º ano | F-04. Uma criança de 5.º ou 6.º ano é criada sem currículo e sem aviso | M/A | S | Feito, aguarda aprovação |
 | R-09 | Intervalo vazio entre as 13:45 e as 15:00 no horário | Equipa (backlog da família piloto) | M/A | S | Feito, aguarda aprovação |
 | P-11 | "Ver Mundo": uma saída para a família toda, não uma por criança | F-03. O plano mandou duas crianças para dois sítios diferentes no mesmo dia | M/A | S | Feito, aguarda aprovação |
+| T-10 | Guia de Leitura: a pergunta aparecia repetida dentro do texto do episódio ("\| Pergunta: …") | Plano real de 13 nov | M/A | S | Feito, aguarda aprovação |
 
 ## E2 · Atividades melhores no plano semanal
 
@@ -69,11 +70,14 @@ A funcionalidade que decide o produto. Tudo isto é trabalho nos pedidos ao Gemi
 |---|---|---|---|---|---|
 | P-01 | Sem conteúdos marcados, enviar só os do período atual em vez do ano inteiro | Docs 03 e 10. Planos sem prioridade clara | A/A | M | Feito, aguarda aprovação |
 | P-02 | Aviso no Plano Semanal quando uma criança não tem conteúdos marcados | Docs 10 (INS-06). As famílias não encontram a marcação | A/A | S | Feito, aguarda aprovação |
+| P-21 | Deixar de perguntar "o que quero ensinar esta semana": o campo passa a opcional, com a indicação de que a NexSeed escolhe os conteúdos | F-02. Passo intermédio até ao P-12 | A/A | S | Feito, aguarda aprovação |
 | P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Por fazer |
 | P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Por fazer |
 | P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Por fazer |
+| P-22 | Guia semanal no formato que a F-02 usa: semana em resumo, caixa de materiais para preparar ao domingo, o que perguntar, versão curta para dias difíceis, balanço da semana | F-02 (documento Semana 1). Menos folhas e menos preparação | A/A | M | Por fazer (precisa de especificação) |
+| P-23 | Menos preparação: materiais que há em casa, sem imprimir; interesses como tempero e não como tema de todas as atividades | Plano real de 13 nov: 46 atividades, quase todas com materiais a fabricar (puzzles, cartões, vara de pesca) e todas tematizadas pelos mesmos dois interesses | A/A | M | Por fazer |
 | P-08 | Leitura: gerar episódios curtos (1 ou 2 parágrafos) e textos concretos, em vez de só títulos | Equipa (backlog da família piloto). Menos coisas para a mãe preparar | A/M | M | Por fazer |
-| P-10 | Famílias com vários níveis: sessões conjuntas com o mesmo tema e exercícios adaptados a cada idade | Equipa. Hoje só alinha pré-escolar com 1.º ciclo | A/M | M | Por fazer |
+| P-10 | Semana com tema comum e blocos para várias idades: atividade conjunta de manhã; bloco académico em que a mãe está com uma criança enquanto a outra trabalha sozinha | Equipa, F-02. Hoje o plano dá atividades paralelas e diferentes a cada criança à mesma hora | A/A | L | Por fazer (precisa de especificação) |
 | P-05 | Decidir se a análise de cobertura mantém o "thinking" do Gemini | Docs (A-04) | B/M | S | Por fazer |
 
 ## E6 · Registo, portefólio e relatórios
@@ -86,6 +90,7 @@ A entrega às escolas em dezembro e janeiro é a prova de valor da segunda ânco
 | R-02 | Corrigir o que o R-01 revelar | Depende do R-01 | A/A | M | Por fazer |
 | R-03 | Validar a secção "relatórios" do Manual (está como rascunho) | Auditoria (FASE 2.3) | A/A | S | Aguarda Elton |
 | R-04 | Uma atividade pode contar para várias áreas de aprendizagem | Equipa. Muitas atividades trabalham várias áreas ao mesmo tempo. BD | A/A | M | Por fazer |
+| R-10 | Sugerir em cada semana o que guardar no portefólio (3 ou 4 evidências por criança) e facilitar o registo de 2 minutos por dia | F-02, equipa. Liga o plano à segunda âncora | A/A | M | Por fazer |
 | R-05 | Registar marcos e acontecimentos importantes (todas as idades) que entram no relatório | F-02, F-05. BD; rever doc 04 (dados de desenvolvimento de menores) | M/M | M | Por fazer |
 | R-06 | Crianças até 2 ou 3 anos: diário de marcos em vez de plano de atividades | F-05, equipa. Alarga a app a uma fase fora do ensino doméstico formal | M/B | M | Em estudo |
 
@@ -95,9 +100,9 @@ Saber o que dar em cada altura e se o ritmo está certo. Parte já existe (Rotei
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| P-12 | Escolher da lista do currículo o que dar esta semana, por criança e disciplina | F-02 escreveu as matérias nos interesses porque não encontrou onde. Reaproveita o Roteiro Anual | A/A | M | Por fazer |
-| P-13 | Plano anual com metas por período e por mês, de onde deriva o plano semanal | F-01, F-02, equipa. Muitas famílias fazem isto hoje com IA fora da app | A/M | L | Por fazer (precisa de especificação) |
-| P-14 | "Estou no ritmo certo?": no dashboard, o percorrido face ao esperado nesta altura do ano letivo | Equipa, F-02. Responde à insegurança dos pais (problema 3) | A/M | M | Depende de P-13 e P-04 |
+| P-12 | O plano semanal parte sozinho dos conteúdos da semana no plano anual; a família só ajusta se quiser | F-02: perguntar "o que queres ensinar" cria insegurança em vez de a resolver. Faz parte do P-13 | A/A | M | Especificado; aguarda OK |
+| P-13 | Plano anual semana a semana: para cada criança e disciplina, o que dar em cada semana do ano letivo, calculado pela app a partir do currículo (sem a família preencher nada) | F-01, F-02, equipa. F-02 construiu este plano fora da app (calendário de 29 semanas). Fase 1 não precisa de BD | A/A | L | Especificado; aguarda OK |
+| P-14 | "Estou no ritmo certo?": pontos de controlo por período e regra de atraso sem culpa (o que não se fez passa para a semana seguinte) | Equipa, F-02 (o plano dela tem pontos de controlo e margem em julho). Responde à insegurança dos pais | A/A | M | Depende de P-13 |
 | P-15 | Metodologia principal e secundárias por criança, e explicar o que o plano segue | F-02. Hoje a metodologia é por família | M/M | M | Por fazer. BD |
 | P-16 | Pré-escolar com linha condutora (OCEPE) e explicação de como cruza com as pedagogias | F-03 | M/M | M | Por fazer |
 
