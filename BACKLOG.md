@@ -22,7 +22,7 @@ Como ler:
 |---|---|---|---|---|---|
 | 1 | E1 · Conformidade e base | Dados de crianças em produção sem backup nem textos legais completos. Corre em paralelo e quase tudo depende do Gil ou de revisão jurídica. | A | A | Em curso |
 | 2 | E8 · Correções rápidas | Pequenos erros que as famílias já encontraram e que tiram confiança. | M | A | Publicado a 13 nov (falta o T-08) |
-| 3 | E3 · Rumo do ano | Mudança de fundo (13 nov): o ano planeia-se primeiro e a semana deriva dele. A app deixa de perguntar e passa a propor. É o pedido mais repetido (F-01, F-02, equipa). | A | A | Fase 1 publicada a 13 nov. Índices dos manuais (I-01) em pré-visualização, à espera da migração 026 |
+| 3 | E3 · Rumo do ano | Mudança de fundo (13 nov): o ano planeia-se primeiro e a semana deriva dele. A app deixa de perguntar e passa a propor. É o pedido mais repetido (F-01, F-02, equipa). | A | A | Fase 1 publicada a 13 nov. Manuais (I-01) e calendário da família (P-24) em pré-visualização, à espera do Gil (B-12) |
 | 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-01, P-02 e P-21 publicados a 13 nov. P-10 e P-23 especificados e aprovados |
 | 5 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
 | 6 | E5 · Fecho da semana | Liga o que foi feito ao progresso, sem a família ter de ir às Áreas de Aprendizagem. Alimenta o E3 e o portefólio. | A | M | Por fazer |
@@ -47,7 +47,7 @@ Corre em paralelo com o resto. A maior parte depende do Gil ou de revisão jurí
 | B-09 | Consentimentos granulares registados (quem, quando, a quê, versão dos termos) | Docs (Fase A, A6). BD | A/A | M | Por fazer (precisa de especificação) |
 | B-01 | Gemini em faturação paga | Docs (D-013). Adiado até haver receita (decisão de 4 nov); mitigado pelo OK-06 | A/M | S | Adiado (Elton) |
 | B-04 | Acesso do Claude ao Supabase | Decisão do Gil (5 nov): não, enquanto não houver backup | M/B | S | Em pausa |
-| B-12 | Gil: publicar a migração 026 (tabela child_manuals) e voltar a publicar a função export-family-data | I-01. Sem a migração, a caixa dos manuais aparece só como aviso e o resto da app funciona igual | A/A | S | Aguarda o Gil |
+| B-12 | Gil: publicar as migrações 026 (child_manuals) e 027 (family_calendars) e voltar a publicar a função export-family-data | I-01 e P-24. Sem as migrações, os manuais aparecem só como aviso, o calendário não se pode ajustar e o resto da app funciona igual | A/A | S | Aguarda o Gil |
 
 ## E8 · Correções rápidas
 
@@ -104,7 +104,7 @@ Saber o que dar em cada altura e se o ritmo está certo. Parte já existe (Rotei
 | P-12 | O plano semanal parte sozinho dos conteúdos da semana no plano anual; a família só ajusta se quiser | F-02: perguntar "o que queres ensinar" cria insegurança em vez de a resolver. Faz parte do P-13 | A/A | M | Publicado a 13 nov |
 | P-13 | Plano anual semana a semana: para cada criança e disciplina, o que dar em cada semana do ano letivo, calculado pela app a partir do currículo (sem a família preencher nada) | F-01, F-02, equipa. F-02 construiu este plano fora da app (calendário de 29 semanas). Fase 1 não precisa de BD | A/A | L | Fase 1 publicada a 13 nov (página Rumo do ano; segue o calendário escolar oficial) |
 | P-14 | "Estou no ritmo certo?": pontos de controlo por período e regra de atraso sem culpa (o que não se fez passa para a semana seguinte) | Equipa, F-02 (o plano dela tem pontos de controlo e margem em julho). Responde à insegurança dos pais | A/A | M | Depende de P-13 |
-| P-24 | Rumo do ano, fase 2: PDF do ano para imprimir, semanas e férias da própria família, e vista de família com os conteúdos comuns às várias crianças | F-02 (calendário de 29 semanas feito fora da app). A fase 1 usa o calendário escolar oficial e mostra uma criança de cada vez | A/M | M | Por fazer. O calendário da família depende de P-04 |
+| P-24 | Rumo do ano, fase 2: PDF do ano para imprimir, semanas e férias da própria família, e vista de família com os conteúdos comuns às várias crianças | F-02 (calendário de 29 semanas feito fora da app). A fase 1 usa o calendário escolar oficial e mostra uma criança de cada vez | A/M | M | Calendário da família feito, em pré-visualização (depende do B-12). Faltam o PDF do ano e a vista de família |
 | P-15 | Metodologia principal e secundárias por criança, e explicar o que o plano segue | F-02. Hoje a metodologia é por família | M/M | M | Por fazer. BD |
 | P-16 | Pré-escolar com linha condutora (OCEPE) e explicação de como cruza com as pedagogias | F-03 | M/M | M | Por fazer |
 

@@ -197,7 +197,8 @@ export const MANUAL_SECTIONS: ManualSection[] = [
       ]},
       { type: "h", text: "Como é feito" },
       { type: "ul", items: [
-        "As semanas seguem o calendário escolar oficial, com pausa no Natal e na Páscoa.",
+        "As semanas seguem o calendário escolar, com pausa no Natal e na Páscoa, até dizerem o contrário.",
+        "Em **Ajustar as semanas** escolhem quando começa e acaba o vosso ano e quando param. Se não param no verão, basta mudar a data de fim; o rumo reparte tudo pelas vossas semanas.",
         "A última semana de cada período é de **balanço**: sem conteúdos novos, para rever e escolher o que entra no portefólio.",
         "Alguns conteúdos (por exemplo, de Artes) trabalham-se **ao longo do ano** e não têm semana marcada.",
         "Podem alternar entre **Semana a semana** e **Por disciplina**.",

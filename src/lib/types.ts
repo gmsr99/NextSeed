@@ -594,6 +594,33 @@ export type Database = {
         }
         Relationships: []
       }
+      family_calendars: {
+        Row: {
+          family_id: string
+          year_start: string
+          year_end: string
+          breaks: Json
+          review_weeks: boolean
+          updated_at: string
+        }
+        Insert: {
+          family_id: string
+          year_start: string
+          year_end: string
+          breaks?: Json
+          review_weeks?: boolean
+          updated_at?: string
+        }
+        Update: {
+          family_id?: string
+          year_start?: string
+          year_end?: string
+          breaks?: Json
+          review_weeks?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       child_manuals: {
         Row: {
           id: string

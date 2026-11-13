@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAnnualPlans } from "@/hooks/useAnnualPlan";
 import ManualsCard from "@/components/ManualsCard";
+import FamilyCalendarCard from "@/components/FamilyCalendarCard";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
   planWeekFor, weekFocus, formatWeekShort, mondayOf,
@@ -216,7 +217,7 @@ export default function RoteiroAnual() {
             <CardContent className="space-y-4">
               {!currentWeek && (
                 <p className="text-sm text-muted-foreground">
-                  Esta semana fica fora das semanas com aulas do calendário escolar. O rumo continua aqui quando quiserem retomar.
+                  Esta semana fica fora das vossas semanas com aulas. O rumo continua aqui quando quiserem retomar.
                 </p>
               )}
               {currentWeek?.isReview && (
@@ -249,6 +250,8 @@ export default function RoteiroAnual() {
             </CardContent>
           </Card>
         )}
+
+        {!isLoading && children.length > 0 && <FamilyCalendarCard />}
 
         {!isLoading && selected && <ManualsCard child={selected} />}
 
@@ -312,7 +315,7 @@ export default function RoteiroAnual() {
 
         {!isLoading && plan && (
           <p className="text-xs text-muted-foreground">
-            As semanas seguem o calendário escolar oficial, com pausa no Natal e na Páscoa. Nas disciplinas com manual, o
+            As semanas seguem o vosso calendário ou, se não o ajustaram, o calendário escolar. Nas disciplinas com manual, o
             rumo segue o índice que escreveram; nas outras, o currículo. O rumo é uma orientação, não uma
             dívida: se uma semana correr de outra maneira, ele continua aqui e o plano semanal ajusta-se ao que já está dominado.
           </p>

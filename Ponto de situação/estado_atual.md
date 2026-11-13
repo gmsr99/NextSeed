@@ -41,6 +41,14 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Fronteira: só títulos e páginas, escritos pela família e visíveis só para ela (RLS). A questão de direitos de autor A-09 (doc 10) não foi validada por um jurista.
 - Por testar: geração real com a IA e gravação na base de dados real (só testado com dados simulados).
 
+## Calendário da família (P-24, em pré-visualização desde 13 nov; não publicado)
+- No Rumo do ano, "Ajustar as semanas": data de início e de fim do ano, lista de pausas (vem com o Natal e a Páscoa do calendário escolar) e semanas de balanço ligadas ou desligadas. Uma linha por família; sem linha, vale o calendário escolar.
+- O rumo (currículo e manuais) e o plano semanal passam a usar estas semanas. Uma semana conta se tiver pelo menos três dias de aulas.
+- Períodos: num ano que começa entre agosto e outubro e dura até 12 meses, seguem as datas habituais (até dezembro, até à Páscoa, depois); noutros casos, o ano divide-se em três partes iguais.
+- Limite: o calendário vale para um ano; no ano seguinte a família volta a ajustá-lo (até lá a app usa o escolar). Dias da semana e minutos por dia continuam por fazer (P-04).
+- **Depende do Gil:** migração `027_family_calendars.sql` (e a mesma nova publicação de `export-family-data`). Sem ela, o resumo aparece mas o botão de ajustar não.
+- Por testar: gravação na base de dados real.
+
 ## Segurança e dados: estado verificado no código
 | Tema | Estado |
 |---|---|

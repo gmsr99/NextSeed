@@ -7,9 +7,10 @@ import { supabase } from "@/lib/supabase";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import type { Child } from "@/lib/types";
 import { useChildManuals } from "@/hooks/useChildManuals";
+import { useFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import {
-  buildAnnualPlan, planWeekFor, weekFocus, schoolYearStartFor,
-  type AnnualContent, type AnnualPlan, type PlanWeek,
+  buildAnnualPlan, planWeekFor, weekFocus, weeksFor,
+  isoDay, parseDay, type AnnualContent, type AnnualPlan, type PlanWeek,
 } from "@/lib/annualPlan";
 
 type ContentRow = AnnualContent & { school_year: string };
@@ -69,30 +70,32 @@ export function useAnnualPlans(children: Child[], date: Date) {
   const contents = useAnnualContents(withCurriculum.map((c) => YEAR_MAP[c.school_year]));
   const progress = useChildrenProgress(withCurriculum.map((c) => c.id));
   const { manuals, isLoading: loadingManuals } = useChildManuals();
-  const start = schoolYearStartFor(date);
+  const { calendar, isLoading: loadingCalendar } = useFamilyCalendar();
+  const day = isoDay(date);
   const waitingContents = withCurriculum.length > 0 && !contents.data;
 
   const plans = useMemo(() => {
     const out: Record<string, AnnualPlan> = {};
     if (waitingContents) return out;
     const byYear: Record<string, AnnualPlan> = {};
+    const weeks = weeksFor(parseDay(day), calendar);
     for (const child of children) {
       const y = YEAR_MAP[child.school_year];
       const list = (y && contents.data?.[y]) || [];
       const mine = manuals.filter((m) => m.child_id === child.id && m.entries.length > 0);
       if (list.length === 0 && mine.length === 0) continue;
       out[child.id] = mine.length > 0
-        ? buildAnnualPlan(list, start, mine)
-        : (byYear[y] ??= buildAnnualPlan(list, start));
+        ? buildAnnualPlan(list, weeks, mine)
+        : (byYear[y] ??= buildAnnualPlan(list, weeks));
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contents.data, waitingContents, manuals, start, children.map((c) => `${c.id}:${c.school_year}`).join(",")]);
+  }, [contents.data, waitingContents, manuals, calendar, day, children.map((c) => `${c.id}:${c.school_year}`).join(",")]);
 
   return {
     plans,
     progress: progress.data ?? {},
-    isLoading: contents.isLoading || progress.isLoading || loadingManuals,
+    isLoading: contents.isLoading || progress.isLoading || loadingManuals || loadingCalendar,
   };
 }
 

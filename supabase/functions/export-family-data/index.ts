@@ -31,6 +31,7 @@ const TABLES = [
   "literacy_progress",
   "child_content_progress",
   "child_manuals",
+  "family_calendars",
   "family_methodologies",
   "feedback_submissions",
   "feedback_answers",

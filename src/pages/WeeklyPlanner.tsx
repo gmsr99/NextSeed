@@ -31,7 +31,8 @@ import {
 import { generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
-import { buildAnnualPlan, weekFocus, schoolYearStartFor, type AnnualContent } from "@/lib/annualPlan";
+import { buildAnnualPlan, weekFocus, weeksFor, type AnnualContent } from "@/lib/annualPlan";
+import { fetchFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
 import { fetchChildManuals } from "@/hooks/useChildManuals";
 
@@ -233,6 +234,8 @@ export default function WeeklyPlanner() {
       const gcAllByChild: Record<string, Record<string, string[]>> = {};
       const manuals = (family ? await fetchChildManuals(family.id) : null) ?? [];
       const manualFocusByChild: Record<string, Record<string, string[]>> = {};
+      // P-24: semanas do calendário da família, ou do escolar se não houver
+      const planWeeks = weeksFor(weekStart, family ? await fetchFamilyCalendar(family.id) : null);
       // Crianças com currículo carregado ou com um manual (ex.: 5.º ano só com manuais)
       const gcChildren = children.filter(
         (c) => YEAR_MAP[c.school_year] || manuals.some((m) => m.child_id === c.id),
@@ -265,7 +268,7 @@ export default function WeeklyPlanner() {
           // P-12: sem marcações, o plano parte dos conteúdos desta semana no rumo
           // do ano. Em pausas e semanas de balanço não há foco: usa o período.
           const focus = weekFocus(
-            buildAnnualPlan((allContents ?? []) as AnnualContent[], schoolYearStartFor(weekStart), childManuals),
+            buildAnnualPlan((allContents ?? []) as AnnualContent[], planWeeks, childManuals),
             weekStart,
             (id) => progressMap.get(id) === "dominado",
           );

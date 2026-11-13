@@ -14,6 +14,7 @@ import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import { MANUAL_DISCIPLINES, formatIndex, hasUsablePages, parseIndex } from "@/lib/manualIndex";
 import { useChildManuals, type ChildManual } from "@/hooks/useChildManuals";
 import { schoolYearStartFor } from "@/lib/annualPlan";
+import { useFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import type { Child } from "@/lib/types";
 
 const EXAMPLE = "Unidade 1 — Números até 100 ... 6\nUnidade 2 — Adição e subtração ... 24\nUnidade 3 — Figuras geométricas ... 40";
@@ -21,6 +22,9 @@ const EXAMPLE = "Unidade 1 — Números até 100 ... 6\nUnidade 2 — Adição e
 export default function ManualsCard({ child }: { child: Child }) {
   const { manuals, available, isLoading, save, remove } = useChildManuals();
   const { toast } = useToast();
+  const { calendar } = useFamilyCalendar();
+  // "Desde o início do ano": o início do calendário da família, se existir
+  const yearStart = calendar?.year_start ?? `${schoolYearStartFor(new Date())}-09-01`;
   const mine = manuals.filter((m) => m.child_id === child.id);
 
   const [open, setOpen] = useState(false);
@@ -60,7 +64,7 @@ export default function ManualsCard({ child }: { child: Child }) {
       const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       const start_date =
         startMode === "keep" && previous?.start_date ? previous.start_date
-        : startMode === "year" ? `${schoolYearStartFor(today)}-09-01`
+        : startMode === "year" ? yearStart
         : iso(today);
       await save.mutateAsync({ child_id: child.id, discipline, title: title.trim(), entries, start_date });
       // Mudou de disciplina ao editar: o registo antigo deixa de fazer sentido
@@ -186,8 +190,8 @@ export default function ManualsCard({ child }: { child: Child }) {
                 <SelectTrigger id="manual-start"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {editingId && <SelectItem value="keep">Como está agora</SelectItem>}
-                  <SelectItem value="now">A partir desta semana, até ao fim do ano letivo</SelectItem>
-                  <SelectItem value="year">Desde o início do ano letivo</SelectItem>
+                  <SelectItem value="now">A partir desta semana, até ao fim do ano</SelectItem>
+                  <SelectItem value="year">Desde o início do ano</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">

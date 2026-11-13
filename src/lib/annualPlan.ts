@@ -44,7 +44,6 @@ export interface PlanWeek extends SchoolWeek {
 }
 
 export interface AnnualPlan {
-  schoolYearStart: number;
   weeks: PlanWeek[];
   /** Conteúdos trabalhados ao longo do ano, por disciplina */
   yearRound: Record<string, AnnualContent[]>;
@@ -131,6 +130,124 @@ export function schoolWeeks(schoolYearStart: number): SchoolWeek[] {
   return weeks;
 }
 
+// ─── Calendário da família (P-24) ─────────────────────────────────────────────
+// A família pode dizer quando começa e acaba o seu ano e em que datas pára.
+// Sem calendário próprio, vale o escolar oficial.
+
+export interface CalendarBreak {
+  from: string; // aaaa-mm-dd
+  to: string;
+}
+
+export interface FamilyCalendar {
+  year_start: string; // aaaa-mm-dd
+  year_end: string;
+  breaks: CalendarBreak[];
+  /** Última semana de cada período sem conteúdos novos */
+  review_weeks: boolean;
+}
+
+export const MAX_CALENDAR_WEEKS = 70;
+
+export function parseDay(iso: string): Date {
+  const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
+export function isoDay(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** O calendário escolar oficial, no formato que a família pode ajustar. */
+export function officialCalendar(schoolYearStart: number): FamilyCalendar {
+  const weeks = schoolWeeks(schoolYearStart);
+  const breaks: CalendarBreak[] = [];
+  for (let i = 1; i < weeks.length; i++) {
+    const gapStart = addDays(weeks[i - 1].monday, 7);
+    if (weeks[i].monday.getTime() > gapStart.getTime()) {
+      breaks.push({ from: isoDay(gapStart), to: isoDay(addDays(weeks[i].monday, -1)) });
+    }
+  }
+  return {
+    year_start: isoDay(weeks[0].monday),
+    year_end: isoDay(addDays(weeks[weeks.length - 1].monday, 4)),
+    breaks,
+    review_weeks: true,
+  };
+}
+
+export function isValidCalendar(cal: FamilyCalendar): boolean {
+  const a = parseDay(cal.year_start).getTime();
+  const b = parseDay(cal.year_end).getTime();
+  if (!(a < b) || (b - a) / (7 * DAY) > MAX_CALENDAR_WEEKS) return false;
+  return cal.breaks.every((br) => parseDay(br.from).getTime() <= parseDay(br.to).getTime());
+}
+
+/**
+ * Semanas com aulas do calendário da família. Uma semana conta se tiver pelo
+ * menos três dias úteis dentro do ano e fora das pausas.
+ *
+ * Períodos: num ano que começa entre agosto e outubro e dura até 12 meses,
+ * seguem as datas habituais (até dezembro, até à Páscoa, depois da Páscoa);
+ * noutros casos (ex.: maio a julho do ano seguinte), o ano divide-se em três
+ * partes iguais, para os conteúdos de cada período do currículo terem onde cair.
+ */
+export function familyWeeks(cal: FamilyCalendar): SchoolWeek[] {
+  if (!isValidCalendar(cal)) return [];
+  const start = parseDay(cal.year_start);
+  const end = parseDay(cal.year_end);
+  const breaks = cal.breaks.map((b) => [parseDay(b.from).getTime(), parseDay(b.to).getTime()] as const);
+  const teachingDays = (monday: Date) => {
+    let n = 0;
+    for (let i = 0; i < 5; i++) {
+      const t = addDays(monday, i).getTime();
+      if (t < start.getTime() || t > end.getTime()) continue;
+      if (breaks.some(([a, b]) => t >= a && t <= b)) continue;
+      n++;
+    }
+    return n;
+  };
+  const mondays = weeksBetween(mondayOf(start), mondayOf(end)).filter((m) => teachingDays(m) >= 3);
+  if (mondays.length === 0) return [];
+
+  const months = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth();
+  const byDate = start.getMonth() >= 7 && start.getMonth() <= 9 && months <= 12;
+  const newYear = new Date(start.getFullYear() + 1, 0, 1).getTime();
+  const afterEaster = addDays(easterSunday(start.getFullYear() + 1), 1).getTime();
+  const periodOf = (m: Date, i: number): Period => {
+    if (!byDate) return String(Math.min(2, Math.floor((i * 3) / mondays.length)) + 1) as Period;
+    return m.getTime() < newYear ? "1" : m.getTime() < afterEaster ? "2" : "3";
+  };
+
+  const weeks: SchoolWeek[] = mondays.map((monday, i) => ({
+    number: i + 1, monday, period: periodOf(monday, i), isReview: false,
+  }));
+  if (cal.review_weeks) {
+    for (const p of ["1", "2", "3"] as Period[]) {
+      const inPeriod = weeks.filter((w) => w.period === p);
+      if (inPeriod.length >= 4) inPeriod[inPeriod.length - 1].isReview = true;
+    }
+  }
+  return weeks;
+}
+
+/**
+ * Semanas a usar para uma data: as do calendário da família, se ele cobrir essa
+ * data (ou se o ano dele ainda não começou); senão, as do calendário escolar.
+ */
+export function weeksFor(date: Date, cal?: FamilyCalendar | null): SchoolWeek[] {
+  if (cal && isValidCalendar(cal)) {
+    const t = atMidnight(date).getTime();
+    const from = addDays(parseDay(cal.year_start), -120).getTime();
+    const to = addDays(parseDay(cal.year_end), 6).getTime();
+    if (t >= from && t <= to) {
+      const weeks = familyWeeks(cal);
+      if (weeks.length > 0) return weeks;
+    }
+  }
+  return schoolWeeks(schoolYearStartFor(date));
+}
+
 function bySortOrder(a: AnnualContent, b: AnnualContent): number {
   return (a.sort_order ?? 0) - (b.sort_order ?? 0);
 }
@@ -142,10 +259,12 @@ function bySortOrder(a: AnnualContent, b: AnnualContent): number {
  */
 export function buildAnnualPlan(
   allContents: AnnualContent[],
-  schoolYearStart: number,
+  /** Ano em que começa o ano letivo (calendário escolar) ou as semanas do calendário da família */
+  calendar: number | SchoolWeek[],
   manuals: Manual[] = [],
 ): AnnualPlan {
-  const weeks: PlanWeek[] = schoolWeeks(schoolYearStart).map((w) => ({ ...w, byDiscipline: {} }));
+  const base = typeof calendar === "number" ? schoolWeeks(calendar) : calendar;
+  const weeks: PlanWeek[] = base.map((w) => ({ ...w, byDiscipline: {} }));
   const yearRound: Record<string, AnnualContent[]> = {};
 
   const withManual = new Set(manuals.filter((m) => m.entries.length > 0).map((m) => m.discipline));
@@ -203,7 +322,7 @@ export function buildAnnualPlan(
     });
   }
 
-  return { schoolYearStart, weeks, yearRound };
+  return { weeks, yearRound };
 }
 
 /** Semana do plano que corresponde a uma data (null fora das semanas com aulas). */
