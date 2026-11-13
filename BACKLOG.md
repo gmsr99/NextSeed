@@ -42,12 +42,12 @@ Corre em paralelo com o resto. A maior parte depende do Gil ou de revisão jurí
 | B-08 | Termos de Utilização: autoridade parental, cessão da posição contratual, reembolso | Auditoria. A página /termos não tem nenhuma das três (Fase A, A3 e A4; D-014) | A/A | M | Por fazer: rascunho + revisão jurídica |
 | B-10 | A análise de cobertura aceita o family_id do pedido: obtê-lo a partir do login | Auditoria. Um utilizador autenticado pode escrever cobertura noutra família | A/A | S | Por fazer: o Claude escreve, o Gil publica |
 | B-11 | Publicação bloqueada com repositório privado na Vercel Hobby | Repositório público temporariamente; decidir entre o Gil publicar cada entrega ou Vercel Pro | A/A | S | Em curso (público temporariamente) |
-| B-12 | Gil: publicar a migração 026 (tabela child_manuals) e voltar a publicar a função export-family-data | I-01. Sem a migração, a caixa dos manuais aparece só como aviso e o resto da app funciona igual | A/A | S | Aguarda o Gil |
 | B-02 | Ativar a proteção contra passwords comprometidas no Supabase | Auditoria. Último aviso de segurança da FASE 1 | A/A | S | Aguarda Gil |
 | B-06 | Confirmar regiões UE no Supabase e na Vercel | Docs (Fase A, A10) | A/A | S | Aguarda Gil |
 | B-09 | Consentimentos granulares registados (quem, quando, a quê, versão dos termos) | Docs (Fase A, A6). BD | A/A | M | Por fazer (precisa de especificação) |
 | B-01 | Gemini em faturação paga | Docs (D-013). Adiado até haver receita (decisão de 4 nov); mitigado pelo OK-06 | A/M | S | Adiado (Elton) |
 | B-04 | Acesso do Claude ao Supabase | Decisão do Gil (5 nov): não, enquanto não houver backup | M/B | S | Em pausa |
+| B-12 | Gil: publicar a migração 026 (tabela child_manuals) e voltar a publicar a função export-family-data | I-01. Sem a migração, a caixa dos manuais aparece só como aviso e o resto da app funciona igual | A/A | S | Aguarda o Gil |
 
 ## E8 · Correções rápidas
 
