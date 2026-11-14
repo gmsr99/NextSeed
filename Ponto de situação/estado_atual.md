@@ -26,6 +26,13 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
 
+### Atividades mais variadas e mais fáceis de dar (P-06 a P-09, em pré-visualização desde 14 nov; não publicado)
+- P-06: a app atribui um formato a cada bloco (`src/lib/activityFormats.ts`), a rodar ao longo da semana por criança e disciplina; irmãos à mesma hora têm formatos diferentes, exceto nos blocos em conjunto. Substitui a regra que pedia à IA para não repetir.
+- P-07: nas atividades com o adulto (ou na primeira de cada disciplina, com uma criança), a descrição acaba com "Para explicar:", uma forma simples de explicar diferente da do manual.
+- P-08: episódios de leitura curtos (até 120 palavras) e concretos.
+- P-09 (parcial): regra de dificuldade por ano e ritmo. Ainda não usa o progresso marcado nas Áreas de Aprendizagem.
+- Só instruções à IA e código da app; sem BD. P-07, P-08 e P-09 dependem de a IA seguir as regras.
+
 ### Sugestões para o portefólio (R-10, publicado a 14 nov)
 - Em cada plano, a app marca 3 a 4 atividades por criança como boas para o portefólio e diz o que guardar. A IA propõe (campo `portfolio` na resposta); a app limita a 4, prefere disciplinas diferentes e completa até 3 com dicas por disciplina (`src/lib/portfolioHints.ts`). A leitura nunca é sugerida.
 - A sugestão fica no fim da descrição (" | Portefólio: …"). Aparece em cada atividade e num resumo "Para o portefólio esta semana" na vista de cada criança e no topo do Guia de Atividades (PDF).
