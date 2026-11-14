@@ -26,14 +26,14 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
 
-### Sugestões para o portefólio (R-10, em pré-visualização desde 14 nov; não publicado)
+### Sugestões para o portefólio (R-10, publicado a 14 nov)
 - Em cada plano, a app marca 3 a 4 atividades por criança como boas para o portefólio e diz o que guardar. A IA propõe (campo `portfolio` na resposta); a app limita a 4, prefere disciplinas diferentes e completa até 3 com dicas por disciplina (`src/lib/portfolioHints.ts`). A leitura nunca é sugerida.
 - A sugestão fica no fim da descrição (" | Portefólio: …"). Aparece em cada atividade e num resumo "Para o portefólio esta semana" na vista de cada criança e no topo do Guia de Atividades (PDF).
 - Sem alterações na base de dados. Planos antigos não mudam.
 - Por fazer do R-10: o registo de 2 minutos por dia e ligar a sugestão ao ecrã de registo da atividade.
 - Por testar: a qualidade das sugestões com a IA real.
 
-### Semana em família e menos preparação (P-10, P-23, em pré-visualização desde 14 nov; não publicado)
+### Semana em família e menos preparação (P-10, P-23, publicado a 14 nov)
 - Com duas ou mais crianças, cada bloco tem um modo, calculado pela app (`src/lib/familyWeek.ts`) e escrito no início da descrição: "Em conjunto:", "Com o adulto:" ou "Sozinho(a):". Nunca há duas crianças com o adulto à mesma hora; o adulto alterna de bloco para bloco.
 - Em conjunto: Estudo do Meio, Expressão, Projeto, Leitura e a sexta-feira. O título é o mesmo para todas (garantido por código); a descrição diz o que cada uma faz. A leitura é uma só história por episódio, com uma pergunta por criança.
 - Para todas as famílias: a IA escolhe um fio condutor para a semana a partir dos conteúdos, usa os interesses em no máximo uma em cada três atividades e só pede materiais que já existem em casa (nada para imprimir ou fabricar).
@@ -47,20 +47,20 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Calendário: o escolar oficial do 1.º ciclo, à semana, com pausa no Natal e na Páscoa (37 semanas em 2026/27). A última semana de cada período é de balanço. Ainda não há calendário por família (P-24, P-04).
 - Limite conhecido: a ordem dentro de cada período vem do currículo carregado (por domínio). Não foi validada por uma família.
 
-## Índices dos manuais (I-01, em pré-visualização desde 13 nov; não publicado)
+## Índices dos manuais (I-01, publicado a 14 nov)
 - No Rumo do ano, cada criança tem a caixa "Manuais": a família escreve o índice (uma unidade por linha, com a página no fim se quiser). Um manual por disciplina (Português, Matemática, Estudo do Meio, Inglês, Artes).
 - Nessa disciplina, o rumo deixa de usar o currículo e reparte as unidades do manual pelas semanas (mais semanas para unidades com mais páginas), a partir da semana em que o manual é adicionado ou desde o início do ano letivo. O plano semanal envia à IA a unidade e as páginas da semana, com a regra de nunca inventar nem reproduzir o conteúdo do manual.
 - Crianças sem currículo na app (pré-escolar, 5.º e 6.º ano) passam a ter rumo se tiverem um manual.
-- **Depende do Gil:** migração `026_child_manuals.sql` e nova publicação de `export-family-data` (a tabela entra na exportação de dados; a eliminação de conta já a apaga em cascata). Sem a migração, a caixa mostra só um aviso e tudo o resto funciona.
+- **Base de dados:** o Gil aplicou a migração `026_child_manuals.sql` e voltou a publicar `export-family-data` a 14 nov (a tabela entra na exportação de dados; a eliminação de conta já a apaga em cascata). Sem a migração, a caixa mostra só um aviso e tudo o resto funciona.
 - Fronteira: só títulos e páginas, escritos pela família e visíveis só para ela (RLS). A questão de direitos de autor A-09 (doc 10) não foi validada por um jurista.
 - Por testar: geração real com a IA e gravação na base de dados real (só testado com dados simulados).
 
-## Calendário da família (P-24, em pré-visualização desde 13 nov; não publicado)
+## Calendário da família (P-24, publicado a 14 nov)
 - No Rumo do ano, "Ajustar as semanas": data de início e de fim do ano, lista de pausas (vem com o Natal e a Páscoa do calendário escolar) e semanas de balanço ligadas ou desligadas. Uma linha por família; sem linha, vale o calendário escolar.
 - O rumo (currículo e manuais) e o plano semanal passam a usar estas semanas. Uma semana conta se tiver pelo menos três dias de aulas.
 - Períodos: num ano que começa entre agosto e outubro e dura até 12 meses, seguem as datas habituais (até dezembro, até à Páscoa, depois); noutros casos, o ano divide-se em três partes iguais.
 - Limite: o calendário vale para um ano; no ano seguinte a família volta a ajustá-lo (até lá a app usa o escolar). Dias da semana e minutos por dia continuam por fazer (P-04).
-- **Depende do Gil:** migração `027_family_calendars.sql` (e a mesma nova publicação de `export-family-data`). Sem ela, o resumo aparece mas o botão de ajustar não.
+- **Base de dados:** o Gil aplicou a migração `027_family_calendars.sql` a 14 nov.
 - Por testar: gravação na base de dados real.
 
 ## Segurança e dados: estado verificado no código
