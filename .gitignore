@@ -33,3 +33,8 @@ Thumbs.db
 
 # Env local (contains secrets)
 .env.local
+
+# Backup da base de dados (B-05)
+.env.backup
+*.dump
+*.dump.gpg

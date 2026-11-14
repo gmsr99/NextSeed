@@ -505,7 +505,7 @@ export default function WeeklyPlanner() {
 
     const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
     const guideBlob = await pdf(
-      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
+      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} />
     ).toBlob();
     const a2 = document.createElement("a");
     a2.href = URL.createObjectURL(guideBlob);
@@ -544,7 +544,7 @@ export default function WeeklyPlanner() {
 
       const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
       const guideBlob = await pdf(
-        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} />
+        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} />
       ).toBlob();
 
       const toBase64 = (blob: Blob): Promise<string> =>
