@@ -26,6 +26,13 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
 
+### Ritmo do ano e fecho da semana (P-14, P-19, P-20, em pré-visualização desde 14 nov; não publicado)
+- "Fechar a semana" (Rumo do ano, cartão Esta semana): os conteúdos dessa semana, tema a tema, com "Ficou aprendido" ou "Precisa de mais". Grava nas Áreas de Aprendizagem (`child_content_progress`).
+- Ao guardar um plano novo, a mesma janela pergunta pela semana anterior. Substitui o diálogo antigo, que mostrava todos os conteúdos do ano por dominar.
+- Ritmo: no cartão de cada criança, quantos conteúdos das semanas passadas estão aprendidos e quantos a retomar, sem linguagem de atraso.
+- Atraso sem culpa: numa semana com rumo, o plano leva os conteúdos da semana e, por cima, até 2 por disciplina marcados "Precisa de mais" (`src/lib/weekClose.ts`). Antes, qualquer conteúdo "em progresso" substituía o rumo inteiro.
+- Sem BD nova.
+
 ### Sugestões para o portefólio (R-10, publicado a 14 nov)
 - Em cada plano, a app marca 3 a 4 atividades por criança como boas para o portefólio e diz o que guardar. A IA propõe (campo `portfolio` na resposta); a app limita a 4, prefere disciplinas diferentes e completa até 3 com dicas por disciplina (`src/lib/portfolioHints.ts`). A leitura nunca é sugerida.
 - A sugestão fica no fim da descrição (" | Portefólio: …"). Aparece em cada atividade e num resumo "Para o portefólio esta semana" na vista de cada criança e no topo do Guia de Atividades (PDF).

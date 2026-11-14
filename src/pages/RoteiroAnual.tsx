@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAnnualPlans } from "@/hooks/useAnnualPlan";
 import ManualsCard from "@/components/ManualsCard";
+import WeekCloseDialog from "@/components/WeekCloseDialog";
+import { paceUntil, weekContents } from "@/lib/weekClose";
 import FamilyCalendarCard from "@/components/FamilyCalendarCard";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
@@ -135,11 +137,27 @@ function ByDiscipline({ plan, status }: { plan: AnnualPlan; status: Status }) {
   );
 }
 
+/** P-14: "estou no ritmo certo?" — só conta o currículo das semanas que já passaram. */
+function PaceLine({ plan, status }: { plan?: AnnualPlan; status: Status }) {
+  if (!plan) return null;
+  const pace = paceUntil(plan, new Date(), status);
+  if (pace.planned === 0) return null;
+  const marked = pace.mastered + pace.inProgress;
+  return (
+    <p className="mb-2 text-xs text-muted-foreground">
+      {marked === 0
+        ? `Até aqui, o rumo previa ${pace.planned} conteúdos. Usa "Fechar a semana" para marcar o que já ficou aprendido.`
+        : `Até aqui: ${pace.mastered} de ${pace.planned} conteúdos aprendidos${pace.inProgress ? `, ${pace.inProgress} a retomar` : ""}. O que falta volta nas próximas semanas, sem pressa.`}
+    </p>
+  );
+}
+
 export default function RoteiroAnual() {
   const { children } = useChildren();
   const today = new Date();
   const { plans, progress, isLoading } = useAnnualPlans(children, today);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [closing, setClosing] = useState(false);
 
   const withPlan = children.filter((c) => plans[c.id]);
   const selected = children.find((c) => c.id === selectedId) ?? withPlan[0] ?? children[0];
@@ -234,6 +252,7 @@ export default function RoteiroAnual() {
                         <p className="mb-2 font-semibold text-foreground">
                           {c.name} <span className="text-xs font-normal text-muted-foreground">{c.school_year}</span>
                         </p>
+                        <PaceLine plan={plans[c.id]} status={progress[c.id] ?? {}} />
                         {focus ? (
                           <Disciplines byDiscipline={focus} status={progress[c.id] ?? {}} />
                         ) : (
@@ -244,9 +263,16 @@ export default function RoteiroAnual() {
                   })}
                 </div>
               )}
-              <Button asChild size="sm">
-                <Link to="/weekly-planner"><Sparkles className="mr-1.5 h-4 w-4" /> Gerar o plano desta semana</Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild size="sm">
+                  <Link to="/weekly-planner"><Sparkles className="mr-1.5 h-4 w-4" /> Gerar o plano desta semana</Link>
+                </Button>
+                {withPlan.some((c) => weekContents(plans[c.id], today).some((x) => progress[c.id]?.[x.id] !== "dominado")) && (
+                  <Button size="sm" variant="outline" onClick={() => setClosing(true)}>
+                    <CheckCircle2 className="mr-1.5 h-4 w-4" /> Fechar a semana
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}
@@ -312,6 +338,8 @@ export default function RoteiroAnual() {
             </TabsContent>
           </Tabs>
         )}
+
+        <WeekCloseDialog open={closing} onClose={() => setClosing(false)} familyChildren={withPlan} date={today} />
 
         {!isLoading && plan && (
           <p className="text-xs text-muted-foreground">

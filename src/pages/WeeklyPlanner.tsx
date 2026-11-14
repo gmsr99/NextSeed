@@ -3,7 +3,7 @@ import { pdf } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
 import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
-import PostWeekProgressDialog from "@/components/PostWeekProgressDialog";
+import WeekCloseDialog from "@/components/WeekCloseDialog";
 import {
   VersionBadge,
   PlannerForm,
@@ -33,6 +33,7 @@ import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
 import { buildAnnualPlan, weekFocus, weeksFor, type AnnualContent } from "@/lib/annualPlan";
 import { fetchFamilyCalendar } from "@/hooks/useFamilyCalendar";
+import { mergeWeekContents } from "@/lib/weekClose";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
 import { fetchChildManuals } from "@/hooks/useChildManuals";
 
@@ -244,6 +245,9 @@ export default function WeeklyPlanner() {
       const fbPeriods = fallbackPeriods(weekStart);
       // Conteúdos por dominar do período atual, por criança (para o caso sem marcações)
       const gcCurrentByChild: Record<string, Record<string, string[]>> = {};
+      // P-14: conteúdos "em progresso" (por consolidar) e se a semana tem foco no rumo
+      const inProgressByChild: Record<string, Record<string, string[]>> = {};
+      const hasFocus = new Set<string>();
       await Promise.all(
         gcChildren.map(async (child) => {
           const dbYear = YEAR_MAP[child.school_year];
@@ -273,6 +277,7 @@ export default function WeeklyPlanner() {
             (id) => progressMap.get(id) === "dominado",
           );
           if (focus) {
+            hasFocus.add(child.id);
             gcCurrentByChild[child.id] = Object.fromEntries(
               Object.entries(focus).map(([d, list]) => [d, list.map((c) => c.content)]),
             );
@@ -307,6 +312,7 @@ export default function WeeklyPlanner() {
             }
 
             if (status === "em_progresso") {
+              ((inProgressByChild[child.id] ??= {})[c.discipline] ??= []).push(c.content);
               if (!gcProgressByChild[child.id]) gcProgressByChild[child.id] = {};
               if (!gcProgressByChild[child.id][c.discipline]) gcProgressByChild[child.id][c.discipline] = [];
               gcProgressByChild[child.id][c.discipline].push(`[em progresso] ${c.content}`);
@@ -318,6 +324,16 @@ export default function WeeklyPlanner() {
       // Sem nada marcado como "em progresso": conteúdos desta semana no rumo do
       // ano (P-12) ou, fora das semanas com aulas, o período atual (P-01)
       for (const child of gcChildren) {
+        // P-14: semana com foco no rumo → os conteúdos da semana e, por cima, até
+        // dois por disciplina que ficaram por consolidar (atraso sem culpa)
+        if (hasFocus.has(child.id)) {
+          const manualDisciplines = new Set(Object.keys(manualFocusByChild[child.id] ?? {}));
+          const focusNoManual = Object.fromEntries(
+            Object.entries(gcCurrentByChild[child.id] ?? {}).filter(([d]) => !manualDisciplines.has(d)),
+          );
+          gcProgressByChild[child.id] = mergeWeekContents(focusNoManual, inProgressByChild[child.id] ?? {});
+          continue;
+        }
         if (!gcProgressByChild[child.id] && gcCurrentByChild[child.id]) {
           gcProgressByChild[child.id] = {};
           for (const [discipline, contents] of Object.entries(gcCurrentByChild[child.id])) {
@@ -705,11 +721,13 @@ export default function WeeklyPlanner() {
         )}
       </div>
 
-      <PostWeekProgressDialog
+      {/* P-19/P-20: antes da semana nova, como correu a anterior (tema a tema) */}
+      <WeekCloseDialog
         open={showProgressDialog}
         onClose={() => setShowProgressDialog(false)}
         familyChildren={children}
-        planItems={planItems}
+        date={new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() - 7)}
+        title="Antes da semana nova: como correu a anterior?"
       />
     </AppLayout>
   );
