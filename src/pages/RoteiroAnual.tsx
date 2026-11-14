@@ -3,7 +3,7 @@
 // este rumo, sem lhe perguntar o que quer ensinar (doc 10, INS-14).
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Map as MapIcon, CheckCircle2, Circle, Clock, CalendarDays, Sparkles, BookMarked } from "lucide-react";
+import { Map as MapIcon, CheckCircle2, Circle, Clock, CalendarDays, Sparkles, BookMarked, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { useChildren } from "@/hooks/useChildren";
 import { useAnnualPlans } from "@/hooks/useAnnualPlan";
 import ManualsCard from "@/components/ManualsCard";
+import { useAuth } from "@/contexts/AuthContext";
 import WeekCloseDialog from "@/components/WeekCloseDialog";
 import { paceUntil, weekContents } from "@/lib/weekClose";
 import FamilyCalendarCard from "@/components/FamilyCalendarCard";
@@ -158,6 +159,31 @@ export default function RoteiroAnual() {
   const { plans, progress, isLoading } = useAnnualPlans(children, today);
   const [selectedId, setSelectedId] = useState<string>("");
   const [closing, setClosing] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const { family } = useAuth();
+
+  // P-24: PDF do ano da criança escolhida (o módulo de PDF só é carregado aqui)
+  const downloadYear = async () => {
+    if (!plan || !selected) return;
+    setDownloading(true);
+    try {
+      const [{ pdf }, { default: AnnualPlanPDF }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("@/components/pdf/AnnualPlanPDF"),
+      ]);
+      const blob = await pdf(
+        <AnnualPlanPDF plan={plan} childName={selected.name} schoolYear={selected.school_year} familyName={family?.name ?? ""} />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "nexseed-rumo-do-ano.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const withPlan = children.filter((c) => plans[c.id]);
   const selected = children.find((c) => c.id === selectedId) ?? withPlan[0] ?? children[0];
@@ -294,10 +320,15 @@ export default function RoteiroAnual() {
 
         {!isLoading && plan && (
           <Tabs defaultValue="semanas">
-            <TabsList>
-              <TabsTrigger value="semanas">Semana a semana</TabsTrigger>
-              <TabsTrigger value="disciplinas">Por disciplina</TabsTrigger>
-            </TabsList>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <TabsList>
+                <TabsTrigger value="semanas">Semana a semana</TabsTrigger>
+                <TabsTrigger value="disciplinas">Por disciplina</TabsTrigger>
+              </TabsList>
+              <Button size="sm" variant="outline" onClick={downloadYear} disabled={downloading}>
+                <Download className="mr-1.5 h-4 w-4" /> {downloading ? "A preparar…" : "Descarregar o ano (PDF)"}
+              </Button>
+            </div>
 
             <TabsContent value="semanas" className="space-y-6">
               {PERIODS.map((p) => {

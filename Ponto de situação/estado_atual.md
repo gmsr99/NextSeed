@@ -64,6 +64,10 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Calendário: o escolar oficial do 1.º ciclo, à semana, com pausa no Natal e na Páscoa (37 semanas em 2026/27). A última semana de cada período é de balanço. Ainda não há calendário por família (P-24, P-04).
 - Limite conhecido: a ordem dentro de cada período vem do currículo carregado (por domínio). Não foi validada por uma família.
 
+### PDF do ano (P-24, em pré-visualização desde 14 nov; não publicado)
+- No Rumo do ano, "Descarregar o ano (PDF)": o ano da criança escolhida, semana a semana, por período, com datas, conteúdos por disciplina (ou unidades e páginas do manual), semanas de balanço e uma caixa para assinalar. Gerado no browser (`src/components/pdf/AnnualPlanPDF.tsx`).
+- Um PDF por criança. A vista de família (várias crianças lado a lado) continua por fazer.
+
 ## Índices dos manuais (I-01, publicado a 14 nov)
 - No Rumo do ano, cada criança tem a caixa "Manuais": a família escreve o índice (uma unidade por linha, com a página no fim se quiser). Um manual por disciplina (Português, Matemática, Estudo do Meio, Inglês, Artes).
 - Nessa disciplina, o rumo deixa de usar o currículo e reparte as unidades do manual pelas semanas (mais semanas para unidades com mais páginas), a partir da semana em que o manual é adicionado ou desde o início do ano letivo. O plano semanal envia à IA a unidade e as páginas da semana, com a regra de nunca inventar nem reproduzir o conteúdo do manual.
