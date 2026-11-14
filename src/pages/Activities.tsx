@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useChildren } from "@/hooks/useChildren";
 import { useActivities } from "@/hooks/useActivities";
+import QuickDayLog from "@/components/QuickDayLog";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 
 const DISCIPLINES = Object.entries(DISCIPLINE_LABELS).map(([id, name]) => ({ id, name }));
@@ -109,6 +110,9 @@ const Activities = () => {
           <h1 className="text-3xl font-heading font-bold text-foreground">Diário de Atividades</h1>
           <p className="text-muted-foreground mt-1">Regista o que fizeram hoje — atividades, momentos e aprendizagens do dia-a-dia.</p>
         </div>
+
+        {/* R-10: registo de 2 minutos */}
+        <QuickDayLog children={children} />
 
         {/* Form */}
         <Card className="border-border/60 shadow-card" data-tour="diario-form">
