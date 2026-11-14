@@ -5,6 +5,13 @@ import { GC_DISCIPLINE_LABELS } from "./gcConstants";
 import { buildMethodologyContext } from "./methodologyContext";
 import { supabase } from "./supabase";
 import { withAiLabels, aiLabel, restoreNames, AI_NAME_RULE } from "./aiPrivacy";
+import { applyFamilyWeek, blockModes, splitMode, withMode, type BlockMode } from "./familyWeek";
+
+const MODE_LABEL: Record<BlockMode, string> = {
+  juntos: "EM CONJUNTO",
+  adulto: "COM O ADULTO",
+  sozinho: "SOZINHO",
+};
 
 // ─── Estrutura do horário (espelho do planGenerator.ts — só slots variáveis) ──
 
@@ -182,7 +189,7 @@ function buildPrompt(
     ).join("\n")}`;
   }).filter(Boolean);
   const gcSection = gcLines.length > 0
-    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nSão os conteúdos desta semana (do plano anual ou marcados pelo educador). As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança.\nLinhas com [manual «…»]: a família segue esse manual. As atividades dessa disciplina acompanham a unidade e as páginas indicadas (refere-as na descrição, ex.: \"Manual, pp. 24–27\") com uma forma prática de as introduzir ou consolidar. NUNCA inventes nem reproduzas o texto ou os exercícios do manual:\n${gcLines.join("\n\n")}\n`
+    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nSão os conteúdos desta semana (do plano anual ou marcados pelo educador). As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança.\nLinhas com [manual «…»]: a família segue esse manual. As atividades dessa disciplina acompanham a unidade e as páginas indicadas (refere-as na descrição, ex.: "Manual, pp. 24–27") com uma forma prática de as introduzir ou consolidar. NUNCA inventes nem reproduzas o texto ou os exercícios do manual:\n${gcLines.join("\n\n")}\n`
     : "";
 
   // Contexto GC completo por criança (todos os não dominados) — para orientação geral
@@ -209,12 +216,24 @@ function buildPrompt(
     ? `\n## CURRÍCULO NEXSEED (metodologia própria da família — prioridade máxima)\n${nexseedLines.join("\n\n")}\n`
     : "";
 
+  // P-10: com várias crianças, cada bloco leva o modo (calculado por nós, não pela IA)
+  const modes = blockModes(skeleton);
+  const hasModes = modes.some(Boolean);
   const skeletonSection = skeleton.map((item, idx) => {
     const day = DAY_LABELS[item.day_of_week - 1];
-    const interests = (childInterests[item.child_id] || []).join(", ") || "livre";
     const ep = item.episode ? ` [Ep.${item.episode}/4 — história contínua sobre o tema de leitura]` : "";
-    return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep} | interesses: ${interests}`;
+    const mode = modes[idx] ? ` | MODO: ${MODE_LABEL[modes[idx]!]}` : "";
+    return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep}${mode}`;
   }).join("\n");
+
+  const familyWeekSection = hasModes
+    ? `\n## SEMANA EM FAMÍLIA ⚡ (um adulto, várias crianças)
+Há um só adulto para todas as crianças. Cada atividade tem um MODO e tens de o respeitar:
+- **EM CONJUNTO**: as crianças fazem a MESMA atividade, à mesma hora. Usa exatamente o MESMO título para todas. Na descrição de cada criança, diz o que ELA faz nessa atividade, ao nível da sua idade e dos seus conteúdos (a mais velha pode ler, registar ou explicar; a mais nova observa, conta, desenha ou ajuda).
+- **COM O ADULTO**: é aqui que o adulto ensina. Usa este bloco para introduzir o conteúdo novo ou o passo mais difícil.
+- **SOZINHO**: a criança tem de conseguir fazer a atividade do princípio ao fim SEM ajuda, enquanto o adulto está com outra criança. Só prática de algo já introduzido, instruções que ela percebe sozinha, nada de conteúdo novo, nada que precise de supervisão (sem cozinha, tesouras afiadas, saídas). Para o pré-escolar: exploração livre e segura, ao lado do adulto.
+Não escrevas o modo no título nem na descrição: a app acrescenta-o.\n`
+    : "";
 
   // Conteúdos específicos que o educador quer trabalhar esta semana por disciplina
   const WEEKLY_CONTENT_DISC_LABELS: Record<string, string> = {
@@ -243,9 +262,12 @@ function buildPrompt(
     ? `${fridayBase}\n**"Ver Mundo" é UMA só saída para a família toda:** todas as crianças vão ao MESMO sítio, à mesma hora, com o MESMO título. Na descrição de cada criança, adapta o que ela faz lá à sua idade.`
     : fridayBase;
 
-  const readingNote = weeklyReadingTheme
+  const readingBase = weeklyReadingTheme
     ? `Tema semanal para Leitura e Portefólio: **"${weeklyReadingTheme}"** — os 4 episódios (Ep.1 a Ep.4) devem ser capítulos sequenciais sobre este tema.`
-    : "Leitura: usa o interesse principal da criança como tema da mini-série de 4 episódios.";
+    : "Leitura: usa o fio condutor da semana como tema da mini-série de 4 episódios.";
+  const readingNote = hasModes
+    ? `${readingBase}\n**UMA só história para a família:** no mesmo episódio, todas as crianças têm o MESMO título e o MESMO "episode_text", escrito para a mais nova conseguir acompanhar quando lido em voz alta. A "comprehension_question" é diferente para cada criança, adequada à sua idade.`
+    : readingBase;
 
   const multiLevelNote = multiLevel
     ? `\n## FAMÍLIA MULTI-NÍVEL ⚡
@@ -257,7 +279,10 @@ Na **descrição** das atividades do pré-escolar menciona (1 frase) como o adul
 
 ## CRIANÇAS
 ${childrenSection}
-${AI_NAME_RULE}${multiLevelNote}${weeklyContentSection}${nexseedSection}${gcSection}${gcAllSection}
+${AI_NAME_RULE}${multiLevelNote}${familyWeekSection}${weeklyContentSection}${nexseedSection}${gcSection}${gcAllSection}
+## FIO CONDUTOR DA SEMANA
+Antes de escreveres as atividades, escolhe UM tema ou pergunta para a semana, tirado dos conteúdos desta semana (de preferência de Estudo do Meio; ex.: "Como é que as plantas bebem?"). Esse fio condutor liga as disciplinas${children.length > 1 ? " e é o mesmo para todas as crianças" : ""}: a matemática conta, mede ou compara coisas do tema; o português lê e escreve sobre ele; a expressão representa-o. Não o forces onde não cabe (ex.: uma unidade de manual segue o manual).
+
 ## SEXTA-FEIRA
 ${fridayNote}
 
@@ -269,7 +294,7 @@ ${skeletonSection}
 
 ## REGRAS DE TRIANGULAÇÃO
 1. **Prioridade**: Conteúdos desta semana (se existirem) → NexSeed → Conteúdos GC em foco → Conteúdos GC por dominar → interesses.
-2. Usa os **interesses** para tematizar — nunca como objetivo. Ex: objetivo GC "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo.
+2. Os **interesses** são tempero, nunca o objetivo: usa-os em NO MÁXIMO uma em cada três atividades de cada criança (ex.: objetivo "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo). As restantes seguem o fio condutor da semana ou o dia a dia da casa.
 3. **Conteúdos dominados** NÃO devem voltar a aparecer nas atividades.
 4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[2-3 parágrafos em português, adequados à idade, continuação da narrativa do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
 5. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
@@ -278,7 +303,7 @@ ${skeletonSection}
 8. **Pré-escolar**: atividades lúdicas, sensoriais, máx. 30 min, sem escrita formal.
 9. Títulos específicos e criativos — NUNCA genéricos. Máx. 8 palavras.
 10. Descrições CURTAS: máx. 2 frases diretas com passos concretos.
-11. Materiais: máx. 4 itens simples disponíveis em casa ou papelaria.
+11. **Materiais sem preparação**: máx. 4 itens que já existem em qualquer casa (papel, lápis, tesoura, cola, objetos da cozinha, coisas apanhadas na rua, os livros e manuais da criança). NUNCA peças fichas, cartões, tabuleiros, jogos ou imagens para imprimir, recortar ou fabricar antes da atividade. Se a atividade precisa de cartões ou de um registo, é a criança que os faz, como parte da atividade.
 12. **DIVERSIDADE OBRIGATÓRIA**: Para cada criança e cada disciplina, NUNCA repitas o mesmo formato de atividade em dias diferentes da mesma semana. Usa formatos distintos de entre:
     - Português: leitura+compreensão, escrita/ditado, jogo de fonética/sílabas, exercício de gramática, produção oral/narração, caligrafia, caça-palavras, jogo de palavras
     - Matemática: contagem/operações escritas, jogo com objetos físicos, resolução de problema contextualizado, medição no mundo real, padrões/sequências, estimativa, jogo de cartas/dados
@@ -337,6 +362,13 @@ export async function regenerateActivity(
   const disciplineLabel = DISCIPLINE_LABELS[item.discipline] ?? item.discipline;
   const interestsStr = interests.join(", ") || "livre";
   const methodologySection = buildMethodologyContext(familyMethodologies, "atividades");
+  // P-10: a atividade nova mantém o modo do bloco (em conjunto / com o adulto / sozinho)
+  const { mode, text: currentText } = splitMode(item.description);
+  const modeRule =
+    mode === "sozinho" ? "\n5. A criança faz esta atividade SOZINHA enquanto o adulto está com outra criança: só prática de algo já introduzido, instruções que ela percebe sem ajuda, nada que precise de supervisão."
+    : mode === "adulto" ? "\n5. Esta atividade é feita COM O ADULTO: pode introduzir conteúdo novo."
+    : mode === "juntos" ? "\n5. Esta atividade é feita EM CONJUNTO com os irmãos, de idades diferentes: tem de funcionar para várias idades ao mesmo tempo. Descreve o que esta criança faz."
+    : "";
 
   const prompt = `${methodologySection}És um especialista em educação e homeschooling português. Substitui UMA atividade de um plano semanal NexSeed por uma alternativa DIFERENTE.
 
@@ -346,13 +378,13 @@ export async function regenerateActivity(
 ## ATIVIDADE A SUBSTITUIR
 - ${DAY_LABELS[item.day_of_week - 1]} | ${item.time_slot} | ${disciplineLabel}
 - Título atual: "${item.title}"
-- Descrição atual: "${item.description}"
+- Descrição atual: "${currentText}"
 
 ## REGRAS
 1. Mantém a disciplina (${disciplineLabel}) e a duração do bloco; muda o FORMATO da atividade — se era jogo propõe escrita, observação, experiência, construção… nunca uma variação da mesma.
 2. Usa os interesses apenas para tematizar, nunca como objetivo.
-3. Título específico e criativo, máx. 8 palavras. Descrição CURTA: máx. 2 frases diretas com passos concretos. Materiais: máx. 4 itens simples disponíveis em casa.
-4. Se optares por leitura+compreensão (Português/Estudo do Meio): escreve o próprio texto na descrição (1 parágrafo, 4-6 frases adequadas à idade, português de Portugal), seguido de " | Pergunta: [1 pergunta de compreensão concreta]" — só neste formato podes ignorar o limite de 2 frases.
+3. Título específico e criativo, máx. 8 palavras. Descrição CURTA: máx. 2 frases diretas com passos concretos. Materiais: máx. 4 itens que já existem em casa; nada para imprimir, recortar ou fabricar antes.
+4. Se optares por leitura+compreensão (Português/Estudo do Meio): escreve o próprio texto na descrição (1 parágrafo, 4-6 frases adequadas à idade, português de Portugal), seguido de " | Pergunta: [1 pergunta de compreensão concreta]" — só neste formato podes ignorar o limite de 2 frases.${modeRule}
 
 ${AI_NAME_RULE}
 ## RESPOSTA
@@ -373,7 +405,7 @@ Devolve APENAS um objeto JSON: {"title":"...","description":"...","materials":["
         const names = [child.name];
         return {
           title: restoreNames(parsed.title, names),
-          description: restoreNames(parsed.description, names),
+          description: withMode(restoreNames(parsed.description, names), mode),
           materials: Array.isArray(parsed.materials)
             ? parsed.materials.map((m: string) => restoreNames(String(m), names))
             : [],
@@ -431,7 +463,7 @@ export async function generateWithGemini(
     throw new Error(`Falha ao gerar o plano: ${lastError}`);
   }
 
-  return unifyFamilyOuting(skeleton.map((s, idx) => ({
+  return applyFamilyWeek(unifyFamilyOuting(skeleton.map((s, idx) => ({
     child_id: s.child_id,
     day_of_week: s.day_of_week,
     time_slot: s.time_slot,
@@ -441,7 +473,7 @@ export async function generateWithGemini(
     materials: (aiContent[idx]?.materials ?? []).map((m) => restoreNames(String(m), realNames)),
     is_friday_world: s.is_friday_world,
     sort_order: s.sort_order,
-  })));
+  }))));
 }
 
 /**

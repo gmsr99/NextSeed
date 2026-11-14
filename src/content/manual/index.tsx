@@ -83,6 +83,14 @@ export const MANUAL_SECTIONS: ManualSection[] = [
       ]},
       { type: "h", text: "Privacidade dos dados" },
       { type: "p", text: "Para gerar o plano, enviamos ao serviço de IA apenas o necessário: ano de escolaridade, interesses e o primeiro nome da criança. Não enviamos morada, fotos nem dados de identificação. Saibam mais em [Família, conta e privacidade](/ajuda/familia)." },
+      { type: "h", text: "Com várias crianças" },
+      { type: "p", text: "Quando há mais do que uma criança, cada atividade começa por dizer como se faz, para não terem de estar em dois sítios ao mesmo tempo:" },
+      { type: "ul", items: [
+        "**Em conjunto** — todas fazem a mesma atividade, cada uma ao seu nível (Estudo do Meio, Expressão, Projeto, Leitura e a sexta-feira).",
+        "**Com o adulto** — é a vez dessa criança ter a vossa atenção, por exemplo para um conteúdo novo.",
+        "**Sozinho(a)** — a criança consegue fazer sem ajuda enquanto estão com a outra. No bloco seguinte, trocam.",
+      ]},
+      { type: "callout", text: "As atividades usam o que já há em casa: nada para imprimir nem para fabricar antes. E cada semana tem um fio condutor que liga as disciplinas." },
     ],
   },
   {

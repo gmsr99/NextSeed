@@ -23,7 +23,7 @@ Como ler:
 | 1 | E1 · Conformidade e base | Dados de crianças em produção sem backup nem textos legais completos. Corre em paralelo e quase tudo depende do Gil ou de revisão jurídica. | A | A | Em curso |
 | 2 | E8 · Correções rápidas | Pequenos erros que as famílias já encontraram e que tiram confiança. | M | A | Publicado a 13 nov (falta o T-08) |
 | 3 | E3 · Rumo do ano | Mudança de fundo (13 nov): o ano planeia-se primeiro e a semana deriva dele. A app deixa de perguntar e passa a propor. É o pedido mais repetido (F-01, F-02, equipa). | A | A | Fase 1 publicada a 13 nov. Manuais (I-01) e calendário da família (P-24) em pré-visualização, à espera do Gil (B-12) |
-| 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-01, P-02 e P-21 publicados a 13 nov. P-10 e P-23 especificados e aprovados |
+| 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-01, P-02 e P-21 publicados a 13 nov. P-10 e P-23 em pré-visualização |
 | 5 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
 | 6 | E5 · Fecho da semana | Liga o que foi feito ao progresso, sem a família ter de ir às Áreas de Aprendizagem. Alimenta o E3 e o portefólio. | A | M | Por fazer |
 | 7 | E4 · Horário e tempo flexíveis | O plano é gerado para uma semana que muitas famílias não têm. Precisa de BD e é o maior bloco de trabalho. | A | M | Aguarda decisão |
@@ -76,9 +76,9 @@ A funcionalidade que decide o produto. Tudo isto é trabalho nos pedidos ao Gemi
 | P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Por fazer |
 | P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Por fazer |
 | P-22 | Guia semanal no formato que a F-02 usa: semana em resumo, caixa de materiais para preparar ao domingo, o que perguntar, versão curta para dias difíceis, balanço da semana | F-02 (documento Semana 1). Menos folhas e menos preparação | A/A | M | Por fazer (precisa de especificação) |
-| P-23 | Menos preparação: materiais que há em casa, sem imprimir; interesses como tempero e não como tema de todas as atividades | Plano real de 13 nov: 46 atividades, quase todas com materiais a fabricar (puzzles, cartões, vara de pesca) e todas tematizadas pelos mesmos dois interesses | A/A | M | Por fazer |
+| P-23 | Menos preparação: materiais que há em casa, sem imprimir; interesses como tempero e não como tema de todas as atividades | Plano real de 13 nov: 46 atividades, quase todas com materiais a fabricar (puzzles, cartões, vara de pesca) e todas tematizadas pelos mesmos dois interesses | A/A | M | Feito, em pré-visualização. Falta testar com a IA real |
 | P-08 | Leitura: gerar episódios curtos (1 ou 2 parágrafos) e textos concretos, em vez de só títulos | Equipa (backlog da família piloto). Menos coisas para a mãe preparar | A/M | M | Por fazer |
-| P-10 | Semana com tema comum e blocos para várias idades: atividade conjunta de manhã; bloco académico em que a mãe está com uma criança enquanto a outra trabalha sozinha | Equipa, F-02. Hoje o plano dá atividades paralelas e diferentes a cada criança à mesma hora | A/A | L | Por fazer (precisa de especificação) |
+| P-10 | Semana com tema comum e blocos para várias idades: atividade conjunta de manhã; bloco académico em que a mãe está com uma criança enquanto a outra trabalha sozinha | Equipa, F-02. Hoje o plano dá atividades paralelas e diferentes a cada criança à mesma hora | A/A | L | Feito, em pré-visualização. Falta testar com a IA real |
 | P-05 | Decidir se a análise de cobertura mantém o "thinking" do Gemini | Docs (A-04) | B/M | S | Por fazer |
 
 ## E6 · Registo, portefólio e relatórios

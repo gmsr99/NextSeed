@@ -25,6 +25,13 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Com conteúdos marcados como "em progresso", o plano parte desses, como antes.
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
+
+### Semana em família e menos preparação (P-10, P-23, em pré-visualização desde 14 nov; não publicado)
+- Com duas ou mais crianças, cada bloco tem um modo, calculado pela app (`src/lib/familyWeek.ts`) e escrito no início da descrição: "Em conjunto:", "Com o adulto:" ou "Sozinho(a):". Nunca há duas crianças com o adulto à mesma hora; o adulto alterna de bloco para bloco.
+- Em conjunto: Estudo do Meio, Expressão, Projeto, Leitura e a sexta-feira. O título é o mesmo para todas (garantido por código); a descrição diz o que cada uma faz. A leitura é uma só história por episódio, com uma pergunta por criança.
+- Para todas as famílias: a IA escolhe um fio condutor para a semana a partir dos conteúdos, usa os interesses em no máximo uma em cada três atividades e só pede materiais que já existem em casa (nada para imprimir ou fabricar).
+- Sem alterações na base de dados nem em edge functions. Planos antigos não mudam.
+- Por testar: a geração com a IA real. O que depende da IA (fio condutor, materiais, interesses, atividades realmente autónomas) só se confirma a gerar planos. O PDF de leitura ainda imprime a história uma vez por criança.
 - O Plano Semanal mostra, por criança, o que o Rumo do ano traz para a semana, e não pede à família que escolha conteúdos (P-21, P-12).
 
 ## Rumo do ano (publicado a 13 nov)
