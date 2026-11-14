@@ -26,6 +26,13 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
 
+### Registo de consentimentos (B-09, em pré-visualização desde 14 nov; não publicado)
+- Tabela `user_consents` (migração 028, por aplicar): registo só de acrescentar com quem, quando, a quê e em que versão dos textos. Finalidades: `termos` e `melhoria_produto`.
+- No registo de conta, a aceitação dos Termos passa a ficar também nesta tabela (continua nos metadados).
+- Quando a versão dos textos muda (e deixa de ser rascunho), a app pede "Li e aceito" uma vez; não deixa fechar sem aceitar, mas lembra que se pode exportar e apagar a conta.
+- Em Definições → Privacidade, um interruptor "Ajudar a melhorar a NexSeed" desliga o registo de eventos de uso (oposição ao interesse legítimo).
+- Vai junto com os textos legais (branch feat/consentimentos, que inclui chore/textos-legais). Sem a migração, nada disto aparece e a app funciona como antes.
+
 ### Sugestões para o portefólio (R-10, publicado a 14 nov)
 - Em cada plano, a app marca 3 a 4 atividades por criança como boas para o portefólio e diz o que guardar. A IA propõe (campo `portfolio` na resposta); a app limita a 4, prefere disciplinas diferentes e completa até 3 com dicas por disciplina (`src/lib/portfolioHints.ts`). A leitura nunca é sugerida.
 - A sugestão fica no fim da descrição (" | Portefólio: …"). Aparece em cada atividade e num resumo "Para o portefólio esta semana" na vista de cada criança e no topo do Guia de Atividades (PDF).

@@ -32,6 +32,7 @@ const TABLES = [
   "child_content_progress",
   "child_manuals",
   "family_calendars",
+  "user_consents",
   "family_methodologies",
   "feedback_submissions",
   "feedback_answers",

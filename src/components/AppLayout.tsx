@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Sprout } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import HelpLink from "@/components/HelpLink";
+import TermsUpdateDialog from "@/components/TermsUpdateDialog";
 import { HELP_BY_ROUTE } from "@/lib/helpRoutes";
 
 interface AppLayoutProps {
@@ -34,6 +35,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </header>
           <div className="p-6 lg:p-8 max-w-6xl mx-auto">
             {children}
+            <TermsUpdateDialog />
           </div>
         </main>
       </div>

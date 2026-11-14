@@ -63,7 +63,15 @@ function currentScreen(): string {
   }
 }
 
+// B-09: a pessoa pode opor-se ao registo de eventos de uso (Definições).
+let enabled = true;
+export function setAnalyticsEnabled(value: boolean) {
+  enabled = value;
+  if (!value) buffer.splice(0, buffer.length);
+}
+
 function send(event: AnalyticsEvent, props: Record<string, unknown>) {
+  if (!enabled) return;
   if (!context) {
     buffer.push({ event, props });
     return;

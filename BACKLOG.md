@@ -37,14 +37,14 @@ Corre em paralelo com o resto. A maior parte depende do Gil ou de revisão jurí
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| B-05 | Backup semanal da base de dados para armazenamento próprio | Docs (D-025). Produção sem backup; é também o que desbloqueia o B-04 | A/A | M | Gil; o Claude prepara o guia |
-| B-07 | Política de Privacidade: subcontratantes (Gemini, Supabase, Vercel, Resend) e dados de menores | Auditoria. A página /privacidade não menciona o Gemini (Fase A, A2 e A9) | A/A | M | Por fazer: rascunho + revisão jurídica |
-| B-08 | Termos de Utilização: autoridade parental, cessão da posição contratual, reembolso | Auditoria. A página /termos não tem nenhuma das três (Fase A, A3 e A4; D-014) | A/A | M | Por fazer: rascunho + revisão jurídica |
-| B-10 | A análise de cobertura aceita o family_id do pedido: obtê-lo a partir do login | Auditoria. Um utilizador autenticado pode escrever cobertura noutra família | A/A | S | Por fazer: o Claude escreve, o Gil publica |
+| B-05 | Backup semanal da base de dados para armazenamento próprio | Docs (D-025). Produção sem backup; é também o que desbloqueia o B-04 | A/A | M | Guia e script prontos (docs/backup-semanal.md, branch feat/guia-semanal). Aguarda o Gil fazer o primeiro |
+| B-07 | Política de Privacidade: subcontratantes (Gemini, Supabase, Vercel, Resend) e dados de menores | Auditoria. A página /privacidade não menciona o Gemini (Fase A, A2 e A9) | A/A | M | Rascunho feito (branch chore/textos-legais). Falta: responsável, NIF, Gemini pago e revisão jurídica |
+| B-08 | Termos de Utilização: autoridade parental, cessão da posição contratual, reembolso | Auditoria. A página /termos não tem nenhuma das três (Fase A, A3 e A4; D-014) | A/A | M | Rascunho feito (branch chore/textos-legais). Falta: responsável, NIF, entidade RAL e revisão jurídica |
+| B-10 | A análise de cobertura aceita o family_id do pedido: obtê-lo a partir do login | Auditoria. Um utilizador autenticado pode escrever cobertura noutra família | A/A | S | Escrito (branch fix/cobertura-familia-do-login). Aguarda o Gil publicar a função |
 | B-11 | Publicação bloqueada com repositório privado na Vercel Hobby | Repositório público temporariamente; decidir entre o Gil publicar cada entrega ou Vercel Pro | A/A | S | Em curso (público temporariamente) |
 | B-02 | Ativar a proteção contra passwords comprometidas no Supabase | Auditoria. Último aviso de segurança da FASE 1 | A/A | S | Aguarda Gil |
 | B-06 | Confirmar regiões UE no Supabase e na Vercel | Docs (Fase A, A10) | A/A | S | Aguarda Gil |
-| B-09 | Consentimentos granulares registados (quem, quando, a quê, versão dos termos) | Docs (Fase A, A6). BD | A/A | M | Por fazer (precisa de especificação) |
+| B-09 | Consentimentos granulares registados (quem, quando, a quê, versão dos termos) | Docs (Fase A, A6). BD | A/A | M | Feito (branch feat/consentimentos, junto com os textos legais). Precisa da migração 028 (Gil) |
 | B-01 | Gemini em faturação paga | Docs (D-013). Adiado até haver receita (decisão de 4 nov); mitigado pelo OK-06 | A/M | S | Adiado (Elton) |
 | B-04 | Acesso do Claude ao Supabase | Decisão do Gil (5 nov): não, enquanto não houver backup | M/B | S | Em pausa |
 | B-12 | Gil: publicar as migrações 026 (child_manuals) e 027 (family_calendars) e voltar a publicar a função export-family-data | I-01 e P-24. Sem as migrações, os manuais aparecem só como aviso, o calendário não se pode ajustar e o resto da app funciona igual | A/A | S | Feito pelo Gil a 14 nov |
@@ -72,12 +72,12 @@ A funcionalidade que decide o produto. Tudo isto é trabalho nos pedidos ao Gemi
 | P-01 | Sem conteúdos marcados, enviar só os do período atual em vez do ano inteiro | Docs 03 e 10. Planos sem prioridade clara | A/A | M | Publicado a 13 nov |
 | P-02 | Aviso no Plano Semanal quando uma criança não tem conteúdos marcados | Docs 10 (INS-06). As famílias não encontram a marcação | A/A | S | Publicado a 13 nov |
 | P-21 | Deixar de perguntar "o que quero ensinar esta semana": o campo passa a opcional, com a indicação de que a NexSeed escolhe os conteúdos | F-02. Passo intermédio até ao P-12 | A/A | S | Publicado a 13 nov |
-| P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Por fazer |
-| P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Por fazer |
-| P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Por fazer |
-| P-22 | Guia semanal no formato que a F-02 usa: semana em resumo, caixa de materiais para preparar ao domingo, o que perguntar, versão curta para dias difíceis, balanço da semana | F-02 (documento Semana 1). Menos folhas e menos preparação | A/A | M | Por fazer (precisa de especificação) |
+| P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Feito, em pré-visualização (formatos atribuídos pela app). Falta testar com a IA real |
+| P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Feito, em pré-visualização (frase Para explicar). Depende da IA |
+| P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Parcial, em pré-visualização: regra de dificuldade por ano e ritmo. Falta usar o progresso marcado |
+| P-22 | Guia semanal no formato que a F-02 usa: semana em resumo, caixa de materiais para preparar ao domingo, o que perguntar, versão curta para dias difíceis, balanço da semana | F-02 (documento Semana 1). Menos folhas e menos preparação | A/A | M | Feito, em pré-visualização (branch feat/guia-semanal) |
 | P-23 | Menos preparação: materiais que há em casa, sem imprimir; interesses como tempero e não como tema de todas as atividades | Plano real de 13 nov: 46 atividades, quase todas com materiais a fabricar (puzzles, cartões, vara de pesca) e todas tematizadas pelos mesmos dois interesses | A/A | M | Publicado a 14 nov. Por confirmar com um plano real |
-| P-08 | Leitura: gerar episódios curtos (1 ou 2 parágrafos) e textos concretos, em vez de só títulos | Equipa (backlog da família piloto). Menos coisas para a mãe preparar | A/M | M | Por fazer |
+| P-08 | Leitura: gerar episódios curtos (1 ou 2 parágrafos) e textos concretos, em vez de só títulos | Equipa (backlog da família piloto). Menos coisas para a mãe preparar | A/M | M | Feito, em pré-visualização (episódios até 120 palavras). Depende da IA |
 | P-10 | Semana com tema comum e blocos para várias idades: atividade conjunta de manhã; bloco académico em que a mãe está com uma criança enquanto a outra trabalha sozinha | Equipa, F-02. Hoje o plano dá atividades paralelas e diferentes a cada criança à mesma hora | A/A | L | Publicado a 14 nov. Por confirmar com um plano real |
 | P-05 | Decidir se a análise de cobertura mantém o "thinking" do Gemini | Docs (A-04) | B/M | S | Por fazer |
 

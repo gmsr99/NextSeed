@@ -594,6 +594,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_consents: {
+        Row: {
+          id: string
+          user_id: string
+          family_id: string | null
+          purpose: string
+          granted: boolean
+          terms_version: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          family_id?: string | null
+          purpose: string
+          granted: boolean
+          terms_version: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          family_id?: string | null
+          purpose?: string
+          granted?: boolean
+          terms_version?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       family_calendars: {
         Row: {
           family_id: string

@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { useConsents } from "@/hooks/useConsents";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/lib/supabase";
 import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink, Download } from "lucide-react";
 
@@ -9,6 +12,7 @@ type Member = { id: string; user_id: string; email: string; joined_at: string };
 type Invite = { id: string; email: string; created_at: string };
 
 const SettingsPage = () => {
+  const { consents, set: setConsent } = useConsents();
   const { family, user, updateFamilyName, signOut, deleteAccount } = useAuth();
   const navigate = useNavigate();
   const isOwner = user?.id === family?.user_id;
@@ -308,6 +312,24 @@ const SettingsPage = () => {
             </button>
             {exportError && <p className="text-sm text-destructive">{exportError}</p>}
           </div>
+          {/* B-09: oposição ao registo de eventos de uso */}
+          {consents?.available && (
+            <div className="flex items-start justify-between gap-4 rounded-lg border px-4 py-3">
+              <div>
+                <Label htmlFor="consent-improvement" className="text-sm font-medium">Ajudar a melhorar a NexSeed</Label>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Regista o que fazes na app (por exemplo, quando geras um plano), sem fotos nem textos, para percebermos o
+                  que funciona. Fica na nossa base de dados e não é partilhado.
+                </p>
+              </div>
+              <Switch
+                id="consent-improvement"
+                checked={consents.productImprovement}
+                disabled={setConsent.isPending}
+                onCheckedChange={(v) => setConsent.mutate({ purpose: "melhoria_produto", granted: v })}
+              />
+            </div>
+          )}
         </section>
 
         {/* Conta */}

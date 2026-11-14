@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { LEGAL_VERSION } from "@/lib/legal";
+import { recordConsent } from "@/lib/consents";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { track } from "@/lib/analytics";
@@ -100,6 +101,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) return { error: error.message };
     if (data.user) {
       track("signup", {});
+      // B-09: aceitação dos Termos no registo de consentimentos (se já houver
+      // sessão; sem sessão, fica nos metadados e é pedida ao primeiro login).
+      if (data.session) void recordConsent("termos", true, null);
 
       // Email de boas-vindas — best-effort, nunca bloqueia o registo.
       if (data.session) {
