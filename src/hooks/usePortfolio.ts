@@ -154,6 +154,8 @@ export function usePortfolio() {
       if (!items.length) throw new Error("Nenhum item tem criança atribuída (necessário para o ano escolar).");
 
       const { data, error } = await supabase.functions.invoke("analyze-curriculum-coverage", {
+        // family_id deixou de ser usado pela função (B-10: vem do login). Fica no
+        // pedido só enquanto houver a versão antiga da função publicada.
         body: { items, family_id: family.id },
       });
       if (error) throw error;

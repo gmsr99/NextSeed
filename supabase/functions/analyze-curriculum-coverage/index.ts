@@ -105,23 +105,48 @@ Responde APENAS com JSON válido, sem markdown, neste formato exato:
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+    // B-10: a família vem do login, nunca do corpo do pedido. Este cliente usa o
+    // JWT de quem chama, por isso a RLS só lhe mostra os dados da sua família.
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } },
+    );
 
-    const { items, family_id } = await req.json() as {
-      items: PortfolioItem[];
-      family_id: string;
-    };
+    const { data: { user }, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !user) return json({ error: "Sessão inválida" }, 401);
 
-    if (!items?.length || !family_id) {
-      return new Response(JSON.stringify({ error: "items e family_id são obrigatórios" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const { data: family_id, error: famErr } = await userClient.rpc("my_family_id");
+    if (famErr || !family_id) return json({ error: "Família não encontrada" }, 403);
+
+    // O corpo pode ainda trazer family_id (versões antigas da app): é ignorado.
+    const { items: requested } = await req.json() as { items: PortfolioItem[] };
+    if (!requested?.length) return json({ error: "items é obrigatório" }, 400);
+
+    // Só itens que pertencem a esta família (visíveis com o JWT de quem chama)
+    const askedActivities = requested.filter((i) => i.type === "activity").map((i) => i.id);
+    const askedProjects   = requested.filter((i) => i.type === "project").map((i) => i.id);
+    const [acts, projs] = await Promise.all([
+      askedActivities.length
+        ? userClient.from("activities").select("id").in("id", askedActivities)
+        : Promise.resolve({ data: [], error: null }),
+      askedProjects.length
+        ? userClient.from("projects").select("id").in("id", askedProjects)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+    if (acts.error) throw acts.error;
+    if (projs.error) throw projs.error;
+    const allowed = new Set([...(acts.data ?? []), ...(projs.data ?? [])].map((r: { id: string }) => r.id));
+    const items = requested.filter((i) => allowed.has(i.id));
+    if (!items.length) return json({ matched: 0, links: [] });
 
     // 1. Buscar objetivos NexSeed para os anos escolares presentes
     const schoolYears = [...new Set(items.map((i) => i.school_year).filter(Boolean))];
@@ -157,7 +182,11 @@ serve(async (req) => {
     }
 
     // 3. Gemini faz o match
-    const matches = await matchWithGemini(items, objectives as CurriculumObjective[]);
+    const validObjectives = new Set((objectives as CurriculumObjective[]).map((o) => o.id));
+    const matches = (await matchWithGemini(items, objectives as CurriculumObjective[]))
+      // A resposta do modelo só pode ligar itens e objetivos que lhe foram enviados
+      .filter((m) => allowed.has(m.item_id))
+      .map((m) => ({ ...m, matches: (m.matches ?? []).filter((x) => validObjectives.has(x.curriculum_id)) }));
 
     // 4. Guardar na BD
     const rows = matches.flatMap((m) =>
