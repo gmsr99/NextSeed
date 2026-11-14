@@ -1,166 +1,158 @@
+// Termos de Utilização (B-08). Rascunho a validar por um jurista (doc 04 §7).
+// Inclui a declaração de autoridade parental, a cessão da posição contratual
+// (doc 05 §4) e as regras de reembolso do beta e da coorte (doc 02 §7).
 import { Link } from "react-router-dom";
-import NexSeedLogo from "@/components/NexSeedLogo";
+import LegalPage, { LegalList, LegalSection, Mail } from "@/components/LegalPage";
+import { LEGAL } from "@/lib/legal";
 
 export default function TermsAndConditions() {
+  const controller = LEGAL.controllerName
+    ? <><strong>{LEGAL.controllerName}</strong>{LEGAL.controllerNif ? <>, NIF {LEGAL.controllerNif}</> : null}</>
+    : <strong>[nome e NIF, a preencher]</strong>;
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <div className="mb-8">
-          <Link to="/login">
-            <NexSeedLogo dark={false} />
-          </Link>
-        </div>
+    <LegalPage title="Termos de Utilização">
+      <LegalSection n={1} title="Quem somos e o que é a NexSeed">
+        <p>
+          A NexSeed (<strong>nexseed.pt</strong>) é uma plataforma de apoio a famílias em ensino doméstico: plano anual e
+          semanal, registo do dia a dia, portefólio e relatórios. É explorada por {controller}, contactável em{" "}
+          <Mail to={LEGAL.contactEmail} />. Ao criar conta, aceitas estes Termos e a{" "}
+          <Link to="/privacidade" className="text-primary underline">Política de Privacidade</Link>.
+        </p>
+      </LegalSection>
 
-        <h1 className="text-3xl font-heading font-bold mb-2">Termos e Condições</h1>
-        <p className="text-sm text-muted-foreground mb-8">Última atualização: 15 de maio de 2025</p>
+      <LegalSection n={2} title="Fase beta">
+        <p>
+          A NexSeed está em beta: algumas funcionalidades ainda estão a ser construídas e podem mudar. Durante o beta, o
+          acesso é gratuito em troca de feedback combinado contigo. Estamos a fechar a camada legal completa antes do
+          lançamento comercial e dizemos-te quando estiver. Podes sair quando quiseres.
+        </p>
+      </LegalSection>
 
-        <div className="prose prose-sm max-w-none space-y-8 text-foreground">
+      <LegalSection n={3} title="Quem pode criar conta">
+        <LegalList
+          items={[
+            "A conta é de um adulto, com 18 anos ou mais. As crianças não têm conta: são perfis que o adulto cria e gere.",
+            <>
+              <strong>Ao introduzires dados, fotos ou trabalhos de uma criança, declaras que tens responsabilidade parental
+              sobre ela, ou autorização de quem a tem, para o fazer.</strong> A NexSeed não consegue verificar acordos entre
+              pais (por exemplo, em caso de separação); essa responsabilidade é de quem introduz os dados.
+            </>,
+            "Podes convidar outros adultos da família para a conta. Quem convidas aceita estes Termos ao entrar.",
+            "Os planos pagos, quando existirem, destinam-se a residentes em Portugal.",
+          ]}
+        />
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">1. Aceitação dos termos</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Ao criar uma conta e utilizar a plataforma NexSeed, aceitas estes Termos e Condições
-              de utilização ("Termos") na íntegra. Se não concordares com alguma parte destes Termos,
-              não deves utilizar a plataforma. Estes Termos constituem um acordo juridicamente
-              vinculativo entre ti e a NexSeed.
-            </p>
-          </section>
+      <LegalSection n={4} title="A tua conta">
+        <LegalList
+          items={[
+            "Guarda a tua password e não a partilhes fora da família.",
+            <>Se suspeitares de um acesso indevido, avisa-nos de imediato em <Mail to={LEGAL.contactEmail} />.</>,
+            "Podemos suspender uma conta que viole estes Termos, avisando antes sempre que possível.",
+          ]}
+        />
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">2. Descrição do serviço</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              A NexSeed é uma plataforma digital de apoio ao homeschooling que disponibiliza
-              ferramentas para planeamento curricular, gestão de atividades, portfólios de aprendizagem,
-              relatórios de progresso e recursos pedagógicos. O serviço destina-se exclusivamente a
-              pais, tutores e responsáveis pela educação domiciliar de crianças.
-            </p>
-          </section>
+      <LegalSection n={5} title="Uso aceitável">
+        <p>Não é permitido:</p>
+        <LegalList
+          items={[
+            "tentar aceder a dados de outras famílias ou comprometer a segurança da plataforma;",
+            "introduzir conteúdo ilegal, ofensivo ou que viole direitos de terceiros;",
+            "usar sistemas automáticos para aceder à plataforma ou extrair conteúdo;",
+            "revender ou explorar comercialmente a NexSeed sem autorização escrita.",
+          ]}
+        />
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">3. Elegibilidade</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Para criar uma conta, deves ter pelo menos 18 anos de idade. A plataforma não se destina
-              ao uso direto por menores. Os pais ou tutores legais são os únicos responsáveis pela
-              introdução e gestão de dados relativos às crianças sob a sua responsabilidade.
-            </p>
-          </section>
+      <LegalSection n={6} title="O teu conteúdo e os manuais">
+        <p>
+          O que crias na NexSeed (registos, fotos, trabalhos, notas) continua a ser teu. Dás-nos apenas a autorização
+          necessária para o guardar e mostrar a ti e aos adultos da tua conta, dentro do serviço.
+        </p>
+        <p>
+          Quando escreves o índice de um manual, a NexSeed guarda só os títulos das unidades e as páginas, para os
+          distribuir pelas semanas. Não carregues o conteúdo dos manuais (textos, exercícios, imagens): esse conteúdo
+          pertence aos respetivos autores e editoras, e a NexSeed não o reproduz.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">4. Conta e segurança</h2>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-              <li>És responsável por manter a confidencialidade das tuas credenciais de acesso.</li>
-              <li>Deves notificar-nos imediatamente em caso de acesso não autorizado à tua conta.</li>
-              <li>Não podes partilhar a tua conta com terceiros não autorizados.</li>
-              <li>
-                Podes convidar outros membros da família através da funcionalidade de convites,
-                sendo tu responsável pelas suas ações na plataforma.
-              </li>
-              <li>A NexSeed reserva-se o direito de suspender contas que violem estes Termos.</li>
-            </ul>
-          </section>
+      <LegalSection n={7} title="Inteligência artificial e sugestões">
+        <p>
+          Os planos, atividades e sugestões são gerados com apoio de inteligência artificial e são propostas. Podem conter
+          erros ou não se adequar à tua criança: revê-os antes de os usar. A NexSeed não substitui o acompanhamento
+          pedagógico, psicológico ou médico, nem as obrigações que tens perante a escola onde a criança está matriculada.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">5. Uso aceitável</h2>
-            <p className="text-muted-foreground leading-relaxed mb-3">Comprometes-te a utilizar a plataforma apenas para fins lícitos e de acordo com estes Termos. É expressamente proibido:</p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>Utilizar a plataforma para fins comerciais sem autorização prévia por escrito</li>
-              <li>Tentar aceder a dados de outras famílias</li>
-              <li>Introduzir conteúdo ilegal, ofensivo, difamatório ou que viole direitos de terceiros</li>
-              <li>Realizar engenharia reversa, descompilar ou tentar extrair o código-fonte</li>
-              <li>Utilizar sistemas automatizados para aceder à plataforma (scraping, bots)</li>
-              <li>Tentar comprometer a segurança ou estabilidade da plataforma</li>
-            </ul>
-          </section>
+      <LegalSection n={8} title="Preços, sinal e reembolsos">
+        <LegalList
+          items={[
+            <>
+              <strong>Beta (até ao lançamento comercial):</strong> sem subscrição. O sinal de reserva de lugar na coorte
+              fundadora é opcional, é <strong>devolvido na totalidade a qualquer momento, sem justificação</strong>, e é
+              descontado na primeira anuidade.
+            </>,
+            <>
+              <strong>Coorte fundadora:</strong> o preço de fundador mantém-se enquanto a subscrição estiver ativa. Nos
+              primeiros três meses, podes pedir o <strong>reembolso total, sem justificação</strong>.
+            </>,
+            "Os preços e as condições de cada plano são apresentados antes do pagamento.",
+            "Como consumidor, tens também os direitos que a lei te dá na contratação à distância, incluindo o direito de livre resolução nos termos legais.",
+            <>Para pedir um reembolso, escreve para <Mail to={LEGAL.contactEmail} />.</>,
+          ]}
+        />
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">6. Conteúdo do utilizador</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Mantés a propriedade intelectual de todo o conteúdo que introduzes na plataforma
-              (planos, atividades, portfólios, etc.). Ao introduzires conteúdo, concedes à NexSeed
-              uma licença limitada, não exclusiva e revogável para armazenar e apresentar esse
-              conteúdo exclusivamente no âmbito da prestação do serviço. A NexSeed não reivindica
-              qualquer direito de propriedade sobre o teu conteúdo.
-            </p>
-          </section>
+      <LegalSection n={9} title="Disponibilidade e responsabilidade">
+        <p>
+          Fazemos o possível para manter a NexSeed disponível e os teus dados seguros, mas não garantimos funcionamento sem
+          interrupções. Podemos parar o serviço por pouco tempo para manutenção ou segurança. Recomendamos que descarregues
+          os relatórios e o portefólio que tens de entregar à escola. Na medida permitida pela lei, não respondemos por
+          danos indiretos; nada nestes Termos limita os teus direitos como consumidor.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">7. Propriedade intelectual da NexSeed</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Todos os elementos da plataforma NexSeed — incluindo software, design, logótipo,
-              textos, ebooks e metodologias pedagógicas desenvolvidas — são propriedade exclusiva
-              da NexSeed e estão protegidos por direitos de autor e demais legislação aplicável.
-              Não podes reproduzir, distribuir ou criar obras derivadas sem autorização expressa.
-            </p>
-          </section>
+      <LegalSection n={10} title="Terminar">
+        <p>
+          Podes apagar a conta a qualquer momento, em Definições. Antes disso, podes descarregar todos os dados da família.
+          Apagar a conta apaga os dados de forma permanente (ver a Política de Privacidade).
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">8. Disponibilidade do serviço</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              A NexSeed esforça-se por manter o serviço disponível 24/7, mas não garante
-              disponibilidade ininterrupta. Podemos suspender temporariamente o serviço para
-              manutenção, atualizações ou por razões de segurança. Não somos responsáveis por
-              perdas resultantes de indisponibilidade do serviço.
-            </p>
-          </section>
+      <LegalSection n={11} title="Transmissão para uma sociedade">
+        <p>
+          A NexSeed é explorada, nesta fase, por uma pessoa singular. Aceitas que a posição contratual nestes Termos, e as
+          subscrições ativas, possam ser transmitidas para uma sociedade a constituir pelo mesmo titular, para continuar a
+          prestar o serviço nas mesmas condições, sem necessidade de novo acordo. Avisamos-te antes, e podes sempre
+          terminar a conta se não concordares.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">9. Limitação de responsabilidade</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              A NexSeed é uma ferramenta de apoio e não substitui aconselhamento pedagógico,
-              psicológico ou legal profissional. O conteúdo e as sugestões geradas pela plataforma
-              (incluindo planos com inteligência artificial) têm caráter orientativo. A NexSeed
-              não se responsabiliza por decisões educativas tomadas com base na plataforma,
-              nem por quaisquer danos indiretos, incidentais ou consequenciais.
-            </p>
-          </section>
+      <LegalSection n={12} title="Alterações">
+        <p>
+          Se mudarmos estes Termos de forma importante, avisamos por email com pelo menos 15 dias de antecedência. Se não
+          concordares, podes apagar a conta antes de as alterações produzirem efeitos.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">10. Eliminação de conta</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Podes eliminar a tua conta a qualquer momento nas Definições da plataforma. A eliminação
-              da conta resulta no apagamento permanente e imediato de todos os dados associados.
-              Esta ação é irreversível. A NexSeed pode igualmente terminar ou suspender o acesso
-              em caso de violação grave destes Termos, após notificação prévia sempre que possível.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">11. Alterações aos termos</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Reservamo-nos o direito de atualizar estes Termos. Em caso de alterações materiais,
-              notificaremos os utilizadores com pelo menos 15 dias de antecedência por email.
-              A continuação do uso da plataforma após esse prazo constitui aceitação dos novos Termos.
-              Se não concordares com as alterações, podes eliminar a tua conta antes da data de entrada
-              em vigor.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">12. Lei aplicável e foro competente</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Estes Termos são regidos pela lei portuguesa. Em caso de litígio, as partes acordam
-              submeter-se à jurisdição dos tribunais portugueses, sem prejuízo do direito dos
-              utilizadores consumidores de recorrer ao tribunal da sua residência habitual ou
-              à plataforma europeia de resolução de litígios em linha (ODR).
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-heading font-semibold mb-3">13. Contacto</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Para questões relacionadas com estes Termos, contacta-nos em:{" "}
-              <a href="mailto:geral@nexseed.pt" className="text-primary underline">geral@nexseed.pt</a>
-            </p>
-          </section>
-
-        </div>
-
-        <div className="mt-12 pt-6 border-t">
-          <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ← Voltar ao início de sessão
-          </Link>
-        </div>
-      </div>
-    </div>
+      <LegalSection n={13} title="Lei aplicável e litígios">
+        <p>
+          Estes Termos regem-se pela lei portuguesa. Se tivermos um desentendimento, escreve-nos primeiro: queremos
+          resolvê-lo contigo. Podes também usar o Livro de Reclamações Eletrónico ou recorrer a uma entidade de resolução
+          alternativa de litígios de consumo
+          {LEGAL.adrEntity ? (
+            <>
+              : <strong>{LEGAL.adrEntity}</strong>
+              {LEGAL.adrWebsite ? <> (<a href={LEGAL.adrWebsite} className="text-primary underline" target="_blank" rel="noreferrer">{LEGAL.adrWebsite}</a>)</> : null}
+            </>
+          ) : (
+            <> <strong>[entidade a indicar]</strong></>
+          )}
+          . Mantêns sempre o direito de recorrer aos tribunais da tua área de residência.
+        </p>
+      </LegalSection>
+    </LegalPage>
   );
 }

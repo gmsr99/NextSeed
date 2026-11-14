@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { LEGAL_VERSION } from "@/lib/legal";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { track } from "@/lib/analytics";
@@ -94,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // family_name vai nos metadados: a família é criada no servidor por um
       // trigger (migração 019), não pelo cliente — funciona mesmo quando a
       // confirmação de email está ligada e signUp() não devolve sessão.
-      options: { data: { consented_at: consentedAt, terms_version: "1.0", family_name: familyName } },
+      options: { data: { consented_at: consentedAt, terms_version: LEGAL_VERSION, family_name: familyName } },
     });
     if (error) return { error: error.message };
     if (data.user) {
