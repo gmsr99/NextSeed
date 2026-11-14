@@ -3,6 +3,9 @@ import type { GeneratedPlanItem } from "@/lib/planGenerator";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, collectMaterials, formatWeekRange } from "@/lib/planGenerator";
 import type { Child } from "@/lib/types";
 import { splitPortfolio, weekPortfolioList } from "@/lib/portfolioHints";
+import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
+import { DAY_QUESTIONS, QUESTION_TIP, SHORT_DAY, DAILY_LOG, WEEK_CLOSE, reviewLines } from "@/lib/weekGuide";
+import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
 
 const S = StyleSheet.create({
   page: { fontFamily: "Helvetica", fontSize: 9, padding: 32, backgroundColor: "#FFFFFF" },
@@ -27,8 +30,11 @@ const S = StyleSheet.create({
   materialsRow: { flexDirection: "row", flexWrap: "wrap", gap: 3 },
   materialTag: { backgroundColor: "#F3F4F6", borderRadius: 2, padding: "1 4", fontSize: 7, color: "#4B5563" },
   divider: { borderBottomWidth: 1, borderColor: "#E5E7EB", marginVertical: 8 },
-  materialsSection: { marginTop: 14, padding: "10 12", backgroundColor: "#F0FDF4", borderRadius: 6 },
-  materialsSectionTitle: { fontSize: 12, fontWeight: "bold", color: "#2D4A2D", marginBottom: 6 },
+  box: { marginBottom: 10, padding: "8 10", backgroundColor: "#F7F5EF", borderRadius: 4 },
+  boxTitle: { fontSize: 11, fontWeight: "bold", color: "#2D4A2D", marginBottom: 4 },
+  boxChild: { fontSize: 9, fontWeight: "bold", color: "#374151", marginTop: 3, marginBottom: 2 },
+  boxLine: { fontSize: 8, color: "#374151", lineHeight: 1.5 },
+  bold: { fontWeight: "bold" },
   materialsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
   matItem: {
     fontSize: 8, color: "#374151",
@@ -42,9 +48,12 @@ interface Props {
   planItems: GeneratedPlanItem[];
   weekStart: Date;
   familyName: string;
+  /** P-22: conteúdos da semana no Rumo do ano, por criança (opcional) */
+  weekFocus?: Record<string, ChildWeekFocus>;
 }
 
-export default function ActivityGuidePDF({ children, planItems, weekStart, familyName }: Props) {
+export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {} }: Props) {
+  const withFocus = children.filter((c) => weekFocus[c.id]);
   const allMaterials = collectMaterials(planItems);
 
   return (
@@ -55,6 +64,38 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
           <Text style={S.headerTitle}>NexSeed — Guia de Atividades</Text>
           <Text style={S.headerSub}>{familyName} · Semana de {formatWeekRange(weekStart)}</Text>
         </View>
+
+        {/* P-22: a semana em resumo (conteúdos do Rumo do ano) */}
+        {withFocus.length > 0 && (
+          <View style={S.box} wrap={false}>
+            <Text style={S.boxTitle}>
+              A semana em resumo · semana {weekFocus[withFocus[0].id].week.number} de {weekFocus[withFocus[0].id].totalWeeks}
+            </Text>
+            {withFocus.map((child) => (
+              <View key={child.id}>
+                {children.length > 1 && <Text style={S.boxChild}>{child.name}</Text>}
+                {Object.entries(weekFocus[child.id].focus).map(([d, list]) => (
+                  <Text key={d} style={S.boxLine}>
+                    {GC_DISCIPLINE_LABELS[d] ?? d}{list[0]?.fromManual ? ` (${list[0].domain})` : ""}: {list.map((c) => c.content).join(" · ")}
+                  </Text>
+                ))}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* P-22: preparar ao domingo */}
+        {allMaterials.length > 0 && (
+          <View style={S.box} wrap={false}>
+            <Text style={S.boxTitle}>Domingo: preparar a caixa da semana (15 minutos)</Text>
+            <View style={S.materialsGrid}>
+              {allMaterials.map((m, i) => (
+                <Text key={i} style={S.matItem}>{m}</Text>
+              ))}
+            </View>
+            <Text style={[S.boxLine, { marginTop: 4 }]}>Não é preciso imprimir nada.</Text>
+          </View>
+        )}
 
         {/* R-10: o que guardar para o portefólio esta semana */}
         {children.some((c) => weekPortfolioList(planItems, c.id).length > 0) && (
@@ -128,14 +169,47 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
           );
         })}
 
-        {/* Lista de materiais */}
-        <View style={S.materialsSection} wrap={false}>
-          <Text style={S.materialsSectionTitle}>Lista de Materiais da Semana</Text>
-          <View style={S.materialsGrid}>
-            {allMaterials.map((m, i) => (
-              <Text key={i} style={S.matItem}>· {m}</Text>
-            ))}
-          </View>
+        {/* P-22: partes fixas do guia */}
+        <View style={S.box} wrap={false}>
+          <Text style={S.boxTitle}>Guião rápido: o que perguntar</Text>
+          {DAY_QUESTIONS.map((q) => (
+            <Text key={q.day} style={S.boxLine}>
+              <Text style={S.bold}>{q.day} ({q.focus}):</Text> {q.questions}
+            </Text>
+          ))}
+          <Text style={[S.boxLine, { marginTop: 3 }]}>{QUESTION_TIP}</Text>
+        </View>
+
+        <View style={S.box} wrap={false}>
+          <Text style={S.boxTitle}>Se o dia correr mal: versão curta</Text>
+          <Text style={S.boxLine}>{SHORT_DAY.intro}</Text>
+          {SHORT_DAY.steps.map((step, i) => (
+            <Text key={i} style={S.boxLine}>{i + 1}. {step}</Text>
+          ))}
+          <Text style={S.boxLine}>{SHORT_DAY.outro}</Text>
+        </View>
+
+        <View style={S.box} wrap={false}>
+          <Text style={S.boxTitle}>Registo de 2 minutos por dia</Text>
+          <Text style={S.boxLine}>{DAILY_LOG.intro}</Text>
+          {DAILY_LOG.lines.map((l, i) => (
+            <Text key={i} style={S.boxLine}>· {l}</Text>
+          ))}
+          <Text style={S.boxLine}>{DAILY_LOG.outro}</Text>
+        </View>
+
+        <View style={S.box} wrap={false}>
+          <Text style={S.boxTitle}>Balanço da semana (10 minutos, para ti)</Text>
+          <Text style={S.boxLine}>Assinala o que ficou feito. O que não ficou, a NexSeed volta a propor.</Text>
+          {withFocus.map((child) => (
+            <View key={child.id}>
+              {children.length > 1 && <Text style={S.boxChild}>{child.name}</Text>}
+              {reviewLines(weekFocus[child.id].focus, GC_DISCIPLINE_LABELS).map((l, i) => (
+                <Text key={i} style={S.boxLine}>[  ] {l}</Text>
+              ))}
+            </View>
+          ))}
+          <Text style={[S.boxLine, { marginTop: 3 }]}>{WEEK_CLOSE}</Text>
         </View>
 
         <View style={S.footer}>

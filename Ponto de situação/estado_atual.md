@@ -26,6 +26,11 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
 
+### Guia da semana no formato da F-02 (P-22, em pré-visualização desde 14 nov; não publicado)
+- O Guia de Atividades (PDF) passa a abrir com "A semana em resumo" (conteúdos do Rumo do ano por criança, com as páginas do manual quando há) e "Domingo: preparar a caixa da semana" (materiais, sem imprimir nada), seguidos do portefólio.
+- No fim: guião de perguntas por dia, versão curta para dias difíceis (45 minutos), registo de 2 minutos por dia e balanço da semana com os conteúdos para assinalar.
+- Textos fixos em `src/lib/weekGuide.ts`. Sem alterações na BD nem na IA. Ficou de fora o "fio condutor" escrito no topo: a IA escolhe-o, mas ainda não o devolve à parte.
+
 ### Sugestões para o portefólio (R-10, publicado a 14 nov)
 - Em cada plano, a app marca 3 a 4 atividades por criança como boas para o portefólio e diz o que guardar. A IA propõe (campo `portfolio` na resposta); a app limita a 4, prefere disciplinas diferentes e completa até 3 com dicas por disciplina (`src/lib/portfolioHints.ts`). A leitura nunca é sugerida.
 - A sugestão fica no fim da descrição (" | Portefólio: …"). Aparece em cada atividade e num resumo "Para o portefólio esta semana" na vista de cada criança e no topo do Guia de Atividades (PDF).
