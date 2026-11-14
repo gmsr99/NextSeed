@@ -191,7 +191,7 @@ function buildPrompt(
     ).join("\n")}`;
   }).filter(Boolean);
   const gcSection = gcLines.length > 0
-    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nSão os conteúdos desta semana (do plano anual ou marcados pelo educador). As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança.\nLinhas com [manual «…»]: a família segue esse manual. As atividades dessa disciplina acompanham a unidade e as páginas indicadas (refere-as na descrição, ex.: "Manual, pp. 24–27") com uma forma prática de as introduzir ou consolidar. NUNCA inventes nem reproduzas o texto ou os exercícios do manual:\n${gcLines.join("\n\n")}\n`
+    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nSão os conteúdos desta semana (do plano anual ou marcados pelo educador). As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança.\nLinhas com [retomar]: ficaram por consolidar em semanas anteriores; dedica-lhes uma atividade curta de revisão com um formato diferente, sem os tratar como atraso.\nLinhas com [manual «…»]: a família segue esse manual. As atividades dessa disciplina acompanham a unidade e as páginas indicadas (refere-as na descrição, ex.: "Manual, pp. 24–27") com uma forma prática de as introduzir ou consolidar. NUNCA inventes nem reproduzas o texto ou os exercícios do manual:\n${gcLines.join("\n\n")}\n`
     : "";
 
   // Contexto GC completo por criança (todos os não dominados) — para orientação geral
