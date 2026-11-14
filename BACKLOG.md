@@ -26,7 +26,7 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-02 | Que entidade de resolução alternativa de litígios de consumo indicamos nos Termos? | Obrigatório nos Termos (B-08). O contabilista ou o jurista sabem dizer qual se aplica |  |
 | Q-03 | Quando passamos o Gemini para a versão paga (cerca de 3 € por mês)? | No gratuito, a Google pode usar o que enviamos para melhorar os produtos dela. É o bloqueante n.º 1 do documento 04 (B-01) |  |
 | Q-04 | Quem faz a revisão jurídica dos textos legais? | Os rascunhos estão prontos, com 11 perguntas para o jurista (documento claude/B-07_B-08_revisao_juridica.md no projeto) |  |
-| Q-05 | Publico já os rascunhos dos textos legais, com o aviso "Rascunho em revisão", ou espero pelas respostas Q-01 a Q-04? | Os textos publicados hoje são de maio de 2025 e não falam da IA. Os novos são mais corretos, mas têm campos por preencher |  |
+| Q-05 | Publico já os rascunhos dos textos legais, com o aviso "Rascunho em revisão", ou espero pelas respostas Q-01 a Q-04? | Os textos publicados hoje são de maio de 2025 e não falam da IA. Os novos são mais corretos, mas têm campos por preencher | Esperar pelas respostas (respondido no chat a 14 nov) |
 | Q-06 | O campo "Escola / Agrupamento" da ficha da criança fica (opcional) ou sai? | O documento 04 diz para não recolher a escola; a app pede-a para os relatórios |  |
 | Q-07 | Os planos novos estão bons? Envia-me o PDF do Guia de Atividades de um plano gerado depois de 14 de novembro, de uma família com duas crianças. | Nunca vi um plano real com as regras novas (em conjunto, sozinho, portefólio, variedade). Só tu consegues confirmar |  |
 | Q-08 | Que família testa o portefólio e o relatório numa entrega real à escola, antes de dezembro? | R-01: é a prioridade para dezembro e janeiro, e não é código |  |
@@ -35,6 +35,36 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-11 | Consegues a captura de ecrã do problema no telemóvel que a F-03 referiu? | T-08: sem ela não consigo reproduzir o erro |  |
 | Q-12 | Repositório privado (B-11): o Gil publica cada entrega, ou passamos para Vercel Pro? E consegue dar-te acesso às pré-visualizações? | Com o repositório privado, as minhas publicações ficam bloqueadas. Sem acesso às pré-visualizações, só vês o que já está publicado |  |
 | Q-13 | Marcos de desenvolvimento no relatório (R-05): avanço? | Pedido da F-02 e da F-05. São dados de desenvolvimento de menores: passa pelo documento 04 e mexe na base de dados |  |
+
+## Para testar: novidades publicadas a 13 e 14 de novembro
+
+Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na coluna Resultado escreve OK ou o que viste de diferente. Se a app instalada no telemóvel não mostrar as novidades, fecha-a e volta a abrir.
+
+| ID | Onde | O que fazer | O que deve acontecer | Resultado |
+|---|---|---|---|---|
+| V-01 | Crianças | Editar uma criança e escrever interesses separados por vírgulas; experimentar também o botão + | Cada interesse fica numa etiqueta separada (T-06) |  |
+| V-02 | Crianças | Abrir a data de nascimento | Dá para escolher o ano e o mês numa lista, sem andar mês a mês (T-07) |  |
+| V-03 | Rumo do ano | Abrir a página (no menu, onde estava Currículo Anual) | Cartão Esta semana com as crianças lado a lado; por baixo, o ano semana a semana e por disciplina (P-13) |  |
+| V-04 | Rumo do ano | Ajustar as semanas: mudar a data de fim para agosto e guardar. Depois, Voltar ao calendário escolar | O número de semanas sobe e as semanas novas aparecem no 3.º período; ao repor, volta a 37 (P-24) |  |
+| V-05 | Rumo do ano | Adicionar manual: Matemática, um nome e 4 linhas do tipo "Unidade 1 — Números até 100 ... 6" | A Matemática dessa criança passa a mostrar unidades e páginas a partir desta semana. Se aparecer "esta parte ainda está a ser ligada", avisa-me (I-01) |  |
+| V-06 | Rumo do ano | Descarregar o ano (PDF) | PDF com o ano da criança, por período e semana, com caixas para assinalar (P-24) |  |
+| V-07 | Plano semanal | Abrir o formulário, sem preencher nada | Cada criança tem a caixa "Esta semana no rumo do ano"; o campo de conteúdos diz que é opcional (P-12, P-21) |  |
+| V-08 | Plano semanal | Gerar o plano sem escrever conteúdos | As atividades trabalham os conteúdos da caixa; na criança com manual, a Matemática fala da unidade e das páginas |  |
+| V-09 | Plano gerado | Ler as atividades de segunda a quinta | Cada uma começa por Em conjunto, Com o adulto ou Sozinho(a); nunca há duas crianças com o adulto à mesma hora (P-10) |  |
+| V-10 | Plano gerado | Ler duas ou três atividades Sozinho(a) | A criança consegue fazê-las sem ajuda e sem conteúdo novo |  |
+| V-11 | Plano gerado | Comparar Estudo do Meio, Expressão, Projeto e sexta-feira entre as crianças | Mesmo título para todas; a descrição diz o que cada uma faz. Sexta: uma só saída (P-11) |  |
+| V-12 | Plano gerado | Ver os materiais pedidos | Só coisas que há em casa; nada para imprimir ou fabricar antes (P-23) |  |
+| V-13 | Plano gerado | Ver se a semana tem um tema que liga as disciplinas e se os interesses aparecem só de vez em quando | Um fio condutor reconhecível; interesses em cerca de uma em cada três atividades |  |
+| V-14 | Plano gerado | Comparar o tipo de atividade de Português e de Matemática ao longo da semana | Tipos diferentes de dia para dia (jogo, objetos, conversa, escrita, medir); já não é sempre a mesma tarefa (P-06) |  |
+| V-15 | Plano gerado | Ler as atividades Com o adulto | Acabam com "Para explicar:" e uma forma simples de explicar o conteúdo (P-07) |  |
+| V-16 | Plano gerado | Ler os episódios de leitura | Uma só história para as duas crianças, curta (até cerca de 120 palavras), com uma pergunta para cada uma; a pergunta não aparece repetida no texto (P-08, T-10) |  |
+| V-17 | Plano gerado | Abrir o separador de cada criança | Caixa "Para o portefólio esta semana" com 3 ou 4 atividades e o que guardar (R-10) |  |
+| V-18 | Plano gerado | Guardar o plano | Aparece "Antes da semana nova: como correu a anterior?" (ou nada, se a semana anterior não tinha conteúdos) (P-19) |  |
+| V-19 | Plano gerado | Descarregar PDFs e abrir o Guia de Atividades | Abre com A semana em resumo e a caixa de domingo; fecha com perguntas por dia, versão curta, registo de 2 minutos e balanço (P-22) |  |
+| V-20 | Plano gerado | Folha para imprimir | Uma página com a semana toda: hora, título e como se faz, materiais e portefólio (R-07) |  |
+| V-21 | Rumo do ano | Fechar a semana: marcar um tema Ficou aprendido e outro Precisa de mais; guardar. Depois abrir Áreas de Aprendizagem | Os dois temas mudaram de estado (Dominado e Em progresso). No plano seguinte, o segundo volta como revisão (P-14, P-20) |  |
+| V-22 | Diário | Escrever um Registo de 2 minutos para as duas crianças | Aparece "Guardado no Diário" e cada criança fica com uma entrada Registo do dia no portefólio (R-10) |  |
+| V-23 | Pré-escolar (se houver) | Ver o horário de uma criança do pré-escolar | A meditação aparece às 14:00 e não em cima de outra atividade (R-09) |  |
 
 ## Ordem de implementação
 
@@ -153,7 +183,7 @@ Menos papel e documentos mais fáceis de usar no dia a dia.
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| R-07 | Versão compacta para imprimir e guia detalhado só em digital | Equipa. As famílias imprimem demasiadas folhas | M/M | M | Por fazer |
+| R-07 | Versão compacta para imprimir e guia detalhado só em digital | Equipa. As famílias imprimem demasiadas folhas | M/M | M | Publicado a 14 nov: Folha para imprimir (uma página por semana). Relatórios e portefólio compactos ficam por fazer |
 | R-08 | Horário de todas as crianças num só documento, com cor por criança | Equipa (backlog da família piloto) | M/M | S | Verificar: o horário unificado com cores já existe |
 
 ## E9 · Personalização e conteúdos próprios

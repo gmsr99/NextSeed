@@ -60,6 +60,7 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 - **No início da sessão:** ler o Doc com comentários. O que o Elton tiver escrito ou comentado lá passa para o `BACKLOG.md`.
 - **Sempre que o `BACKLOG.md` muda:** aplicar a mesma alteração ao Doc no mesmo dia, com edições pontuais (mudar um estado, acrescentar uma linha), sem recriar o documento, para não perder comentários nem o link. Atualizar a data de "Última atualização" nos dois.
 - **Perguntas para o Elton:** tudo o que precisa de resposta dele vai para a tabela "Perguntas à espera de resposta", no topo do backlog (IDs Q-NN), em vez de ficar só no chat. Ele responde na coluna "Resposta" do Google Doc. No início da sessão, ler essas respostas, agir sobre elas e tirar da tabela as perguntas tratadas. Nunca apagar o que ele escreveu nessa coluna.
+- **Para testar:** cada publicação acrescenta linhas à tabela "Para testar" do backlog (IDs V-NN: onde, o que fazer, o que deve acontecer). O Elton escreve o resultado no Google Doc; ler no início da sessão, corrigir o que falhou e tirar as linhas confirmadas.
 - **Pré-visualizações:** o Elton não tem acesso às pré-visualizações da Vercel (Q-12). Só vê o que está publicado. Testar bem antes de pedir aprovação e dizer sempre o que não foi testado.
 - IDs estáveis por secção: B (bloqueantes), P (plano semanal), R (portefólio e relatórios), T (técnico), I (ideias), OK (feito). Um ID nunca é reutilizado.
 

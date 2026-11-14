@@ -542,6 +542,18 @@ export default function WeeklyPlanner() {
     }
   };
 
+  // R-07: uma folha compacta para imprimir; o detalhe fica no Guia, em digital
+  const handleDownloadCompact = async () => {
+    const { default: WeekSheetPDFComp } = await import("@/components/pdf/WeekSheetPDF");
+    const blob = await pdf(
+      <WeekSheetPDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={family?.name ?? ""} />
+    ).toBlob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `nexseed-folha-${format(weekStart, "yyyy-MM-dd")}.pdf`;
+    a.click();
+  };
+
   const handleSendEmail = async () => {
     if (!family) return;
     setSending(true);
@@ -688,6 +700,7 @@ export default function WeeklyPlanner() {
               onBack={() => setStep("form")}
               onSave={handleSavePlan}
               onDownload={handleDownloadPDFs}
+              onDownloadCompact={handleDownloadCompact}
               onSendEmail={handleSendEmail}
             />
 

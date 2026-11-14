@@ -1,4 +1,4 @@
-import { ChevronLeft, Loader2, Download, Mail, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Loader2, Download, Mail, CheckCircle2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PlanActionsProps {
@@ -9,6 +9,8 @@ interface PlanActionsProps {
   onBack: () => void;
   onSave: () => void;
   onDownload: () => void;
+  /** R-07: folha compacta para imprimir */
+  onDownloadCompact?: () => void;
   onSendEmail: () => void;
 }
 
@@ -20,6 +22,7 @@ export function PlanActions({
   onBack,
   onSave,
   onDownload,
+  onDownloadCompact,
   onSendEmail,
 }: PlanActionsProps) {
   return (
@@ -36,6 +39,11 @@ export function PlanActions({
         <Button variant="outline" onClick={onDownload} className="gap-2">
           <Download className="h-4 w-4" /> Descarregar PDFs
         </Button>
+        {onDownloadCompact && (
+          <Button variant="outline" onClick={onDownloadCompact} className="gap-2">
+            <Printer className="h-4 w-4" /> Folha para imprimir
+          </Button>
+        )}
         <Button onClick={onSendEmail} disabled={sending || sent} className="gap-2">
           {sending ? (
             <Loader2 className="h-4 w-4 animate-spin" />

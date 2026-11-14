@@ -43,6 +43,10 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Atraso sem culpa: numa semana com rumo, o plano leva os conteúdos da semana e, por cima, até 2 por disciplina marcados "Precisa de mais" (`src/lib/weekClose.ts`). Antes, qualquer conteúdo "em progresso" substituía o rumo inteiro.
 - Sem BD nova.
 
+### Folha para imprimir (R-07, publicado a 14 nov)
+- No plano gerado, botão "Folha para imprimir": uma página A4 com a semana toda (hora, disciplina, título e modo por criança), os materiais e o que guardar para o portefólio (`src/components/pdf/WeekSheetPDF.tsx`). O Guia de Atividades fica como versão detalhada para ler no ecrã.
+- Não vai no email do plano. Relatórios e portefólio compactos ficam por fazer.
+
 ### Sugestões para o portefólio (R-10, publicado a 14 nov)
 - Em cada plano, a app marca 3 a 4 atividades por criança como boas para o portefólio e diz o que guardar. A IA propõe (campo `portfolio` na resposta); a app limita a 4, prefere disciplinas diferentes e completa até 3 com dicas por disciplina (`src/lib/portfolioHints.ts`). A leitura nunca é sugerida.
 - A sugestão fica no fim da descrição (" | Portefólio: …"). Aparece em cada atividade e num resumo "Para o portefólio esta semana" na vista de cada criança e no topo do Guia de Atividades (PDF).
