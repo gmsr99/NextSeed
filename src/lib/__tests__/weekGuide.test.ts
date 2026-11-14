@@ -6,7 +6,7 @@ describe("guia da semana (P-22)", () => {
     const lines = reviewLines(
       {
         estudo_do_meio: [{ content: "Os órgãos do corpo humano." }],
-        matematica: [{ content: "Unidade 3 (pp. 38–41) · parte 1 de 2", fromManual: true }],
+        matematica: [{ content: "Unidade 3 (pp. 38–41) · parte 1 de 2" }],
       },
       { estudo_do_meio: "Estudo do Meio", matematica: "Matemática" },
     );
