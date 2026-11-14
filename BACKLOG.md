@@ -16,6 +16,26 @@ Como ler:
 - **Origem:** F-0X = família; Equipa = notas internas; Auditoria = revisão do código de 4 de novembro; Docs = base de conhecimento do projeto.
 - **Base de dados:** Os itens marcados com BD precisam de uma migração que o Gil aplica no Supabase (o Claude não toca nas bases de dados de produção).
 
+## Perguntas à espera de resposta
+
+Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma vez. O que responderes aqui é lido no início de cada sessão de trabalho.
+
+| ID | Pergunta | Para quê | Resposta |
+|---|---|---|---|
+| Q-01 | Quem é o responsável pelos dados das famílias? Preciso do nome completo e do NIF. | Tem de aparecer na Política de Privacidade e nos Termos (B-07, B-08). Fica público no site |  |
+| Q-02 | Que entidade de resolução alternativa de litígios de consumo indicamos nos Termos? | Obrigatório nos Termos (B-08). O contabilista ou o jurista sabem dizer qual se aplica |  |
+| Q-03 | Quando passamos o Gemini para a versão paga (cerca de 3 € por mês)? | No gratuito, a Google pode usar o que enviamos para melhorar os produtos dela. É o bloqueante n.º 1 do documento 04 (B-01) |  |
+| Q-04 | Quem faz a revisão jurídica dos textos legais? | Os rascunhos estão prontos, com 11 perguntas para o jurista (documento claude/B-07_B-08_revisao_juridica.md no projeto) |  |
+| Q-05 | Publico já os rascunhos dos textos legais, com o aviso "Rascunho em revisão", ou espero pelas respostas Q-01 a Q-04? | Os textos publicados hoje são de maio de 2025 e não falam da IA. Os novos são mais corretos, mas têm campos por preencher |  |
+| Q-06 | O campo "Escola / Agrupamento" da ficha da criança fica (opcional) ou sai? | O documento 04 diz para não recolher a escola; a app pede-a para os relatórios |  |
+| Q-07 | Os planos novos estão bons? Envia-me o PDF do Guia de Atividades de um plano gerado depois de 14 de novembro, de uma família com duas crianças. | Nunca vi um plano real com as regras novas (em conjunto, sozinho, portefólio, variedade). Só tu consegues confirmar |  |
+| Q-08 | Que família testa o portefólio e o relatório numa entrega real à escola, antes de dezembro? | R-01: é a prioridade para dezembro e janeiro, e não é código |  |
+| Q-09 | Tempo por criança (P-04): avanço com "dias da semana e minutos por dia, por criança"? | Hoje o plano assume segunda a sexta, dia inteiro. Mexe na base de dados; envio especificação antes |  |
+| Q-10 | Páginas de exemplo (Fórum, Comunidade, Formação para Pais): escondo-as do menu até existirem a sério? | T-03: hoje aparecem com conteúdo de exemplo |  |
+| Q-11 | Consegues a captura de ecrã do problema no telemóvel que a F-03 referiu? | T-08: sem ela não consigo reproduzir o erro |  |
+| Q-12 | Repositório privado (B-11): o Gil publica cada entrega, ou passamos para Vercel Pro? E consegue dar-te acesso às pré-visualizações? | Com o repositório privado, as minhas publicações ficam bloqueadas. Sem acesso às pré-visualizações, só vês o que já está publicado |  |
+| Q-13 | Marcos de desenvolvimento no relatório (R-05): avanço? | Pedido da F-02 e da F-05. São dados de desenvolvimento de menores: passa pelo documento 04 e mexe na base de dados |  |
+
 ## Ordem de implementação
 
 | Ordem | Grande mudança | Porquê nesta posição | Imp. | Urg. | Estado |
@@ -23,7 +43,7 @@ Como ler:
 | 1 | E1 · Conformidade e base | Dados de crianças em produção sem backup nem textos legais completos. Corre em paralelo e quase tudo depende do Gil ou de revisão jurídica. | A | A | Em curso |
 | 2 | E8 · Correções rápidas | Pequenos erros que as famílias já encontraram e que tiram confiança. | M | A | Publicado a 13 nov (falta o T-08) |
 | 3 | E3 · Rumo do ano | Mudança de fundo (13 nov): o ano planeia-se primeiro e a semana deriva dele. A app deixa de perguntar e passa a propor. É o pedido mais repetido (F-01, F-02, equipa). | A | A | Rumo do ano, manuais (I-01) e calendário da família (P-24) publicados. Faltam o PDF do ano e a vista de família |
-| 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-01, P-02, P-21, P-10 e P-23 publicados. Por confirmar com planos reais |
+| 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-06 a P-10, P-21, P-22 e P-23 publicados. Por confirmar com planos reais (Q-07) |
 | 5 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
 | 6 | E5 · Fecho da semana | Liga o que foi feito ao progresso, sem a família ter de ir às Áreas de Aprendizagem. Alimenta o E3 e o portefólio. | A | M | Por fazer |
 | 7 | E4 · Horário e tempo flexíveis | O plano é gerado para uma semana que muitas famílias não têm. Precisa de BD e é o maior bloco de trabalho. | A | M | Aguarda decisão |
@@ -37,14 +57,14 @@ Corre em paralelo com o resto. A maior parte depende do Gil ou de revisão jurí
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| B-05 | Backup semanal da base de dados para armazenamento próprio | Docs (D-025). Produção sem backup; é também o que desbloqueia o B-04 | A/A | M | Guia e script prontos (docs/backup-semanal.md, branch feat/guia-semanal). Aguarda o Gil fazer o primeiro |
-| B-07 | Política de Privacidade: subcontratantes (Gemini, Supabase, Vercel, Resend) e dados de menores | Auditoria. A página /privacidade não menciona o Gemini (Fase A, A2 e A9) | A/A | M | Rascunho feito (branch chore/textos-legais). Falta: responsável, NIF, Gemini pago e revisão jurídica |
-| B-08 | Termos de Utilização: autoridade parental, cessão da posição contratual, reembolso | Auditoria. A página /termos não tem nenhuma das três (Fase A, A3 e A4; D-014) | A/A | M | Rascunho feito (branch chore/textos-legais). Falta: responsável, NIF, entidade RAL e revisão jurídica |
-| B-10 | A análise de cobertura aceita o family_id do pedido: obtê-lo a partir do login | Auditoria. Um utilizador autenticado pode escrever cobertura noutra família | A/A | S | Escrito (branch fix/cobertura-familia-do-login). Aguarda o Gil publicar a função |
+| B-05 | Backup semanal da base de dados para armazenamento próprio | Docs (D-025). Produção sem backup; é também o que desbloqueia o B-04 | A/A | M | Guia e script publicados no repositório (docs/backup-semanal.md). Aguarda o Gil fazer o primeiro |
+| B-07 | Política de Privacidade: subcontratantes (Gemini, Supabase, Vercel, Resend) e dados de menores | Auditoria. A página /privacidade não menciona o Gemini (Fase A, A2 e A9) | A/A | M | Rascunho feito (branch chore/textos-legais). À espera de Q-01, Q-03, Q-04 e Q-05 |
+| B-08 | Termos de Utilização: autoridade parental, cessão da posição contratual, reembolso | Auditoria. A página /termos não tem nenhuma das três (Fase A, A3 e A4; D-014) | A/A | M | Rascunho feito (branch chore/textos-legais). À espera de Q-01, Q-02, Q-04 e Q-05 |
+| B-10 | A análise de cobertura aceita o family_id do pedido: obtê-lo a partir do login | Auditoria. Um utilizador autenticado pode escrever cobertura noutra família | A/A | S | App publicada a 14 nov. A correção só fica ativa quando o Gil publicar a função (branch fix/cobertura-familia-do-login) |
 | B-11 | Publicação bloqueada com repositório privado na Vercel Hobby | Repositório público temporariamente; decidir entre o Gil publicar cada entrega ou Vercel Pro | A/A | S | Em curso (público temporariamente) |
 | B-02 | Ativar a proteção contra passwords comprometidas no Supabase | Auditoria. Último aviso de segurança da FASE 1 | A/A | S | Aguarda Gil |
 | B-06 | Confirmar regiões UE no Supabase e na Vercel | Docs (Fase A, A10) | A/A | S | Aguarda Gil |
-| B-09 | Consentimentos granulares registados (quem, quando, a quê, versão dos termos) | Docs (Fase A, A6). BD | A/A | M | Feito (branch feat/consentimentos, junto com os textos legais). Precisa da migração 028 (Gil) |
+| B-09 | Consentimentos granulares registados (quem, quando, a quê, versão dos termos) | Docs (Fase A, A6). BD | A/A | M | Feito (branch feat/consentimentos). Vai com os textos legais; precisa da migração 028 (Gil) |
 | B-01 | Gemini em faturação paga | Docs (D-013). Adiado até haver receita (decisão de 4 nov); mitigado pelo OK-06 | A/M | S | Adiado (Elton) |
 | B-04 | Acesso do Claude ao Supabase | Decisão do Gil (5 nov): não, enquanto não houver backup | M/B | S | Em pausa |
 | B-12 | Gil: publicar as migrações 026 (child_manuals) e 027 (family_calendars) e voltar a publicar a função export-family-data | I-01 e P-24. Sem as migrações, os manuais aparecem só como aviso, o calendário não se pode ajustar e o resto da app funciona igual | A/A | S | Feito pelo Gil a 14 nov |
@@ -72,12 +92,12 @@ A funcionalidade que decide o produto. Tudo isto é trabalho nos pedidos ao Gemi
 | P-01 | Sem conteúdos marcados, enviar só os do período atual em vez do ano inteiro | Docs 03 e 10. Planos sem prioridade clara | A/A | M | Publicado a 13 nov |
 | P-02 | Aviso no Plano Semanal quando uma criança não tem conteúdos marcados | Docs 10 (INS-06). As famílias não encontram a marcação | A/A | S | Publicado a 13 nov |
 | P-21 | Deixar de perguntar "o que quero ensinar esta semana": o campo passa a opcional, com a indicação de que a NexSeed escolhe os conteúdos | F-02. Passo intermédio até ao P-12 | A/A | S | Publicado a 13 nov |
-| P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Feito, em pré-visualização (formatos atribuídos pela app). Falta testar com a IA real |
-| P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Feito, em pré-visualização (frase Para explicar). Depende da IA |
-| P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Parcial, em pré-visualização: regra de dificuldade por ano e ritmo. Falta usar o progresso marcado |
-| P-22 | Guia semanal no formato que a F-02 usa: semana em resumo, caixa de materiais para preparar ao domingo, o que perguntar, versão curta para dias difíceis, balanço da semana | F-02 (documento Semana 1). Menos folhas e menos preparação | A/A | M | Feito, em pré-visualização (branch feat/guia-semanal) |
+| P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
+| P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
+| P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Parcial, publicado a 14 nov: regra de dificuldade por ano e ritmo. Falta usar o progresso marcado |
+| P-22 | Guia semanal no formato que a F-02 usa: semana em resumo, caixa de materiais para preparar ao domingo, o que perguntar, versão curta para dias difíceis, balanço da semana | F-02 (documento Semana 1). Menos folhas e menos preparação | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
 | P-23 | Menos preparação: materiais que há em casa, sem imprimir; interesses como tempero e não como tema de todas as atividades | Plano real de 13 nov: 46 atividades, quase todas com materiais a fabricar (puzzles, cartões, vara de pesca) e todas tematizadas pelos mesmos dois interesses | A/A | M | Publicado a 14 nov. Por confirmar com um plano real |
-| P-08 | Leitura: gerar episódios curtos (1 ou 2 parágrafos) e textos concretos, em vez de só títulos | Equipa (backlog da família piloto). Menos coisas para a mãe preparar | A/M | M | Feito, em pré-visualização (episódios até 120 palavras). Depende da IA |
+| P-08 | Leitura: gerar episódios curtos (1 ou 2 parágrafos) e textos concretos, em vez de só títulos | Equipa (backlog da família piloto). Menos coisas para a mãe preparar | A/M | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
 | P-10 | Semana com tema comum e blocos para várias idades: atividade conjunta de manhã; bloco académico em que a mãe está com uma criança enquanto a outra trabalha sozinha | Equipa, F-02. Hoje o plano dá atividades paralelas e diferentes a cada criança à mesma hora | A/A | L | Publicado a 14 nov. Por confirmar com um plano real |
 | P-05 | Decidir se a análise de cobertura mantém o "thinking" do Gemini | Docs (A-04) | B/M | S | Por fazer |
 
@@ -91,7 +111,7 @@ A entrega às escolas em dezembro e janeiro é a prova de valor da segunda ânco
 | R-02 | Corrigir o que o R-01 revelar | Depende do R-01 | A/A | M | Por fazer |
 | R-03 | Validar a secção "relatórios" do Manual (está como rascunho) | Auditoria (FASE 2.3) | A/A | S | Aguarda Elton |
 | R-04 | Uma atividade pode contar para várias áreas de aprendizagem | Equipa. Muitas atividades trabalham várias áreas ao mesmo tempo. BD | A/A | M | Por fazer |
-| R-10 | Sugerir em cada semana o que guardar no portefólio (3 ou 4 evidências por criança) e facilitar o registo de 2 minutos por dia | F-02, equipa. Liga o plano à segunda âncora | A/A | M | Sugestões publicadas a 14 nov. Registo de 2 minutos feito, em pré-visualização |
+| R-10 | Sugerir em cada semana o que guardar no portefólio (3 ou 4 evidências por criança) e facilitar o registo de 2 minutos por dia | F-02, equipa. Liga o plano à segunda âncora | A/A | M | Publicado a 14 nov (sugestões e registo de 2 minutos). Por confirmar com um plano real (Q-07) |
 | R-05 | Registar marcos e acontecimentos importantes (todas as idades) que entram no relatório | F-02, F-05. BD; rever doc 04 (dados de desenvolvimento de menores) | M/M | M | Por fazer |
 | R-06 | Crianças até 2 ou 3 anos: diário de marcos em vez de plano de atividades | F-05, equipa. Alarga a app a uma fase fora do ensino doméstico formal | M/B | M | Em estudo |
 
@@ -103,8 +123,8 @@ Saber o que dar em cada altura e se o ritmo está certo. Parte já existe (Rotei
 |---|---|---|---|---|---|
 | P-12 | O plano semanal parte sozinho dos conteúdos da semana no plano anual; a família só ajusta se quiser | F-02: perguntar "o que queres ensinar" cria insegurança em vez de a resolver. Faz parte do P-13 | A/A | M | Publicado a 13 nov |
 | P-13 | Plano anual semana a semana: para cada criança e disciplina, o que dar em cada semana do ano letivo, calculado pela app a partir do currículo (sem a família preencher nada) | F-01, F-02, equipa. F-02 construiu este plano fora da app (calendário de 29 semanas). Fase 1 não precisa de BD | A/A | L | Fase 1 publicada a 13 nov (página Rumo do ano; segue o calendário escolar oficial) |
-| P-14 | "Estou no ritmo certo?": pontos de controlo por período e regra de atraso sem culpa (o que não se fez passa para a semana seguinte) | Equipa, F-02 (o plano dela tem pontos de controlo e margem em julho). Responde à insegurança dos pais | A/A | M | Feito, em pré-visualização (ritmo no Rumo do ano; o que fica por consolidar volta, no máximo 2 por disciplina) |
-| P-24 | Rumo do ano, fase 2: PDF do ano para imprimir, semanas e férias da própria família, e vista de família com os conteúdos comuns às várias crianças | F-02 (calendário de 29 semanas feito fora da app). A fase 1 usa o calendário escolar oficial e mostra uma criança de cada vez | A/M | M | Calendário da família publicado a 14 nov. PDF do ano feito, em pré-visualização. Falta a vista de família |
+| P-14 | "Estou no ritmo certo?": pontos de controlo por período e regra de atraso sem culpa (o que não se fez passa para a semana seguinte) | Equipa, F-02 (o plano dela tem pontos de controlo e margem em julho). Responde à insegurança dos pais | A/A | M | Publicado a 14 nov. Por confirmar com uma família |
+| P-24 | Rumo do ano, fase 2: PDF do ano para imprimir, semanas e férias da própria família, e vista de família com os conteúdos comuns às várias crianças | F-02 (calendário de 29 semanas feito fora da app). A fase 1 usa o calendário escolar oficial e mostra uma criança de cada vez | A/M | M | Calendário da família e PDF do ano publicados a 14 nov. Falta a vista de família |
 | P-15 | Metodologia principal e secundárias por criança, e explicar o que o plano segue | F-02. Hoje a metodologia é por família | M/M | M | Por fazer. BD |
 | P-16 | Pré-escolar com linha condutora (OCEPE) e explicação de como cruza com as pedagogias | F-03 | M/M | M | Por fazer |
 
@@ -114,8 +134,8 @@ Uma revisão à sexta-feira, em vez de alertas, que atualiza o progresso sozinha
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| P-19 | Checklist de sexta: atividades registadas, objetivos cumpridos, o que passa para a semana seguinte, preparar a próxima semana | Equipa | A/M | M | Feito, em pré-visualização (Fechar a semana, no Rumo do ano e antes da semana nova) |
-| P-20 | Perguntar tema a tema se ficou aprendido ou é preciso repetir, e atualizar as Áreas de Aprendizagem | Equipa, F-02. Evita ir às Áreas de Aprendizagem à parte | A/M | M | Feito, em pré-visualização (Ficou aprendido / Precisa de mais, tema a tema) |
+| P-19 | Checklist de sexta: atividades registadas, objetivos cumpridos, o que passa para a semana seguinte, preparar a próxima semana | Equipa | A/M | M | Publicado a 14 nov. Por confirmar com uma família |
+| P-20 | Perguntar tema a tema se ficou aprendido ou é preciso repetir, e atualizar as Áreas de Aprendizagem | Equipa, F-02. Evita ir às Áreas de Aprendizagem à parte | A/M | M | Publicado a 14 nov. Por confirmar com uma família |
 
 ## E4 · Horário e tempo flexíveis
 
