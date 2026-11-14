@@ -59,6 +59,10 @@ describe("plano semanal em família (P-10, P-23)", () => {
   it("sugere 3 a 4 atividades por criança para o portefólio (R-10)", async () => {
     const items = await generateWithGemini([child("a", "Ana", "2º ano"), child("b", "Rui", "4º ano")], {}, "");
     expect(lastPrompt).toContain("**PORTEFÓLIO**");
+    // P-06, P-07, P-08: formatos atribuídos, como explicar, episódios curtos
+    expect(lastPrompt).toMatch(/Português \| MODO: (COM O ADULTO|SOZINHO) \| FORMATO: /);
+    expect(lastPrompt).toContain("nas atividades COM O ADULTO");
+    expect(lastPrompt).toContain("no máximo 120 palavras");
     for (const c of ["a", "b"]) {
       const list = weekPortfolioList(items, c);
       expect(list.length).toBeGreaterThanOrEqual(3);

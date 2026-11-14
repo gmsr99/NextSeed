@@ -6,6 +6,7 @@ import { buildMethodologyContext } from "./methodologyContext";
 import { supabase } from "./supabase";
 import { withAiLabels, aiLabel, restoreNames, AI_NAME_RULE } from "./aiPrivacy";
 import { applyFamilyWeek, blockModes, splitMode, withMode, type BlockMode } from "./familyWeek";
+import { assignFormats } from "./activityFormats";
 import { applyPortfolioHints, splitPortfolio, withPortfolio, DEFAULT_HINTS } from "./portfolioHints";
 
 const MODE_LABEL: Record<BlockMode, string> = {
@@ -220,11 +221,14 @@ function buildPrompt(
   // P-10: com várias crianças, cada bloco leva o modo (calculado por nós, não pela IA)
   const modes = blockModes(skeleton);
   const hasModes = modes.some(Boolean);
+  // P-06: formato de cada bloco atribuído pela app, a rodar ao longo da semana
+  const formats = assignFormats(skeleton, modes.map((m) => m === "juntos"));
   const skeletonSection = skeleton.map((item, idx) => {
     const day = DAY_LABELS[item.day_of_week - 1];
     const ep = item.episode ? ` [Ep.${item.episode}/4 — história contínua sobre o tema de leitura]` : "";
     const mode = modes[idx] ? ` | MODO: ${MODE_LABEL[modes[idx]!]}` : "";
-    return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep}${mode}`;
+    const format = formats[idx] ? ` | FORMATO: ${formats[idx]}` : "";
+    return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep}${mode}${format}`;
   }).join("\n");
 
   const familyWeekSection = hasModes
@@ -297,7 +301,7 @@ ${skeletonSection}
 1. **Prioridade**: Conteúdos desta semana (se existirem) → NexSeed → Conteúdos GC em foco → Conteúdos GC por dominar → interesses.
 2. Os **interesses** são tempero, nunca o objetivo: usa-os em NO MÁXIMO uma em cada três atividades de cada criança (ex.: objetivo "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo). As restantes seguem o fio condutor da semana ou o dia a dia da casa.
 3. **Conteúdos dominados** NÃO devem voltar a aparecer nas atividades.
-4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[2-3 parágrafos em português, adequados à idade, continuação da narrativa do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
+4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Cada episódio é CURTO e CONCRETO: 1 ou 2 parágrafos, no máximo 120 palavras no total, com personagens com nome, um lugar concreto e uma coisa que acontece (nada de resumos ou títulos soltos). Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[1-2 parágrafos curtos em português de Portugal, adequados à idade, continuação do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
 5. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
 6. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
 7. **Encerramento Reflexivo** (14:45-15:15): partilha emocional e síntese do dia.
@@ -305,20 +309,16 @@ ${skeletonSection}
 9. Títulos específicos e criativos — NUNCA genéricos. Máx. 8 palavras.
 10. Descrições CURTAS: máx. 2 frases diretas com passos concretos.
 11. **Materiais sem preparação**: máx. 4 itens que já existem em qualquer casa (papel, lápis, tesoura, cola, objetos da cozinha, coisas apanhadas na rua, os livros e manuais da criança). NUNCA peças fichas, cartões, tabuleiros, jogos ou imagens para imprimir, recortar ou fabricar antes da atividade. Se a atividade precisa de cartões ou de um registo, é a criança que os faz, como parte da atividade.
-12. **DIVERSIDADE OBRIGATÓRIA**: Para cada criança e cada disciplina, NUNCA repitas o mesmo formato de atividade em dias diferentes da mesma semana. Usa formatos distintos de entre:
-    - Português: leitura+compreensão, escrita/ditado, jogo de fonética/sílabas, exercício de gramática, produção oral/narração, caligrafia, caça-palavras, jogo de palavras
-    - Matemática: contagem/operações escritas, jogo com objetos físicos, resolução de problema contextualizado, medição no mundo real, padrões/sequências, estimativa, jogo de cartas/dados
-    - Estudo do Meio: observação direta, experiência simples, registo desenhado/mapa, entrevista, pesquisa guiada, saída de campo, construção de modelo
-    - Inglês: canção/rima, flashcards, jogo de mímica/charadas, produção oral curta, mini-diálogo, colorir com vocabulário
-    - Expressão: desenho, pintura, colagem, escultura/modelagem, dança/teatro, fotografia, construção 3D
-    Verifica a tua lista antes de devolver o JSON — se repetiste formato numa disciplina, substitui.
-13. **TEXTO INLINE — leitura+compreensão** (Português e Estudo do Meio): quando este é o formato escolhido, NUNCA escrevas "Lê um texto sobre X" nem deixes o educador à procura de um livro. Em vez disso:
+12. **FORMATO**: quando a atividade tem FORMATO indicado, usa esse formato (ex.: "manipulação de objetos" → a criança mexe em objetos; "conversa e narração oral" → não há escrita). Nunca transformes todas as atividades de uma disciplina no mesmo tipo de tarefa (ex.: "encontra as personagens principais" todos os dias).
+13. **TEXTO INLINE — leitura+compreensão** (Português e Estudo do Meio): quando o formato é "leitura e compreensão", NUNCA escrevas "Lê um texto sobre X" nem deixes o educador à procura de um livro. Em vez disso:
     - No \`title\`: "Leitura: [tema em 4 palavras max]"
     - Na \`description\`: escreve um texto narrativo ou informativo curto (1 parágrafo, 4-6 frases simples, vocabulário adequado à idade da criança, em português de Portugal), seguido do separador " | " e de "Pergunta: [1 pergunta de compreensão concreta]".
     - Exemplo para 1º ano: "A Marta foi à quinta com o avô e viu muitos animais. O cavalo comia feno e a cabra saltava nas pedras. No fim, o avô ordenhou a vaca e Marta provou leite fresquinho. | Pergunta: Que animal comia feno?"
     - Exemplo para 3º ano: "Os polvos são animais marinhos com oito tentáculos e um cérebro surpreendente. Conseguem mudar de cor em menos de um segundo para se camuflar dos predadores. Alguns polvos usam conchas como casas portáteis. | Pergunta: Para que serve a mudança de cor no polvo?"
     - Neste caso a \`description\` pode ter mais de 2 frases — ignora a regra 10 apenas para este formato.
-14. **PORTEFÓLIO** (campo \`portfolio\`): para cada criança, escolhe 3 a 4 atividades da semana que deixam uma boa evidência para o portefólio (um texto, um desenho, uma construção, o registo de uma experiência ou de uma saída), de disciplinas DIFERENTES. Nessas, escreve em \`portfolio\` o que guardar, em 12 palavras no máximo (ex.: "Foto da maquete e a legenda escrita pela criança"). Em todas as outras atividades e nos episódios de leitura, \`portfolio\` fica "".
+14. **COMO EXPLICAR**: ${hasModes ? "nas atividades COM O ADULTO" : "na primeira atividade de cada disciplina na semana"}, acaba a descrição com uma frase que comece por "Para explicar:" e dê ao adulto uma forma simples de explicar o conteúdo, diferente da do manual (uma comparação com o dia a dia ou um objeto de casa). Ex.: "Para explicar: a dezena é como uma caixa de ovos cheia, dez de uma vez."
+15. **DIFICULDADE AO NÍVEL DA CRIANÇA**: parte sempre do passo mais simples do conteúdo e sobe um degrau de cada vez ao longo da semana. Com ritmo "Calmo" ou no 1.º ano, no máximo um passo novo por atividade e instruções de uma frase. Pré-escolar: sem leitura nem escrita formal.
+16. **PORTEFÓLIO** (campo \`portfolio\`): para cada criança, escolhe 3 a 4 atividades da semana que deixam uma boa evidência para o portefólio (um texto, um desenho, uma construção, o registo de uma experiência ou de uma saída), de disciplinas DIFERENTES. Nessas, escreve em \`portfolio\` o que guardar, em 12 palavras no máximo (ex.: "Foto da maquete e a legenda escrita pela criança"). Em todas as outras atividades e nos episódios de leitura, \`portfolio\` fica "".
 
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
