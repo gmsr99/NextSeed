@@ -16,6 +16,7 @@ vi.mock("../supabase", () => ({
                 ? JSON.stringify({ episode_text: `História ${i}.`, comprehension_question: `Pergunta ${i}?`, discussion_prompt: "E tu?" })
                 : "Sozinho: fazer isto.",
               materials: ["papel"],
+              portfolio: /Projeto/.test(l) ? "Foto da construção" : "",
             }))),
           },
           error: null,
@@ -26,6 +27,7 @@ vi.mock("../supabase", () => ({
 }));
 const { generateWithGemini } = await import("../geminiPlanner");
 const { splitMode } = await import("../familyWeek");
+const { weekPortfolioList } = await import("../portfolioHints");
 
 const child = (id: string, name: string, school_year: string) =>
   ({ id, name, school_year, learning_preferences: null, learning_pace: null }) as never;
@@ -54,6 +56,21 @@ describe("plano semanal em família (P-10, P-23)", () => {
     expect(new Set(adult).size).toBe(adult.length);
   });
 
+  it("sugere 3 a 4 atividades por criança para o portefólio (R-10)", async () => {
+    const items = await generateWithGemini([child("a", "Ana", "2º ano"), child("b", "Rui", "4º ano")], {}, "");
+    expect(lastPrompt).toContain("**PORTEFÓLIO**");
+    for (const c of ["a", "b"]) {
+      const list = weekPortfolioList(items, c);
+      expect(list.length).toBeGreaterThanOrEqual(3);
+      expect(list.length).toBeLessThanOrEqual(4);
+      expect(list.some((x) => x.hint === "Foto da construção")).toBe(true);
+      expect(list.every((x) => x.discipline !== "reading")).toBe(true);
+    }
+    // a etiqueta da semana em família mantém-se no início
+    const withHint = items.find((i) => i.description.includes(" | Portefólio: ") && i.day_of_week === 3)!;
+    expect(splitMode(withHint.description).mode).not.toBeNull();
+  });
+
   it("com uma criança: sem modos, mas com fio condutor e materiais sem preparação", async () => {
     const items = await generateWithGemini([child("a", "Ana", "2º ano")], {}, "");
     expect(lastPrompt).not.toContain("SEMANA EM FAMÍLIA");
@@ -62,5 +79,6 @@ describe("plano semanal em família (P-10, P-23)", () => {
     expect(lastPrompt).toContain("Materiais sem preparação");
     expect(lastPrompt).toContain("NO MÁXIMO uma em cada três");
     expect(items.every((i) => splitMode(i.description).mode === null)).toBe(true);
+    expect(weekPortfolioList(items, "a").length).toBeGreaterThanOrEqual(3);
   });
 });

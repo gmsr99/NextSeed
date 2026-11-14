@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, HelpCircle, RefreshCw } from "lucide-react";
+import { Users, HelpCircle, RefreshCw, Camera } from "lucide-react";
+import { splitPortfolio, weekPortfolioList } from "@/lib/portfolioHints";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, type GeneratedPlanItem } from "@/lib/planGenerator";
 import type { Child } from "@/lib/types";
 
@@ -21,10 +22,27 @@ function parseInlineText(description: string): { text: string; question: string 
   };
 }
 
-function ActivityDescription({ description }: { description: string }) {
+function PortfolioHint({ hint }: { hint: string }) {
+  if (!hint) return null;
+  return (
+    <p className="mt-1.5 flex items-start gap-1.5 text-xs font-medium text-emerald-800">
+      <Camera className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+      <span>Para o portefólio: <span className="font-normal">{hint}</span></span>
+    </p>
+  );
+}
+
+function ActivityDescription({ description: raw }: { description: string }) {
+  // R-10: a sugestão de portefólio vem no fim da descrição
+  const { text: description, hint } = splitPortfolio(raw);
   const inline = parseInlineText(description);
   if (!inline) {
-    return <p className="text-xs text-muted-foreground mt-1">{description}</p>;
+    return (
+      <>
+        <p className="text-xs text-muted-foreground mt-1">{description}</p>
+        <PortfolioHint hint={hint} />
+      </>
+    );
   }
   return (
     <div className="mt-1 space-y-1.5">
@@ -35,7 +53,33 @@ function ActivityDescription({ description }: { description: string }) {
         <HelpCircle className="h-3.5 w-3.5 text-primary/60 shrink-0 mt-0.5" />
         <p className="text-xs text-primary/80 font-medium">{inline.question}</p>
       </div>
+      <PortfolioHint hint={hint} />
     </div>
+  );
+}
+
+/** Resumo da semana: o que guardar para o portefólio desta criança. */
+function PortfolioSummary({ childId, planItems }: { childId: string; planItems: GeneratedPlanItem[] }) {
+  const list = weekPortfolioList(planItems, childId);
+  if (list.length === 0) return null;
+  return (
+    <Card className="border-emerald-200 bg-emerald-50/60">
+      <CardContent className="p-4">
+        <p className="flex items-center gap-2 text-sm font-semibold text-emerald-900">
+          <Camera className="h-4 w-4" /> Para o portefólio esta semana
+        </p>
+        <ul className="mt-2 space-y-1.5">
+          {list.map((x, i) => (
+            <li key={i} className="text-xs text-emerald-900">
+              <span className="font-medium">{DAY_LABELS[x.day_of_week - 1]} · {x.title}:</span> {x.hint}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-emerald-800/80">
+          Chegam estas. O resto da semana não precisa de ficar registado.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -69,6 +113,7 @@ function ChildView({ child, planItems, onRegenerateItem, regeneratingKey }: Chil
   const childItems = planItems.filter((i) => i.child_id === child.id);
   return (
     <div className="space-y-4 mt-4">
+      <PortfolioSummary childId={child.id} planItems={planItems} />
       {[1, 2, 3, 4, 5].map((day) => {
         const dayItems = childItems
           .filter((i) => i.day_of_week === day)

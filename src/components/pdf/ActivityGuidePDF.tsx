@@ -2,6 +2,7 @@ import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { GeneratedPlanItem } from "@/lib/planGenerator";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, collectMaterials, formatWeekRange } from "@/lib/planGenerator";
 import type { Child } from "@/lib/types";
+import { splitPortfolio, weekPortfolioList } from "@/lib/portfolioHints";
 
 const S = StyleSheet.create({
   page: { fontFamily: "Helvetica", fontSize: 9, padding: 32, backgroundColor: "#FFFFFF" },
@@ -18,6 +19,11 @@ const S = StyleSheet.create({
   activityTitle: { fontSize: 10, fontWeight: "bold", color: "#1F2937", marginBottom: 2 },
   activitySlot: { fontSize: 8, color: "#6B7280", marginBottom: 3 },
   activityDesc: { fontSize: 8, color: "#374151", lineHeight: 1.5, marginBottom: 4 },
+  portfolioHint: { fontSize: 8, color: "#065F46", fontWeight: "bold", marginBottom: 4 },
+  portfolioBox: { backgroundColor: "#ECFDF5", borderRadius: 4, padding: 8, marginBottom: 10 },
+  portfolioTitle: { fontSize: 10, fontWeight: "bold", color: "#065F46", marginBottom: 4 },
+  portfolioChild: { fontSize: 9, fontWeight: "bold", color: "#065F46", marginTop: 3, marginBottom: 2 },
+  portfolioLine: { fontSize: 8, color: "#064E3B", lineHeight: 1.5 },
   materialsRow: { flexDirection: "row", flexWrap: "wrap", gap: 3 },
   materialTag: { backgroundColor: "#F3F4F6", borderRadius: 2, padding: "1 4", fontSize: 7, color: "#4B5563" },
   divider: { borderBottomWidth: 1, borderColor: "#E5E7EB", marginVertical: 8 },
@@ -50,6 +56,28 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
           <Text style={S.headerSub}>{familyName} · Semana de {formatWeekRange(weekStart)}</Text>
         </View>
 
+        {/* R-10: o que guardar para o portefólio esta semana */}
+        {children.some((c) => weekPortfolioList(planItems, c.id).length > 0) && (
+          <View style={S.portfolioBox} wrap={false}>
+            <Text style={S.portfolioTitle}>Para o portefólio esta semana</Text>
+            {children.map((child) => {
+              const list = weekPortfolioList(planItems, child.id);
+              if (list.length === 0) return null;
+              return (
+                <View key={child.id}>
+                  {children.length > 1 && <Text style={S.portfolioChild}>{child.name}</Text>}
+                  {list.map((x, i) => (
+                    <Text key={i} style={S.portfolioLine}>
+                      {DAY_LABELS[x.day_of_week - 1]}, {x.title}: {x.hint}
+                    </Text>
+                  ))}
+                </View>
+              );
+            })}
+            <Text style={[S.portfolioLine, { marginTop: 4 }]}>Chegam estas. O resto da semana não precisa de ficar registado.</Text>
+          </View>
+        )}
+
         {[1, 2, 3, 4, 5].map((day) => {
           // Filtra blocos fixos — o Guia mostra apenas atividades com conteúdo pedagógico
           // Exclui blocos fixos e episódios de leitura (têm documento próprio: ReadingGuidePDF)
@@ -79,7 +107,10 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
                             {DISCIPLINE_LABELS[item.discipline] ?? item.discipline} · {item.title}
                           </Text>
                           <Text style={S.activitySlot}>{item.time_slot}</Text>
-                          <Text style={S.activityDesc}>{item.description}</Text>
+                          <Text style={S.activityDesc}>{splitPortfolio(item.description).text}</Text>
+                          {splitPortfolio(item.description).hint ? (
+                            <Text style={S.portfolioHint}>Para o portefólio: {splitPortfolio(item.description).hint}</Text>
+                          ) : null}
                           {item.materials.length > 0 && (
                             <View style={S.materialsRow}>
                               {item.materials.map((m, mi) => (

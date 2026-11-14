@@ -6,6 +6,7 @@ import { buildMethodologyContext } from "./methodologyContext";
 import { supabase } from "./supabase";
 import { withAiLabels, aiLabel, restoreNames, AI_NAME_RULE } from "./aiPrivacy";
 import { applyFamilyWeek, blockModes, splitMode, withMode, type BlockMode } from "./familyWeek";
+import { applyPortfolioHints, splitPortfolio, withPortfolio, DEFAULT_HINTS } from "./portfolioHints";
 
 const MODE_LABEL: Record<BlockMode, string> = {
   juntos: "EM CONJUNTO",
@@ -317,10 +318,11 @@ ${skeletonSection}
     - Exemplo para 1º ano: "A Marta foi à quinta com o avô e viu muitos animais. O cavalo comia feno e a cabra saltava nas pedras. No fim, o avô ordenhou a vaca e Marta provou leite fresquinho. | Pergunta: Que animal comia feno?"
     - Exemplo para 3º ano: "Os polvos são animais marinhos com oito tentáculos e um cérebro surpreendente. Conseguem mudar de cor em menos de um segundo para se camuflar dos predadores. Alguns polvos usam conchas como casas portáteis. | Pergunta: Para que serve a mudança de cor no polvo?"
     - Neste caso a \`description\` pode ter mais de 2 frases — ignora a regra 10 apenas para este formato.
+14. **PORTEFÓLIO** (campo \`portfolio\`): para cada criança, escolhe 3 a 4 atividades da semana que deixam uma boa evidência para o portefólio (um texto, um desenho, uma construção, o registo de uma experiência ou de uma saída), de disciplinas DIFERENTES. Nessas, escreve em \`portfolio\` o que guardar, em 12 palavras no máximo (ex.: "Foto da maquete e a legenda escrita pela criança"). Em todas as outras atividades e nos episódios de leitura, \`portfolio\` fica "".
 
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
-[{"title":"...","description":"...","materials":["...","..."]}]`;
+[{"title":"...","description":"...","materials":["...","..."],"portfolio":""}]`;
 }
 
 // ─── Chamada ao Gemini (via edge function autenticada) ──────────────────────────
@@ -336,6 +338,7 @@ const PLAN_RESPONSE_SCHEMA = {
       title: { type: "STRING" },
       description: { type: "STRING" },
       materials: { type: "ARRAY", items: { type: "STRING" } },
+      portfolio: { type: "STRING" },
     },
     required: ["title", "description", "materials"],
   },
@@ -363,7 +366,8 @@ export async function regenerateActivity(
   const interestsStr = interests.join(", ") || "livre";
   const methodologySection = buildMethodologyContext(familyMethodologies, "atividades");
   // P-10: a atividade nova mantém o modo do bloco (em conjunto / com o adulto / sozinho)
-  const { mode, text: currentText } = splitMode(item.description);
+  const { text: withoutHint, hint: oldHint } = splitPortfolio(item.description);
+  const { mode, text: currentText } = splitMode(withoutHint);
   const modeRule =
     mode === "sozinho" ? "\n5. A criança faz esta atividade SOZINHA enquanto o adulto está com outra criança: só prática de algo já introduzido, instruções que ela percebe sem ajuda, nada que precise de supervisão."
     : mode === "adulto" ? "\n5. Esta atividade é feita COM O ADULTO: pode introduzir conteúdo novo."
@@ -405,7 +409,11 @@ Devolve APENAS um objeto JSON: {"title":"...","description":"...","materials":["
         const names = [child.name];
         return {
           title: restoreNames(parsed.title, names),
-          description: withMode(restoreNames(parsed.description, names), mode),
+          // Se era uma sugestão de portefólio, a atividade nova também é (com a dica genérica da disciplina)
+          description: withPortfolio(
+            withMode(restoreNames(parsed.description, names), mode),
+            oldHint ? DEFAULT_HINTS[item.discipline] ?? "Guardar o trabalho ou tirar uma foto" : "",
+          ),
           materials: Array.isArray(parsed.materials)
             ? parsed.materials.map((m: string) => restoreNames(String(m), names))
             : [],
@@ -438,7 +446,7 @@ export async function generateWithGemini(
   const prompt = buildPrompt(aiChildren, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
 
   // Até 2 tentativas: cobre falhas transitórias (429/502) e parsing.
-  let aiContent: { title: string; description: string; materials: string[] }[] | null = null;
+  let aiContent: { title: string; description: string; materials: string[]; portfolio?: string }[] | null = null;
   let lastError = "erro desconhecido";
 
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -463,7 +471,9 @@ export async function generateWithGemini(
     throw new Error(`Falha ao gerar o plano: ${lastError}`);
   }
 
-  return applyFamilyWeek(unifyFamilyOuting(skeleton.map((s, idx) => ({
+  // R-10: 3 a 4 sugestões de portefólio por criança (as da IA, completadas pela app)
+  const hints = skeleton.map((_, idx) => restoreNames(String(aiContent![idx]?.portfolio ?? ""), realNames));
+  return applyPortfolioHints(applyFamilyWeek(unifyFamilyOuting(skeleton.map((s, idx) => ({
     child_id: s.child_id,
     day_of_week: s.day_of_week,
     time_slot: s.time_slot,
@@ -473,7 +483,7 @@ export async function generateWithGemini(
     materials: (aiContent[idx]?.materials ?? []).map((m) => restoreNames(String(m), realNames)),
     is_friday_world: s.is_friday_world,
     sort_order: s.sort_order,
-  }))));
+  })))), hints);
 }
 
 /**

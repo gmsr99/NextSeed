@@ -91,7 +91,7 @@ A entrega às escolas em dezembro e janeiro é a prova de valor da segunda ânco
 | R-02 | Corrigir o que o R-01 revelar | Depende do R-01 | A/A | M | Por fazer |
 | R-03 | Validar a secção "relatórios" do Manual (está como rascunho) | Auditoria (FASE 2.3) | A/A | S | Aguarda Elton |
 | R-04 | Uma atividade pode contar para várias áreas de aprendizagem | Equipa. Muitas atividades trabalham várias áreas ao mesmo tempo. BD | A/A | M | Por fazer |
-| R-10 | Sugerir em cada semana o que guardar no portefólio (3 ou 4 evidências por criança) e facilitar o registo de 2 minutos por dia | F-02, equipa. Liga o plano à segunda âncora | A/A | M | Por fazer |
+| R-10 | Sugerir em cada semana o que guardar no portefólio (3 ou 4 evidências por criança) e facilitar o registo de 2 minutos por dia | F-02, equipa. Liga o plano à segunda âncora | A/A | M | Sugestões feitas, em pré-visualização. Falta testar com a IA real e o registo de 2 minutos por dia |
 | R-05 | Registar marcos e acontecimentos importantes (todas as idades) que entram no relatório | F-02, F-05. BD; rever doc 04 (dados de desenvolvimento de menores) | M/M | M | Por fazer |
 | R-06 | Crianças até 2 ou 3 anos: diário de marcos em vez de plano de atividades | F-05, equipa. Alarga a app a uma fase fora do ensino doméstico formal | M/B | M | Em estudo |
 

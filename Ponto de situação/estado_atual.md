@@ -26,6 +26,13 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Contexto "por dominar": período atual e seguinte.
 - Com várias crianças, o "Ver Mundo" de sexta é uma só saída para a família.
 
+### Sugestões para o portefólio (R-10, em pré-visualização desde 14 nov; não publicado)
+- Em cada plano, a app marca 3 a 4 atividades por criança como boas para o portefólio e diz o que guardar. A IA propõe (campo `portfolio` na resposta); a app limita a 4, prefere disciplinas diferentes e completa até 3 com dicas por disciplina (`src/lib/portfolioHints.ts`). A leitura nunca é sugerida.
+- A sugestão fica no fim da descrição (" | Portefólio: …"). Aparece em cada atividade e num resumo "Para o portefólio esta semana" na vista de cada criança e no topo do Guia de Atividades (PDF).
+- Sem alterações na base de dados. Planos antigos não mudam.
+- Por fazer do R-10: o registo de 2 minutos por dia e ligar a sugestão ao ecrã de registo da atividade.
+- Por testar: a qualidade das sugestões com a IA real.
+
 ### Semana em família e menos preparação (P-10, P-23, em pré-visualização desde 14 nov; não publicado)
 - Com duas ou mais crianças, cada bloco tem um modo, calculado pela app (`src/lib/familyWeek.ts`) e escrito no início da descrição: "Em conjunto:", "Com o adulto:" ou "Sozinho(a):". Nunca há duas crianças com o adulto à mesma hora; o adulto alterna de bloco para bloco.
 - Em conjunto: Estudo do Meio, Expressão, Projeto, Leitura e a sexta-feira. O título é o mesmo para todas (garantido por código); a descrição diz o que cada uma faz. A leitura é uma só história por episódio, com uma pergunta por criança.

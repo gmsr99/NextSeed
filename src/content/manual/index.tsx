@@ -90,6 +90,8 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "**Com o adulto** — é a vez dessa criança ter a vossa atenção, por exemplo para um conteúdo novo.",
         "**Sozinho(a)** — a criança consegue fazer sem ajuda enquanto estão com a outra. No bloco seguinte, trocam.",
       ]},
+      { type: "h", text: "O que guardar para o portefólio" },
+      { type: "p", text: "Em cada semana, a NexSeed marca três ou quatro atividades por criança como boas para o [portefólio](/portfolio) e diz o que guardar (uma foto, a folha, um desenho). Aparecem em cada atividade e num resumo no topo do plano e do Guia de Atividades. Chegam essas: o resto da semana não precisa de ficar registado." },
       { type: "callout", text: "As atividades usam o que já há em casa: nada para imprimir nem para fabricar antes. E cada semana tem um fio condutor que liga as disciplinas." },
     ],
   },
