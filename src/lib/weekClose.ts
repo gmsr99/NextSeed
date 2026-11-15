@@ -56,3 +56,11 @@ export function weekContents(plan: AnnualPlan | undefined, date: Date): AnnualCo
   if (!week) return [];
   return Object.values(week.byDiscipline).flat().filter((c) => !c.fromManual);
 }
+
+export const WEEK_CLOSE_TITLE = "Fecho da semana";
+
+/** Texto da entrada do Diário com os ganhos e as dificuldades; null se vazio. */
+export function weekCloseNote(gains: string, hard: string): string | null {
+  const parts = [gains.trim() && `O que ganhou: ${gains.trim()}`, hard.trim() && `Onde teve dificuldade: ${hard.trim()}`].filter(Boolean);
+  return parts.length ? parts.join("\n") : null;
+}

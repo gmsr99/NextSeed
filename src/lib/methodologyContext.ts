@@ -34,6 +34,6 @@ export function buildMethodologyContext(
     .join("\n\n");
 
   return blocks
-    ? `[CONTEXTO PEDAGÓGICO DA FAMÍLIA]\n${blocks}\n\n${GENERATED_SUBJECT[generatedNoun]} DEVEM refletir esta(s) abordagem(ns) pedagógica(s), especialmente a principal.\n`
+    ? `[CONTEXTO PEDAGÓGICO DA FAMÍLIA]\n${blocks}\n\n${GENERATED_SUBJECT[generatedNoun]} DEVEM refletir esta(s) abordagem(ns) pedagógica(s), especialmente a principal. A metodologia decide a FORMA de trabalhar; o conteúdo vem dos conteúdos da semana (currículo, manuais ou tema). As secundárias e complementares só temperam a forma.\n`
     : "";
 }

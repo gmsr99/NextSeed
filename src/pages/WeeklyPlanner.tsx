@@ -28,7 +28,7 @@ import {
   formatWeekRange,
   type GeneratedPlanItem,
 } from "@/lib/planGenerator";
-import { generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
+import { getLastWeekTheme, generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
 import { buildAnnualPlan, weekFocus, weeksFor, type AnnualContent } from "@/lib/annualPlan";
@@ -77,6 +77,9 @@ export default function WeeklyPlanner() {
   const [fridayActivity, setFridayActivity] = useState("");
   const [notes, setNotes] = useState("");
   const [weeklyReadingTheme, setWeeklyReadingTheme] = useState("");
+  // P-16: fio condutor escolhido pela IA. Guarda-se em reading_theme quando a
+  // família não escreveu um tema de leitura (sem coluna nova na BD).
+  const [weekTheme, setWeekTheme] = useState("");
 
   const [step, setStep] = useState<Step>("form");
   const [planItems, setPlanItems] = useState<GeneratedPlanItem[]>([]);
@@ -177,6 +180,7 @@ export default function WeeklyPlanner() {
 
         if (plan.reading_theme != null) {
           setWeeklyReadingTheme(plan.reading_theme);
+          setWeekTheme(plan.reading_theme);
           setNotes(plan.notes ?? "");
         } else {
           const parsedNotes = parseNotesField(plan.notes);
@@ -248,6 +252,8 @@ export default function WeeklyPlanner() {
       // P-14: conteúdos "em progresso" (por consolidar) e se a semana tem foco no rumo
       const inProgressByChild: Record<string, Record<string, string[]>> = {};
       const hasFocus = new Set<string>();
+      // P-09: o que a criança já domina, para a IA ajustar o nível (vem do Fechar a semana)
+      const masteredByChild: Record<string, Record<string, string[]>> = {};
       await Promise.all(
         gcChildren.map(async (child) => {
           const dbYear = YEAR_MAP[child.school_year];
@@ -297,7 +303,10 @@ export default function WeeklyPlanner() {
           for (const c of allContents ?? []) {
             if (manualDisciplines.has(c.discipline)) continue;
             const status = progressMap.get(c.id) ?? "a_aprender";
-            if (status === "dominado") continue;
+            if (status === "dominado") {
+              ((masteredByChild[child.id] ??= {})[c.discipline] ??= []).push(c.content);
+              continue;
+            }
             // P-01: o contexto "por dominar" leva só o período atual e o seguinte
             if (status !== "em_progresso" && !inPeriods(c.period, ctxPeriods)) continue;
 
@@ -346,10 +355,19 @@ export default function WeeklyPlanner() {
         gcProgressByChild[childId] = { ...(gcProgressByChild[childId] ?? {}), ...byDiscipline };
       }
 
+      for (const [childId, byDiscipline] of Object.entries(masteredByChild)) {
+        for (const [d, list] of Object.entries(byDiscipline)) {
+          // só onde há conteúdos em foco: o nível serve para calibrar, não para abrir disciplinas
+          const target = gcProgressByChild[childId]?.[d];
+          if (target?.length) target.push(...list.slice(-3).map((c) => `[já domina] ${c}`));
+        }
+      }
+
       setGeneratingStep("A gerar atividades com IA... (pode demorar até um minuto)");
       const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
 
       setGeneratingStep("A montar o horário...");
+      setWeekTheme(getLastWeekTheme());
       setPlanItems(items);
       setStep("preview");
       track("plan_generated", {
@@ -413,7 +431,7 @@ export default function WeeklyPlanner() {
       weekly_content: hasWeeklyContent ? weeklyContent : null,
       friday_activity: fridayActivity || null,
       notes: notes || null,
-      reading_theme: weeklyReadingTheme || null,
+      reading_theme: weeklyReadingTheme || weekTheme || null,
       status: "generated",
       generated_at: new Date().toISOString(),
     };
@@ -521,7 +539,7 @@ export default function WeeklyPlanner() {
 
     const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
     const guideBlob = await pdf(
-      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} />
+      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} />
     ).toBlob();
     const a2 = document.createElement("a");
     a2.href = URL.createObjectURL(guideBlob);
@@ -572,7 +590,7 @@ export default function WeeklyPlanner() {
 
       const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
       const guideBlob = await pdf(
-        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} />
+        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} />
       ).toBlob();
 
       const toBase64 = (blob: Blob): Promise<string> =>
@@ -727,6 +745,7 @@ export default function WeeklyPlanner() {
             <PlanPreview
               children={children}
               planItems={planItems}
+              weekTheme={weeklyReadingTheme || weekTheme}
               onRegenerateItem={handleRegenerateItem}
               regeneratingKey={regeneratingKey}
             />

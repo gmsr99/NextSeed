@@ -17,6 +17,7 @@ vi.mock("../supabase", () => ({
                 : "Sozinho: fazer isto.",
               materials: ["papel"],
               portfolio: /Projeto/.test(l) ? "Foto da construção" : "",
+              theme: i === 0 ? "Como bebem as plantas?" : "",
             }))),
           },
           error: null,
@@ -25,7 +26,7 @@ vi.mock("../supabase", () => ({
     },
   },
 }));
-const { generateWithGemini } = await import("../geminiPlanner");
+const { generateWithGemini, getLastWeekTheme } = await import("../geminiPlanner");
 const { splitMode } = await import("../familyWeek");
 const { weekPortfolioList } = await import("../portfolioHints");
 
@@ -73,6 +74,16 @@ describe("plano semanal em família (P-10, P-23)", () => {
     // a etiqueta da semana em família mantém-se no início
     const withHint = items.find((i) => i.description.includes(" | Portefólio: ") && i.day_of_week === 3)!;
     expect(splitMode(withHint.description).mode).not.toBeNull();
+  });
+
+  it("pré-escolar: linha condutora pelas três áreas e tema da semana devolvido (P-16)", async () => {
+    await generateWithGemini([child("a", "Ana", "2º ano"), child("p", "Bia", "Pré-escolar 4 anos")], {}, "", "", {}, {}, {}, {},
+      [{ priority: 1, methodology: { slug: "waldorf-rudolf-steiner", name: "Waldorf", ai_generation_style: "x", keywords: [] } } as never]);
+    expect(lastPrompt).toContain("## PRÉ-ESCOLAR: UMA LINHA CONDUTORA");
+    expect(lastPrompt).toContain("Conhecimento do Mundo");
+    expect(lastPrompt).toContain("dá o RITMO");
+    expect(lastPrompt).toContain("**TEMA DA SEMANA**");
+    expect(getLastWeekTheme()).toBe("Como bebem as plantas?");
   });
 
   it("com uma criança: sem modos, mas com fio condutor e materiais sem preparação", async () => {

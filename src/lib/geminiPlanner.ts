@@ -7,6 +7,7 @@ import { supabase } from "./supabase";
 import { withAiLabels, aiLabel, restoreNames, AI_NAME_RULE } from "./aiPrivacy";
 import { applyFamilyWeek, blockModes, splitMode, withMode, type BlockMode } from "./familyWeek";
 import { assignFormats } from "./activityFormats";
+import { preschoolGuidance } from "./methodologyRoles";
 import { applyPortfolioHints, splitPortfolio, withPortfolio, DEFAULT_HINTS } from "./portfolioHints";
 
 const MODE_LABEL: Record<BlockMode, string> = {
@@ -191,7 +192,7 @@ function buildPrompt(
     ).join("\n")}`;
   }).filter(Boolean);
   const gcSection = gcLines.length > 0
-    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nSão os conteúdos desta semana (do plano anual ou marcados pelo educador). As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança.\nLinhas com [retomar]: ficaram por consolidar em semanas anteriores; dedica-lhes uma atividade curta de revisão com um formato diferente, sem os tratar como atraso.\nLinhas com [manual «…»]: a família segue esse manual. As atividades dessa disciplina acompanham a unidade e as páginas indicadas (refere-as na descrição, ex.: "Manual, pp. 24–27") com uma forma prática de as introduzir ou consolidar. NUNCA inventes nem reproduzas o texto ou os exercícios do manual:\n${gcLines.join("\n\n")}\n`
+    ? `\n## CONTEÚDOS GC EM FOCO (a aprender / em progresso — NÃO incluir já dominados)\nSão os conteúdos desta semana (do plano anual ou marcados pelo educador). As atividades devem trabalhar estes conteúdos de forma criativa, ligando-os aos interesses da criança.\nLinhas com [já domina]: servem só para saberes o nível da criança nessa disciplina. NÃO as voltes a ensinar; parte delas para ir um degrau acima.\nLinhas com [retomar]: ficaram por consolidar em semanas anteriores; dedica-lhes uma atividade curta de revisão com um formato diferente, sem os tratar como atraso.\nLinhas com [manual «…»]: a família segue esse manual. As atividades dessa disciplina acompanham a unidade e as páginas indicadas (refere-as na descrição, ex.: "Manual, pp. 24–27") com uma forma prática de as introduzir ou consolidar. NUNCA inventes nem reproduzas o texto ou os exercícios do manual:\n${gcLines.join("\n\n")}\n`
     : "";
 
   // Contexto GC completo por criança (todos os não dominados) — para orientação geral
@@ -280,11 +281,24 @@ Os horários do pré-escolar estão alinhados com o ensino primário: à mesma h
 Na **descrição** das atividades do pré-escolar menciona (1 frase) como o adulto pode aproveitar a atividade do irmão mais velho como ponto de partida.`
     : "";
 
+  // P-16: pré-escolar com linha condutora. As OCEPE não são um programa: dão
+  // três áreas, e o tema da semana atravessa-as.
+  const principal = [...familyMethodologies].sort((a, b) => a.priority - b.priority)[0]?.methodology?.slug;
+  const preschoolSection = hasPreSchool
+    ? `\n## PRÉ-ESCOLAR: UMA LINHA CONDUTORA
+No pré-escolar não há programa a cumprir. O fio condutor da semana${hasPrimary ? " (o mesmo dos irmãos)" : ""} atravessa as três áreas das Orientações Curriculares:
+- **Formação Pessoal e Social** (autonomia, cuidar de si e dos outros, regras do dia a dia);
+- **Expressão e Comunicação** (linguagem oral e primeiras descobertas da escrita, matemática com objetos, artes, música, movimento);
+- **Conhecimento do Mundo** (observar, perguntar, experimentar).
+Ao longo da semana, cada área aparece pelo menos duas vezes, sempre a brincar e a mexer.
+${preschoolGuidance(principal)}\n`
+    : "";
+
   return `${methodologySection}És um especialista em educação e homeschooling português. Gera ${skeleton.length} atividades para um plano semanal NexSeed.
 
 ## CRIANÇAS
 ${childrenSection}
-${AI_NAME_RULE}${multiLevelNote}${familyWeekSection}${weeklyContentSection}${nexseedSection}${gcSection}${gcAllSection}
+${AI_NAME_RULE}${multiLevelNote}${preschoolSection}${familyWeekSection}${weeklyContentSection}${nexseedSection}${gcSection}${gcAllSection}
 ## FIO CONDUTOR DA SEMANA
 Antes de escreveres as atividades, escolhe UM tema ou pergunta para a semana, tirado dos conteúdos desta semana (de preferência de Estudo do Meio; ex.: "Como é que as plantas bebem?"). Esse fio condutor liga as disciplinas${children.length > 1 ? " e é o mesmo para todas as crianças" : ""}: a matemática conta, mede ou compara coisas do tema; o português lê e escreve sobre ele; a expressão representa-o. Não o forces onde não cabe (ex.: uma unidade de manual segue o manual).
 
@@ -320,9 +334,11 @@ ${skeletonSection}
 15. **DIFICULDADE AO NÍVEL DA CRIANÇA**: parte sempre do passo mais simples do conteúdo e sobe um degrau de cada vez ao longo da semana. Com ritmo "Calmo" ou no 1.º ano, no máximo um passo novo por atividade e instruções de uma frase. Pré-escolar: sem leitura nem escrita formal.
 16. **PORTEFÓLIO** (campo \`portfolio\`): para cada criança, escolhe 3 a 4 atividades da semana que deixam uma boa evidência para o portefólio (um texto, um desenho, uma construção, o registo de uma experiência ou de uma saída), de disciplinas DIFERENTES. Nessas, escreve em \`portfolio\` o que guardar, em 12 palavras no máximo (ex.: "Foto da maquete e a legenda escrita pela criança"). Em todas as outras atividades e nos episódios de leitura, \`portfolio\` fica "".
 
+17. **TEMA DA SEMANA** (campo \`theme\`): no PRIMEIRO objeto, escreve o fio condutor que escolheste, em 8 palavras no máximo (ex.: "Como é que as plantas bebem?"). Nos restantes, \`theme\` fica "".
+
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
-[{"title":"...","description":"...","materials":["...","..."],"portfolio":""}]`;
+[{"title":"...","description":"...","materials":["...","..."],"portfolio":"","theme":""}]`;
 }
 
 // ─── Chamada ao Gemini (via edge function autenticada) ──────────────────────────
@@ -339,6 +355,7 @@ const PLAN_RESPONSE_SCHEMA = {
       description: { type: "STRING" },
       materials: { type: "ARRAY", items: { type: "STRING" } },
       portfolio: { type: "STRING" },
+      theme: { type: "STRING" },
     },
     required: ["title", "description", "materials"],
   },
@@ -427,6 +444,12 @@ Devolve APENAS um objeto JSON: {"title":"...","description":"...","materials":["
   throw new Error(`Falha ao regenerar a atividade: ${lastError}`);
 }
 
+let lastWeekTheme = "";
+/** Fio condutor da última geração (vazio se a IA não o devolveu). */
+export function getLastWeekTheme(): string {
+  return lastWeekTheme;
+}
+
 export async function generateWithGemini(
   children: Child[],
   childInterests: Record<string, string[]>,
@@ -446,7 +469,7 @@ export async function generateWithGemini(
   const prompt = buildPrompt(aiChildren, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
 
   // Até 2 tentativas: cobre falhas transitórias (429/502) e parsing.
-  let aiContent: { title: string; description: string; materials: string[]; portfolio?: string }[] | null = null;
+  let aiContent: { title: string; description: string; materials: string[]; portfolio?: string; theme?: string }[] | null = null;
   let lastError = "erro desconhecido";
 
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -472,6 +495,8 @@ export async function generateWithGemini(
   }
 
   // R-10: 3 a 4 sugestões de portefólio por criança (as da IA, completadas pela app)
+  // Tema da semana escolhido pela IA (fica acessível a quem chamou, sem mudar o tipo devolvido)
+  lastWeekTheme = restoreNames(String(aiContent.find((c) => c?.theme?.trim())?.theme ?? ""), realNames).trim().slice(0, 90);
   const hints = skeleton.map((_, idx) => restoreNames(String(aiContent![idx]?.portfolio ?? ""), realNames));
   return applyPortfolioHints(applyFamilyWeek(unifyFamilyOuting(skeleton.map((s, idx) => ({
     child_id: s.child_id,

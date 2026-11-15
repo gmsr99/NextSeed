@@ -8,6 +8,7 @@ import { SelectedMethodologies } from "@/components/methodology/SelectedMethodol
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORY_LABELS } from "@/components/methodology/constants";
 import type { MethodologyCategory } from "@/lib/types";
+import { methodologyRole, ROLE_EXPLAINER } from "@/lib/methodologyRoles";
 
 const ALL_CATEGORIES = Object.keys(CATEGORY_LABELS) as MethodologyCategory[];
 
@@ -26,6 +27,7 @@ export default function Metodologias() {
     moveDown,
     getFamilyMethodology,
   } = useMethodologies();
+  const selected = [...familyMethodologies].sort((x, y) => x.priority - y.priority);
 
   const isPending =
     select.isPending ||
@@ -84,6 +86,32 @@ export default function Metodologias() {
                 Escolhe as abordagens pedagógicas que guiam a educação da tua família.
               </p>
             </div>
+          </div>
+
+          {/* P-15: o que a metodologia faz na NexSeed */}
+          <div className="mt-4 rounded-xl border border-primary/25 bg-primary/5 p-4 text-sm leading-relaxed">
+            <p className="font-semibold text-foreground">O que a metodologia muda nos vossos planos</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+              <li>
+                <span className="font-medium text-foreground">Do 1.º ao 4.º ano:</span> o que se trabalha vem do currículo ou
+                dos vossos manuais (ver o Rumo do ano). A metodologia decide <em>como</em> se trabalha.
+              </li>
+              <li>
+                <span className="font-medium text-foreground">No pré-escolar:</span> não há programa a cumprir. A semana segue
+                um fio condutor pelas três áreas das Orientações Curriculares, e a metodologia principal organiza-a: algumas
+                têm percurso próprio, outras dão o ritmo.
+              </li>
+              <li>
+                <span className="font-medium text-foreground">Até três metodologias:</span> a primeira é a principal e é a
+                única que organiza. As outras duas temperam a forma das atividades.
+              </li>
+            </ul>
+            {selected[0]?.methodology && (
+              <p className="mt-3 text-foreground">
+                A vossa principal é <span className="font-semibold">{selected[0].methodology.name}</span>:{" "}
+                {ROLE_EXPLAINER[methodologyRole(selected[0].methodology.slug)]}
+              </p>
+            )}
           </div>
         </div>
 

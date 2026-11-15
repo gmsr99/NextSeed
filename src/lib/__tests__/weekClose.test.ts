@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mergeWeekContents, paceUntil } from "../weekClose";
+import { mergeWeekContents, paceUntil, weekCloseNote } from "../weekClose";
 import { buildAnnualPlan, type AnnualContent } from "../annualPlan";
 
 describe("mergeWeekContents (P-14)", () => {
@@ -33,5 +33,13 @@ describe("paceUntil (P-14)", () => {
 
   it("na primeira semana não há nada para trás", () => {
     expect(paceUntil(plan, new Date(2026, 8, 14), {}).planned).toBe(0);
+  });
+});
+
+describe("weekCloseNote", () => {
+  it("junta só o que foi escrito", () => {
+    expect(weekCloseNote(" lê sílabas ", "")).toBe("O que ganhou: lê sílabas");
+    expect(weekCloseNote("a", "b")).toBe("O que ganhou: a\nOnde teve dificuldade: b");
+    expect(weekCloseNote(" ", "")).toBeNull();
   });
 });

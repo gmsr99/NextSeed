@@ -95,6 +95,8 @@ const CHILD_COLORS = [
 interface PlanPreviewProps {
   children: Child[];
   planItems: GeneratedPlanItem[];
+  /** Fio condutor da semana (P-16) */
+  weekTheme?: string;
   /** Regenerar uma atividade inline (FASE 3.2.1). Omisso → sem botão. */
   onRegenerateItem?: (item: GeneratedPlanItem) => void;
   /** planItemKey do item em regeneração (desativa os restantes botões). */
@@ -269,11 +271,19 @@ function FamilyView({ children, planItems }: { children: Child[]; planItems: Gen
   );
 }
 
-export function PlanPreview({ children, planItems, onRegenerateItem, regeneratingKey }: PlanPreviewProps) {
+export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, regeneratingKey }: PlanPreviewProps) {
   const showFamilyTab = children.length > 1;
   const defaultTab = showFamilyTab ? "familia" : children[0]?.id ?? "familia";
 
   return (
+    <>
+    {weekTheme && (
+      <div className="mb-4 rounded-lg border border-primary/25 bg-primary/5 px-4 py-3 text-sm">
+        <span className="font-semibold text-foreground">Fio condutor da semana:</span>{" "}
+        <span className="text-foreground">{weekTheme}</span>
+        <p className="mt-0.5 text-xs text-muted-foreground">É o tema que liga as disciplinas e as crianças ao longo da semana.</p>
+      </div>
+    )}
     <Tabs defaultValue={defaultTab}>
       {/* max-w-full + overflow: em mobile com várias crianças as tabs deslizam */}
       <TabsList className="max-w-full overflow-x-auto justify-start" data-tour="plano-preview">
@@ -306,5 +316,6 @@ export function PlanPreview({ children, planItems, onRegenerateItem, regeneratin
         </TabsContent>
       ))}
     </Tabs>
+    </>
   );
 }

@@ -18,7 +18,7 @@ import { useAnnualPlans } from "@/hooks/useAnnualPlan";
 import ManualsCard from "@/components/ManualsCard";
 import { useAuth } from "@/contexts/AuthContext";
 import WeekCloseDialog from "@/components/WeekCloseDialog";
-import { paceUntil, weekContents } from "@/lib/weekClose";
+import { paceUntil } from "@/lib/weekClose";
 import FamilyCalendarCard from "@/components/FamilyCalendarCard";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
@@ -293,11 +293,9 @@ export default function RoteiroAnual() {
                 <Button asChild size="sm">
                   <Link to="/weekly-planner"><Sparkles className="mr-1.5 h-4 w-4" /> Gerar o plano desta semana</Link>
                 </Button>
-                {withPlan.some((c) => weekContents(plans[c.id], today).some((x) => progress[c.id]?.[x.id] !== "dominado")) && (
-                  <Button size="sm" variant="outline" onClick={() => setClosing(true)}>
-                    <CheckCircle2 className="mr-1.5 h-4 w-4" /> Fechar a semana
-                  </Button>
-                )}
+                <Button size="sm" variant="outline" onClick={() => setClosing(true)}>
+                  <CheckCircle2 className="mr-1.5 h-4 w-4" /> Fechar a semana
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -370,7 +368,7 @@ export default function RoteiroAnual() {
           </Tabs>
         )}
 
-        <WeekCloseDialog open={closing} onClose={() => setClosing(false)} familyChildren={withPlan} date={today} />
+        <WeekCloseDialog open={closing} onClose={() => setClosing(false)} familyChildren={children} date={today} />
 
         {!isLoading && plan && (
           <p className="text-xs text-muted-foreground">

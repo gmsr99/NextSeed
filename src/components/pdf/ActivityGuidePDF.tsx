@@ -50,9 +50,11 @@ interface Props {
   familyName: string;
   /** P-22: conteúdos da semana no Rumo do ano, por criança (opcional) */
   weekFocus?: Record<string, ChildWeekFocus>;
+  /** P-16: fio condutor da semana */
+  weekTheme?: string;
 }
 
-export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {} }: Props) {
+export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {}, weekTheme }: Props) {
   const withFocus = children.filter((c) => weekFocus[c.id]);
   const allMaterials = collectMaterials(planItems);
 
@@ -64,6 +66,13 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
           <Text style={S.headerTitle}>NexSeed — Guia de Atividades</Text>
           <Text style={S.headerSub}>{familyName} · Semana de {formatWeekRange(weekStart)}</Text>
         </View>
+
+        {weekTheme ? (
+          <View style={S.box} wrap={false}>
+            <Text style={S.boxTitle}>Fio condutor da semana: {weekTheme}</Text>
+            <Text style={S.boxLine}>É o tema que liga as disciplinas e as crianças ao longo da semana.</Text>
+          </View>
+        ) : null}
 
         {/* P-22: a semana em resumo (conteúdos do Rumo do ano) */}
         {withFocus.length > 0 && (
