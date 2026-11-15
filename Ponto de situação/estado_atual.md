@@ -88,6 +88,16 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - **Base de dados:** o Gil aplicou a migração `027_family_calendars.sql` a 14 nov.
 - Por testar: gravação na base de dados real.
 
+## Metodologias, pré-escolar e fecho da semana (publicado a 15 nov)
+- Cada metodologia tem um papel (`src/lib/methodologyRoles.ts`): percurso próprio (Montessori, Charlotte Mason, Clássica), ritmo (Waldorf, Forest School, Pikler) ou forma de trabalhar (as restantes). Só a principal organiza; as outras duas temperam a forma. A página Metodologias explica isto.
+- Pré-escolar (P-16): a semana segue um fio condutor pelas três áreas das Orientações Curriculares, o mesmo dos irmãos. Com Montessori como principal, organiza pelas cinco áreas; a app não inventa a sequência de materiais (I-02, à espera da F-03).
+- A IA devolve o tema da semana; aparece no plano e no guia e fica guardado em `weekly_plans.reading_theme` quando a família não escreveu um tema de leitura.
+- Fechar a semana: além de "Ficou aprendido" e "Precisa de mais", duas linhas opcionais por criança (o que ganhou, onde teve dificuldade), guardadas no Diário como "Fecho da semana". Não são enviadas à IA (Gemini ainda no gratuito, B-01).
+- A IA recebe até três conteúdos "[já domina]" por disciplina em foco, para ajustar o nível (P-09).
+- Sem alterações à base de dados.
+- Por testar: geração real com a IA (só o texto do pedido foi verificado) e gravação da entrada do Diário na base de dados real.
+- Por decidir: referência por criança em vez do currículo nacional como base (P-25, Q-14).
+
 ## Segurança e dados: estado verificado no código
 | Tema | Estado |
 |---|---|

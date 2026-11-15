@@ -1,6 +1,6 @@
 # NexSeed: backlog de produto e desenvolvimento
 
-Última atualização: 14 de novembro de 2026
+Última atualização: 15 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -35,8 +35,10 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-11 | Consegues a captura de ecrã do problema no telemóvel que a F-03 referiu? | T-08: sem ela não consigo reproduzir o erro |  |
 | Q-12 | Repositório privado (B-11): o Gil publica cada entrega, ou passamos para Vercel Pro? E consegue dar-te acesso às pré-visualizações? | Com o repositório privado, as minhas publicações ficam bloqueadas. Sem acesso às pré-visualizações, só vês o que já está publicado |  |
 | Q-13 | Marcos de desenvolvimento no relatório (R-05): avanço? | Pedido da F-02 e da F-05. São dados de desenvolvimento de menores: passa pelo documento 04 e mexe na base de dados |  |
+| Q-14 | Em que regime está cada família do piloto: matriculada numa escola portuguesa (ensino doméstico), numa escola estrangeira ou à distância, ou outro? | Decide se o currículo nacional é a base ou só uma lente opcional (P-25). No ensino doméstico português há portefólio e provas no 4.º, 6.º e 9.º ano; fora dele não |  |
+| Q-15 | Podes enviar à F-03 as 7 perguntas sobre o percurso Montessori dos 3 aos 6? Estão prontas a copiar no documento claude/Metodologias_percurso_ritmo_forma.md do projeto. | Sem a sequência de quem pratica, a app só organiza pelas cinco áreas; não inventa a ordem dos materiais (I-02) |  |
 
-## Para testar: novidades publicadas a 13 e 14 de novembro
+## Para testar: novidades publicadas de 13 a 15 de novembro
 
 Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na coluna Resultado escreve OK ou o que viste de diferente. Se a app instalada no telemóvel não mostrar as novidades, fecha-a e volta a abrir.
 
@@ -65,6 +67,11 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-21 | Rumo do ano | Fechar a semana: marcar um tema Ficou aprendido e outro Precisa de mais; guardar. Depois abrir Áreas de Aprendizagem | Os dois temas mudaram de estado (Dominado e Em progresso). No plano seguinte, o segundo volta como revisão (P-14, P-20) |  |
 | V-22 | Diário | Escrever um Registo de 2 minutos para as duas crianças | Aparece "Guardado no Diário" e cada criança fica com uma entrada Registo do dia no portefólio (R-10) |  |
 | V-23 | Pré-escolar (se houver) | Ver o horário de uma criança do pré-escolar | A meditação aparece às 14:00 e não em cima de outra atividade (R-09) |  |
+| V-24 | Metodologias | Abrir a página Metodologias | No topo, uma caixa explica o que a metodologia muda nos planos e diz qual é a vossa principal e o que ela faz (P-15) |  |
+| V-25 | Plano Semanal | Gerar um plano novo | Por cima do plano aparece "Fio condutor da semana" com um tema curto; o mesmo tema aparece no Guia de Atividades (P-16) |  |
+| V-26 | Plano Semanal, pré-escolar | Ler as atividades da criança do pré-escolar | Seguem o mesmo tema dos irmãos, a brincar, sem fichas; passam por autonomia, linguagem ou matemática com objetos, e descoberta do mundo (P-16) |  |
+| V-27 | Rumo do ano | Tocar em "Fechar a semana", escrever uma linha em "O que ganhou" e guardar; depois abrir o Diário | No Diário fica uma entrada "Fecho da semana" nessa criança, com o que escreveste (P-19) |  |
+| V-28 | Plano Semanal | Depois de marcar temas como "Ficou aprendido", gerar o plano seguinte | As atividades não voltam a ensinar esses temas e sobem um degrau (P-09) |  |
 
 ## Ordem de implementação
 
@@ -124,7 +131,7 @@ A funcionalidade que decide o produto. Tudo isto é trabalho nos pedidos ao Gemi
 | P-21 | Deixar de perguntar "o que quero ensinar esta semana": o campo passa a opcional, com a indicação de que a NexSeed escolhe os conteúdos | F-02. Passo intermédio até ao P-12 | A/A | S | Publicado a 13 nov |
 | P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
 | P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
-| P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Parcial, publicado a 14 nov: regra de dificuldade por ano e ritmo. Falta usar o progresso marcado |
+| P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Publicado a 15 nov: regra de dificuldade por ano e ritmo, e a IA recebe o que a criança já domina em cada disciplina. Por confirmar com uma família |
 | P-22 | Guia semanal no formato que a F-02 usa: semana em resumo, caixa de materiais para preparar ao domingo, o que perguntar, versão curta para dias difíceis, balanço da semana | F-02 (documento Semana 1). Menos folhas e menos preparação | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
 | P-23 | Menos preparação: materiais que há em casa, sem imprimir; interesses como tempero e não como tema de todas as atividades | Plano real de 13 nov: 46 atividades, quase todas com materiais a fabricar (puzzles, cartões, vara de pesca) e todas tematizadas pelos mesmos dois interesses | A/A | M | Publicado a 14 nov. Por confirmar com um plano real |
 | P-08 | Leitura: gerar episódios curtos (1 ou 2 parágrafos) e textos concretos, em vez de só títulos | Equipa (backlog da família piloto). Menos coisas para a mãe preparar | A/M | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
@@ -155,8 +162,9 @@ Saber o que dar em cada altura e se o ritmo está certo. Parte já existe (Rotei
 | P-13 | Plano anual semana a semana: para cada criança e disciplina, o que dar em cada semana do ano letivo, calculado pela app a partir do currículo (sem a família preencher nada) | F-01, F-02, equipa. F-02 construiu este plano fora da app (calendário de 29 semanas). Fase 1 não precisa de BD | A/A | L | Fase 1 publicada a 13 nov (página Rumo do ano; segue o calendário escolar oficial) |
 | P-14 | "Estou no ritmo certo?": pontos de controlo por período e regra de atraso sem culpa (o que não se fez passa para a semana seguinte) | Equipa, F-02 (o plano dela tem pontos de controlo e margem em julho). Responde à insegurança dos pais | A/A | M | Publicado a 14 nov. Por confirmar com uma família |
 | P-24 | Rumo do ano, fase 2: PDF do ano para imprimir, semanas e férias da própria família, e vista de família com os conteúdos comuns às várias crianças | F-02 (calendário de 29 semanas feito fora da app). A fase 1 usa o calendário escolar oficial e mostra uma criança de cada vez | A/M | M | Calendário da família e PDF do ano publicados a 14 nov. Falta a vista de família |
-| P-15 | Metodologia principal e secundárias por criança, e explicar o que o plano segue | F-02. Hoje a metodologia é por família | M/M | M | Por fazer. BD |
-| P-16 | Pré-escolar com linha condutora (OCEPE) e explicação de como cruza com as pedagogias | F-03 | M/M | M | Por fazer |
+| P-15 | Metodologia principal e secundárias por criança, e explicar o que o plano segue | F-02. Hoje a metodologia é por família | M/M | M | Parcial, publicado a 15 nov: a página Metodologias explica o que o plano segue e que só a principal organiza. Falta a escolha por criança (BD) |
+| P-16 | Pré-escolar com linha condutora (OCEPE) e explicação de como cruza com as pedagogias | F-03 | M/M | M | Publicado a 15 nov: fio condutor pelas três áreas das OCEPE, igual ao dos irmãos, e a metodologia principal organiza. Por confirmar com a F-03 |
+| P-25 | Referência por criança: currículo nacional, manuais, lista própria ou metodologia (pré-escolar) | Elton, 15 nov: muitas famílias não seguem o currículo nacional. Hoje já dá com manuais; falta a lista própria e poder desligar o currículo | A/M | M | Por decidir (Q-14). Proposta no documento claude/Metodologias_percurso_ritmo_forma.md |
 
 ## E5 · Fecho da semana
 
@@ -195,7 +203,7 @@ Pedidos grandes com valor real. Ficam para depois do lançamento.
 | I-07 | Áreas de aprendizagem próprias (ex.: inglês, autoconhecimento e espiritualidade, autonomia e vida prática) | Equipa. Proposta: catálogo de áreas opcionais e uma área livre | M/B | L | Em estudo. BD |
 | I-08 | Módulo católico: calendário litúrgico, santo do dia, catecismo | F-01 (e outra família referida). Conteúdo revisto, não gerado; rever doc 04 (crenças religiosas) | M/B | L | Em estudo |
 | I-01 | Índices dos manuais: a família escreve o índice (unidades e páginas) e o Rumo do ano e o plano semanal passam a seguir o manual nessa disciplina | F-01 (INS-01, INS-05), F-02 (13 nov). Só títulos e páginas, nunca o conteúdo. A validação jurídica (A-09) continua em aberto. Calendário por família fica para o P-24 | A/A | L | Publicado a 14 nov. Por confirmar com uma família |
-| I-02 | Sequências por metodologia (ex.: Montessori), avançando conforme a criança | F-03 (INS-04) | M/B | L | Em estudo |
+| I-02 | Sequências por metodologia (ex.: Montessori), avançando conforme a criança | F-03 (INS-04) | M/B | L | À espera das respostas da F-03 (Q-15). Não se inventa uma sequência com a IA |
 | I-09 | Currículo de 5.º e 6.º ano, e mais tarde 3.º ciclo | F-04 | M/B | L | Em estudo |
 
 ## E10 · Comunidade, conteúdos e negócio
