@@ -37,6 +37,7 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-13 | Marcos de desenvolvimento no relatório (R-05): avanço? | Pedido da F-02 e da F-05. São dados de desenvolvimento de menores: passa pelo documento 04 e mexe na base de dados |  |
 | Q-14 | Em que regime está cada família do piloto: matriculada numa escola portuguesa (ensino doméstico), numa escola estrangeira ou à distância, ou outro? | Decide se o currículo nacional é a base ou só uma lente opcional (P-25). No ensino doméstico português há portefólio e provas no 4.º, 6.º e 9.º ano; fora dele não |  |
 | Q-15 | Podes enviar à F-03 as 7 perguntas sobre o percurso Montessori dos 3 aos 6? Estão prontas a copiar no documento claude/Metodologias_percurso_ritmo_forma.md do projeto. | Sem a sequência de quem pratica, a app só organiza pelas cinco áreas; não inventa a ordem dos materiais (I-02) |  |
+| Q-16 | Guia "Direitos e deveres" (I-13): avanço com a versão mínima (página no manual de ajuda, com fontes oficiais e dois modelos de requerimento, sem chatbot)? E a revisão jurídica dos textos pode ir no mesmo pedido da Q-04? | É informação legal: um erro nosso pode prejudicar uma família. Publico com o aviso de que não substitui aconselhamento, mas a revisão é necessária |  |
 
 ## Para testar: novidades publicadas de 13 a 15 de novembro
 
@@ -204,6 +205,7 @@ Pedidos grandes com valor real. Ficam para depois do lançamento.
 | I-08 | Módulo católico: calendário litúrgico, santo do dia, catecismo | F-01 (e outra família referida). Conteúdo revisto, não gerado; rever doc 04 (crenças religiosas) | M/B | L | Em estudo |
 | I-01 | Índices dos manuais: a família escreve o índice (unidades e páginas) e o Rumo do ano e o plano semanal passam a seguir o manual nessa disciplina | F-01 (INS-01, INS-05), F-02 (13 nov). Só títulos e páginas, nunca o conteúdo. A validação jurídica (A-09) continua em aberto. Calendário por família fica para o P-24 | A/A | L | Publicado a 14 nov. Por confirmar com uma família |
 | I-02 | Sequências por metodologia (ex.: Montessori), avançando conforme a criança | F-03 (INS-04) | M/B | L | À espera das respostas da F-03 (Q-15). Não se inventa uma sequência com a IA |
+| I-13 | Direitos e deveres: guia das leis do ensino doméstico com ligação às fontes oficiais e modelos de requerimento à escola | Elton, 15 nov: famílias precisam de se orientar e, por vezes, de se defender (ex.: escola que recusa acompanhamento, AEC, professor-tutor). Sem chatbot nesta fase | A/M | M | Especificação enviada a 15 nov, à espera de OK (Q-16). Textos precisam de revisão jurídica |
 | I-09 | Currículo de 5.º e 6.º ano, e mais tarde 3.º ciclo | F-04 | M/B | L | Em estudo |
 
 ## E10 · Comunidade, conteúdos e negócio
