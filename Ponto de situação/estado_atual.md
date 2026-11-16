@@ -98,6 +98,11 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Por testar: geração real com a IA (só o texto do pedido foi verificado) e gravação da entrada do Diário na base de dados real.
 - Por decidir: referência por criança em vez do currículo nacional como base (P-25, Q-14).
 
+## Correções dos testes de 16 nov
+- **Plano Semanal não se perde (T-11):** a app recarregava o ecrã sempre que voltava ao primeiro plano (evento de sessão do Supabase) e apagava o plano por guardar. Corrigido no `AuthContext`. Além disso, o formulário e o plano por guardar ficam num rascunho neste dispositivo (`src/lib/planDraft.ts`), por família e semana; apaga-se ao guardar e ao terminar a sessão.
+- Erros ao guardar passam a mostrar o motivo. A falha "não deixa guardar" não foi reproduzida como erro da base de dados; a causa provável era o recarregamento acima. Por confirmar (V-31).
+- **Manuais, cursos e PDF (I-01):** uma linha por tema; a unidade repetida no início da linha é reconhecida ("3 temas, em 2 unidades"). O cartão serve também para cursos e PDF comprados: cola-se o índice, o ficheiro fica com a família. Carregar o ficheiro não está feito (I-14, Q-17).
+
 ## Segurança e dados: estado verificado no código
 | Tema | Estado |
 |---|---|

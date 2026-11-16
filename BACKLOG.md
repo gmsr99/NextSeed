@@ -1,6 +1,6 @@
 # NexSeed: backlog de produto e desenvolvimento
 
-Última atualização: 15 de novembro de 2026
+Última atualização: 16 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -37,7 +37,7 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-13 | Marcos de desenvolvimento no relatório (R-05): avanço? | Pedido da F-02 e da F-05. São dados de desenvolvimento de menores: passa pelo documento 04 e mexe na base de dados |  |
 | Q-14 | Em que regime está cada família do piloto: matriculada numa escola portuguesa (ensino doméstico), numa escola estrangeira ou à distância, ou outro? | Decide se o currículo nacional é a base ou só uma lente opcional (P-25). No ensino doméstico português há portefólio e provas no 4.º, 6.º e 9.º ano; fora dele não |  |
 | Q-15 | Podes enviar à F-03 as 7 perguntas sobre o percurso Montessori dos 3 aos 6? Estão prontas a copiar no documento claude/Metodologias_percurso_ritmo_forma.md do projeto. | Sem a sequência de quem pratica, a app só organiza pelas cinco áreas; não inventa a ordem dos materiais (I-02) |  |
-| Q-16 | Guia "Direitos e deveres" (I-13): avanço com a versão mínima (página no manual de ajuda, com fontes oficiais e dois modelos de requerimento, sem chatbot)? E a revisão jurídica dos textos pode ir no mesmo pedido da Q-04? | É informação legal: um erro nosso pode prejudicar uma família. Publico com o aviso de que não substitui aconselhamento, mas a revisão é necessária |  |
+| Q-17 | Carregar o próprio PDF na NexSeed (para a app ler o índice sozinha): avançamos? Preciso de validação jurídica sobre direitos de autor antes. | Pedido teu de 16 nov. Hoje a família cola o índice e o ficheiro fica com ela. Guardar e ler ficheiros comprados a outros criadores levanta a questão A-09 do documento 10 e tem custos de armazenamento |  |
 
 ## Para testar: novidades publicadas de 13 a 15 de novembro
 
@@ -45,14 +45,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 
 | ID | Onde | O que fazer | O que deve acontecer | Resultado |
 |---|---|---|---|---|
-| V-01 | Crianças | Editar uma criança e escrever interesses separados por vírgulas; experimentar também o botão + | Cada interesse fica numa etiqueta separada (T-06) |  |
-| V-02 | Crianças | Abrir a data de nascimento | Dá para escolher o ano e o mês numa lista, sem andar mês a mês (T-07) |  |
-| V-03 | Rumo do ano | Abrir a página (no menu, onde estava Currículo Anual) | Cartão Esta semana com as crianças lado a lado; por baixo, o ano semana a semana e por disciplina (P-13) |  |
-| V-04 | Rumo do ano | Ajustar as semanas: mudar a data de fim para agosto e guardar. Depois, Voltar ao calendário escolar | O número de semanas sobe e as semanas novas aparecem no 3.º período; ao repor, volta a 37 (P-24) |  |
-| V-05 | Rumo do ano | Adicionar manual: Matemática, um nome e 4 linhas do tipo "Unidade 1 — Números até 100 ... 6" | A Matemática dessa criança passa a mostrar unidades e páginas a partir desta semana. Se aparecer "esta parte ainda está a ser ligada", avisa-me (I-01) |  |
-| V-06 | Rumo do ano | Descarregar o ano (PDF) | PDF com o ano da criança, por período e semana, com caixas para assinalar (P-24) |  |
-| V-07 | Plano semanal | Abrir o formulário, sem preencher nada | Cada criança tem a caixa "Esta semana no rumo do ano"; o campo de conteúdos diz que é opcional (P-12, P-21) |  |
-| V-08 | Plano semanal | Gerar o plano sem escrever conteúdos | As atividades trabalham os conteúdos da caixa; na criança com manual, a Matemática fala da unidade e das páginas |  |
+| V-05 | Rumo do ano | Adicionar ou editar um manual, curso ou PDF: escrever uma linha por tema, repetindo a unidade no início (ex.: "Unidade 1 — Números até 100 ... 6", "Unidade 1 — Contar de 2 em 2 ... 10", "Unidade 2 — Adição ... 24") | Por baixo da caixa aparece "3 temas, em 2 unidades"; no rumo, cada semana mostra o tema e as páginas (I-01, corrigido a 16 nov) |  |
 | V-09 | Plano gerado | Ler as atividades de segunda a quinta | Cada uma começa por Em conjunto, Com o adulto ou Sozinho(a); nunca há duas crianças com o adulto à mesma hora (P-10) |  |
 | V-10 | Plano gerado | Ler duas ou três atividades Sozinho(a) | A criança consegue fazê-las sem ajuda e sem conteúdo novo |  |
 | V-11 | Plano gerado | Comparar Estudo do Meio, Expressão, Projeto e sexta-feira entre as crianças | Mesmo título para todas; a descrição diz o que cada uma faz. Sexta: uma só saída (P-11) |  |
@@ -73,6 +66,9 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-26 | Plano Semanal, pré-escolar | Ler as atividades da criança do pré-escolar | Seguem o mesmo tema dos irmãos, a brincar, sem fichas; passam por autonomia, linguagem ou matemática com objetos, e descoberta do mundo (P-16) |  |
 | V-27 | Rumo do ano | Tocar em "Fechar a semana", escrever uma linha em "O que ganhou" e guardar; depois abrir o Diário | No Diário fica uma entrada "Fecho da semana" nessa criança, com o que escreveste (P-19) |  |
 | V-28 | Plano Semanal | Depois de marcar temas como "Ficou aprendido", gerar o plano seguinte | As atividades não voltam a ensinar esses temas e sobem um degrau (P-09) |  |
+| V-29 | Plano Semanal | Escrever no formulário, ir a outra página da app (ou a outra aplicação do telemóvel) e voltar | O que escreveste continua lá (T-11) |  |
+| V-30 | Plano Semanal | Gerar um plano e, sem guardar, sair da página e voltar | O plano reaparece com o aviso "Recuperámos o plano que estavam a preparar" (T-11) |  |
+| V-31 | Plano Semanal | Num plano já guardado: tocar em Regenerar, gerar de novo e Guardar. Depois trocar uma atividade e tocar em Atualizar | Guarda sem erro e a versão sobe. Se aparecer um erro, copia-me o texto: agora mostra o motivo (T-11) |  |
 
 ## Ordem de implementação
 
@@ -203,9 +199,10 @@ Pedidos grandes com valor real. Ficam para depois do lançamento.
 |---|---|---|---|---|---|
 | I-07 | Áreas de aprendizagem próprias (ex.: inglês, autoconhecimento e espiritualidade, autonomia e vida prática) | Equipa. Proposta: catálogo de áreas opcionais e uma área livre | M/B | L | Em estudo. BD |
 | I-08 | Módulo católico: calendário litúrgico, santo do dia, catecismo | F-01 (e outra família referida). Conteúdo revisto, não gerado; rever doc 04 (crenças religiosas) | M/B | L | Em estudo |
-| I-01 | Índices dos manuais: a família escreve o índice (unidades e páginas) e o Rumo do ano e o plano semanal passam a seguir o manual nessa disciplina | F-01 (INS-01, INS-05), F-02 (13 nov). Só títulos e páginas, nunca o conteúdo. A validação jurídica (A-09) continua em aberto. Calendário por família fica para o P-24 | A/A | L | Publicado a 14 nov. Por confirmar com uma família |
+| I-01 | Índices dos manuais: a família escreve o índice (unidades e páginas) e o Rumo do ano e o plano semanal passam a seguir o manual nessa disciplina | F-01 (INS-01, INS-05), F-02 (13 nov). Só títulos e páginas, nunca o conteúdo. A validação jurídica (A-09) continua em aberto. Calendário por família fica para o P-24 | A/A | L | Publicado a 14 nov. Por confirmar com uma família A 16 nov: uma linha por tema, unidades reconhecidas, e serve também para cursos e PDF (cola-se o índice) |
 | I-02 | Sequências por metodologia (ex.: Montessori), avançando conforme a criança | F-03 (INS-04) | M/B | L | À espera das respostas da F-03 (Q-15). Não se inventa uma sequência com a IA |
-| I-13 | Direitos e deveres: guia das leis do ensino doméstico com ligação às fontes oficiais e modelos de requerimento à escola | Elton, 15 nov: famílias precisam de se orientar e, por vezes, de se defender (ex.: escola que recusa acompanhamento, AEC, professor-tutor). Sem chatbot nesta fase | A/M | M | Especificação enviada a 15 nov, à espera de OK (Q-16). Textos precisam de revisão jurídica |
+| I-14 | Carregar o PDF de um manual ou curso para a app ler o índice | Elton, 16 nov. Há famílias que seguem PDF comprados a vários criadores | M/B | L | Aguarda decisão (Q-17). Direitos de autor por validar |
+| I-13 | Direitos e deveres: guia das leis do ensino doméstico com ligação às fontes oficiais e modelos de requerimento à escola | Elton, 15 nov: famílias precisam de se orientar e, por vezes, de se defender (ex.: escola que recusa acompanhamento, AEC, professor-tutor). Sem chatbot nesta fase | A/M | M | Aprovado a 16 nov, com revisão mensal. Por fazer: é o próximo. Textos precisam de revisão jurídica |
 | I-09 | Currículo de 5.º e 6.º ano, e mais tarde 3.º ciclo | F-04 | M/B | L | Em estudo |
 
 ## E10 · Comunidade, conteúdos e negócio
@@ -230,6 +227,7 @@ Ideias para quando o núcleo estiver sólido.
 | T-03 | Decidir o destino das páginas mock (Fórum, Comunidade, Formação para Pais) e das pastas soltas na raiz | Auditoria (FASE 3.6) | B/M | S | Aguarda decisão |
 | T-04 | Corrigir ou apagar Ponto de situação/contexto_chat.json | Auditoria | B/B | S | Por fazer |
 | T-01 | Auditoria em telemóvel real: câmara, botões, PWA | Auditoria (FASE 3.5) | M/M | S | Aguarda Elton |
+| T-11 | Plano Semanal perdia o formulário e o plano por guardar ao sair da página ou ao voltar à app | Elton, 16 nov (testes). A app recarregava o ecrã sempre que regressava ao primeiro plano | A/A | S | Publicado a 16 nov. Por confirmar (V-29 a V-31) |
 | T-05 | Confirmar que as migrações locais correspondem à produção | Auditoria | M/B | S | Em pausa (depende de B-04) |
 
 ## Feito recentemente
