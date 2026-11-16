@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { track } from "@/lib/analytics";
 import type { Family } from "@/lib/types";
+import { clearPlanDrafts } from "@/lib/planDraft";
 
 interface AuthContextValue {
   session: Session | null;
@@ -28,6 +29,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [family, setFamily] = useState<Family | null>(null);
+  // O Supabase volta a emitir eventos de sessão sempre que a app regressa ao
+  // primeiro plano. Se a família não mudou, mantém-se o mesmo objeto, para os
+  // ecrãs não recarregarem (o Plano Semanal perdia o plano por guardar).
+  const keepFamily = (next: Family | null) =>
+    setFamily((prev) => (prev && next && JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
   const [registeredAt, setRegisteredAt] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .maybeSingle();
 
     if (owned) {
-      setFamily(owned as Family);
+      keepFamily(owned as Family);
       setRegisteredAt((owned as Family).created_at ?? null);
       setIsOwner(true);
       return;
@@ -54,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq("user_id", userId)
       .maybeSingle();
 
-    setFamily((membership?.families as unknown as Family) ?? null);
+    keepFamily((membership?.families as unknown as Family) ?? null);
     setRegisteredAt(membership?.joined_at ?? null);
     setIsOwner(false);
   };
@@ -111,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    clearPlanDrafts();
     await supabase.auth.signOut();
   };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { format, addDays } from "date-fns";
 import { Loader2 } from "lucide-react";
@@ -28,6 +28,8 @@ import {
   formatWeekRange,
   type GeneratedPlanItem,
 } from "@/lib/planGenerator";
+import { Button } from "@/components/ui/button";
+import { loadDraft, removeDraft, saveDraft, type PlanDraft } from "@/lib/planDraft";
 import { getLastWeekTheme, generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
@@ -55,6 +57,13 @@ function serializeNotesField(notes: string, readingTheme: string): string | null
   if (!notes && !readingTheme) return null;
   if (!readingTheme) return notes;
   return JSON.stringify({ notes, readingTheme });
+}
+
+/** Os erros do Supabase são objetos simples, não Error: mostra a mensagem na mesma. */
+function errorText(e: unknown, fallback: string): string {
+  if (e instanceof Error) return e.message;
+  const m = (e as { message?: unknown } | null)?.message;
+  return typeof m === "string" && m ? `${fallback}: ${m}` : fallback;
 }
 
 // Keep serializeNotesField in scope — used indirectly for backward compat
@@ -96,6 +105,9 @@ export default function WeeklyPlanner() {
   const [showProgressDialog, setShowProgressDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingExisting, setLoadingExisting] = useState(true);
+  const loadedWeekRef = useRef<string | null>(null);
+  const baselineRef = useRef<string | null>(null);
+  const [restoredDraft, setRestoredDraft] = useState(false);
 
   // Semana inicial é sempre a semana atual/próxima — o plano existente (se houver)
   // é carregado no efeito seguinte. Navegar para outra semana é feito manualmente
@@ -121,6 +133,9 @@ export default function WeeklyPlanner() {
   useEffect(() => {
     if (!family || !weekStartReady) return;
 
+    loadedWeekRef.current = null;
+    baselineRef.current = null;
+    setRestoredDraft(false);
     setPlanId(null);
     setPlanItems([]);
     setPlanVersion(1);
@@ -204,12 +219,59 @@ export default function WeeklyPlanner() {
           }
         } catch { /* sessionStorage indisponível — ignora */ }
       } finally {
+        loadedWeekRef.current = format(weekStart, "yyyy-MM-dd");
         setLoadingExisting(false);
       }
     };
 
     loadExisting();
-  }, [family, weekStart, weekStartReady]);
+    // family?.id e não family: o objeto pode ser recriado sem a família mudar
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [family?.id, weekStart, weekStartReady]);
+
+  // ─── Rascunho neste dispositivo: nada se perde ao sair da página ────────────
+  const weekKeyNow = format(weekStart, "yyyy-MM-dd");
+  const draftState: PlanDraft = useMemo(
+    () => ({ childInterests, weeklyContent, fridayActivity, notes, weeklyReadingTheme, weekTheme, step, planItems, planId, isNewGeneration }),
+    [childInterests, weeklyContent, fridayActivity, notes, weeklyReadingTheme, weekTheme, step, planItems, planId, isNewGeneration],
+  );
+  useEffect(() => {
+    if (!family || loadingExisting || generating || loadedWeekRef.current !== weekKeyNow) return;
+    const snapshot = JSON.stringify(draftState);
+    if (baselineRef.current === null) {
+      // Acabou de carregar: o que veio da base de dados é a referência
+      baselineRef.current = snapshot;
+      const draft = loadDraft(family.id, weekKeyNow);
+      if (draft && JSON.stringify(draft) !== snapshot) {
+        setChildInterests(draft.childInterests ?? {});
+        setWeeklyContent(draft.weeklyContent ?? {});
+        setFridayActivity(draft.fridayActivity ?? "");
+        setNotes(draft.notes ?? "");
+        setWeeklyReadingTheme(draft.weeklyReadingTheme ?? "");
+        setWeekTheme(draft.weekTheme ?? "");
+        if (draft.planItems.length > 0) {
+          setPlanItems(draft.planItems);
+          setIsNewGeneration(draft.isNewGeneration);
+          // Edições a um plano guardado só se repõem sobre esse mesmo plano
+          setPlanId(draft.isNewGeneration ? null : draft.planId);
+          setStep(draft.step);
+        } else {
+          setStep("form");
+        }
+        setRestoredDraft(true);
+      }
+      return;
+    }
+    if (snapshot === baselineRef.current) removeDraft(family.id, weekKeyNow);
+    else saveDraft(family.id, weekKeyNow, draftState);
+  }, [family, loadingExisting, generating, weekKeyNow, draftState]);
+
+  const discardDraft = () => {
+    if (family) removeDraft(family.id, weekKeyNow);
+    setRestoredDraft(false);
+    // volta a carregar a semana a partir da base de dados
+    setWeekStart((d) => new Date(d));
+  };
 
   const goToPrevWeek = () => setWeekStart((d) => addDays(d, -7));
   const goToNextWeek = () => setWeekStart((d) => addDays(d, 7));
@@ -219,6 +281,7 @@ export default function WeeklyPlanner() {
     setError(null);
     setPlanId(null);
     setIsNewGeneration(true);
+    setRestoredDraft(false);
     try {
       setGeneratingStep("A consultar o currículo NexSeed...");
       const schoolYears = [...new Set(children.map((c) => c.school_year))];
@@ -411,7 +474,7 @@ export default function WeeklyPlanner() {
         prev.map((i) => (planItemKey(i) === key ? { ...i, ...patch } : i))
       );
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Erro ao regenerar a atividade");
+      setError(errorText(e, "Erro ao regenerar a atividade"));
     } finally {
       setRegeneratingKey(null);
     }
@@ -477,6 +540,10 @@ export default function WeeklyPlanner() {
     setPlanId(savedPlanId);
     setPlanVersion(savedVersion);
     setIsNewGeneration(false);
+    // Guardado: deixa de haver rascunho e o estado atual passa a ser a referência
+    removeDraft(family.id, weekKey);
+    baselineRef.current = JSON.stringify({ ...draftState, planId: savedPlanId, isNewGeneration: false });
+    setRestoredDraft(false);
 
     await supabase.from("weekly_plan_items").delete().eq("plan_id", savedPlanId);
     const itemsToInsert = planItems.map((item) => ({ ...item, plan_id: savedPlanId }));
@@ -519,7 +586,7 @@ export default function WeeklyPlanner() {
       await persistPlan();
       if (wasNewGeneration) setShowProgressDialog(true);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Erro ao guardar");
+      setError(errorText(e, "Erro ao guardar"));
     } finally {
       setSaving(false);
     }
@@ -650,7 +717,7 @@ export default function WeeklyPlanner() {
       track("plan_emailed", {});
       setSent(true);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Erro ao enviar email");
+      setError(errorText(e, "Erro ao enviar email"));
     } finally {
       setSending(false);
     }
@@ -725,6 +792,19 @@ export default function WeeklyPlanner() {
             {error && (
               <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
                 {error}
+              </div>
+            )}
+
+            {(isNewGeneration || restoredDraft) && (
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/25 bg-primary/5 px-4 py-3 text-sm">
+                <span className="flex-1 text-foreground">
+                  {restoredDraft
+                    ? "Recuperámos o plano que estavam a preparar. Ainda não está guardado."
+                    : "Este plano ainda não está guardado. Se saírem da página, fica à vossa espera neste dispositivo."}
+                </span>
+                {restoredDraft && (
+                  <Button size="sm" variant="ghost" onClick={discardDraft}>Descartar</Button>
+                )}
               </div>
             )}
 

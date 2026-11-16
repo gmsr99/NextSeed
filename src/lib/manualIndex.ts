@@ -127,3 +127,19 @@ export function sliceLabel(s: ManualSlice): string {
   const part = s.parts ? ` · parte ${s.part} de ${s.parts}` : "";
   return `${s.title}${pages}${part}`;
 }
+
+const GROUP_RE = /^\s*((?:unidade|cap[ií]tulo|cap\.?|m[oó]dulo|bloco|parte|li[cç][aã]o|semana)\s*\d+)/i;
+
+/**
+ * Quantas unidades diferentes há no índice, quando as linhas são temas dentro
+ * de unidades ("Unidade 1 — Números até 20", "Unidade 1 — Contar de 2 em 2").
+ * 0 quando as linhas não indicam a unidade.
+ */
+export function countGroups(entries: ManualEntry[]): number {
+  const groups = new Set<string>();
+  for (const e of entries) {
+    const m = e.title.match(GROUP_RE);
+    if (m) groups.add(m[1].toLowerCase().replace(/\s+/g, " "));
+  }
+  return groups.size;
+}

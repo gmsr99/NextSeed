@@ -11,13 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
-import { MANUAL_DISCIPLINES, formatIndex, hasUsablePages, parseIndex } from "@/lib/manualIndex";
+import { MANUAL_DISCIPLINES, countGroups, formatIndex, hasUsablePages, parseIndex } from "@/lib/manualIndex";
 import { useChildManuals, type ChildManual } from "@/hooks/useChildManuals";
 import { schoolYearStartFor } from "@/lib/annualPlan";
 import { useFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import type { Child } from "@/lib/types";
 
-const EXAMPLE = "Unidade 1 — Números até 100 ... 6\nUnidade 2 — Adição e subtração ... 24\nUnidade 3 — Figuras geométricas ... 40";
+const EXAMPLE = "Unidade 1 — Números até 100 ... 6\nUnidade 1 — Contar de 2 em 2 ... 10\nUnidade 1 — Maior, menor, igual ... 14\nUnidade 2 — Adição até 100 ... 24\nUnidade 2 — Subtração até 100 ... 30";
 
 export default function ManualsCard({ child }: { child: Child }) {
   const { manuals, available, isLoading, save, remove } = useChildManuals();
@@ -37,6 +37,7 @@ export default function ManualsCard({ child }: { child: Child }) {
 
   const entries = useMemo(() => parseIndex(text), [text]);
   const paged = hasUsablePages(entries);
+  const groups = countGroups(entries);
   const taken = new Set(mine.filter((m) => m.id !== editingId).map((m) => m.discipline));
   const free = MANUAL_DISCIPLINES.filter((d) => !taken.has(d));
 
@@ -91,7 +92,7 @@ export default function ManualsCard({ child }: { child: Child }) {
     <Card className="border-border/60">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 font-heading text-base">
-          <BookMarked className="h-4 w-4 text-primary" /> Manuais de {child.name}
+          <BookMarked className="h-4 w-4 text-primary" /> Manuais, cursos e PDF de {child.name}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -103,8 +104,9 @@ export default function ManualsCard({ child }: { child: Child }) {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              Se trabalham com um manual, escrevam aqui o índice. Nessa disciplina, o rumo do ano e o plano semanal
-              passam a seguir o manual, unidade a unidade.
+              Se trabalham com um manual, um curso ou um PDF que compraram, escrevam ou colem aqui o índice. Nessa
+              disciplina, o rumo do ano e o plano semanal passam a segui-lo, tema a tema. O ficheiro fica convosco: a
+              NexSeed só precisa dos títulos e das páginas.
             </p>
             {mine.length > 0 && (
               <ul className="divide-y divide-border/60 rounded-lg border border-border/60">
@@ -139,9 +141,9 @@ export default function ManualsCard({ child }: { child: Child }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Editar manual" : "Adicionar manual"}</DialogTitle>
+            <DialogTitle>{editingId ? "Editar manual, curso ou PDF" : "Adicionar manual, curso ou PDF"}</DialogTitle>
             <DialogDescription>
-              Só o índice: os títulos das unidades e, se quiserem, a página onde cada uma começa.
+              Só o índice: os títulos dos temas e, se quiserem, a página onde cada um começa. Podem copiá-lo do PDF e colar.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -158,7 +160,7 @@ export default function ManualsCard({ child }: { child: Child }) {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="manual-title">Nome do manual</Label>
+                <Label htmlFor="manual-title">Nome</Label>
                 <Input id="manual-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="Ex: Matemática 2" />
               </div>
             </div>
@@ -173,13 +175,16 @@ export default function ManualsCard({ child }: { child: Child }) {
                 className="font-mono text-xs"
               />
               <p className="text-xs text-muted-foreground">
-                Uma unidade por linha. Com o número da página no fim da linha, a NexSeed dá mais semanas às unidades
-                maiores e diz que páginas trabalhar em cada semana.
+                Uma linha por tema. Se o manual tem unidades com vários temas, repitam a unidade no início de cada
+                linha, como no exemplo: a NexSeed percebe que são temas da mesma unidade. Com o número da página no fim,
+                dá mais semanas aos temas maiores e diz que páginas trabalhar em cada semana.
               </p>
               <p className="text-xs font-medium text-foreground" aria-live="polite">
                 {entries.length === 0
-                  ? "Ainda sem unidades."
-                  : `${entries.length} ${entries.length === 1 ? "unidade" : "unidades"}${
+                  ? "Ainda sem temas."
+                  : `${entries.length} ${entries.length === 1 ? "tema" : "temas"}${
+                      groups > 1 && groups < entries.length ? `, em ${groups} unidades` : ""
+                    }${
                       paged ? ", com páginas" : entries.some((e) => e.page) ? ". Faltam páginas em algumas linhas: reparte por igual" : ", sem páginas: reparte por igual"
                     }.`}
               </p>
@@ -195,7 +200,7 @@ export default function ManualsCard({ child }: { child: Child }) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Se já vão a meio do manual, escrevam só as unidades que faltam.
+                Se já vão a meio, escrevam só os temas que faltam.
               </p>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages } from "../manualIndex";
+import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups } from "../manualIndex";
 import { buildAnnualPlan, weekFocus, type AnnualContent } from "../annualPlan";
 
 describe("parseIndex", () => {
@@ -122,5 +122,16 @@ describe("rumo do ano com manual", () => {
     // antes disso, a disciplina não tem nada marcado (o currículo já não se aplica)
     expect(late.weeks.slice(0, 8).every((w) => !w.byDiscipline.matematica)).toBe(true);
     expect(late.weeks.at(-2)!.byDiscipline.matematica.at(-1)!.content).toMatch(/^U3/);
+  });
+});
+
+describe("countGroups (V-05)", () => {
+  it("conta as unidades quando as linhas são temas dentro de unidades", () => {
+    const e = parseIndex("Unidade 1 — Números até 100 ... 6\nUnidade 1 — Contar de 2 em 2 ... 10\nunidade  2 — Adição ... 24\nCapítulo 3: Medir ... 40");
+    expect(e).toHaveLength(4);
+    expect(countGroups(e)).toBe(3);
+  });
+  it("0 quando as linhas não indicam a unidade", () => {
+    expect(countGroups(parseIndex("Frações ... 4\nMedidas ... 9"))).toBe(0);
   });
 });
