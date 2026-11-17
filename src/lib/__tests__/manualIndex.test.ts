@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups } from "../manualIndex";
+import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, currentPageOf, remainingEntries } from "../manualIndex";
 import { buildAnnualPlan, weekFocus, type AnnualContent } from "../annualPlan";
 
 describe("parseIndex", () => {
@@ -133,5 +133,29 @@ describe("countGroups (V-05)", () => {
   });
   it("0 quando as linhas não indicam a unidade", () => {
     expect(countGroups(parseIndex("Frações ... 4\nMedidas ... 9"))).toBe(0);
+  });
+});
+
+describe("página onde vão", () => {
+  const idx = parseIndex("Números ... 6\nContar ... 12\nAdição ... 24\nSubtração ... 40\nFiguras ... 52");
+  it("marca feitos os temas antes e retoma o tema começado", () => {
+    const e = applyCurrentPage(idx, 30);
+    expect(e.map((x) => !!x.done)).toEqual([true, true, false, false, false]);
+    expect(e[2].from).toBe(31);
+    expect(currentPageOf(e)).toBe(30);
+    const left = remainingEntries(e);
+    expect(left.map((x) => x.index)).toEqual([2, 3, 4]);
+    expect(left[0].entry.page).toBe(31);
+  });
+  it("página no fim de um tema: o seguinte começa inteiro", () => {
+    const e = applyCurrentPage(idx, 23);
+    expect(e.filter((x) => x.done)).toHaveLength(2);
+    expect(e[2].from).toBeUndefined();
+    expect(currentPageOf(e)).toBe(23);
+    expect(currentPageOf(applyCurrentPage(idx, 39))).toBe(39);
+  });
+  it("sem página limpa as marcas", () => {
+    expect(applyCurrentPage(applyCurrentPage(idx, 30), null)).toEqual(idx);
+    expect(currentPageOf(idx)).toBeNull();
   });
 });

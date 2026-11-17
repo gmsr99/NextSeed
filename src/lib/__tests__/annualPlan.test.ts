@@ -1,8 +1,8 @@
+import { applyCurrentPage } from "../manualIndex";
 import { describe, it, expect } from "vitest";
 import {
   schoolWeeks, buildAnnualPlan, planWeekFor, weekFocus, easterSunday, schoolYearStartFor, mondayOf,
-  type AnnualContent,
-} from "../annualPlan";
+  type AnnualContent, manualLabel } from "../annualPlan";
 
 const iso = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -114,5 +114,26 @@ describe("buildAnnualPlan", () => {
       expect(weekFocus(plan, new Date(2026, 11, 28))).toBeNull(); // Natal
       expect(weekFocus(plan, new Date(2027, 7, 2))).toBeNull(); // agosto
     });
+  });
+});
+
+describe("vários manuais e página onde vão", () => {
+  it("dois manuais na mesma disciplina seguem lado a lado, cada um com o seu nome", () => {
+    const plan = buildAnnualPlan([], 2026, [
+      { discipline: "matematica", title: "Manual", entries: [{ title: "A", page: 1 }, { title: "B", page: 20 }], start_date: "2026-09-01" },
+      { discipline: "matematica", title: "Fichas", entries: [{ title: "F1" }, { title: "F2" }], start_date: "2026-09-01" },
+    ]);
+    const all = plan.weeks.flatMap((w) => w.byDiscipline.matematica ?? []);
+    expect(all.some((c) => c.content.startsWith("Manual: "))).toBe(true);
+    expect(all.some((c) => c.content.startsWith("Fichas: "))).toBe(true);
+    expect(new Set(all.map((c) => c.id)).size).toBe(all.length);
+    expect(manualLabel(all)).toBe("Manual + Fichas");
+  });
+  it("com a página marcada, só o que falta entra no rumo", () => {
+    const entries = applyCurrentPage([{ title: "A", page: 1 }, { title: "B", page: 20 }, { title: "C", page: 40 }], 25);
+    const plan = buildAnnualPlan([], 2026, [{ discipline: "matematica", title: "M", entries, start_date: "2026-11-16" }]);
+    const all = plan.weeks.flatMap((w) => w.byDiscipline.matematica ?? []);
+    expect(all.some((c) => c.content.startsWith("A"))).toBe(false);
+    expect(all[0].content).toMatch(/^B \(pp?\. 26/);
   });
 });

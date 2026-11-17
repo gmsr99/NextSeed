@@ -8,6 +8,10 @@ export interface ManualEntry {
   title: string;
   /** Página onde a unidade começa (opcional) */
   page?: number;
+  /** Já trabalhado: fica no índice, mas não volta a entrar no rumo */
+  done?: boolean;
+  /** Tema começado: retoma nesta página */
+  from?: number;
 }
 
 export interface Manual {
@@ -50,6 +54,42 @@ export function parseIndex(text: string): ManualEntry[] {
     if (entries.length >= MAX_MANUAL_ENTRIES) break;
   }
   return entries;
+}
+
+/**
+ * Marca o que já foi feito até à página `page` (inclusive): os temas que acabam
+ * antes ficam feitos e o tema onde estão retoma na página seguinte. Sem página,
+ * ou sem páginas utilizáveis no índice, limpa as marcas.
+ */
+export function applyCurrentPage(entries: ManualEntry[], page: number | null): ManualEntry[] {
+  const clean = entries.map(({ title, page: p }) => (p ? { title, page: p } : { title }));
+  if (!page || page < 1 || !hasUsablePages(clean)) return clean;
+  return clean.map((e, i) => {
+    const next = clean[i + 1]?.page;
+    if (next !== undefined && next <= page + 1) return { ...e, done: true };
+    if (e.page! <= page) return { ...e, from: page + 1 };
+    return e;
+  });
+}
+
+/** Página até onde já foram, lida das marcas guardadas (null se não houver). */
+export function currentPageOf(entries: ManualEntry[]): number | null {
+  const resumed = entries.find((e) => e.from);
+  if (resumed) return resumed.from! - 1;
+  const firstOpen = entries.find((e) => !e.done);
+  if (!entries.some((e) => e.done)) return null;
+  return firstOpen?.page ? firstOpen.page - 1 : null;
+}
+
+/**
+ * Temas que ainda faltam, com a página de retoma no lugar da página de início.
+ * `index` aponta para a linha original do índice.
+ */
+export function remainingEntries(entries: ManualEntry[]): { entry: ManualEntry; index: number }[] {
+  return entries
+    .map((e, index) => ({ entry: e.from ? { title: e.title, page: e.from } : { title: e.title, page: e.page }, index, done: e.done }))
+    .filter((x) => !x.done)
+    .map(({ entry, index }) => ({ entry: entry.page ? entry : { title: entry.title }, index }));
 }
 
 /** Volta a escrever o índice em texto, para o editar. */

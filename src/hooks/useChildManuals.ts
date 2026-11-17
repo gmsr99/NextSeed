@@ -37,13 +37,15 @@ export function useChildManuals() {
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
   const save = useMutation({
-    mutationFn: async (m: { child_id: string; discipline: string; title: string; entries: ManualEntry[]; start_date: string }) => {
-      const { error } = await supabase
-        .from("child_manuals")
-        .upsert(
-          { ...m, entries: m.entries as unknown as Json, family_id: family!.id, updated_at: new Date().toISOString() },
-          { onConflict: "child_id,discipline" },
-        );
+    // Grava por id: com a migração 029 pode haver vários manuais na mesma disciplina
+    mutationFn: async (m: { id?: string | null; child_id: string; discipline: string; title: string; entries: ManualEntry[]; start_date: string }) => {
+      const row = {
+        child_id: m.child_id, discipline: m.discipline, title: m.title, start_date: m.start_date,
+        entries: m.entries as unknown as Json, family_id: family!.id, updated_at: new Date().toISOString(),
+      };
+      const { error } = m.id
+        ? await supabase.from("child_manuals").update(row).eq("id", m.id)
+        : await supabase.from("child_manuals").insert(row);
       if (error) throw error;
     },
     onSuccess: invalidate,

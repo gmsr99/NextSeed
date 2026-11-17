@@ -354,12 +354,10 @@ export default function WeeklyPlanner() {
 
           // I-01: nas disciplinas com manual, a semana segue sempre o manual,
           // mesmo que haja conteúdos do currículo marcados como "em progresso"
-          for (const m of childManuals) {
-            const list = focus?.[m.discipline];
+          for (const d of new Set(childManuals.map((m) => m.discipline))) {
+            const list = focus?.[d]?.filter((c) => c.fromManual);
             if (!list?.length) continue;
-            (manualFocusByChild[child.id] ??= {})[m.discipline] = list.map(
-              (c) => `[manual «${m.title}»] ${c.content}`,
-            );
+            (manualFocusByChild[child.id] ??= {})[d] = list.map((c) => `[manual «${c.domain}»] ${c.content}`);
           }
           const manualDisciplines = new Set(childManuals.map((m) => m.discipline));
 

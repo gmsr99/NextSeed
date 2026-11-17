@@ -10,6 +10,7 @@ import TagInput from "@/components/TagInput";
 import type { Child } from "@/lib/types";
 import { formatWeekRange } from "@/lib/planGenerator";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
+import { manualLabel } from "@/lib/annualPlan";
 import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
 
 // Disciplines shown per school year type
@@ -158,7 +159,7 @@ export function PlannerForm({
                             <li key={d}>
                               <span className="font-medium">
                                 {GC_DISCIPLINE_LABELS[d] ?? d}
-                                {list[0]?.fromManual ? ` (${list[0].domain})` : ""}:
+                                {list[0]?.fromManual ? ` (${manualLabel(list)})` : ""}:
                               </span>{" "}
                               <span className="text-muted-foreground">{list.map((c) => c.content).join(" · ")}</span>
                             </li>

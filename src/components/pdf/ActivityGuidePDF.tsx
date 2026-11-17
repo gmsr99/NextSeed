@@ -4,6 +4,7 @@ import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, collectMaterials, for
 import type { Child } from "@/lib/types";
 import { splitPortfolio, weekPortfolioList } from "@/lib/portfolioHints";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
+import { manualLabel } from "@/lib/annualPlan";
 import { DAY_QUESTIONS, QUESTION_TIP, SHORT_DAY, DAILY_LOG, WEEK_CLOSE, reviewLines } from "@/lib/weekGuide";
 import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
 
@@ -85,7 +86,7 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
                 {children.length > 1 && <Text style={S.boxChild}>{child.name}</Text>}
                 {Object.entries(weekFocus[child.id].focus).map(([d, list]) => (
                   <Text key={d} style={S.boxLine}>
-                    {GC_DISCIPLINE_LABELS[d] ?? d}{list[0]?.fromManual ? ` (${list[0].domain})` : ""}: {list.map((c) => c.content).join(" · ")}
+                    {GC_DISCIPLINE_LABELS[d] ?? d}{list[0]?.fromManual ? ` (${manualLabel(list)})` : ""}: {list.map((c) => c.content).join(" · ")}
                   </Text>
                 ))}
               </View>

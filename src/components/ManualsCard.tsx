@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
-import { MANUAL_DISCIPLINES, countGroups, formatIndex, hasUsablePages, parseIndex } from "@/lib/manualIndex";
+import { MANUAL_DISCIPLINES, applyCurrentPage, countGroups, currentPageOf, formatIndex, hasUsablePages, parseIndex } from "@/lib/manualIndex";
 import { useChildManuals, type ChildManual } from "@/hooks/useChildManuals";
 import { schoolYearStartFor } from "@/lib/annualPlan";
 import { useFamilyCalendar } from "@/hooks/useFamilyCalendar";
@@ -34,18 +34,24 @@ export default function ManualsCard({ child }: { child: Child }) {
   const [text, setText] = useState("");
   // "now" = a partir desta semana; "year" = desde o início do ano letivo; "keep" = como estava
   const [startMode, setStartMode] = useState<"now" | "year" | "keep">("now");
+  // Página até onde já trabalharam (opcional)
+  const [pageText, setPageText] = useState("");
+  const [savedPage, setSavedPage] = useState<number | null>(null);
 
   const entries = useMemo(() => parseIndex(text), [text]);
   const paged = hasUsablePages(entries);
   const groups = countGroups(entries);
-  const taken = new Set(mine.filter((m) => m.id !== editingId).map((m) => m.discipline));
-  const free = MANUAL_DISCIPLINES.filter((d) => !taken.has(d));
+  const currentPage = /^\d{1,4}$/.test(pageText.trim()) ? Number(pageText.trim()) : null;
+  const lastPage = paged ? entries[entries.length - 1].page! : null;
+  const pageOutOfRange = currentPage !== null && lastPage !== null && currentPage >= lastPage + 200;
 
   const openNew = () => {
     setEditingId(null);
-    setDiscipline(free[0] ?? "");
+    setDiscipline(MANUAL_DISCIPLINES.find((d) => !mine.some((m) => m.discipline === d)) ?? MANUAL_DISCIPLINES[0]);
     setTitle("");
     setText("");
+    setPageText("");
+    setSavedPage(null);
     setStartMode("now");
     setOpen(true);
   };
@@ -54,6 +60,9 @@ export default function ManualsCard({ child }: { child: Child }) {
     setDiscipline(m.discipline);
     setTitle(m.title);
     setText(formatIndex(m.entries));
+    const p = currentPageOf(m.entries);
+    setSavedPage(p);
+    setPageText(p ? String(p) : "");
     setStartMode(m.start_date ? "keep" : "year");
     setOpen(true);
   };
@@ -63,17 +72,28 @@ export default function ManualsCard({ child }: { child: Child }) {
       const previous = mine.find((m) => m.id === editingId);
       const today = new Date();
       const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      // Mudou a página onde vão: o que falta reparte-se a partir desta semana
+      const pageChanged = currentPage !== savedPage;
       const start_date =
-        startMode === "keep" && previous?.start_date ? previous.start_date
+        currentPage && pageChanged ? iso(today)
+        : startMode === "keep" && previous?.start_date ? previous.start_date
         : startMode === "year" ? yearStart
         : iso(today);
-      await save.mutateAsync({ child_id: child.id, discipline, title: title.trim(), entries, start_date });
-      // Mudou de disciplina ao editar: o registo antigo deixa de fazer sentido
-      if (previous && previous.discipline !== discipline) await remove.mutateAsync(previous.id);
+      await save.mutateAsync({
+        id: editingId, child_id: child.id, discipline, title: title.trim(),
+        entries: applyCurrentPage(entries, currentPage), start_date,
+      });
       setOpen(false);
       toast({ title: "Manual guardado", description: "O rumo do ano já segue este índice." });
-    } catch {
-      toast({ title: "Não foi possível guardar", description: "Tenta outra vez daqui a pouco.", variant: "destructive" });
+    } catch (e) {
+      const dup = (e as { code?: string } | null)?.code === "23505";
+      toast({
+        title: "Não foi possível guardar",
+        description: dup
+          ? "Um segundo manual na mesma disciplina fica disponível depois de uma atualização que já pedimos. Por agora, podem juntar os dois índices num só."
+          : "Tenta outra vez daqui a pouco.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -116,7 +136,8 @@ export default function ManualsCard({ child }: { child: Child }) {
                       <p className="truncate text-sm font-medium text-foreground">{m.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {GC_DISCIPLINE_LABELS[m.discipline] ?? m.discipline} · {m.entries.length}{" "}
-                        {m.entries.length === 1 ? "unidade" : "unidades"}
+                        {m.entries.length === 1 ? "tema" : "temas"}
+                        {currentPageOf(m.entries) ? ` · vão na página ${currentPageOf(m.entries)}` : ""}
                       </p>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(m)} aria-label={`Editar ${m.title}`}>
@@ -129,10 +150,13 @@ export default function ManualsCard({ child }: { child: Child }) {
                 ))}
               </ul>
             )}
-            {free.length > 0 && (
-              <Button variant="outline" size="sm" onClick={openNew}>
-                <Plus className="mr-1.5 h-4 w-4" /> Adicionar manual
-              </Button>
+            <Button variant="outline" size="sm" onClick={openNew}>
+              <Plus className="mr-1.5 h-4 w-4" /> {mine.length > 0 ? "Adicionar outro" : "Adicionar manual"}
+            </Button>
+            {mine.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Podem ter mais do que um na mesma disciplina, por exemplo o manual e o caderno de fichas.
+              </p>
             )}
           </>
         )}
@@ -153,7 +177,7 @@ export default function ManualsCard({ child }: { child: Child }) {
                 <Select value={discipline} onValueChange={setDiscipline}>
                   <SelectTrigger id="manual-discipline"><SelectValue placeholder="Escolher" /></SelectTrigger>
                   <SelectContent>
-                    {free.map((d) => (
+                    {MANUAL_DISCIPLINES.map((d) => (
                       <SelectItem key={d} value={d}>{GC_DISCIPLINE_LABELS[d] ?? d}</SelectItem>
                     ))}
                   </SelectContent>
@@ -189,6 +213,22 @@ export default function ManualsCard({ child }: { child: Child }) {
                     }.`}
               </p>
             </div>
+            {paged && (
+              <div className="space-y-1.5">
+                <Label htmlFor="manual-page">Já fizeram até à página (opcional)</Label>
+                <Input
+                  id="manual-page" inputMode="numeric" className="w-32" value={pageText}
+                  onChange={(e) => setPageText(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  placeholder="Ex: 39"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {currentPage
+                    ? `Os temas antes da página ${currentPage + 1} ficam feitos e o rumo continua daí, a partir desta semana.`
+                    : "Se já começaram, escrevam a última página trabalhada: o rumo continua a partir da seguinte."}
+                  {pageOutOfRange ? " Confirmem o número: é bem maior do que a última página do índice." : ""}
+                </p>
+              </div>
+            )}
             <div className="space-y-1.5">
               <Label htmlFor="manual-start">Repartir o manual</Label>
               <Select value={startMode} onValueChange={(v) => setStartMode(v as typeof startMode)}>
@@ -200,7 +240,7 @@ export default function ManualsCard({ child }: { child: Child }) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Se já vão a meio, escrevam só os temas que faltam.
+                {paged ? "Com a página preenchida, reparte sempre a partir desta semana." : "Se já vão a meio, escrevam só os temas que faltam."}
               </p>
             </div>
           </div>

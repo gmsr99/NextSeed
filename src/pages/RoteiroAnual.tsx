@@ -22,7 +22,7 @@ import { paceUntil } from "@/lib/weekClose";
 import FamilyCalendarCard from "@/components/FamilyCalendarCard";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
-  planWeekFor, weekFocus, formatWeekShort, mondayOf,
+  planWeekFor, weekFocus, formatWeekShort, mondayOf, manualLabel,
   type AnnualContent, type AnnualPlan, type Period, type PlanWeek,
 } from "@/lib/annualPlan";
 
@@ -61,7 +61,7 @@ function Disciplines({ byDiscipline, status }: { byDiscipline: Record<string, An
         <div key={d}>
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {GC_DISCIPLINE_LABELS[d] ?? d}
-            {items[0]?.fromManual && <span className="font-normal normal-case tracking-normal"> · {items[0].domain}</span>}
+            {items[0]?.fromManual && <span className="font-normal normal-case tracking-normal"> · {manualLabel(items)}</span>}
           </p>
           <ContentList items={items} status={status} />
         </div>

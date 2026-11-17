@@ -15,7 +15,7 @@
 // Hipótese (até haver calendário por família, P-04): calendário escolar oficial
 // do 1.º ciclo, aproximado à semana. Só o Natal e a Páscoa contam como pausa.
 
-import { distributeManual, sliceLabel, type Manual } from "./manualIndex";
+import { distributeManual, remainingEntries, sliceLabel, type Manual } from "./manualIndex";
 
 export type Period = "1" | "2" | "3";
 
@@ -270,26 +270,37 @@ export function buildAnnualPlan(
   const withManual = new Set(manuals.filter((m) => m.entries.length > 0).map((m) => m.discipline));
   const contents = allContents.filter((c) => !withManual.has(c.discipline));
   const teaching = weeks.filter((w) => !w.isReview);
-  for (const manual of manuals) {
-    if (!withManual.has(manual.discipline)) continue;
+  // Vários manuais na mesma disciplina (ex.: manual e caderno de fichas):
+  // cada um segue o seu índice e o tema leva o nome do manual à frente
+  const perDiscipline = new Map<string, number>();
+  for (const m of manuals) if (m.entries.length > 0) perDiscipline.set(m.discipline, (perDiscipline.get(m.discipline) ?? 0) + 1);
+  manuals.forEach((manual, k) => {
+    if (!withManual.has(manual.discipline) || manual.entries.length === 0) return;
+    const several = (perDiscipline.get(manual.discipline) ?? 0) > 1;
+    const left = remainingEntries(manual.entries);
+    if (left.length === 0) return;
     // O manual reparte-se pelas semanas que faltam a partir da data em que a
     // família começa a usá-lo; se já não houver semanas, pelo ano inteiro.
     const from = manual.start_date ? mondayOf(new Date(`${manual.start_date}T12:00:00`)).getTime() : 0;
     const remaining = teaching.filter((w) => w.monday.getTime() >= from);
     const span = remaining.length > 0 ? remaining : teaching;
-    distributeManual(manual.entries, span.length).forEach((slices, i) => {
+    distributeManual(left.map((x) => x.entry), span.length).forEach((slices, i) => {
       if (slices.length === 0) return;
-      span[i].byDiscipline[manual.discipline] = slices.map((s) => ({
-        id: `manual:${manual.discipline}:${s.entryIndex}:${s.part ?? 1}`,
-        discipline: manual.discipline,
-        period: span[i].period,
-        domain: manual.title,
-        content: sliceLabel(s),
-        sort_order: s.entryIndex,
-        fromManual: true,
-      }));
+      const list = (span[i].byDiscipline[manual.discipline] ??= []);
+      for (const s of slices) {
+        const line = left[s.entryIndex].index;
+        list.push({
+          id: `manual:${manual.discipline}:${k}:${line}:${s.part ?? 1}`,
+          discipline: manual.discipline,
+          period: span[i].period,
+          domain: manual.title,
+          content: several ? `${manual.title}: ${sliceLabel(s)}` : sliceLabel(s),
+          sort_order: k * 1000 + line,
+          fromManual: true,
+        });
+      }
     });
-  }
+  });
 
   // Agrupar por período → disciplina → domínio (cada domínio é um fio que avança)
   const strands = new Map<string, AnnualContent[]>();
@@ -382,4 +393,9 @@ export function formatWeekShort(monday: Date): string {
   const dm: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
   const start = sameMonth ? String(monday.getDate()) : monday.toLocaleDateString("pt-PT", dm);
   return `${start} a ${friday.toLocaleDateString("pt-PT", dm)}`;
+}
+
+/** Nome a mostrar para os manuais de uma disciplina ("Matemática 2 + Caderno de fichas"). */
+export function manualLabel(list: AnnualContent[]): string {
+  return [...new Set(list.filter((c) => c.fromManual).map((c) => c.domain).filter(Boolean))].join(" + ");
 }
