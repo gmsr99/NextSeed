@@ -98,6 +98,11 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Por testar: geração real com a IA (só o texto do pedido foi verificado) e gravação da entrada do Diário na base de dados real.
 - Por decidir: referência por criança em vez do currículo nacional como base (P-25, Q-14).
 
+## Manuais: vários por disciplina e página onde vão (17 nov)
+- O cartão de manuais grava por id. Com a migração **029** (por aplicar pelo Gil) pode haver mais do que um manual na mesma disciplina (ex.: manual e caderno de fichas); cada um segue o seu índice e o nome do manual aparece à frente de cada tema. Antes da 029 o segundo manual não grava e a família vê uma mensagem clara.
+- "Já fizeram até à página": marca como feitos os temas anteriores e retoma o tema começado na página seguinte (marcas `done`/`from` dentro de `entries`, sem coluna nova). O rumo passa a repartir o que falta a partir desta semana.
+- Testado com dados simulados num browser; não testado na base de dados real.
+
 ## Correções dos testes de 16 nov
 - **Plano Semanal não se perde (T-11):** a app recarregava o ecrã sempre que voltava ao primeiro plano (evento de sessão do Supabase) e apagava o plano por guardar. Corrigido no `AuthContext`. Além disso, o formulário e o plano por guardar ficam num rascunho neste dispositivo (`src/lib/planDraft.ts`), por família e semana; apaga-se ao guardar e ao terminar a sessão.
 - Erros ao guardar passam a mostrar o motivo. A falha "não deixa guardar" não foi reproduzida como erro da base de dados; a causa provável era o recarregamento acima. Por confirmar (V-31).

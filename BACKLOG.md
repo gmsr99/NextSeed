@@ -1,6 +1,6 @@
 # NexSeed: backlog de produto e desenvolvimento
 
-Última atualização: 16 de novembro de 2026
+Última atualização: 17 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -69,6 +69,8 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-29 | Plano Semanal | Escrever no formulário, ir a outra página da app (ou a outra aplicação do telemóvel) e voltar | O que escreveste continua lá (T-11) |  |
 | V-30 | Plano Semanal | Gerar um plano e, sem guardar, sair da página e voltar | O plano reaparece com o aviso "Recuperámos o plano que estavam a preparar" (T-11) |  |
 | V-31 | Plano Semanal | Num plano já guardado: tocar em Regenerar, gerar de novo e Guardar. Depois trocar uma atividade e tocar em Atualizar | Guarda sem erro e a versão sobe. Se aparecer um erro, copia-me o texto: agora mostra o motivo (T-11) |  |
+| V-32 | Rumo do ano | Editar o manual de Matemática e escrever 39 em "Já fizeram até à página"; guardar. Repetir para Português (23) e Estudo do Meio (31) | Na lista aparece "vão na página 39"; no rumo, a semana desta semana começa na página seguinte e os temas anteriores já não aparecem (I-16) |  |
+| V-33 | Rumo do ano | Tocar em "Adicionar outro", escolher Matemática e colar o índice do caderno de fichas | Só depois de o Gil aplicar a migração 029: a semana de Matemática mostra os dois, cada um com o seu nome. Antes disso aparece uma mensagem a dizer que fica disponível depois de uma atualização (I-15) |  |
 
 ## Ordem de implementação
 
@@ -202,6 +204,8 @@ Pedidos grandes com valor real. Ficam para depois do lançamento.
 | I-01 | Índices dos manuais: a família escreve o índice (unidades e páginas) e o Rumo do ano e o plano semanal passam a seguir o manual nessa disciplina | F-01 (INS-01, INS-05), F-02 (13 nov). Só títulos e páginas, nunca o conteúdo. A validação jurídica (A-09) continua em aberto. Calendário por família fica para o P-24 | A/A | L | Publicado a 14 nov. Por confirmar com uma família. A 16 nov: uma linha por tema, unidades reconhecidas, e serve também para cursos e PDF (cola-se o índice) |
 | I-02 | Sequências por metodologia (ex.: Montessori), avançando conforme a criança | F-03 (INS-04) | M/B | L | À espera das respostas da F-03 (Q-15). Não se inventa uma sequência com a IA |
 | I-14 | Carregar o PDF de um manual ou curso para a app ler o índice | Elton, 16 nov. Há famílias que seguem PDF comprados a vários criadores | M/B | L | Aguarda decisão (Q-17). Direitos de autor por validar |
+| I-15 | Vários manuais na mesma disciplina (ex.: manual e caderno de fichas), cada um com o seu índice no rumo | Elton, 16 nov (testes) | M/M | S | Publicado a 17 nov. Falta o Gil aplicar a migração 029; até lá, o segundo manual na mesma disciplina não grava |
+| I-16 | Dizer em que página vão em cada manual; o rumo continua daí | Elton, 16 nov (testes): "é importante ter a opção de colocar em que página estamos" | A/M | S | Publicado a 17 nov. Por confirmar (V-32) |
 | I-13 | Direitos e deveres: guia das leis do ensino doméstico com ligação às fontes oficiais e modelos de requerimento à escola | Elton, 15 nov: famílias precisam de se orientar e, por vezes, de se defender (ex.: escola que recusa acompanhamento, AEC, professor-tutor). Sem chatbot nesta fase | A/M | M | Aprovado a 16 nov, com revisão mensal. Por fazer: é o próximo. Textos precisam de revisão jurídica |
 | I-09 | Currículo de 5.º e 6.º ano, e mais tarde 3.º ciclo | F-04 | M/B | L | Em estudo |
 
