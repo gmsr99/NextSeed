@@ -33,7 +33,7 @@ import { loadDraft, removeDraft, saveDraft, type PlanDraft } from "@/lib/planDra
 import { getLastWeekTheme, generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
-import { buildAnnualPlan, weekFocus, weeksFor, type AnnualContent } from "@/lib/annualPlan";
+import { buildAnnualPlan, planWeekFor, weekFocus, weeksFor, type AnnualContent } from "@/lib/annualPlan";
 import { fetchFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import { fetchFamilyRoutine, useFamilyRoutine } from "@/hooks/useFamilyRoutine";
 import type { WeekRoutine } from "@/lib/familyRoutine";
@@ -86,7 +86,12 @@ export default function WeeklyPlanner() {
   const { startTourIfUnseen } = useTour();
   const { activities: extracurriculars } = useExtracurricular();
 
-  const [weekStart, setWeekStart] = useState<Date>(getNextMonday());
+  // ?semana=proxima (vem do fecho da semana no Início): abre a semana seguinte
+  const [weekStart, setWeekStart] = useState<Date>(() => {
+    const m = getNextMonday();
+    const next = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("semana") === "proxima";
+    return next && new Date().getDay() >= 1 && new Date().getDay() <= 5 ? addDays(m, 7) : m;
+  });
   const [weekStartReady, setWeekStartReady] = useState(false);
   const weekFocusByChild = useWeekFocus(children, weekStart);
   const [childInterests, setChildInterests] = useState<Record<string, string[]>>({});
@@ -328,6 +333,8 @@ export default function WeeklyPlanner() {
       const hasFocus = new Set<string>();
       // P-09: o que a criança já domina, para a IA ajustar o nível (vem do Fechar a semana)
       const masteredByChild: Record<string, Record<string, string[]>> = {};
+      // DASH: temas da semana anterior que não foram dados
+      const leftoverByChild: Record<string, Record<string, string[]>> = {};
       await Promise.all(
         gcChildren.map(async (child) => {
           const dbYear = YEAR_MAP[child.school_year];
@@ -341,7 +348,7 @@ export default function WeeklyPlanner() {
 
           const { data: progressRows } = await supabase
             .from("child_content_progress")
-            .select("content_id, status")
+            .select("content_id, status, updated_at")
             .eq("child_id", child.id);
 
           const childManuals = manuals.filter((m) => m.child_id === child.id && m.entries.length > 0);
@@ -351,11 +358,23 @@ export default function WeeklyPlanner() {
 
           // P-12: sem marcações, o plano parte dos conteúdos desta semana no rumo
           // do ano. Em pausas e semanas de balanço não há foco: usa o período.
-          const focus = weekFocus(
-            buildAnnualPlan((allContents ?? []) as AnnualContent[], planWeeks, childManuals),
-            weekStart,
-            (id) => progressMap.get(id) === "dominado",
+          const childPlan = buildAnnualPlan((allContents ?? []) as AnnualContent[], planWeeks, childManuals);
+          const focus = weekFocus(childPlan, weekStart, (id) => progressMap.get(id) === "dominado");
+
+          // DASH §4: o que não foi dado na semana anterior passa para esta, ao
+          // lado do que está a consolidar (mesmo limite de dois por disciplina).
+          // Só para quem fecha as semanas (marcou algum tema nos últimos 14 dias).
+          const closesWeeks = (progressRows ?? []).some(
+            (p) => p.updated_at && Date.now() - new Date(p.updated_at).getTime() < 14 * 24 * 3600 * 1000,
           );
+          if (closesWeeks) {
+            const prevWeek = planWeekFor(childPlan, new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() - 7));
+            for (const c of Object.values(prevWeek?.byDiscipline ?? {}).flat()) {
+              if (c.fromManual || progressMap.get(c.id) === "dominado" || progressMap.get(c.id) === "em_progresso") continue;
+              const list = ((leftoverByChild[child.id] ??= {})[c.discipline] ??= []);
+              if (!list.includes(c.content)) list.push(c.content);
+            }
+          }
           if (focus) {
             hasFocus.add(child.id);
             gcCurrentByChild[child.id] = Object.fromEntries(
@@ -412,7 +431,14 @@ export default function WeeklyPlanner() {
           const focusNoManual = Object.fromEntries(
             Object.entries(gcCurrentByChild[child.id] ?? {}).filter(([d]) => !manualDisciplines.has(d)),
           );
-          gcProgressByChild[child.id] = mergeWeekContents(focusNoManual, inProgressByChild[child.id] ?? {});
+          const carry: Record<string, string[]> = {};
+          for (const src of [inProgressByChild[child.id] ?? {}, leftoverByChild[child.id] ?? {}]) {
+            for (const [d, list] of Object.entries(src)) {
+              if (manualDisciplines.has(d)) continue;
+              carry[d] = [...new Set([...(carry[d] ?? []), ...list])];
+            }
+          }
+          gcProgressByChild[child.id] = mergeWeekContents(focusNoManual, carry);
           continue;
         }
         if (!gcProgressByChild[child.id] && gcCurrentByChild[child.id]) {

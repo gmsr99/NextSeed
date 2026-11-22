@@ -84,6 +84,10 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-45 | Definições (só a F-01 e a equipa; depois da migração 032 e do convite) | Ver o cartão "Tradição da família (opcional)" e ligar: católica, calendário, próprio de Portugal, confirmar o consentimento | O cartão diz "Ligada"; a outras famílias o cartão não aparece (I-08) |  |
 | V-46 | Planeador e Guia de Atividades (com a tradição ligada) | Abrir a semana de 7 de dezembro e descarregar os PDF | Aparece "Esta semana na liturgia: 2.ª semana do Advento" e a Alma Redemptoris Mater; no horário, o bloco da manhã chama-se "Orações e liturgia". Sem fichas revistas, não aparece nenhuma celebração (I-08) |  |
 | V-47 | Definições (com a tradição ligada) | Tocar em "Acrescentar ao calendário da família"; depois "Desligar" | As pausas do Natal (21 dez a 3 jan) e da Semana Santa (22 mar a 4 abr) entram no calendário; desligar apaga a escolha e o Planeador deixa de mostrar a liturgia (I-08) |  |
+| V-48 | Início, num dia de aulas com plano | Ver o Hoje e marcar uma caixa | Cada criança mostra as atividades de hoje com caixa; marcar risca; "Ver o dia" e "Registar atividades" funcionam; não há Missões no Início (P-26) |  |
+| V-49 | Início | Tocar em "A semana" e depois em "O ano" | A semana: os 5 dias com feitas/previstas. O ano: frase "Faltam N temas em N semanas…", uma barra por disciplina com o traço do previsto, e "a consolidar" quando houver (P-26) |  |
+| V-50 | Início, sexta depois das 12h | Abrir a app | Aparece "Fechar a semana" uma vez, com os temas da semana; "Precisa de mais" só se ativa num tema marcado; no fim, "Semana fechada" e "Preparar a próxima semana" abre a semana seguinte no Planeador (P-26) |  |
+| V-51 | Planeador, semana a seguir a um fecho | Gerar o plano | Os temas não marcados e os "precisa de mais" voltam (no máximo dois por disciplina); a nota do fecho aparece no Diário e não no plano (P-26) |  |
 
 ## Ordem de implementação
 
@@ -186,6 +190,7 @@ O maior bloco de trabalho. Precisa de BD.
 | P-04 | Tempo por criança: dias da semana, minutos por dia, ano letivo próprio, variação inverno e verão | F-01, equipa (INS-03), Elton (testes de 22 nov: "à sexta só podemos fazer uma hora") | A/M | L | Parte publicada a 22 nov: dias de estudo e dias curtos, por família (migração 030). O ano letivo próprio já existe (P-24). Falta: minutos por criança e inverno/verão. BD |
 | P-17 | Blocos sem horas rígidas, com horas sugeridas por idade e metodologia e hora fixa opcional | Equipa | A/M | M | Depende de P-04 |
 | P-18 | "Ver Mundo" opcional, em qualquer dia, ou em mais do que um dia | Equipa, F-01, Elton (testes de 22 nov) | M/M | M | Publicado a 22 nov: saída à sexta ou sem saída (sexta passa a dia de estudo). Falta o Gil aplicar a migração 030. Fica para depois: saída noutro dia ou em mais do que um |
+| P-26 | Início redesenhado (DASH): Hoje com os itens de cada criança; caixas A semana e O ano; fecho da semana à sexta (dado, precisa de mais, nota); ritmo do ano até 30 de junho | Elton, 22 nov (spec claude/DASH_Redesenho_Inicio.md v3.1, aprovada às 23:16) | A/A | L | Fases 1, 2 e 4 publicadas a 22 nov. Fase 3: as revisões voltam pelo mecanismo que já existia ("retomar", até 2 por disciplina, na semana seguinte), sem formato próprio de revisão curta nem paragem ao fim de 3. Fase 5 (email de domingo e acertos que mudam o plano) por fazer: falta Q-DASH-5/6 e o doc 04 |
 
 ## E7 · Impressão e documentos
 

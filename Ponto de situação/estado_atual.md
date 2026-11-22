@@ -117,6 +117,13 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Erros ao guardar passam a mostrar o motivo. A falha "não deixa guardar" não foi reproduzida como erro da base de dados; a causa provável era o recarregamento acima. Por confirmar (V-31).
 - **Manuais, cursos e PDF (I-01):** uma linha por tema; a unidade repetida no início da linha é reconhecida ("3 temas, em 2 unidades"). O cartão serve também para cursos e PDF comprados: cola-se o índice, o ficheiro fica com a família. Carregar o ficheiro não está feito (I-14, Q-17).
 
+## Início redesenhado, DASH (22 nov)
+- `src/pages/Index.tsx`: Hoje (sem cor) com os itens de cada criança e caixa (`weekly_plan_items.completed_at`); caixas **A semana** (em dia, quase lá, por preparar) e **O ano** (ritmo até 30 de junho, folga até 31 de julho). Fim de semana sem plano: "A próxima semana" com o rumo. Sem Missões.
+- `src/lib/dashboard.ts`: regras da semana e do ritmo (testes em `dashboard.test.ts`). Dado = `dominado`; dado + precisa de mais = `em_progresso` (sem migração). O ritmo conta os dois; o recente usa `updated_at` das últimas 4 semanas.
+- `WeekCloseDialog` refeito: dado, precisa de mais e nota (Diário, nunca para a IA); manuais marcam a unidade feita na última parte. Popup à sexta depois das 12h, uma vez (localStorage).
+- Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
+- **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
+
 ## Financinhas aberto a todas as contas (22 nov)
 - `FINANCINHAS_FOR_ALL = true` em `src/lib/financinhas/access.ts`, por decisão do Elton (só duas famílias em teste). Antes de entrarem famílias novas: Gemini pago (Q-03) e documento 04. O convite por família (`pilot_features` 'financinhas') fica no código para quando se voltar a fechar.
 
