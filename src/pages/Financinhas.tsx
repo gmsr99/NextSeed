@@ -38,7 +38,7 @@ function errorText(e: unknown) {
   return (e as Error)?.message ?? "Erro desconhecido";
 }
 
-function ChildPanel({ child, age, tier, fin, isAdmin }: { child: Child; age: number; tier: Tier; fin: Fin; isAdmin: boolean }) {
+function ChildPanel({ child, age, tier, fin, isAdmin, familyNames }: { child: Child; age: number; tier: Tier; fin: Fin; isAdmin: boolean; familyNames: string[] }) {
   const { toast } = useToast();
   const today = todayIso();
   const { data } = fin;
@@ -64,9 +64,9 @@ function ChildPanel({ child, age, tier, fin, isAdmin }: { child: Child; age: num
     (o: PlanOptions) => planNextLesson({
       today, tier, stage: profile?.stage ?? "trilho",
       lessons: lessons as EngineLesson[], siblingLessons: siblingLessons as EngineLesson[],
-      levels, focusSkill: o.focusSkill, continueModule: o.continueModule,
+      levels, focusSkill: o.focusSkill, continueModule: o.continueModule, avoidNames: familyNames,
     }),
-    [today, tier, profile?.stage, lessons, siblingLessons, levels],
+    [today, tier, profile?.stage, lessons, siblingLessons, levels, familyNames],
   );
   const basePlan = useMemo(() => makePlan({ focusSkill: null, continueModule: false }), [makePlan]);
   const pendingLesson = basePlan.existingLessonId ? lessons.find((l) => l.id === basePlan.existingLessonId) ?? null : null;
@@ -303,7 +303,7 @@ export default function Financinhas() {
                 ))}
               </div>
             )}
-            <ChildPanel key={current.child.id} child={current.child} age={current.age} tier={current.tier} fin={fin} isAdmin={isAdmin} />
+            <ChildPanel key={current.child.id} child={current.child} age={current.age} tier={current.tier} fin={fin} isAdmin={isAdmin} familyNames={children.map((c) => c.name)} />
             {outside.length > 0 && (
               <p className="text-xs text-muted-foreground">Fora dos 5–12 anos, por agora: {outside.map((x) => firstName(x.child.name)).join(", ")}.</p>
             )}

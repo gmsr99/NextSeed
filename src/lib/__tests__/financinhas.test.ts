@@ -23,8 +23,8 @@ function lesson(p: Partial<EngineLesson> = {}): EngineLesson {
 
 function fakeGenerated(nSlides: number, p: Partial<GeneratedLesson> = {}): GeneratedLesson {
   return {
-    title: "A Grande Banca da Inês", protagonist_look: "cabelo castanho apanhado, camisola amarela", universe: "dinossauros", victory: "orgulho",
-    slides: Array.from({ length: nSlides }, (_, i) => ({ title: `Cena ${i + 1}`, text: "A Inês olha para as moedas. Conta uma a uma. Sorri.", visual: "Menina de camisola amarela junto a quatro frascos transparentes, luz da manhã." })),
+    title: "A Grande Banca da Beatriz", protagonist_look: "cabelo castanho apanhado, camisola amarela", universe: "dinossauros", victory: "orgulho",
+    slides: Array.from({ length: nSlides }, (_, i) => ({ title: `Cena ${i + 1}`, text: "A Beatriz olha para as moedas. Conta uma a uma. Sorri.", visual: "Menina de camisola amarela junto a quatro frascos transparentes, luz da manhã." })),
     quiz: Array.from({ length: 5 }, (_, i) => ({ question: `Pergunta ${i + 1}?`, options: i < 3 ? ["um", "dois", "três"] : [], answer: i < 3 ? "dois" : "resposta livre" })),
     activities: [{ title: "Dois cestos", how: "Arrumar objetos." }, { title: "Em voz alta", how: "Dizer antes de pedir." }],
     younger_version: "", challenge: "", adult_before: "Preparar os frascos.", adult_opening: "Perguntar pelas moedas.", adult_tips: ["Uma pergunta só."],
@@ -133,6 +133,13 @@ describe("modo de descoberta", () => {
 });
 
 describe("protagonista", () => {
+  it("nunca escolhe o nome de uma criança da família (com ou sem acentos)", () => {
+    const p = pickProtagonist({ today: "2026-11-22", lessons: [], avoidNames: ["dinis Silva", "Sofía"] });
+    expect(p).not.toBe("Dinis");
+    expect(p).not.toBe("Sofia");
+    expect(p).toBe("Miguel");
+  });
+
   it("não repete os recentes nem os dos irmãos", () => {
     const lessons = [lesson({ protagonist: "Dinis" }), lesson({ protagonist: "Sofia" })];
     const siblingLessons = [lesson({ protagonist: "Miguel", given_on: "2026-11-20" })];
@@ -157,10 +164,10 @@ describe("trilho", () => {
     expect(plan.skills).toEqual(["GP1", "GP5"]);
   });
   it("aula por dar do trilho é reaproveitada em vez de gerar outra", () => {
-    const pending = lesson({ status: "por_dar", track_session: 3, discovery_mode: "MD4", protagonist: "Inês" });
+    const pending = lesson({ status: "por_dar", track_session: 3, discovery_mode: "MD4", protagonist: "Beatriz" });
     const plan = planNextLesson({ today: "2026-11-22", tier: "5-6", stage: "trilho", levels: {}, lessons: [lesson({ track_session: 1 }), lesson({ track_session: 2 }), pending] });
     expect(plan.existingLessonId).toBe(pending.id);
-    expect(plan.protagonist).toBe("Inês");
+    expect(plan.protagonist).toBe("Beatriz");
   });
   it("com várias por dar (importadas), propõe a de sessão mais baixa", () => {
     const s4 = lesson({ status: "por_dar", given_on: null, track_session: 4 });
@@ -318,7 +325,7 @@ describe("importação do histórico", () => {
     const json = JSON.stringify({
       aulas: [
         { crianca: "C1", titulo: "A Loja do Miguel", data_dada: "2026-10-05", modo_descoberta: "MD2", skills_alvo: ["VL4", "GP5"], protagonista: "Miguel" },
-        { crianca: "C2", titulo: "A Mochila da Inês", data_dada: null, sessao_trilho: "S3", modo_descoberta: "MD4" },
+        { crianca: "C2", titulo: "A Mochila da Beatriz", data_dada: null, sessao_trilho: "S3", modo_descoberta: "MD4" },
         { crianca: "C1", data_dada: "2026-10-06" },
       ],
       niveis: { C1: { data: "2026-06-21", GP5: 2, RH2: { nivel: 3, nota: "deu à irmã" } } },

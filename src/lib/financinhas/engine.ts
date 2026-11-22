@@ -7,7 +7,7 @@
 // últimas 3) e o protagonista (fictício, sem repetir, também entre irmãos).
 
 import {
-  ALL_PROTAGONISTS, CALC_SKILLS, MODE_CODES, SKILL_CODES, THEMES, TRACK_SESSIONS,
+  ALL_PROTAGONISTS as ALL_NAMES, CALC_SKILLS, MODE_CODES, SKILL_CODES, THEMES, TRACK_SESSIONS,
   themeByNumber, trackSession, type Theme, type Tier,
 } from "./catalog.ts";
 import type { Levels } from "./levels.ts";
@@ -55,6 +55,8 @@ export interface PlanInput {
   levels: Levels;
   /** Aulas dos irmãos (para não repetir protagonistas na mesma altura). */
   siblingLessons?: EngineLesson[];
+  /** Nomes das crianças da família (o protagonista nunca é uma delas). Ficam no dispositivo. */
+  avoidNames?: string[];
   /** Ciclo: forçar a skill principal. */
   focusSkill?: string | null;
   /** Ciclo: continuar o módulo da última aula (máx. 3 semanas). */
@@ -146,11 +148,20 @@ export function pickMode(opts: {
 
 // ─── Protagonista ───────────────────────────────────────────────────────────
 
+/** Primeiro nome, sem acentos nem maiúsculas, para comparar nomes. */
+function nameKey(name: string): string {
+  return name.trim().split(/\s+/)[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
 export function pickProtagonist(opts: {
   today: string;
   lessons: EngineLesson[];
   siblingLessons?: EngineLesson[];
+  /** Nomes das crianças da família: o protagonista nunca é uma delas. */
+  avoidNames?: string[];
 }): string {
+  const avoid = new Set((opts.avoidNames ?? []).filter(Boolean).map(nameKey));
+  const ALL_PROTAGONISTS = ALL_NAMES.filter((p) => !avoid.has(nameKey(p)));
   const own = byRecency(opts.lessons).map((l) => l.protagonist).filter(Boolean) as string[];
   const since = addDays(opts.today, -28);
   const siblings = (opts.siblingLessons ?? [])
@@ -256,7 +267,7 @@ export function planNextLesson(input: PlanInput): LessonPlan {
       reinforce: s.skills.slice(2),
       mode,
       previousMode: previous,
-      protagonist: pending?.protagonist ?? pickProtagonist({ today: input.today, lessons: others, siblingLessons: input.siblingLessons }),
+      protagonist: pending?.protagonist ?? pickProtagonist({ today: input.today, lessons: others, siblingLessons: input.siblingLessons, avoidNames: input.avoidNames }),
       moduleWeek: 1,
       reasons,
       trackComplete: false,
@@ -291,7 +302,7 @@ export function planNextLesson(input: PlanInput): LessonPlan {
     return {
       kind: "ciclo", tier: input.tier, trackSession: null, existingLessonId: null,
       themeNumbers: last.theme_numbers!, skills, reinforce: (last.skill_codes ?? []).slice(2),
-      mode, previousMode: previous, protagonist: last.protagonist ?? pickProtagonist({ today: input.today, lessons, siblingLessons: input.siblingLessons }),
+      mode, previousMode: previous, protagonist: last.protagonist ?? pickProtagonist({ today: input.today, lessons, siblingLessons: input.siblingLessons, avoidNames: input.avoidNames }),
       moduleWeek: week, reasons, trackComplete: false,
     };
   }
@@ -319,7 +330,7 @@ export function planNextLesson(input: PlanInput): LessonPlan {
     kind: "ciclo", tier: input.tier, trackSession: null, existingLessonId: null,
     themeNumbers: [theme.number], skills, reinforce: theme.skills.filter((s) => !skills.includes(s)),
     mode, previousMode: previous,
-    protagonist: pickProtagonist({ today: input.today, lessons, siblingLessons: input.siblingLessons }),
+    protagonist: pickProtagonist({ today: input.today, lessons, siblingLessons: input.siblingLessons, avoidNames: input.avoidNames }),
     moduleWeek: 1, reasons, trackComplete: false,
   };
 }

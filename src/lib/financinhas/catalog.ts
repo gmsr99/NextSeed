@@ -313,8 +313,10 @@ export const trackSession = (n: number) => TRACK_SESSIONS.find((s) => s.number =
 // ─── Protagonistas ──────────────────────────────────────────────────────────
 // Fictícios e rotativos. Nunca o nome real da criança.
 
-export const PROTAGONISTS = ["Dinis", "Sofia", "Miguel", "Inês", "Leonor", "Tomé", "Mariana", "Vicente"];
-export const PROTAGONISTS_RESERVE = ["Vasco", "Íris", "Tomás", "Frederico", "Constança", "Xavier", "Mafalda", "Diogo", "Teresa", "Nuno", "Bárbara", "Salvador"];
+// Nomes inventados. Evitam-se os nomes das crianças e das mães do piloto; o motor
+// também nunca escolhe o nome de uma criança da própria família (avoidNames).
+export const PROTAGONISTS = ["Dinis", "Sofia", "Miguel", "Beatriz", "Clara", "Tomé", "Mariana", "Vicente"];
+export const PROTAGONISTS_RESERVE = ["Vasco", "Íris", "Gaspar", "Frederico", "Constança", "Xavier", "Matilde", "Diogo", "Teresa", "Nuno", "Bárbara", "Salvador"];
 export const ALL_PROTAGONISTS = [...PROTAGONISTS, ...PROTAGONISTS_RESERVE];
 
 // ─── Fotografia inicial e de saída (trilho §7) ─────────────────────────────
