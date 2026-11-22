@@ -12,6 +12,19 @@ export interface ManualEntry {
   done?: boolean;
   /** Tema começado: retoma nesta página */
   from?: number;
+  /** Modo "lição seguinte": o livro marca onde ficaram (sem índice) */
+  next?: boolean;
+}
+
+/**
+ * Modo "lição seguinte" (aprendido com o plano da F-01, 22 nov): a família
+ * segue o livro pela ordem e o livro marca sozinho onde ficaram. Guarda-se como
+ * uma única entrada marcadora, para não precisar de mudar a base de dados.
+ */
+export const NEXT_LESSON_ENTRIES: ManualEntry[] = [{ title: "Lição seguinte", next: true }];
+
+export function isNextLesson(entries: ManualEntry[]): boolean {
+  return entries.length === 1 && entries[0].next === true;
 }
 
 export interface Manual {
