@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 22 de novembro de 2026 (Financinhas no ramo `feat/financinhas`). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
+**Atualizado:** 22 de novembro de 2026 (Financinhas publicado, só para a equipa). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -20,7 +20,8 @@ React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (
 
 Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
 
-## Financinhas (ramo `feat/financinhas`, 22 nov; por publicar)
+## Financinhas (publicado a 22 nov, só para a equipa; falta a migração 031)
+- O protagonista nunca é o primeiro nome de uma criança da família (`avoidNames` no motor); a lista de nomes não tem nomes do piloto.
 - Substitui a antiga página estática de Literacia Financeira (tinha juros e investimento, contra as regras do módulo). Sai também a barra "Literacia Financeira" dos Relatórios.
 - Lógica em `src/lib/financinhas/`: `catalog.ts` (26 competências, 23 temas, 12 sessões do trilho × 3 escalões, 8 modos de descoberta, protagonistas, fotografia, ritual), `engine.ts` (motor determinístico), `levels.ts` (níveis derivados dos eventos; uma observação nunca faz descer), `generator.ts` (pedido ao Gemini com resposta estruturada; a app monta o prompt da apresentação ≤ 5000 caracteres, valida slides, quiz e termos proibidos, e repete com correção), `ritual.ts`, `importer.ts`, `access.ts`. Testes em `src/lib/__tests__/financinhas.test.ts`.
 - BD: migração 031 (`fin_profiles`, `fin_lessons`, `fin_signals`, `fin_skill_events`, `fin_rituals`, `fin_snapshots`, RLS por família, cascata com a criança). As tabelas entram no export de dados (edge function `export-family-data`, a publicar à parte).
