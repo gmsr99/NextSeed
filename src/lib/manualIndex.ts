@@ -72,6 +72,23 @@ export function applyCurrentPage(entries: ManualEntry[], page: number | null): M
   });
 }
 
+/**
+ * Índices sem páginas: os temas antes de `topic` (posição na lista) ficam
+ * feitos e o rumo continua nesse tema. Sem tema, limpa as marcas.
+ */
+export function applyCurrentTopic(entries: ManualEntry[], topic: number | null): ManualEntry[] {
+  const clean = entries.map(({ title, page: p }) => (p ? { title, page: p } : { title }));
+  if (topic === null || topic < 1 || topic >= clean.length) return clean;
+  return clean.map((e, i) => (i < topic ? { ...e, done: true } : e));
+}
+
+/** Tema onde vão (posição do primeiro tema por fazer), se houver temas feitos. */
+export function currentTopicOf(entries: ManualEntry[]): number | null {
+  if (!entries.some((e) => e.done)) return null;
+  const i = entries.findIndex((e) => !e.done);
+  return i === -1 ? null : i;
+}
+
 /** Página até onde já foram, lida das marcas guardadas (null se não houver). */
 export function currentPageOf(entries: ManualEntry[]): number | null {
   const resumed = entries.find((e) => e.from);

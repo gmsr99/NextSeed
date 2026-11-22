@@ -1,4 +1,6 @@
 import { useState } from "react";
+import FamilyRoutineCard from "@/components/FamilyRoutineCard";
+import { hasOuting, routineSummary, type WeekRoutine } from "@/lib/familyRoutine";
 import { CalendarDays, Sparkles, Loader2, ChevronLeft, ChevronRight, BookOpen, ChevronDown, ChevronUp, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -54,6 +56,8 @@ interface PlannerFormProps {
   childrenWithoutFocus?: Set<string>;
   /** Conteúdos da semana no rumo do ano, por criança (P-12) */
   weekFocusByChild?: Record<string, ChildWeekFocus>;
+  /** P-18: a semana da família (null = semana de sempre) */
+  routine?: WeekRoutine | null;
 }
 
 export function PlannerForm({
@@ -76,7 +80,9 @@ export function PlannerForm({
   weekFocusByChild,
   onGenerate,
   childrenWithoutFocus,
+  routine = null,
 }: PlannerFormProps) {
+  const outing = hasOuting(routine);
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({});
 
   const toggleContent = (childId: string) =>
@@ -92,7 +98,7 @@ export function PlannerForm({
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-foreground">Semana de {formatWeekRange(weekStart)}</p>
-            <p className="text-sm text-muted-foreground">Segunda-feira a sexta-feira</p>
+            <p className="text-sm text-muted-foreground">{routineSummary(routine)}</p>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onPrevWeek} title="Semana anterior">
@@ -237,19 +243,28 @@ export function PlannerForm({
         );
       })}
 
+      {/* A nossa semana (P-18): dias de estudo, dias curtos, saída à sexta */}
+      <FamilyRoutineCard />
+
       {/* Friday activity */}
       <Card className="border-border/60" data-tour="planner-sexta">
         <CardHeader className="pb-3">
           <CardTitle className="font-heading text-lg">Sexta-feira — Ver Mundo</CardTitle>
-          <CardDescription>Actividade de saída planeada (opcional)</CardDescription>
+          <CardDescription>
+            {outing
+              ? "Actividade de saída planeada (opcional)"
+              : "Esta semana não tem saída: é a vossa escolha em \"A nossa semana\", logo acima."}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Input
-            value={fridayActivity}
-            onChange={(e) => onFridayActivityChange(e.target.value)}
-            placeholder="Ex: Visita ao Museu de História Natural..."
-          />
-        </CardContent>
+        {outing && (
+          <CardContent>
+            <Input
+              value={fridayActivity}
+              onChange={(e) => onFridayActivityChange(e.target.value)}
+              placeholder="Ex: Visita ao Museu de História Natural..."
+            />
+          </CardContent>
+        )}
       </Card>
 
       {/* Tema Semanal de Leitura */}

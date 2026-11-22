@@ -5,7 +5,8 @@ import type { Child } from "@/lib/types";
 import { splitPortfolio, weekPortfolioList } from "@/lib/portfolioHints";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import { manualLabel } from "@/lib/annualPlan";
-import { DAY_QUESTIONS, QUESTION_TIP, SHORT_DAY, DAILY_LOG, WEEK_CLOSE, reviewLines } from "@/lib/weekGuide";
+import { dayQuestionsFor, QUESTION_TIP, SHORT_DAY, DAILY_LOG, WEEK_CLOSE, reviewLines } from "@/lib/weekGuide";
+import type { WeekRoutine } from "@/lib/familyRoutine";
 import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
 
 const S = StyleSheet.create({
@@ -53,9 +54,11 @@ interface Props {
   weekFocus?: Record<string, ChildWeekFocus>;
   /** P-16: fio condutor da semana */
   weekTheme?: string;
+  /** P-18: a semana da família */
+  routine?: WeekRoutine | null;
 }
 
-export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {}, weekTheme }: Props) {
+export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {}, weekTheme, routine = null }: Props) {
   const withFocus = children.filter((c) => weekFocus[c.id]);
   const allMaterials = collectMaterials(planItems);
 
@@ -182,7 +185,7 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
         {/* P-22: partes fixas do guia */}
         <View style={S.box} wrap={false}>
           <Text style={S.boxTitle}>Guião rápido: o que perguntar</Text>
-          {DAY_QUESTIONS.map((q) => (
+          {dayQuestionsFor(routine).map((q) => (
             <Text key={q.day} style={S.boxLine}>
               <Text style={S.bold}>{q.day} ({q.focus}):</Text> {q.questions}
             </Text>

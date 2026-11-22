@@ -2,6 +2,8 @@
 // mãe a preparar, conduzir e fechar a semana sem ter de as inventar.
 // Os textos são deliberadamente genéricos: valem para qualquer tema.
 
+import { hasOuting, studyDays, type WeekRoutine } from "./familyRoutine";
+
 /** Perguntas por dia, seguindo o arco da semana: descobrir, experimentar, comunicar, aplicar. */
 export const DAY_QUESTIONS: { day: string; focus: string; questions: string }[] = [
   { day: "Segunda", focus: "Descobrir", questions: "O que achas que já sabes sobre isto? Como é que sabes? O que ainda não sabemos?" },
@@ -10,6 +12,19 @@ export const DAY_QUESTIONS: { day: string; focus: string; questions: string }[] 
   { day: "Quinta", focus: "Aplicar", questions: "O que mudou no que pensavas? Onde vês isto no dia a dia?" },
   { day: "Sexta", focus: "Ver o mundo", questions: "O que descobriste esta semana? Qual foi a parte de que mais gostaste?" },
 ];
+
+/**
+ * Perguntas dos dias em que a família estuda (P-18). Sexta sem saída: em vez
+ * de "ver o mundo", fecha-se a semana em casa.
+ */
+export function dayQuestionsFor(routine: WeekRoutine | null | undefined): typeof DAY_QUESTIONS {
+  const days = studyDays(routine);
+  return DAY_QUESTIONS.filter((_, i) => days.includes(i + 1)).map((q) =>
+    q.day === "Sexta" && !hasOuting(routine)
+      ? { ...q, focus: "Rever", questions: "O que aprendeste esta semana? O que queres mostrar a alguém lá de casa?" }
+      : q,
+  );
+}
 
 export const QUESTION_TIP =
   "Quando perguntarem alguma coisa, devolve primeiro uma pergunta. Se ninguém souber, procurem juntos no manual ou num livro.";

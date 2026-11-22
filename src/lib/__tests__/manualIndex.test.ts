@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, currentPageOf, remainingEntries } from "../manualIndex";
-import { buildAnnualPlan, weekFocus, type AnnualContent } from "../annualPlan";
+import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries } from "../manualIndex";
+import { buildAnnualPlan, weekFocus, weeksFor, planWeekFor, planningMonday, isoDay, type AnnualContent } from "../annualPlan";
 
 describe("parseIndex", () => {
   it("lê uma unidade por linha, com ou sem página", () => {
@@ -157,5 +157,37 @@ describe("página onde vão", () => {
   it("sem página limpa as marcas", () => {
     expect(applyCurrentPage(applyCurrentPage(idx, 30), null)).toEqual(idx);
     expect(currentPageOf(idx)).toBeNull();
+  });
+});
+
+describe("onde vão no manual (nota de 22 nov)", () => {
+  const idx = parseIndex([
+    "Unidade 1 — A ... 6", "Unidade 1 — B ... 12", "Unidade 2 — C ... 17", "Unidade 2 — D ... 21",
+    "Unidade 3 — E ... 27", "Unidade 3 — F ... 33", "Unidade 4 — G ... 40", "Unidade 5 — H ... 60",
+  ].join("\n"));
+  const weeks = weeksFor(new Date("2026-11-23T12:00:00"));
+  const portugues = (entries: ReturnType<typeof parseIndex>, start: string, day: string) => {
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "portugues", title: "Manual", entries, start_date: start }]);
+    return (planWeekFor(plan, new Date(`${day}T12:00:00`))?.byDiscipline.portugues ?? []).map((c) => c.content).join(" | ");
+  };
+
+  it("ao fim de semana, a semana a preparar é a seguinte", () => {
+    expect(isoDay(planningMonday(new Date("2026-11-22T12:00:00")))).toBe("2026-11-23"); // domingo
+    expect(isoDay(planningMonday(new Date("2026-11-21T12:00:00")))).toBe("2026-11-23"); // sábado
+    expect(isoDay(planningMonday(new Date("2026-11-18T12:00:00")))).toBe("2026-11-16"); // quarta
+  });
+
+  it("com a página guardada ao domingo, a página seguinte cai na semana que começa", () => {
+    const entries = applyCurrentPage(idx, 20);
+    expect(portugues(entries, "2026-11-22", "2026-11-23")).toContain("pp. 21");
+    expect(portugues(entries, "2026-11-22", "2026-11-16")).toBe("");
+  });
+
+  it("sem páginas, o tema escolhido é o primeiro da semana e os anteriores ficam feitos", () => {
+    const plain = parseIndex("Sílabas\nDitongos\nLeitura em voz alta\nRimas\nFrases");
+    const entries = applyCurrentTopic(plain, 2);
+    expect(entries.slice(0, 2).every((e) => e.done)).toBe(true);
+    expect(currentTopicOf(entries)).toBe(2);
+    expect(portugues(entries, "2026-11-23", "2026-11-23")).toContain("Leitura em voz alta");
   });
 });

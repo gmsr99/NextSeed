@@ -108,6 +108,11 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Erros ao guardar passam a mostrar o motivo. A falha "não deixa guardar" não foi reproduzida como erro da base de dados; a causa provável era o recarregamento acima. Por confirmar (V-31).
 - **Manuais, cursos e PDF (I-01):** uma linha por tema; a unidade repetida no início da linha é reconhecida ("3 temas, em 2 unidades"). O cartão serve também para cursos e PDF comprados: cola-se o índice, o ficheiro fica com a família. Carregar o ficheiro não está feito (I-14, Q-17).
 
+## Manuais e "A nossa semana" (22 nov, ramo `fix/manual-pagina-e-semana`, por publicar)
+- **Onde vão no manual (I-16):** o cartão pergunta "Onde vão neste manual?" (ainda não começámos / já começámos). Já começámos pede a última página feita (índice com páginas) ou o tema onde vão (sem páginas); sem resposta não guarda. O rumo reparte o que falta a partir da semana que estão a preparar: ao sábado e ao domingo, a seguinte (`planningMonday` em `annualPlan.ts`). Os manuais já guardados ao fim de semana ficam corrigidos sem os editar. Saiu a opção "Desde o início do ano".
+- **A nossa semana (P-18, parte do P-04):** tabela `family_week_routines` (migração **030**, por aplicar pelo Gil): para cada dia, dia completo, dia curto (só a manhã, antes das 10:42) ou sem estudo, e se há saída à sexta. `src/lib/familyRoutine.ts` aplica-a ao esqueleto do plano com IA, ao plano sem IA, aos blocos fixos do horário e às perguntas do guia. Sexta sem saída fica com a estrutura de segunda (sem leitura); os episódios de leitura renumeram-se. Sem linha na tabela (ou antes da 030), tudo fica como antes.
+- Verificado: testes das bibliotecas (corridos com um substituto do vitest, sem dependências instaladas) e verificação de tipos com declarações simplificadas. **Não testado:** num browser e na base de dados real.
+
 ## Segurança e dados: estado verificado no código
 | Tema | Estado |
 |---|---|

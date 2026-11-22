@@ -9,6 +9,7 @@ import { applyFamilyWeek, blockModes, splitMode, withMode, type BlockMode } from
 import { assignFormats } from "./activityFormats";
 import { preschoolGuidance } from "./methodologyRoles";
 import { applyPortfolioHints, splitPortfolio, withPortfolio, DEFAULT_HINTS } from "./portfolioHints";
+import { applyWeekRoutine, renumberEpisodes, type WeekRoutine } from "./familyRoutine";
 
 const MODE_LABEL: Record<BlockMode, string> = {
   juntos: "EM CONJUNTO",
@@ -75,7 +76,14 @@ interface SkeletonItem {
   episode?: number;
 }
 
-function buildSkeleton(children: Child[]): SkeletonItem[] {
+function buildSkeleton(children: Child[], routine: WeekRoutine | null = null): SkeletonItem[] {
+  // P-18: a semana da família (dias sem estudo, dias curtos, sexta sem saída)
+  const skeleton = applyWeekRoutine(buildFullSkeleton(children), routine);
+  renumberEpisodes(skeleton);
+  return skeleton;
+}
+
+function buildFullSkeleton(children: Child[]): SkeletonItem[] {
   const skeleton: SkeletonItem[] = [];
   // Deteta família multi-nível
   const hasPrimaryChild = children.some(
@@ -177,6 +185,9 @@ function buildPrompt(
   const multiLevel = hasPrimary && hasPreSchool;
 
   const methodologySection = buildMethodologyContext(familyMethodologies, "atividades");
+  // P-18: quantos episódios de leitura há nesta semana (depende dos dias de estudo)
+  const episodes = skeleton.reduce((m, s) => Math.max(m, s.episode ?? 0), 0);
+  const hasOutingThisWeek = skeleton.some((s) => s.is_friday_world);
 
   const childrenSection = children.map((c) => {
     const interests = (childInterests[c.id] || []).join(", ") || "livre";
@@ -226,7 +237,7 @@ function buildPrompt(
   const formats = assignFormats(skeleton, modes.map((m) => m === "juntos"));
   const skeletonSection = skeleton.map((item, idx) => {
     const day = DAY_LABELS[item.day_of_week - 1];
-    const ep = item.episode ? ` [Ep.${item.episode}/4 — história contínua sobre o tema de leitura]` : "";
+    const ep = item.episode ? ` [Ep.${item.episode}/${episodes} — história contínua sobre o tema de leitura]` : "";
     const mode = modes[idx] ? ` | MODO: ${MODE_LABEL[modes[idx]!]}` : "";
     const format = formats[idx] ? ` | FORMATO: ${formats[idx]}` : "";
     return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep}${mode}${format}`;
@@ -264,13 +275,17 @@ Não escrevas o modo no título nem na descrição: a app acrescenta-o.\n`
     ? `Atividade de sexta-feira planeada: "${fridayActivity}"`
     : "Sexta-feira: exploração livre — sugere algo concreto e local";
   // P-11: com várias crianças, o "Ver Mundo" é uma saída da família, não uma por criança
-  const fridayNote = children.length > 1
+  const fridayNote = !hasOutingThisWeek
+    ? "Esta família não inclui a saída \"Ver Mundo\" nesta semana. Não proponhas saídas nem visitas: se a sexta tem atividades, são de estudo em casa, como nos outros dias."
+    : children.length > 1
     ? `${fridayBase}\n**"Ver Mundo" é UMA só saída para a família toda:** todas as crianças vão ao MESMO sítio, à mesma hora, com o MESMO título. Na descrição de cada criança, adapta o que ela faz lá à sua idade.`
     : fridayBase;
 
-  const readingBase = weeklyReadingTheme
-    ? `Tema semanal para Leitura e Portefólio: **"${weeklyReadingTheme}"** — os 4 episódios (Ep.1 a Ep.4) devem ser capítulos sequenciais sobre este tema.`
-    : "Leitura: usa o fio condutor da semana como tema da mini-série de 4 episódios.";
+  const readingBase = episodes === 0
+    ? "Nesta semana não há blocos de leitura: não escrevas episódios."
+    : weeklyReadingTheme
+    ? `Tema semanal para Leitura e Portefólio: **"${weeklyReadingTheme}"** — os ${episodes} episódios (Ep.1 a Ep.${episodes}) devem ser capítulos sequenciais sobre este tema.`
+    : `Leitura: usa o fio condutor da semana como tema da mini-série de ${episodes} episódios.`;
   const readingNote = hasModes
     ? `${readingBase}\n**UMA só história para a família:** no mesmo episódio, todas as crianças têm o MESMO título e o MESMO "episode_text", escrito para a mais nova conseguir acompanhar quando lido em voz alta. A "comprehension_question" é diferente para cada criança, adequada à sua idade.`
     : readingBase;
@@ -315,7 +330,7 @@ ${skeletonSection}
 1. **Prioridade**: Conteúdos desta semana (se existirem) → NexSeed → Conteúdos GC em foco → Conteúdos GC por dominar → interesses.
 2. Os **interesses** são tempero, nunca o objetivo: usa-os em NO MÁXIMO uma em cada três atividades de cada criança (ex.: objetivo "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo). As restantes seguem o fio condutor da semana ou o dia a dia da casa.
 3. **Conteúdos dominados** NÃO devem voltar a aparecer nas atividades.
-4. **Leitura Ep.X/4**: cria 4 episódios de uma história CONTÍNUA sobre o tema indicado. Cada episódio é CURTO e CONCRETO: 1 ou 2 parágrafos, no máximo 120 palavras no total, com personagens com nome, um lugar concreto e uma coisa que acontece (nada de resumos ou títulos soltos). Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[1-2 parágrafos curtos em português de Portugal, adequados à idade, continuação do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
+4. **Leitura Ep.X/${episodes}**: cria ${episodes} episódios de uma história CONTÍNUA sobre o tema indicado. Cada episódio é CURTO e CONCRETO: 1 ou 2 parágrafos, no máximo 120 palavras no total, com personagens com nome, um lugar concreto e uma coisa que acontece (nada de resumos ou títulos soltos). Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[1-2 parágrafos curtos em português de Portugal, adequados à idade, continuação do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
 5. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
 6. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
 7. **Encerramento Reflexivo** (14:45-15:15): partilha emocional e síntese do dia.
@@ -460,12 +475,15 @@ export async function generateWithGemini(
   gcAllByChild: Record<string, Record<string, string[]>> = {},
   weeklyContent: Record<string, Record<string, string>> = {},
   familyMethodologies: FamilyMethodology[] = [],
+  /** P-18: a semana da família; null = semana de sempre */
+  routine: WeekRoutine | null = null,
 ): Promise<GeneratedPlanItem[]> {
   // O modelo recebe pseudónimos em vez de nomes (P-03). Os ids mantêm-se,
   // por isso o encaixe das respostas (por posição) não muda.
   const aiChildren = withAiLabels(children);
   const realNames = children.map((c) => c.name);
-  const skeleton = buildSkeleton(aiChildren);
+  const skeleton = buildSkeleton(aiChildren, routine);
+  if (skeleton.length === 0) throw new Error("A vossa semana não tem dias de estudo. Ajustem em \"A nossa semana\".");
   const prompt = buildPrompt(aiChildren, skeleton, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
 
   // Até 2 tentativas: cobre falhas transitórias (429/502) e parsing.

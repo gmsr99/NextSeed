@@ -35,6 +35,8 @@ import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
 import { buildAnnualPlan, weekFocus, weeksFor, type AnnualContent } from "@/lib/annualPlan";
 import { fetchFamilyCalendar } from "@/hooks/useFamilyCalendar";
+import { fetchFamilyRoutine, useFamilyRoutine } from "@/hooks/useFamilyRoutine";
+import type { WeekRoutine } from "@/lib/familyRoutine";
 import { mergeWeekContents } from "@/lib/weekClose";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
 import { fetchChildManuals } from "@/hooks/useChildManuals";
@@ -74,6 +76,8 @@ export default function WeeklyPlanner() {
   const childrenWithoutFocus = useChildrenWithoutFocus(children);
   const { data: familyMethodologies = [] } = useFamilyMethodologies();
   const { family, registeredAt } = useAuth();
+  // P-18: a semana da família (dias de estudo, dias curtos, saída à sexta)
+  const { routine } = useFamilyRoutine();
   const { notifyEvent } = useFeedback();
   const { startTourIfUnseen } = useTour();
   const { activities: extracurriculars } = useExtracurricular();
@@ -277,6 +281,7 @@ export default function WeeklyPlanner() {
   const goToNextWeek = () => setWeekStart((d) => addDays(d, 7));
 
   const handleGeneratePlan = async () => {
+    let weekRoutine: WeekRoutine | null = routine;
     setGenerating(true);
     setError(null);
     setPlanId(null);
@@ -304,6 +309,8 @@ export default function WeeklyPlanner() {
       const manualFocusByChild: Record<string, Record<string, string[]>> = {};
       // P-24: semanas do calendário da família, ou do escolar se não houver
       const planWeeks = weeksFor(weekStart, family ? await fetchFamilyCalendar(family.id) : null);
+      // P-18: lida na hora, para o plano seguir a semana acabada de guardar
+      weekRoutine = family ? await fetchFamilyRoutine(family.id) : null;
       // Crianças com currículo carregado ou com um manual (ex.: 5.º ano só com manuais)
       const gcChildren = children.filter(
         (c) => YEAR_MAP[c.school_year] || manuals.some((m) => m.child_id === c.id),
@@ -425,7 +432,7 @@ export default function WeeklyPlanner() {
       }
 
       setGeneratingStep("A gerar atividades com IA... (pode demorar até um minuto)");
-      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies);
+      const items = await generateWithGemini(children, childInterests, fridayActivity, weeklyReadingTheme, nexseedByYear, gcProgressByChild, gcAllByChild, weeklyContent, familyMethodologies, weekRoutine);
 
       setGeneratingStep("A montar o horário...");
       setWeekTheme(getLastWeekTheme());
@@ -441,7 +448,7 @@ export default function WeeklyPlanner() {
       const msg = e instanceof Error ? e.message : String(e);
       console.warn("AI falhou:", msg);
       setGeneratingStep("A usar templates locais...");
-      const items = generateWeeklyPlan(children, childInterests, fridayActivity, weeklyReadingTheme);
+      const items = generateWeeklyPlan(children, childInterests, fridayActivity, weeklyReadingTheme, weekRoutine);
       setPlanItems(items);
       setStep("preview");
       setError(`IA indisponível (${msg}) — plano gerado com templates.`);
@@ -595,7 +602,7 @@ export default function WeeklyPlanner() {
 
     const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
     const scheduleBlob = await pdf(
-      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} />
+      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} />
     ).toBlob();
     const a1 = document.createElement("a");
     a1.href = URL.createObjectURL(scheduleBlob);
@@ -604,7 +611,7 @@ export default function WeeklyPlanner() {
 
     const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
     const guideBlob = await pdf(
-      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} />
+      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} />
     ).toBlob();
     const a2 = document.createElement("a");
     a2.href = URL.createObjectURL(guideBlob);
@@ -650,12 +657,12 @@ export default function WeeklyPlanner() {
 
       const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
       const scheduleBlob = await pdf(
-        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} />
+        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} />
       ).toBlob();
 
       const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
       const guideBlob = await pdf(
-        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} />
+        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} />
       ).toBlob();
 
       const toBase64 = (blob: Blob): Promise<string> =>
@@ -771,6 +778,7 @@ export default function WeeklyPlanner() {
             generatingStep={generatingStep}
             childrenWithoutFocus={childrenWithoutFocus}
             weekFocusByChild={weekFocusByChild}
+            routine={routine}
             onGenerate={handleGeneratePlan}
           />
         ) : (

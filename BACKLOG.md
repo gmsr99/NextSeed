@@ -30,7 +30,6 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-06 | O campo "Escola / Agrupamento" da ficha da criança fica (opcional) ou sai? | O documento 04 diz para não recolher a escola; a app pede-a para os relatórios |  |
 | Q-07 | Os planos novos estão bons? Envia-me o PDF do Guia de Atividades de um plano gerado depois de 14 de novembro, de uma família com duas crianças. | Nunca vi um plano real com as regras novas (em conjunto, sozinho, portefólio, variedade). Só tu consegues confirmar |  |
 | Q-08 | Que família testa o portefólio e o relatório numa entrega real à escola, antes de dezembro? | R-01: é a prioridade para dezembro e janeiro, e não é código |  |
-| Q-09 | Tempo por criança (P-04): avanço com "dias da semana e minutos por dia, por criança"? | Hoje o plano assume segunda a sexta, dia inteiro. Mexe na base de dados; envio especificação antes |  |
 | Q-10 | Páginas de exemplo (Fórum, Comunidade, Formação para Pais): escondo-as do menu até existirem a sério? | T-03: hoje aparecem com conteúdo de exemplo |  |
 | Q-11 | Consegues a captura de ecrã do problema no telemóvel que a F-03 referiu? | T-08: sem ela não consigo reproduzir o erro |  |
 | Q-12 | Repositório privado (B-11): o Gil publica cada entrega, ou passamos para Vercel Pro? E consegue dar-te acesso às pré-visualizações? | Com o repositório privado, as minhas publicações ficam bloqueadas. Sem acesso às pré-visualizações, só vês o que já está publicado |  |
@@ -69,8 +68,11 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-29 | Plano Semanal | Escrever no formulário, ir a outra página da app (ou a outra aplicação do telemóvel) e voltar | O que escreveste continua lá (T-11) |  |
 | V-30 | Plano Semanal | Gerar um plano e, sem guardar, sair da página e voltar | O plano reaparece com o aviso "Recuperámos o plano que estavam a preparar" (T-11) |  |
 | V-31 | Plano Semanal | Num plano já guardado: tocar em Regenerar, gerar de novo e Guardar. Depois trocar uma atividade e tocar em Atualizar | Guarda sem erro e a versão sobe. Se aparecer um erro, copia-me o texto: agora mostra o motivo (T-11) |  |
-| V-32 | Rumo do ano | Editar o manual de Matemática e escrever 39 em "Já fizeram até à página"; guardar. Repetir para Português (23) e Estudo do Meio (31) | Na lista aparece "vão na página 39"; no rumo, a semana desta semana começa na página seguinte e os temas anteriores já não aparecem (I-16) |  |
+| V-32 | Rumo do ano | Editar o manual de Português, escolher "Já começámos" em "Onde vão neste manual?" e escrever a última página feita; guardar (de preferência ao fim de semana). Repetir para Matemática e Estudo do Meio | Na lista aparece "vão na página …"; no rumo, a semana que estão a preparar (ao sábado e ao domingo, a seguinte) começa na página seguinte e os temas anteriores já não aparecem. "Já começámos" sem página não deixa guardar (I-16, corrigido a 22 nov; só depois de publicado) |  |
 | V-33 | Rumo do ano | Tocar em "Adicionar outro", escolher Matemática e colar o índice do caderno de fichas | Só depois de o Gil aplicar a migração 029: a semana de Matemática mostra os dois, cada um com o seu nome. Antes disso aparece uma mensagem a dizer que fica disponível depois de uma atualização (I-15) |  |
+| V-34 | Rumo do ano | Num manual sem páginas no índice, escolher "Já começámos" e o tema onde vão | Os temas anteriores ficam feitos e a semana que estão a preparar começa nesse tema; na lista aparece "vão em …" (I-16, 22 nov; só depois de publicado) |  |
+| V-35 | Rumo do ano ou Planeador | Em "A vossa semana", tocar em Ajustar a semana: segunda a quinta Dia completo, sexta Dia curto, desligar a saída; guardar | O cartão diz "Segunda a quinta, sexta curta, sem saída". Antes de o Gil aplicar a migração 030 aparece um aviso e não dá para ajustar (P-18, 22 nov; só depois de publicado) |  |
+| V-36 | Plano Semanal | Com a semana da V-35, gerar um plano novo e descarregar os PDF | Não há "Ver Mundo"; a sexta tem só Português e Matemática de manhã; o horário e o guia seguem os mesmos dias. Experimentar também um dia "Sem estudo": esse dia fica vazio e a leitura tem menos episódios (P-18, P-04; só depois de publicado) |  |
 
 ## Ordem de implementação
 
@@ -82,7 +84,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-06 a P-10, P-21, P-22 e P-23 publicados. Por confirmar com planos reais (Q-07) |
 | 5 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
 | 6 | E5 · Fecho da semana | Liga o que foi feito ao progresso, sem a família ter de ir às Áreas de Aprendizagem. Alimenta o E3 e o portefólio. | A | M | Por fazer |
-| 7 | E4 · Horário e tempo flexíveis | O plano é gerado para uma semana que muitas famílias não têm. Precisa de BD e é o maior bloco de trabalho. | A | M | Aguarda decisão |
+| 7 | E4 · Horário e tempo flexíveis | O plano é gerado para uma semana que muitas famílias não têm. Precisa de BD e é o maior bloco de trabalho. | A | M | Versão mínima feita a 22 nov ("A nossa semana": dias de estudo, dias curtos, saída opcional). Falta a migração 030 e publicar; depois, minutos por criança |
 | 8 | E7 · Impressão e documentos | As famílias imprimem demasiadas folhas. Alguns pontos são rápidos e podem entrar antes. | M | M | Por fazer |
 | 9 | E9 · Personalização e conteúdos próprios | Pedidos com valor real mas grandes, alguns com questões legais (direitos de autor, dados religiosos). | M | B | Em estudo |
 | 10 | E10 · Comunidade, conteúdos e negócio | Ideias para depois de o núcleo estar sólido. | M | B | Em estudo |
@@ -169,9 +171,9 @@ O maior bloco de trabalho. Precisa de BD.
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| P-04 | Tempo por criança: dias da semana, minutos por dia, ano letivo próprio, variação inverno e verão | F-01, equipa (INS-03) | A/M | L | Aguarda decisão. BD |
+| P-04 | Tempo por criança: dias da semana, minutos por dia, ano letivo próprio, variação inverno e verão | F-01, equipa (INS-03), Elton (testes de 22 nov: "à sexta só podemos fazer uma hora") | A/M | L | Parte feita a 22 nov, no ramo `fix/manual-pagina-e-semana`: dias de estudo e dias curtos, por família (migração 030). O ano letivo próprio já existe (P-24). Falta: minutos por criança e inverno/verão. BD |
 | P-17 | Blocos sem horas rígidas, com horas sugeridas por idade e metodologia e hora fixa opcional | Equipa | A/M | M | Depende de P-04 |
-| P-18 | "Ver Mundo" opcional, em qualquer dia, ou em mais do que um dia | Equipa, F-01 | M/M | M | Por fazer. BD |
+| P-18 | "Ver Mundo" opcional, em qualquer dia, ou em mais do que um dia | Equipa, F-01, Elton (testes de 22 nov) | M/M | M | Feito a 22 nov, no ramo `fix/manual-pagina-e-semana`: saída à sexta ou sem saída (sexta passa a dia de estudo). Falta a migração 030 e publicar. Fica para depois: saída noutro dia ou em mais do que um |
 
 ## E7 · Impressão e documentos
 
@@ -194,7 +196,7 @@ Pedidos grandes com valor real. Ficam para depois do lançamento.
 | I-02 | Sequências por metodologia (ex.: Montessori), avançando conforme a criança | F-03 (INS-04) | M/B | L | À espera das respostas da F-03 (Q-15). Não se inventa uma sequência com a IA |
 | I-14 | Carregar o PDF de um manual ou curso para a app ler o índice | Elton, 16 nov. Há famílias que seguem PDF comprados a vários criadores | M/B | L | Aguarda decisão (Q-17). Direitos de autor por validar |
 | I-15 | Vários manuais na mesma disciplina (ex.: manual e caderno de fichas), cada um com o seu índice no rumo | Elton, 16 nov (testes) | M/M | S | Publicado a 17 nov. Falta o Gil aplicar a migração 029; até lá, o segundo manual na mesma disciplina não grava |
-| I-16 | Dizer em que página vão em cada manual; o rumo continua daí | Elton, 16 nov (testes): "é importante ter a opção de colocar em que página estamos" | A/M | S | Publicado a 17 nov. Por confirmar (V-32) |
+| I-16 | Dizer em que página vão em cada manual; o rumo continua daí | Elton, 16 nov (testes): "é importante ter a opção de colocar em que página estamos"; 22 nov: a página 21 aparecia só a 11 jan | A/M | S | Corrigido a 22 nov, no ramo `fix/manual-pagina-e-semana`: pergunta "Onde vão neste manual?" (página ou tema), não guarda "já começámos" sem resposta, e ao fim de semana conta a partir da segunda seguinte (também nos manuais já guardados). Sai "Desde o início do ano". Por publicar (V-32, V-34) |
 | I-13 | Direitos e deveres: guia das leis do ensino doméstico com ligação às fontes oficiais e modelos de requerimento à escola | Elton, 15 nov: famílias precisam de se orientar e, por vezes, de se defender (ex.: escola que recusa acompanhamento, AEC, professor-tutor). Sem chatbot nesta fase | A/M | M | Aprovado a 16 nov, com revisão mensal. Por fazer: é o próximo. Textos precisam de revisão jurídica |
 | I-09 | Currículo de 5.º e 6.º ano, e mais tarde 3.º ciclo | F-04 | M/B | L | Em estudo |
 

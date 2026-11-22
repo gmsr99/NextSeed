@@ -72,6 +72,16 @@ function mondayOnOrAfter(date: Date): Date {
   return m.getTime() < atMidnight(date).getTime() ? addDays(m, 7) : m;
 }
 
+/**
+ * Segunda-feira da semana que a família está a preparar. De segunda a sexta é
+ * a semana em curso; ao sábado e ao domingo já é a semana seguinte (é quando
+ * se prepara a semana nova). Evita que o tema seguinte caia na semana que acabou.
+ */
+export function planningMonday(date: Date): Date {
+  const day = atMidnight(date).getDay(); // 0 = domingo, 6 = sábado
+  return day === 0 || day === 6 ? mondayOnOrAfter(date) : mondayOf(date);
+}
+
 /** Domingo de Páscoa (algoritmo gregoriano anónimo). */
 export function easterSunday(year: number): Date {
   const a = year % 19;
@@ -281,7 +291,9 @@ export function buildAnnualPlan(
     if (left.length === 0) return;
     // O manual reparte-se pelas semanas que faltam a partir da data em que a
     // família começa a usá-lo; se já não houver semanas, pelo ano inteiro.
-    const from = manual.start_date ? mondayOf(new Date(`${manual.start_date}T12:00:00`)).getTime() : 0;
+    // Guardado ao fim de semana conta a partir da segunda seguinte (também
+    // corrige os manuais que já foram guardados assim).
+    const from = manual.start_date ? planningMonday(new Date(`${manual.start_date}T12:00:00`)).getTime() : 0;
     const remaining = teaching.filter((w) => w.monday.getTime() >= from);
     const span = remaining.length > 0 ? remaining : teaching;
     distributeManual(left.map((x) => x.entry), span.length).forEach((slices, i) => {
