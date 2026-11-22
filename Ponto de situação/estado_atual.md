@@ -117,6 +117,12 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Erros ao guardar passam a mostrar o motivo. A falha "não deixa guardar" não foi reproduzida como erro da base de dados; a causa provável era o recarregamento acima. Por confirmar (V-31).
 - **Manuais, cursos e PDF (I-01):** uma linha por tema; a unidade repetida no início da linha é reconhecida ("3 temas, em 2 unidades"). O cartão serve também para cursos e PDF comprados: cola-se o índice, o ficheiro fica com a família. Carregar o ficheiro não está feito (I-14, Q-17).
 
+## Lição seguinte com índice, Tradição em Metodologias e lembrete de domingo (22 nov, ramo `feat/licao-indice-e-domingo`)
+- **Lição seguinte (I-16):** o modo guarda-se como uma linha marcadora no fim de `child_manuals.entries` (`{ next: true, lessonDays }`), a seguir ao índice, se houver. `indexEntries()` tira-a; as posições das outras linhas não mudam. Com índice, o rumo reparte-o como sempre e cada semana diz "Lição seguinte (N lições esta semana) · por esta altura: …".
+- **Tradição (I-08):** o cartão aparece também em Metodologias (`#tradicao`); no Início, uma linha discreta, uma vez, só para quem tem o convite.
+- **Lembrete de domingo (DASH fase 5):** migração **033** (`family_notification_prefs`, `sunday_reminders_sent`), função `send-sunday-reminder` (só aceita a service role key; envia às 20h de Lisboa, uma vez por família e semana, ao `families.email`; não envia em pausas nem a quem já tem plano), cartão em Definições. O agendamento (pg_cron + pg_net + Vault) está comentado no fim da 033. `?teste=<family_id>` envia já, só para essa família.
+- **Não testado:** browser e base de dados real; a função não foi executada.
+
 ## Início redesenhado, DASH (22 nov)
 - `src/pages/Index.tsx`: Hoje (sem cor) com os itens de cada criança e caixa (`weekly_plan_items.completed_at`); caixas **A semana** (em dia, quase lá, por preparar) e **O ano** (ritmo até 30 de junho, folga até 31 de julho). Fim de semana sem plano: "A próxima semana" com o rumo. Sem Missões.
 - `src/lib/dashboard.ts`: regras da semana e do ritmo (testes em `dashboard.test.ts`). Dado = `dominado`; dado + precisa de mais = `em_progresso` (sem migração). O ritmo conta os dois; o recente usa `updated_at` das últimas 4 semanas.

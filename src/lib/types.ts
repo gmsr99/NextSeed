@@ -621,6 +621,18 @@ export type Database = {
         }
         Relationships: []
       }
+      family_notification_prefs: {
+        Row: { family_id: string; sunday_reminder: boolean; updated_at: string }
+        Insert: { family_id: string; sunday_reminder?: boolean; updated_at?: string }
+        Update: { family_id?: string; sunday_reminder?: boolean; updated_at?: string }
+        Relationships: []
+      }
+      sunday_reminders_sent: {
+        Row: { family_id: string; week_start: string; sent_at: string }
+        Insert: { family_id: string; week_start: string; sent_at?: string }
+        Update: { family_id?: string; week_start?: string; sent_at?: string }
+        Relationships: []
+      }
       family_traditions: {
         Row: {
           family_id: string

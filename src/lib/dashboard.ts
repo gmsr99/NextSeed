@@ -8,7 +8,7 @@
 // O ritmo conta os dois. "A consolidar" nunca muda a cor de uma disciplina.
 import type { AnnualPlan } from "./annualPlan";
 import { mondayOf, schoolYearStartFor } from "./annualPlan";
-import { isNextLesson, type Manual } from "./manualIndex";
+import { indexEntries, isNextLesson, type Manual } from "./manualIndex";
 
 export const GIVEN_STATUSES = ["dominado", "em_progresso"] as const;
 export const isGiven = (s: string | undefined) => s === "dominado" || s === "em_progresso";
@@ -164,7 +164,9 @@ export function disciplinePaces(
     if (m.entries.length === 0 || isNextLesson(m.entries)) return;
     // Com manual, a disciplina não tem temas do currículo no rumo
     const p = get(m.discipline);
-    const given = m.entries.filter((e) => e.done).length;
+    const index = indexEntries(m.entries);
+    if (index.length === 0) return;
+    const given = index.filter((e) => e.done).length;
     const pastLines = new Set<string>();
     for (const w of plan.weeks) {
       if (w.monday.getTime() >= t) continue;
@@ -173,7 +175,7 @@ export function disciplinePaces(
         if (c.fromManual && parts[2] === String(k)) pastLines.add(parts[3]);
       }
     }
-    p.total += m.entries.length;
+    p.total += index.length;
     p.given += given;
     p.plannedByNow += given + pastLines.size;
     p.recent = null; // as unidades do manual não guardam a data

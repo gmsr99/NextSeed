@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, BookHeart } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
+import FamilyTraditionCard from "@/components/FamilyTraditionCard";
 import { useMethodologies } from "@/hooks/useMethodologies";
 import { MethodologyCard } from "@/components/methodology/MethodologyCard";
 import { SelectedMethodologies } from "@/components/methodology/SelectedMethodologies";
@@ -27,6 +28,13 @@ export default function Metodologias() {
     moveDown,
     getFamilyMethodology,
   } = useMethodologies();
+
+  // Vindo do Início (#tradicao): descer até à Tradição da família
+  useEffect(() => {
+    if (!isLoading && window.location.hash === "#tradicao") {
+      setTimeout(() => document.getElementById("tradicao")?.scrollIntoView({ behavior: "smooth" }), 300);
+    }
+  }, [isLoading]);
   const selected = [...familyMethodologies].sort((x, y) => x.priority - y.priority);
 
   const isPending =
@@ -144,6 +152,11 @@ export default function Metodologias() {
                 isPending={isPending}
               />
             </section>
+
+            {/* Tradição da família (I-08): ao lado das metodologias; só aparece a quem tem o convite */}
+            <div id="tradicao" className="scroll-mt-20">
+              <FamilyTraditionCard />
+            </div>
 
             {/* ── Explorar ─────────────────────────────────────────────── */}
             <section>

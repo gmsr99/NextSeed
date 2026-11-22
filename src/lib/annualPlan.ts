@@ -15,7 +15,7 @@
 // Hipótese (até haver calendário por família, P-04): calendário escolar oficial
 // do 1.º ciclo, aproximado à semana. Só o Natal e a Páscoa contam como pausa.
 
-import { distributeManual, isNextLesson, remainingEntries, sliceLabel, type Manual } from "./manualIndex";
+import { distributeManual, hasNextLesson, indexEntries, isNextLesson, lessonDaysOf, lessonsPerWeekLabel, remainingEntries, sliceLabel, type Manual } from "./manualIndex";
 
 export type Period = "1" | "2" | "3";
 
@@ -289,6 +289,9 @@ export function buildAnnualPlan(
     const several = (perDiscipline.get(manual.discipline) ?? 0) > 1;
     // "Lição seguinte": todas as semanas de aulas, a partir de quando começam,
     // dizem só "lição seguinte". O livro marca onde ficaram; o plano não desatualiza.
+    // Com "lição seguinte", cada semana diz quantas lições cabem (se souberem quanto leva uma)
+    const perWeek = hasNextLesson(manual.entries) ? lessonsPerWeekLabel(lessonDaysOf(manual.entries)) : null;
+    const nextLabel = `Lição seguinte${perWeek ? ` (${perWeek} esta semana)` : ""}`;
     if (isNextLesson(manual.entries)) {
       const from = manual.start_date ? planningMonday(new Date(`${manual.start_date}T12:00:00`)).getTime() : 0;
       teaching.filter((w) => w.monday.getTime() >= from).forEach((w, i) => {
@@ -297,14 +300,17 @@ export function buildAnnualPlan(
           discipline: manual.discipline,
           period: w.period,
           domain: manual.title,
-          content: several ? `${manual.title}: lição seguinte` : "Lição seguinte",
+          content: several ? `${manual.title}: ${nextLabel.charAt(0).toLowerCase()}${nextLabel.slice(1)}` : nextLabel,
           sort_order: k * 1000,
           fromManual: true,
         });
       });
       return;
     }
-    const left = remainingEntries(manual.entries);
+    // Com índice e "lição seguinte": o índice reparte-se como sempre e cada semana
+    // diz "lição seguinte" com a estimativa de onde devem andar
+    const left = remainingEntries(indexEntries(manual.entries));
+    const next = hasNextLesson(manual.entries);
     if (left.length === 0) return;
     // O manual reparte-se pelas semanas que faltam a partir da data em que a
     // família começa a usá-lo; se já não houver semanas, pelo ano inteiro.
@@ -323,7 +329,9 @@ export function buildAnnualPlan(
           discipline: manual.discipline,
           period: span[i].period,
           domain: manual.title,
-          content: several ? `${manual.title}: ${sliceLabel(s)}` : sliceLabel(s),
+          content: next
+            ? `${several ? `${manual.title}: ` : ""}${nextLabel} · por esta altura: ${sliceLabel(s)}`
+            : several ? `${manual.title}: ${sliceLabel(s)}` : sliceLabel(s),
           sort_order: k * 1000 + line,
           fromManual: true,
         });

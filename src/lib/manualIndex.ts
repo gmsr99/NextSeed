@@ -12,8 +12,10 @@ export interface ManualEntry {
   done?: boolean;
   /** Tema começado: retoma nesta página */
   from?: number;
-  /** Modo "lição seguinte": o livro marca onde ficaram (sem índice) */
+  /** Modo "lição seguinte": o livro marca onde ficaram. É uma linha marcadora, sempre a última */
   next?: boolean;
+  /** Na linha marcadora: quantos dias leva uma lição (0.5, 1, 2 ou 3 = três ou mais) */
+  lessonDays?: number;
 }
 
 /**
@@ -23,8 +25,51 @@ export interface ManualEntry {
  */
 export const NEXT_LESSON_ENTRIES: ManualEntry[] = [{ title: "Lição seguinte", next: true }];
 
+/** Só "lição seguinte", sem índice. */
 export function isNextLesson(entries: ManualEntry[]): boolean {
   return entries.length === 1 && entries[0].next === true;
+}
+
+/**
+ * "Lição seguinte", com ou sem índice (I-16, 22 nov). Com índice, o índice e a
+ * posição continuam a contar (rumo, ritmo do ano, fecho da semana) e a linha
+ * marcadora fica no fim, para não mudar a posição das outras.
+ */
+export function hasNextLesson(entries: ManualEntry[]): boolean {
+  return entries.some((e) => e.next === true);
+}
+
+/** As linhas do índice, sem a marcadora da "lição seguinte". */
+export function indexEntries(entries: ManualEntry[]): ManualEntry[] {
+  return entries.filter((e) => e.next !== true);
+}
+
+export const LESSON_DAYS = [
+  { value: 0.5, label: "Meio dia (duas por dia)" },
+  { value: 1, label: "Um dia" },
+  { value: 2, label: "Dois dias" },
+  { value: 3, label: "Três dias ou mais" },
+] as const;
+
+export function lessonDaysOf(entries: ManualEntry[]): number | null {
+  const m = entries.find((e) => e.next === true);
+  return m?.lessonDays ?? null;
+}
+
+/** Índice (já marcado) + linha marcadora da "lição seguinte". */
+export function withNextLesson(index: ManualEntry[], lessonDays: number | null): ManualEntry[] {
+  const marker: ManualEntry = { title: "Lição seguinte", next: true };
+  if (lessonDays) marker.lessonDays = lessonDays;
+  return [...indexEntries(index), marker];
+}
+
+/** Quantas lições numa semana de cinco dias: "cerca de 5 lições", "2 a 3 lições". */
+export function lessonsPerWeekLabel(lessonDays: number | null): string | null {
+  if (!lessonDays) return null;
+  if (lessonDays <= 0.5) return "cerca de 10 lições";
+  if (lessonDays <= 1) return "cerca de 5 lições";
+  if (lessonDays <= 2) return "2 a 3 lições";
+  return "1 a 2 lições";
 }
 
 export interface Manual {

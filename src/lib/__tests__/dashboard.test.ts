@@ -131,3 +131,13 @@ describe("fecho da semana (DASH §4)", () => {
     expect(shouldOfferClose(new Date(2026, 10, 26, 15, 0), false)).toBe(false);
   });
 });
+
+describe("ritmo com lição seguinte e índice", () => {
+  it("conta as unidades do índice e ignora a linha marcadora", () => {
+    const manuals = [{ discipline: "portugues", title: "Livro", entries: [{ title: "U1", done: true }, { title: "U2" }, { title: "Lição seguinte", next: true, lessonDays: 1 }] }];
+    const p = buildAnnualPlan(contents, 2026, manuals);
+    const pt = disciplinePaces(p, {}, {}, manuals, new Date(2026, 8, 30)).find((x) => x.discipline === "portugues")!;
+    expect(pt.total).toBe(2);
+    expect(pt.given).toBe(1);
+  });
+});

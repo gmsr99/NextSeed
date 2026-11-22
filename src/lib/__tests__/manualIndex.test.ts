@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries, NEXT_LESSON_ENTRIES, isNextLesson } from "../manualIndex";
+import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries, NEXT_LESSON_ENTRIES, isNextLesson, hasNextLesson, indexEntries, lessonDaysOf, lessonsPerWeekLabel, withNextLesson } from "../manualIndex";
 import { buildAnnualPlan, weekFocus, weeksFor, planWeekFor, planningMonday, isoDay, type AnnualContent } from "../annualPlan";
 
 describe("parseIndex", () => {
@@ -210,5 +210,31 @@ describe("modo lição seguinte (F-01, 22 nov)", () => {
     ]);
     const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
     expect(now.byDiscipline.portugues.map((c) => c.content)[0]).toBe("Caderno: lição seguinte");
+  });
+});
+
+describe("lição seguinte com índice e tamanho da lição (Elton, 22 nov)", () => {
+  const weeks = weeksFor(new Date("2026-11-23T12:00:00"));
+  it("o índice continua a contar e cada semana diz quantas lições e por onde devem andar", () => {
+    const entries = withNextLesson([{ title: "Frações", done: true }, { title: "Decimais" }, { title: "Medidas" }], 1);
+    expect(hasNextLesson(entries)).toBe(true);
+    expect(isNextLesson(entries)).toBe(false);
+    expect(indexEntries(entries).map((e) => e.title)).toEqual(["Frações", "Decimais", "Medidas"]);
+    expect(lessonDaysOf(entries)).toBe(1);
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "matematica", title: "Mat 3", entries, start_date: "2026-11-23" }]);
+    const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
+    const c = now.byDiscipline.matematica[0];
+    expect(c.content.startsWith("Lição seguinte (cerca de 5 lições esta semana) · por esta altura: Decimais")).toBe(true);
+    expect(c.id).toMatch(/^manual:matematica:0:1:/); // a linha do índice, para o fecho e o ritmo
+  });
+  it("sem índice, só o número de lições", () => {
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "portugues", title: "Livro", entries: withNextLesson([], 2), start_date: "2026-11-23" }]);
+    const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
+    expect(now.byDiscipline.portugues[0].content).toBe("Lição seguinte (2 a 3 lições esta semana)");
+  });
+  it("rótulos", () => {
+    expect(lessonsPerWeekLabel(0.5)).toBe("cerca de 10 lições");
+    expect(lessonsPerWeekLabel(3)).toBe("1 a 2 lições");
+    expect(lessonsPerWeekLabel(null)).toBeNull();
   });
 });

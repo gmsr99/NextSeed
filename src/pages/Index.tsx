@@ -17,6 +17,7 @@ import { useChildren } from '@/hooks/useChildren';
 import { useChildMilestones, MILESTONE_CATEGORIES } from '@/hooks/useChildMilestones';
 import { useDashboardYear } from '@/hooks/useDashboardYear';
 import { useWeekFocus } from '@/hooks/useAnnualPlan';
+import { useFamilyTradition } from '@/hooks/useFamilyTradition';
 import { GC_DISCIPLINE_LABELS } from '@/lib/gcConstants';
 import { cn } from '@/lib/utils';
 import {
@@ -84,6 +85,9 @@ export default function Index() {
   const year = useDashboardYear(children, today);
   const nextMonday = useMemo(() => addDays(weekStart, 7), [weekStart]);
   const nextFocus = useWeekFocus(children, nextMonday);
+  const fam = useFamilyTradition();
+  const [traditionSeen, setTraditionSeen] = useState(() => readFlag('nexseed:tradicao-aviso'));
+  const showTraditionNotice = fam.invited && !fam.tradition && !fam.isLoading && !traditionSeen;
 
   const [open, setOpen] = useState<'semana' | 'ano' | null>(null);
   const [closing, setClosing] = useState(false);
@@ -297,6 +301,17 @@ export default function Index() {
             </motion.section>
           )}
         </AnimatePresence>
+
+        {/* Convite discreto para a Tradição da família (I-08): uma vez, só a quem tem o convite */}
+        {showTraditionNotice && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-dashed px-4 py-3 text-sm">
+            <span className="text-muted-foreground">Têm disponível a Tradição da família, opcional.</span>
+            <span className="flex gap-1">
+              <Button variant="ghost" size="sm" onClick={() => { writeFlag('nexseed:tradicao-aviso'); setTraditionSeen(true); navigate('/metodologias#tradicao'); }}>Ver</Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => { writeFlag('nexseed:tradicao-aviso'); setTraditionSeen(true); }}>Agora não</Button>
+            </span>
+          </div>
+        )}
 
         {/* Marcos de bebés e crianças pequenas */}
         {youngChildren.length > 0 && (

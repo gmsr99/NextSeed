@@ -13,7 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
   MANUAL_DISCIPLINES, applyCurrentPage, applyCurrentTopic, countGroups, currentPageOf, currentTopicOf, formatIndex,
-  hasUsablePages, isNextLesson, NEXT_LESSON_ENTRIES, parseIndex, type ManualEntry,
+  hasNextLesson, hasUsablePages, indexEntries, isNextLesson, lessonDaysOf, lessonsPerWeekLabel, LESSON_DAYS,
+  parseIndex, withNextLesson, type ManualEntry,
 } from "@/lib/manualIndex";
 import { useChildManuals, type ChildManual } from "@/hooks/useChildManuals";
 import { formatWeekShort, isoDay, planningMonday } from "@/lib/annualPlan";
@@ -22,13 +23,15 @@ import type { Child } from "@/lib/types";
 const EXAMPLE = "Unidade 1 — Números até 100 ... 6\nUnidade 1 — Contar de 2 em 2 ... 10\nUnidade 1 — Maior, menor, igual ... 14\nUnidade 2 — Adição até 100 ... 24\nUnidade 2 — Subtração até 100 ... 30";
 
 /** Onde vão neste manual, em texto curto para a lista. */
-function progressLabel(entries: ManualEntry[]): string {
-  if (isNextLesson(entries)) return "lição seguinte";
+function progressLabel(all: ManualEntry[]): string {
+  if (isNextLesson(all)) return "lição seguinte";
+  const prefix = hasNextLesson(all) ? "lição seguinte · " : "";
+  const entries = indexEntries(all);
   const page = currentPageOf(entries);
-  if (page) return `vão na página ${page}`;
+  if (page) return `${prefix}vão na página ${page}`;
   const topic = currentTopicOf(entries);
-  if (topic !== null) return `vão em "${entries[topic].title}"`;
-  return "começa no 1.º tema";
+  if (topic !== null) return `${prefix}vão em "${entries[topic].title}"`;
+  return `${prefix}começa no 1.º tema`;
 }
 
 export default function ManualsCard({ child }: { child: Child }) {
@@ -43,6 +46,8 @@ export default function ManualsCard({ child }: { child: Child }) {
   const [text, setText] = useState("");
   // Como seguem o livro: "index" (a NexSeed reparte o índice) ou "next" (lição seguinte)
   const [mode, setMode] = useState<"index" | "next">("index");
+  // "Lição seguinte": quantos dias leva uma lição ("" = não sabem)
+  const [lessonDays, setLessonDays] = useState<string>("");
   // Onde vão: "new" = ainda não começaram; "started" = já vão a meio
   const [progress, setProgress] = useState<"new" | "started">("new");
   // Já começaram: última página feita (índice com páginas) ou tema onde vão (sem páginas)
@@ -59,13 +64,17 @@ export default function ManualsCard({ child }: { child: Child }) {
   const lastPage = paged ? entries[entries.length - 1].page! : null;
   const pageOutOfRange = currentPage !== null && lastPage !== null && currentPage >= lastPage + 200;
   // Já começaram mas ainda não disseram onde vão: não deixa guardar
-  const missingProgress = mode === "index" && progress === "started" && (paged ? !currentPage : currentTopic === null);
+  const missingProgress = entries.length > 0 && progress === "started" && (paged ? !currentPage : currentTopic === null);
   const startWeek = formatWeekShort(planningMonday(new Date()));
-  const marked = (): ManualEntry[] =>
-    mode === "next" ? NEXT_LESSON_ENTRIES
+  const markedIndex = (): ManualEntry[] =>
+    entries.length === 0 ? []
     : progress === "new" ? applyCurrentPage(entries, null)
     : paged ? applyCurrentPage(entries, currentPage)
     : applyCurrentTopic(entries, currentTopic);
+  // Com "lição seguinte", o índice (se houver) continua a contar e a linha
+  // marcadora vai no fim, com o tamanho da lição
+  const marked = (): ManualEntry[] =>
+    mode === "next" ? withNextLesson(markedIndex(), lessonDays ? Number(lessonDays) : null) : markedIndex();
 
   const openNew = () => {
     setEditingId(null);
@@ -73,6 +82,7 @@ export default function ManualsCard({ child }: { child: Child }) {
     setTitle("");
     setText("");
     setMode("index");
+    setLessonDays("");
     setPageText("");
     setTopicIdx("");
     setSavedMarks("");
@@ -83,11 +93,12 @@ export default function ManualsCard({ child }: { child: Child }) {
     setEditingId(m.id);
     setDiscipline(m.discipline);
     setTitle(m.title);
-    const next = isNextLesson(m.entries);
-    setMode(next ? "next" : "index");
-    setText(next ? "" : formatIndex(m.entries));
-    const p = currentPageOf(m.entries);
-    const t = currentTopicOf(m.entries);
+    const index = indexEntries(m.entries);
+    setMode(hasNextLesson(m.entries) ? "next" : "index");
+    setLessonDays(lessonDaysOf(m.entries) ? String(lessonDaysOf(m.entries)) : "");
+    setText(formatIndex(index));
+    const p = currentPageOf(index);
+    const t = currentTopicOf(index);
     setPageText(p ? String(p) : "");
     setTopicIdx(!p && t !== null ? String(t) : "");
     setProgress(p || t !== null ? "started" : "new");
@@ -160,7 +171,7 @@ export default function ManualsCard({ child }: { child: Child }) {
                       <p className="truncate text-sm font-medium text-foreground">{m.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {GC_DISCIPLINE_LABELS[m.discipline] ?? m.discipline}
-                        {isNextLesson(m.entries) ? "" : ` · ${m.entries.length} ${m.entries.length === 1 ? "tema" : "temas"}`}
+                        {isNextLesson(m.entries) ? "" : ` · ${indexEntries(m.entries).length} ${indexEntries(m.entries).length === 1 ? "tema" : "temas"}`}
                         {` · ${progressLabel(m.entries)}`}
                       </p>
                     </div>
@@ -226,14 +237,32 @@ export default function ManualsCard({ child }: { child: Child }) {
               </Select>
               {mode === "next" && (
                 <p className="text-xs text-muted-foreground">
-                  Não precisam de índice nem de páginas. Cada semana, o plano diz "lição seguinte" deste livro e prepara o
-                  resto à volta. Como é o livro que marca onde ficaram, o plano nunca fica desatualizado.
+                  Cada semana, o plano diz "lição seguinte" deste livro e prepara o resto à volta. O índice é opcional,
+                  mas ajuda: com ele, o plano diz também por onde devem andar e o Início mostra o ritmo do ano.
                 </p>
               )}
             </div>
-            {mode === "index" && (
+            {mode === "next" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="manual-lesson-days">Quanto tempo leva uma lição?</Label>
+                <Select value={lessonDays || "nao-sei"} onValueChange={(v) => setLessonDays(v === "nao-sei" ? "" : v)}>
+                  <SelectTrigger id="manual-lesson-days"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nao-sei">Depende (não dizer)</SelectItem>
+                    {LESSON_DAYS.map((o) => (
+                      <SelectItem key={o.value} value={String(o.value)}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {lessonDays && (
+                  <p className="text-xs text-muted-foreground">Numa semana de cinco dias, {lessonsPerWeekLabel(Number(lessonDays))}.</p>
+                )}
+              </div>
+            )}
+            {(
+
             <div className="space-y-1.5">
-              <Label htmlFor="manual-index">Índice</Label>
+              <Label htmlFor="manual-index">{mode === "next" ? "Índice (opcional)" : "Índice"}</Label>
               <Textarea
                 id="manual-index"
                 value={text}
@@ -259,7 +288,7 @@ export default function ManualsCard({ child }: { child: Child }) {
               </p>
             </div>
             )}
-            {mode === "index" && entries.length > 0 && (
+            {entries.length > 0 && (
               <div className="space-y-2 rounded-lg border border-border/60 p-3">
                 <Label htmlFor="manual-progress">Onde vão neste manual?</Label>
                 <Select value={progress} onValueChange={(v) => setProgress(v as typeof progress)}>

@@ -36,6 +36,8 @@ const TABLES = [
   "family_week_routines",
   "family_traditions",
   "pilot_features",
+  "family_notification_prefs",
+  "sunday_reminders_sent",
   "fin_profiles",
   "fin_lessons",
   "fin_signals",
