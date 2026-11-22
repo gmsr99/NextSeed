@@ -10,6 +10,7 @@
 -- pilot_features: funcionalidades em piloto ligadas a uma família concreta. Só
 -- se escreve por SQL (equipa); a família só lê a sua. Para o piloto da F-01:
 --   insert into pilot_features (family_id, feature) values ('<id da família>', 'tradicao');
+--   insert into pilot_features (family_id, feature) values ('<id da família>', 'financinhas');
 
 create table if not exists pilot_features (
   family_id   uuid not null references families(id) on delete cascade,

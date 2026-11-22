@@ -100,7 +100,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | 8 | E7 · Impressão e documentos | As famílias imprimem demasiadas folhas. Alguns pontos são rápidos e podem entrar antes. | M | M | Por fazer |
 | 9 | E9 · Personalização e conteúdos próprios | Pedidos com valor real mas grandes, alguns com questões legais (direitos de autor, dados religiosos). | M | B | Em estudo |
 | 10 | E10 · Comunidade, conteúdos e negócio | Ideias para depois de o núcleo estar sólido. | M | B | Em estudo |
-| 11 | E11 · Financinhas | Pedido do Elton (22 nov): o módulo de literacia financeira e empreendedorismo (5–12 anos) entra na app e substitui a antiga página de Literacia Financeira. Feito de raiz a partir das regras e parâmetros do Financinhas (documentos FIN_*); a experiência de outubro não é usada. | M | M | Publicado a 22 nov, só para a equipa. Falta o Gil aplicar a migração 031 e publicar export-family-data. Para as outras famílias, depois da Q-03 e da Q-19 |
+| 11 | E11 · Financinhas | Pedido do Elton (22 nov): o módulo de literacia financeira e empreendedorismo (5–12 anos) entra na app e substitui a antiga página de Literacia Financeira. Feito de raiz a partir das regras e parâmetros do Financinhas (documentos FIN_*); a experiência de outubro não é usada. | M | M | Publicado a 22 nov, só para a equipa. A 22 nov passou a abrir também às famílias convidadas (`pilot_features` 'financinhas', migração 032): falta o Gil inserir o convite da família do Elton. Para as outras famílias, depois da Q-03 e da Q-19 |
 
 ## E1 · Conformidade e base
 
@@ -242,6 +242,7 @@ Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões
 | I-23 | Confirmar sinais a partir de um registo do Diário | FIN_11 B6 | B/B | M | Por fazer |
 | I-24 | Empreendedorismo (temas 16 e 17) como Projetos com fases (mini-feira, loja) | FIN_11 C1. São os temas sem história de referência | B/B | M | Em estudo |
 | I-25 | Aulas-modelo fixas do trilho (12 sessões × 3 escalões), para a primeira ronda não depender da IA | FIN_CUR_03 §10. Conteúdo, não código | M/B | L | Em estudo |
+| I-26 | Famílias de "tribos" com modos de vida muito próprios: ter debaixo de olho o que pedem e como a app se adapta sem perder a base comum (currículo da DGE, ciência) | Elton, 22 nov (conversa sobre a Tradição da família) | M/B | — | Em observação: registar cada caso no documento 10 |
 
 ## Qualidade técnica (sem impacto visível)
 

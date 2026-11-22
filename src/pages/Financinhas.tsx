@@ -18,6 +18,7 @@ import { currentLevels, lastEventBySkill } from "@/lib/financinhas/levels";
 import { weekStart } from "@/lib/financinhas/ritual";
 import { TRACK_SESSIONS, type Tier } from "@/lib/financinhas/catalog";
 import { canSeeFinancinhas } from "@/lib/financinhas/access";
+import { usePilotFeature } from "@/hooks/usePilotFeature";
 import type { Child, FinLesson } from "@/lib/types";
 import StartProfileCard, { WEEKDAYS } from "@/components/financinhas/StartProfileCard";
 import NextLessonCard, { type GenerateRequest, type PlanOptions } from "@/components/financinhas/NextLessonCard";
@@ -234,6 +235,7 @@ export default function Financinhas() {
   const { children, isLoading: childrenLoading } = useChildren();
   const fin = useFinancinhas();
   const { isAdmin, isLoading: adminLoading } = useIsTeamAdmin();
+  const { invited, isLoading: pilotLoading } = usePilotFeature("financinhas");
   const { toast } = useToast();
   const [selected, setSelected] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
@@ -247,7 +249,7 @@ export default function Financinhas() {
   const outside = withAge.filter((x) => x.tier === null);
   const current = eligible.find((x) => x.child.id === selected) ?? eligible[0] ?? null;
 
-  if (!adminLoading && !canSeeFinancinhas(isAdmin)) {
+  if (!adminLoading && !pilotLoading && !canSeeFinancinhas(isAdmin, invited)) {
     return (
       <AppLayout>
         <Alert>
