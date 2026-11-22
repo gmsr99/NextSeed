@@ -253,7 +253,9 @@ export default function Index() {
                   <p className="text-sm text-muted-foreground">O ritmo do ano aparece quando a criança tem o ano escolar definido ou um manual com índice.</p>
                 ) : (
                   <>
-                    {yearState && <p className="text-sm text-foreground">{paceSentence(year.total, clock)}</p>}
+                    {yearState === 'sem_marcas' ? (
+                      <p className="text-sm text-muted-foreground">Ainda não há temas marcados como dados. Ao fechar a semana, o ritmo do ano aparece aqui.</p>
+                    ) : yearState && <p className="text-sm text-foreground">{paceSentence(year.total, clock)}</p>}
                     {year.rows.map((r) => (
                       <div key={r.child.id} className="space-y-2">
                         {year.rows.length > 1 && <p className="font-semibold text-foreground">{r.child.name}</p>}
