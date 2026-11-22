@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
+import FamilyTraditionCard from "@/components/FamilyTraditionCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink, Download } from "lucide-react";
@@ -261,6 +262,9 @@ const SettingsPage = () => {
             </div>
           )}
         </section>
+
+        {/* Tradição da família (I-08): só aparece a quem foi convidada para o piloto */}
+        <FamilyTraditionCard />
 
         {/* Privacidade e dados */}
         <section className="rounded-2xl border bg-card p-6 space-y-4">

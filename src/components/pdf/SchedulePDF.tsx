@@ -181,12 +181,16 @@ interface Props {
   extracurriculars?: ExtracurricularItem[];
   /** P-18: a semana da família */
   routine?: WeekRoutine | null;
+  /** I-08: com a Tradição da família ligada, o bloco da manhã é "Orações e liturgia" */
+  liturgyOn?: boolean;
 }
 
-export default function SchedulePDF({ children, planItems, weekStart, familyName, extracurriculars = [], routine = null }: Props) {
+export default function SchedulePDF({ children, planItems, weekStart, familyName, extracurriculars = [], routine = null, liturgyOn = false }: Props) {
   const weekDates = getWeekDates(weekStart);
 
-  const fixedBlocks = getFixedScheduleBlocks(children, routine);
+  const fixedBlocks = getFixedScheduleBlocks(children, routine).map((b) =>
+    liturgyOn && b.title === "Ritual de Chegada" ? { ...b, title: "Orações e liturgia" } : b,
+  );
   const allItems = [...planItems, ...fixedBlocks];
 
   const hasPrimaryChild = children.some(
