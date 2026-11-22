@@ -17,7 +17,7 @@ import { useFeedback } from "@/contexts/FeedbackContext";
 import { track } from "@/lib/analytics";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
 import { useLiteracyProgress } from '@/hooks/useLiteracyProgress';
-import { ALL_FINANCIAL_MODULES, ALL_DIGITAL_MODULES } from '@/lib/literacyContent';
+import { ALL_DIGITAL_MODULES } from '@/lib/literacyContent';
 import { useChildMilestones, MILESTONE_CATEGORIES } from "@/hooks/useChildMilestones";
 
 const PERIODS = [
@@ -96,22 +96,13 @@ const fadeUp = {
 };
 
 function LiteracyChildCard({ child }: { child: { id: string; name: string } }) {
-  const financial = useLiteracyProgress(child.id, 'financial');
   const digital = useLiteracyProgress(child.id, 'digital');
-  const finPct = financial.completionPct(ALL_FINANCIAL_MODULES);
   const digPct = digital.completionPct(ALL_DIGITAL_MODULES);
 
   return (
     <div className="border rounded-xl p-4 space-y-3">
       <p className="font-medium">{child.name}</p>
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Literacia Financeira</span>
-          <span className="font-medium">{finPct}%</span>
-        </div>
-        <div className="w-full bg-muted rounded-full h-2">
-          <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${finPct}%` }} />
-        </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Literacia Digital</span>
           <span className="font-medium">{digPct}%</span>

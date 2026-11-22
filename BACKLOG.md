@@ -37,6 +37,8 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-14 | Em que regime está cada família do piloto: matriculada numa escola portuguesa (ensino doméstico), numa escola estrangeira ou à distância, ou outro? | Decide se o currículo nacional é a base ou só uma lente opcional (P-25). No ensino doméstico português há portefólio e provas no 4.º, 6.º e 9.º ano; fora dele não |  |
 | Q-15 | Podes enviar à F-03 as 7 perguntas sobre o percurso Montessori dos 3 aos 6? Estão prontas a copiar no documento claude/Metodologias_percurso_ritmo_forma.md do projeto. | Sem a sequência de quem pratica, a app só organiza pelas cinco áreas; não inventa a ordem dos materiais (I-02) |  |
 | Q-17 | Carregar o próprio PDF na NexSeed (para a app ler o índice sozinha): avançamos? Preciso de validação jurídica sobre direitos de autor antes. | Pedido teu de 16 nov. Hoje a família cola o índice e o ficheiro fica com ela. Guardar e ler ficheiros comprados a outros criadores levanta a questão A-09 do documento 10 e tem custos de armazenamento |  |
+| Q-18 | Financinhas: como publico o ramo `feat/financinhas`? Nesta conversa o sistema recusou-me a permissão de escrita no GitHub e não consegui instalar pacotes para fazer o build. Opções: dás-me acesso de escrita ao repositório numa conversa nova, ou abres a pasta do repositório na app Claude do Mac e eu publico a partir daí | Sem isto o código fica só no meu espaço de trabalho e não chega à pré-visualização da Vercel |  |
+| Q-19 | Financinhas para outras famílias: só depois da Q-03 (Gemini pago) e de rever o documento 04 para as observações das crianças. Por agora, o menu e a página só aparecem a quem é da equipa (a tua conta tem de estar em team_admins, como para a página Feedback). Concordas? | O módulo guarda observações do adulto sobre o comportamento das crianças com dinheiro e envia ao Gemini o escalão, o interesse e a situação da semana |  |
 
 ## Para testar: novidades publicadas de 13 a 15 de novembro
 
@@ -73,6 +75,13 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-34 | Rumo do ano | Num manual sem páginas no índice, escolher "Já começámos" e o tema onde vão | Os temas anteriores ficam feitos e a semana que estão a preparar começa nesse tema; na lista aparece "vão em …" (I-16, 22 nov) |  |
 | V-35 | Rumo do ano ou Planeador | Em "A vossa semana", tocar em Ajustar a semana: segunda a quinta Dia completo, sexta Dia curto, desligar a saída; guardar | O cartão diz "Segunda a quinta, sexta curta, sem saída". Antes de o Gil aplicar a migração 030 aparece um aviso e não dá para ajustar (P-18, 22 nov) |  |
 | V-36 | Plano Semanal | Com a semana da V-35, gerar um plano novo e descarregar os PDF | Não há "Ver Mundo"; a sexta tem só Português e Matemática de manhã; o horário e o guia seguem os mesmos dias. Experimentar também um dia "Sem estudo": esse dia fica vazio e a leitura tem menos episódios (P-18, P-04) |  |
+| V-37 | Financinhas (depois de publicado e de o Gil aplicar a migração 031) | Abrir o menu: "Financinhas" aparece a seguir a "Missões do Mundo". Abrir o endereço antigo /financial-literacy | Abre a página Financinhas. Antes da migração aparece "O Financinhas está quase pronto" (I-17) |  |
+| V-38 | Financinhas | Com a criança mais nova: Começar com o Trilho, semanada sugerida, fotografia inicial. Gerar a aula da S1 com o interesse dela | Aula com 7 slides e prompt com menos de 5000 caracteres, botão Copiar, 5 perguntas faladas, atividade das três portas e a frase "As portas grandes… são os pais que abrem" no guia (I-17) |  |
+| V-39 | Financinhas | Colar o prompt no Gemini Notebook ou NotebookLM | A apresentação sai em português de Portugal, sem marcas nem personagens conhecidas (I-17) |  |
+| V-40 | Financinhas | Marcar a aula como dada; abrir "O que observar" e carregar em "Vi isto" num sinal | O nível dessa competência sobe em Competências; a próxima aula proposta é a S2 (I-17) |  |
+| V-41 | Financinhas | Depois da S2, registar o ritual: valor, "escolhi ___ em vez de ___", usou o chão e repôs | Aparecem dois sinais para confirmar (DC1 e GP3). Nenhum nível sobe sem confirmares (I-18) |  |
+| V-42 | Financinhas | Importar histórico: colar o JSON das aulas antigas, associar C1 e C2 às crianças | Mostra a lista antes de gravar; importar duas vezes não duplica; aulas sem data ficam "por dar" (I-19) |  |
+| V-43 | Financinhas | Com a criança mais velha em Ciclo semanal: Gerar a aula | Tema da competência mais frágil, modo de descoberta diferente da última aula, protagonista diferente do do irmão (I-17) |  |
 
 ## Ordem de implementação
 
@@ -88,6 +97,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | 8 | E7 · Impressão e documentos | As famílias imprimem demasiadas folhas. Alguns pontos são rápidos e podem entrar antes. | M | M | Por fazer |
 | 9 | E9 · Personalização e conteúdos próprios | Pedidos com valor real mas grandes, alguns com questões legais (direitos de autor, dados religiosos). | M | B | Em estudo |
 | 10 | E10 · Comunidade, conteúdos e negócio | Ideias para depois de o núcleo estar sólido. | M | B | Em estudo |
+| 11 | E11 · Financinhas | Pedido do Elton (22 nov): o módulo de literacia financeira e empreendedorismo (5–12 anos) entra na app e substitui a antiga página de Literacia Financeira. Feito de raiz a partir das regras e parâmetros do Financinhas (documentos FIN_*); a experiência de outubro não é usada. | M | M | Feito no ramo `feat/financinhas` a 22 nov. Por publicar (Q-18) e por aplicar a migração 031. Só para a família do Elton até à Q-03 e à Q-19 |
 
 ## E1 · Conformidade e base
 
@@ -213,6 +223,22 @@ Ideias para quando o núcleo estiver sólido.
 | I-04 | Subscrição com Stripe | Docs (FASE 4.1). Para o lançamento de janeiro | A/M | M | Em estudo |
 | I-05 | Página pública da coorte fundadora e do sinal de 20 euros | Docs 07 | M/M | M | Em estudo |
 | I-06 | Gerador de ideias grátis, sem login | Docs 02 | B/B | M | Em estudo |
+
+## E11 · Financinhas
+
+Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões, não finanças. A app é do adulto: a criança não tem conta, pontos nem ecrã. Regras e conteúdo nos documentos FIN_* do projeto.
+
+| ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
+|---|---|---|---|---|---|
+| I-17 | Financinhas: página `/financinhas` (substitui `/financial-literacy`), Trilho de Iniciação (12 sessões × 3 escalões) e ciclo adaptativo, motor determinístico (sessão ou tema, modo de descoberta, protagonista sem repetir entre irmãos), gerador (a app monta e valida o prompt ≤ 5000 caracteres), sinais "o que observar", 26 competências com níveis que só sobem por observação confirmada, fotografia de entrada e de saída, histórico | Elton, 22 nov. FIN_00, FIN_11 (A0, A2, A3, B4, B5). Sai a página antiga, que falava de juros e investimento | M/M | L | Feito no ramo a 22 nov, 43 testes da lógica a passar. Build e browser por testar (Q-18). BD: migração 031 |
+| I-18 | Ritual da semanada: cartão com os 5 passos, mealheiros e chão; registo de 30 s (valor, "escolhi ___ em vez de ___", chão usado e reposto) que propõe sinais DC1 e GP3 | FIN_11 B1 (D4: o ritual é a fonte fixa de observação) | M/M | M | Feito no ramo a 22 nov |
+| I-19 | Importar o histórico de aulas pela própria app (colar o JSON, associar as crianças, pré-visualizar, sem duplicados, aulas sem data ficam "por dar") | FIN_10 passo 4 e FIN_11 A1. Os dados reais nunca passam pelo repositório | M/M | M | Feito no ramo a 22 nov |
+| I-20 | Kit de arranque em PDF: etiquetas dos 4 frascos, Mapa de Moedas (5–6), Página da Semana (7–8), folha do sonho, ficha da fotografia inicial | FIN_11 B3 | M/M | M | Por fazer |
+| I-21 | Sessão da semana no plano semanal: bloco "Financinhas" no dia da semanada, com o prompt para copiar e o guia no PDF | FIN_11 B2 | M/M | M | Por fazer. Depende do I-17 publicado |
+| I-22 | Secção Financinhas nos relatórios trimestrais (3 competências fortes e 3 a trabalhar, em linguagem para a escola) | FIN_11 C2. Saiu dos Relatórios a barra da antiga Literacia Financeira | M/B | S | Por fazer |
+| I-23 | Confirmar sinais a partir de um registo do Diário | FIN_11 B6 | B/B | M | Por fazer |
+| I-24 | Empreendedorismo (temas 16 e 17) como Projetos com fases (mini-feira, loja) | FIN_11 C1. São os temas sem história de referência | B/B | M | Em estudo |
+| I-25 | Aulas-modelo fixas do trilho (12 sessões × 3 escalões), para a primeira ronda não depender da IA | FIN_CUR_03 §10. Conteúdo, não código | M/B | L | Em estudo |
 
 ## Qualidade técnica (sem impacto visível)
 

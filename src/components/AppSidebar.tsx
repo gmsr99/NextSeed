@@ -16,6 +16,7 @@ import {
   Map,
   LifeBuoy,
   MessageSquareText,
+  PiggyBank,
 } from "lucide-react";
 import { useMemo } from "react";
 import { NavLink } from "@/components/NavLink";
@@ -23,6 +24,7 @@ import { useLocation } from "react-router-dom";
 import NexSeedLogo from "@/components/NexSeedLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsTeamAdmin } from "@/hooks/useIsTeamAdmin";
+import { canSeeFinancinhas } from "@/lib/financinhas/access";
 import {
   Sidebar,
   SidebarContent,
@@ -74,6 +76,9 @@ const sistemaItems: NavItem[] = [
 
 // Só visível a membros da equipa (team_admins). A página tem o seu próprio
 // guard — isto apenas evita que o link apareça a quem não pode lá entrar.
+// Financinhas: por agora só para a equipa (ver src/lib/financinhas/access.ts)
+const financinhasItem: NavItem = { title: "Financinhas", url: "/financinhas", icon: PiggyBank };
+
 const adminItems: NavItem[] = [
   { title: "Feedback", url: "/admin/feedback", icon: MessageSquareText, badge: "Admin" },
 ];
@@ -142,11 +147,17 @@ export function AppSidebar() {
 
   const groups = useMemo(
     () =>
-      navGroups.map((group) =>
-        group.label === "Sistema" && isAdmin
-          ? { ...group, items: [...group.items, ...adminItems] }
-          : group,
-      ),
+      navGroups.map((group) => {
+        if (group.label === "Sistema" && isAdmin) return { ...group, items: [...group.items, ...adminItems] };
+        if (group.label === "Aprender" && canSeeFinancinhas(isAdmin)) {
+          // logo a seguir a "Missões do Mundo"
+          const i = group.items.findIndex((it) => it.url === "/world-missions");
+          const items = [...group.items];
+          items.splice(i + 1, 0, financinhasItem);
+          return { ...group, items };
+        }
+        return group;
+      }),
     [isAdmin],
   );
 

@@ -24,7 +24,7 @@ const Reports           = React.lazy(() => import("./pages/Reports"));
 const CalendarPage      = React.lazy(() => import("./pages/CalendarPage"));
 const SettingsPage      = React.lazy(() => import("./pages/SettingsPage"));
 const CreativeEngine    = React.lazy(() => import("./pages/CreativeEngine"));
-const FinancialLiteracy = React.lazy(() => import("./pages/FinancialLiteracy"));
+const Financinhas = React.lazy(() => import("./pages/Financinhas"));
 const DigitalLiteracy   = React.lazy(() => import("./pages/DigitalLiteracy"));
 const LearningAreas     = React.lazy(() => import("./pages/LearningAreas"));
 const WorldMissions     = React.lazy(() => import("./pages/WorldMissions"));
@@ -167,7 +167,8 @@ function AppRoutes() {
         <Route path="/activities"     element={<ProtectedRoute><Activities /></ProtectedRoute>} />
         <Route path="/creative-engine"element={<ProtectedRoute><CreativeEngine /></ProtectedRoute>} />
         <Route path="/projects"       element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-        <Route path="/financial-literacy" element={<ProtectedRoute><FinancialLiteracy /></ProtectedRoute>} />
+        <Route path="/financinhas"    element={<ProtectedRoute><Financinhas /></ProtectedRoute>} />
+        <Route path="/financial-literacy" element={<Navigate to="/financinhas" replace />} />
         <Route path="/digital-literacy"   element={<ProtectedRoute><DigitalLiteracy /></ProtectedRoute>} />
         <Route path="/portfolio"      element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
         <Route path="/reports"        element={<ProtectedRoute><Reports /></ProtectedRoute>} />

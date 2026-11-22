@@ -678,6 +678,285 @@ export type Database = {
         }
         Relationships: []
       }
+      fin_profiles: {
+        Row: {
+          child_id: string
+          family_id: string
+          stage: 'trilho' | 'ciclo'
+          allowance_cents: number | null
+          ritual_weekday: number
+          character_mode: 'generico' | 'original'
+          started_on: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          child_id: string
+          family_id: string
+          stage?: 'trilho' | 'ciclo'
+          allowance_cents?: number | null
+          ritual_weekday?: number
+          character_mode?: 'generico' | 'original'
+          started_on?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          child_id?: string
+          family_id?: string
+          stage?: 'trilho' | 'ciclo'
+          allowance_cents?: number | null
+          ritual_weekday?: number
+          character_mode?: 'generico' | 'original'
+          started_on?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_lessons: {
+        Row: {
+          id: string
+          family_id: string
+          child_id: string
+          status: 'por_dar' | 'dada'
+          given_on: string | null
+          tier: '5-6' | '7-8' | '9-12' | null
+          track_session: number | null
+          theme_numbers: number[]
+          skill_codes: string[]
+          discovery_mode: string | null
+          protagonist: string | null
+          module_week: number
+          universe: string | null
+          real_situation: string | null
+          title: string | null
+          notebook_prompt: string | null
+          quiz_md: string | null
+          activities_md: string | null
+          challenge_md: string | null
+          adult_guide_md: string | null
+          tracking_md: string | null
+          content_md: string | null
+          notes: string | null
+          source: 'app' | 'importada'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          child_id: string
+          status?: 'por_dar' | 'dada'
+          given_on?: string | null
+          tier?: '5-6' | '7-8' | '9-12' | null
+          track_session?: number | null
+          theme_numbers?: number[]
+          skill_codes?: string[]
+          discovery_mode?: string | null
+          protagonist?: string | null
+          module_week?: number
+          universe?: string | null
+          real_situation?: string | null
+          title?: string | null
+          notebook_prompt?: string | null
+          quiz_md?: string | null
+          activities_md?: string | null
+          challenge_md?: string | null
+          adult_guide_md?: string | null
+          tracking_md?: string | null
+          content_md?: string | null
+          notes?: string | null
+          source?: 'app' | 'importada'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          child_id?: string
+          status?: 'por_dar' | 'dada'
+          given_on?: string | null
+          tier?: '5-6' | '7-8' | '9-12' | null
+          track_session?: number | null
+          theme_numbers?: number[]
+          skill_codes?: string[]
+          discovery_mode?: string | null
+          protagonist?: string | null
+          module_week?: number
+          universe?: string | null
+          real_situation?: string | null
+          title?: string | null
+          notebook_prompt?: string | null
+          quiz_md?: string | null
+          activities_md?: string | null
+          challenge_md?: string | null
+          adult_guide_md?: string | null
+          tracking_md?: string | null
+          content_md?: string | null
+          notes?: string | null
+          source?: 'app' | 'importada'
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_signals: {
+        Row: {
+          id: string
+          family_id: string
+          child_id: string
+          lesson_id: string | null
+          origin: 'aula' | 'ritual'
+          skill_code: string
+          target_level: number
+          description: string
+          status: 'pendente' | 'confirmado' | 'descartado'
+          resolved_on: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          child_id: string
+          lesson_id?: string | null
+          origin?: 'aula' | 'ritual'
+          skill_code: string
+          target_level: number
+          description: string
+          status?: 'pendente' | 'confirmado' | 'descartado'
+          resolved_on?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          child_id?: string
+          lesson_id?: string | null
+          origin?: 'aula' | 'ritual'
+          skill_code?: string
+          target_level?: number
+          description?: string
+          status?: 'pendente' | 'confirmado' | 'descartado'
+          resolved_on?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      fin_skill_events: {
+        Row: {
+          id: string
+          family_id: string
+          child_id: string
+          skill_code: string
+          level: number
+          origin: 'observacao' | 'ajuste' | 'fotografia'
+          note: string | null
+          observed_on: string
+          signal_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          child_id: string
+          skill_code: string
+          level: number
+          origin: 'observacao' | 'ajuste' | 'fotografia'
+          note?: string | null
+          observed_on?: string
+          signal_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          child_id?: string
+          skill_code?: string
+          level?: number
+          origin?: 'observacao' | 'ajuste' | 'fotografia'
+          note?: string | null
+          observed_on?: string
+          signal_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      fin_rituals: {
+        Row: {
+          id: string
+          family_id: string
+          child_id: string
+          week_start: string
+          done: boolean
+          amount_cents: number | null
+          choice_text: string | null
+          floor_used: boolean
+          floor_restored: boolean
+          question: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          child_id: string
+          week_start: string
+          done?: boolean
+          amount_cents?: number | null
+          choice_text?: string | null
+          floor_used?: boolean
+          floor_restored?: boolean
+          question?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          child_id?: string
+          week_start?: string
+          done?: boolean
+          amount_cents?: number | null
+          choice_text?: string | null
+          floor_used?: boolean
+          floor_restored?: boolean
+          question?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_snapshots: {
+        Row: {
+          id: string
+          family_id: string
+          child_id: string
+          kind: 'entrada' | 'saida'
+          answers: Json
+          taken_on: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          family_id: string
+          child_id: string
+          kind: 'entrada' | 'saida'
+          answers?: Json
+          taken_on?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          family_id?: string
+          child_id?: string
+          kind?: 'entrada' | 'saida'
+          answers?: Json
+          taken_on?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       curriculum_coverage: {
         Row: {
           id: string
@@ -1241,3 +1520,11 @@ export interface LiteracyProgress {
   status: LiteracyStatus;
   updated_at: string;
 }
+
+// ─── Financinhas (migração 031) ───────────────────────────────────────────────
+export type FinProfile = Tables<"fin_profiles">
+export type FinLesson = Tables<"fin_lessons">
+export type FinSignal = Tables<"fin_signals">
+export type FinSkillEvent = Tables<"fin_skill_events">
+export type FinRitual = Tables<"fin_rituals">
+export type FinSnapshot = Tables<"fin_snapshots">

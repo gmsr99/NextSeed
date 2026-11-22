@@ -1,6 +1,6 @@
 import {
   Rocket, CalendarCheck, ListChecks, BookHeart, FlaskConical,
-  BarChart3, Map, Globe, Users, HelpCircle, BookOpen, type LucideIcon,
+  BarChart3, Map, Globe, Users, HelpCircle, BookOpen, PiggyBank, type LucideIcon,
 } from "lucide-react";
 
 // ─── Modelo de conteúdo do Manual ───────────────────────────────────────────────
@@ -241,6 +241,26 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "Os pontos trocam-se por **recompensas** que vocês definem (um gelado, uma ida ao parque, escolher o filme da noite).",
       ]},
       { type: "callout", text: "As recompensas são definidas por vocês, na app. Quando a criança pede para trocar pontos, vocês aprovam — fica tudo registado." },
+    ],
+  },
+  {
+    slug: "financinhas",
+    title: "Financinhas",
+    icon: PiggyBank,
+    summary: "Aprender a decidir com dinheiro, dos 5 aos 12 anos: uma história por semana e um ritual de 5 minutos.",
+    keywords: ["financinhas", "dinheiro", "semanada", "mesada", "mealheiro", "poupar", "literacia financeira", "empreender"],
+    blocks: [
+      { type: "p", text: "O [Financinhas](/financinhas) não ensina finanças: ensina a decidir. Como se deseja, como se espera, como se escolhe, como se cria valor para os outros e como se agradece. O dinheiro aparece sempre como ferramenta e escolha, nunca como medo ou culpa." },
+      { type: "h", text: "Como funciona" },
+      { type: "ol", items: [
+        "Começas com o **Trilho de Iniciação**: 12 sessões por ordem, uma por semana. Tu só escolhes o universo da história (o interesse do momento).",
+        "A app gera a aula: o texto para colares no Gemini Notebook ou no NotebookLM (que faz a apresentação ilustrada), o quiz, as atividades e o guia para ti. Revês tudo antes de mostrares à criança.",
+        "A partir da sessão 2 há quatro mealheiros (🐷 Gastar, 🎯 Poupar, ❤️ Dar, 🚀 Investir), o chão do 🐷 e um caderninho em papel. Todas as semanas, no mesmo dia, fazem o ritual da semanada e registas em 30 segundos.",
+        "Nos dias seguintes, em **O que observar**, confirmas o que viste acontecer. É isso, e só isso, que faz subir as competências.",
+        "Depois da sessão 12 passam ao **ciclo semanal**: a app escolhe o tema pelas competências mais frágeis e pelo que a criança está a viver.",
+      ]},
+      { type: "callout", text: "A app é tua, não da criança: ela não tem conta, pontos nem ecrã, e o caderninho fica em papel. A semanada nunca é prémio nem castigo." },
+      { type: "p", text: "Para a IA vai só a idade aproximada (o escalão), o interesse e a situação que escreveres. Nunca o nome nem a data de nascimento. Não escrevas nomes de pessoas na situação da semana." },
     ],
   },
   {
