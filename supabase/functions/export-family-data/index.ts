@@ -33,6 +33,12 @@ const TABLES = [
   "child_manuals",
   "family_calendars",
   "family_methodologies",
+  "fin_profiles",
+  "fin_lessons",
+  "fin_signals",
+  "fin_skill_events",
+  "fin_rituals",
+  "fin_snapshots",
   "feedback_submissions",
   "feedback_answers",
 ];

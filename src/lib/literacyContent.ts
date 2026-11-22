@@ -15,33 +15,8 @@ export interface LiteracyCategory {
   modules: LiteracyModule[];
 }
 
-// ─── Financial Literacy ────────────────────────────────────────────
-
-export const FINANCIAL_MISSIONS: LiteracyModule[] = [
-  { id: 'poupar-com-proposito', title: 'Poupar com Propósito', description: 'Aprender a definir objetivos de poupança', icon: '🎯' },
-  { id: 'orcamento-familiar', title: 'Orçamento Familiar', description: 'Perceber como a família gere o dinheiro', icon: '📊' },
-  { id: 'necessidade-vs-desejo', title: 'Necessidade vs. Desejo', description: 'Distinguir o que precisamos do que queremos', icon: '🤔' },
-  { id: 'empreender-com-valor', title: 'Empreender com Valor', description: 'Criar algo e oferecer valor aos outros', icon: '🚀' },
-];
-
-export const FINANCIAL_STORIES: LiteracyModule[] = [
-  { id: 'historia-do-dinheiro', title: 'A História do Dinheiro', duration: '10 min' },
-  { id: 'mercado-e-trocas', title: 'Mercado e Trocas', duration: '8 min' },
-  { id: 'decisoes-financeiras', title: 'Decisões Financeiras', duration: '12 min' },
-  { id: 'poupar-vs-investir', title: 'Poupar vs. Investir', duration: '15 min' },
-];
-
-export const FINANCIAL_CHALLENGES: LiteracyModule[] = [
-  { id: 'desafio-mealheiro', title: 'O Mealheiro Inteligente', level: 'Iniciante', duration: '1 semana' },
-  { id: 'desafio-mercado', title: 'Mini Mercado em Casa', level: 'Intermédio', duration: '2 semanas' },
-  { id: 'desafio-negocio', title: 'O Meu Primeiro Negócio', level: 'Avançado', duration: '1 mês' },
-];
-
-export const ALL_FINANCIAL_MODULES: string[] = [
-  ...FINANCIAL_MISSIONS.map(m => m.id),
-  ...FINANCIAL_STORIES.map(m => m.id),
-  ...FINANCIAL_CHALLENGES.map(m => m.id),
-];
+// A antiga Literacia Financeira (missões, histórias e desafios estáticos, com
+// juros e investimento) foi substituída pelo Financinhas (src/lib/financinhas).
 
 // ─── Digital Literacy ──────────────────────────────────────────────
 

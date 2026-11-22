@@ -23,7 +23,12 @@ export type AnalyticsEvent =
   | "feedback_submitted"
   | "tour_started"
   | "tour_completed"
-  | "tour_dismissed";
+  | "tour_dismissed"
+  | "financinhas_started"
+  | "financinhas_lesson_generated"
+  | "financinhas_lesson_given"
+  | "financinhas_ritual_logged"
+  | "financinhas_signal_resolved";
 
 interface AnalyticsContext {
   userId: string;

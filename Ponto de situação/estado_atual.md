@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 12 de novembro de 2026 (auditoria ao código de 4 nov; substitui a versão de março)
+**Atualizado:** 22 de novembro de 2026 (Financinhas no ramo `feat/financinhas`). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -13,12 +13,20 @@ React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (
 | Área | Rotas |
 |---|---|
 | Planear | `/` (dashboard "Hoje" com conclusão de atividades), `/weekly-planner` (gerador com regeneração por atividade), `/roteiro-anual`, `/creative-engine` (Ideias Rápidas), `/projects`, `/calendar` |
-| Aprender | `/learning-areas`, `/curriculum`, `/world-missions` (com prémios), `/financial-literacy`, `/digital-literacy` |
+| Aprender | `/learning-areas`, `/curriculum`, `/world-missions` (com prémios), `/financinhas` (só equipa por agora; `/financial-literacy` redireciona), `/digital-literacy` |
 | Registar e provar | `/activities` (com fotos), `/portfolio`, `/reports` (PDF trimestral) |
 | Sistema | `/children`, `/metodologias`, `/extracurricular`, `/settings` (exportar dados, eliminar conta), `/onboarding`, `/ajuda` (manual), `/admin/feedback` (equipa) |
 | Públicas | `/login`, `/privacidade`, `/termos`, `/accept-invite` |
 
 Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
+
+## Financinhas (ramo `feat/financinhas`, 22 nov; por publicar)
+- Substitui a antiga página estática de Literacia Financeira (tinha juros e investimento, contra as regras do módulo). Sai também a barra "Literacia Financeira" dos Relatórios.
+- Lógica em `src/lib/financinhas/`: `catalog.ts` (26 competências, 23 temas, 12 sessões do trilho × 3 escalões, 8 modos de descoberta, protagonistas, fotografia, ritual), `engine.ts` (motor determinístico), `levels.ts` (níveis derivados dos eventos; uma observação nunca faz descer), `generator.ts` (pedido ao Gemini com resposta estruturada; a app monta o prompt da apresentação ≤ 5000 caracteres, valida slides, quiz e termos proibidos, e repete com correção), `ritual.ts`, `importer.ts`, `access.ts`. Testes em `src/lib/__tests__/financinhas.test.ts`.
+- BD: migração 031 (`fin_profiles`, `fin_lessons`, `fin_signals`, `fin_skill_events`, `fin_rituals`, `fin_snapshots`, RLS por família, cascata com a criança). As tabelas entram no export de dados (edge function `export-family-data`, a publicar à parte).
+- Ao Gemini vai: escalão etário, interesse, situação escrita pelo adulto, plano do motor e protagonista fictício. Nunca o nome nem a data de nascimento.
+- Visível só para a equipa (`FINANCINHAS_FOR_ALL = false`) até à Q-03 e à Q-19.
+- Por fazer: kit em PDF (I-20), ligação ao plano semanal (I-21) e aos relatórios (I-22).
 
 ## Plano semanal: o que o pedido ao Gemini leva (publicado a 13 nov)
 - Sem conteúdos marcados como "em progresso": os conteúdos dessa semana no Rumo do ano (desde 13 nov, P-12). Em pausas, semanas de balanço e fora do ano letivo: os conteúdos do período atual (set–dez 1.º, jan–mar 2.º, abr–ago 3.º). Antes ia o ano inteiro, duas vezes.
