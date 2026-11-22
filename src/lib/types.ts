@@ -621,6 +621,27 @@ export type Database = {
         }
         Relationships: []
       }
+      family_week_routines: {
+        Row: {
+          family_id: string
+          days: Json
+          outing: boolean
+          updated_at: string
+        }
+        Insert: {
+          family_id: string
+          days?: Json
+          outing?: boolean
+          updated_at?: string
+        }
+        Update: {
+          family_id?: string
+          days?: Json
+          outing?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       child_manuals: {
         Row: {
           id: string

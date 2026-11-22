@@ -1,6 +1,7 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { GeneratedPlanItem } from "@/lib/planGenerator";
+import type { WeekRoutine } from "@/lib/familyRoutine";
 import {
   DISCIPLINE_COLORS,
   DAY_LABELS,
@@ -178,12 +179,14 @@ interface Props {
   weekStart: Date;
   familyName: string;
   extracurriculars?: ExtracurricularItem[];
+  /** P-18: a semana da família */
+  routine?: WeekRoutine | null;
 }
 
-export default function SchedulePDF({ children, planItems, weekStart, familyName, extracurriculars = [] }: Props) {
+export default function SchedulePDF({ children, planItems, weekStart, familyName, extracurriculars = [], routine = null }: Props) {
   const weekDates = getWeekDates(weekStart);
 
-  const fixedBlocks = getFixedScheduleBlocks(children);
+  const fixedBlocks = getFixedScheduleBlocks(children, routine);
   const allItems = [...planItems, ...fixedBlocks];
 
   const hasPrimaryChild = children.some(

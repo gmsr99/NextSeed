@@ -1,3 +1,4 @@
+import { applyWeekRoutine, type WeekRoutine } from "./familyRoutine";
 import type { Child } from "./types";
 import RAW_TEMPLATES from "./planTemplates.json";
 
@@ -170,7 +171,7 @@ export const FIXED_BLOCKS_PRESCHOOL_FRIDAY = [
  *   para que o adulto possa gerir ambos em paralelo
  * - Pré-escolar autónomo → FIXED_BLOCKS_PRESCHOOL (Seg-Qui) + FIXED_BLOCKS_PRESCHOOL_FRIDAY
  */
-export function getFixedScheduleBlocks(children: Child[]): GeneratedPlanItem[] {
+export function getFixedScheduleBlocks(children: Child[], routine: WeekRoutine | null = null): GeneratedPlanItem[] {
   const hasPrimaryChild = children.some(
     (c) => !c.school_year.toLowerCase().startsWith("pré"),
   );
@@ -225,7 +226,8 @@ export function getFixedScheduleBlocks(children: Child[]): GeneratedPlanItem[] {
       });
     }
   }
-  return items;
+  // P-18: dias sem estudo e dias curtos; sexta sem saída fica com os blocos de segunda
+  return applyWeekRoutine(items, routine);
 }
 
 // ─── Templates de atividades — carregados de planTemplates.json ──────────────
@@ -440,13 +442,15 @@ export function generateWeeklyPlan(
   childInterests: Record<string, string[]>,
   fridayActivity: string,
   weeklyReadingTheme = "",
+  /** P-18: a semana da família; null = semana de sempre */
+  routine: WeekRoutine | null = null,
 ): GeneratedPlanItem[] {
   // Deteta família multi-nível: existe pelo menos um filho no primário E um no pré-escolar
   const hasPrimaryChild = children.some(
     (c) => !c.school_year.toLowerCase().startsWith("pré"),
   );
 
-  return children.flatMap((child) => {
+  return applyWeekRoutine(children.flatMap((child) => {
     const interests = childInterests[child.id] || [];
     const isPreSchool = child.school_year.toLowerCase().startsWith("pré");
     // Alinha pré-escolar com primário quando ambos existem na mesma família
@@ -454,7 +458,7 @@ export function generateWeeklyPlan(
     return isPreSchool
       ? preSchoolSchedule(child, interests, fridayActivity, aligned)
       : primarySchedule(child, interests, fridayActivity, weeklyReadingTheme);
-  });
+  }), routine);
 }
 
 // ─── Utilitários ──────────────────────────────────────────────────────────────

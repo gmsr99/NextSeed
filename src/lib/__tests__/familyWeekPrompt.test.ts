@@ -97,3 +97,30 @@ describe("plano semanal em família (P-10, P-23)", () => {
     expect(weekPortfolioList(items, "a").length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe("a nossa semana no pedido (P-18)", () => {
+  it("segunda a quinta, sexta curta e sem saída: sem Ver Mundo e sexta só com a manhã", async () => {
+    const items = await generateWithGemini(
+      [child("a", "Ana", "2º ano"), child("b", "Rui", "Pré-escolar (4 anos)")], {}, "", "", {}, {}, {}, {}, [],
+      { days: ["full", "full", "full", "full", "short"], outing: false },
+    );
+    expect(lastPrompt).not.toContain("| Ver Mundo");
+    expect(lastPrompt).toContain("não inclui a saída");
+    expect(items.some((i) => i.is_friday_world)).toBe(false);
+    const friday = items.filter((i) => i.day_of_week === 5);
+    expect(friday.length).toBeGreaterThan(0);
+    expect(friday.every((i) => i.time_slot < "10:42")).toBe(true);
+    expect(lastPrompt).toContain("Ep.4/4");
+  });
+
+  it("dias sem estudo não entram e a história tem só os episódios desses dias", async () => {
+    const items = await generateWithGemini(
+      [child("a", "Ana", "2º ano")], {}, "", "", {}, {}, {}, {}, [],
+      { days: ["full", "off", "full", "off", "full"], outing: true },
+    );
+    expect(items.some((i) => i.day_of_week === 2 || i.day_of_week === 4)).toBe(false);
+    expect(lastPrompt).toContain("Ep.2/2");
+    expect(lastPrompt).not.toContain("Ep.3");
+    expect(items.some((i) => i.is_friday_world)).toBe(true);
+  });
+});

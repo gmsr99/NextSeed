@@ -22,6 +22,13 @@ export interface BlockSlot {
   day_of_week: number;
   time_slot: string;
   discipline: string;
+  is_friday_world?: boolean;
+}
+
+/** Sexta como dia de estudo (a família não inclui a saída, P-18): sem nenhum bloco de saída. */
+export function fridayIsStudyDay(items: { day_of_week: number; is_friday_world?: boolean }[]): boolean {
+  const fri = items.filter((i) => i.day_of_week === 5);
+  return fri.length > 0 && fri.every((i) => i.is_friday_world === false);
 }
 
 const startOf = (slot: string) => slot.split("-")[0].trim();
@@ -34,6 +41,7 @@ const startOf = (slot: string) => slot.split("-")[0].trim();
  */
 export function blockModes(items: BlockSlot[]): (BlockMode | null)[] {
   const modes: (BlockMode | null)[] = items.map(() => null);
+  const fridayStudy = fridayIsStudyDay(items);
   const groups = new Map<string, number[]>();
   items.forEach((it, i) => {
     const key = `${it.day_of_week}|${startOf(it.time_slot)}`;
@@ -55,7 +63,7 @@ export function blockModes(items: BlockSlot[]): (BlockMode | null)[] {
     for (const i of idxs) {
       const d = items[i].discipline;
       const together =
-        day === 5 ||
+        (day === 5 && !fridayStudy) ||
         (SHARED_DISCIPLINES.has(d) && idxs.some((j) => j !== i && items[j].discipline === d));
       if (together) modes[i] = "juntos";
       else rest.push(i);

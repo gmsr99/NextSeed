@@ -20,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import WeekCloseDialog from "@/components/WeekCloseDialog";
 import { paceUntil } from "@/lib/weekClose";
 import FamilyCalendarCard from "@/components/FamilyCalendarCard";
+import FamilyRoutineCard from "@/components/FamilyRoutineCard";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
   planWeekFor, weekFocus, formatWeekShort, mondayOf, manualLabel,
@@ -302,6 +303,8 @@ export default function RoteiroAnual() {
         )}
 
         {!isLoading && children.length > 0 && <FamilyCalendarCard />}
+
+        {!isLoading && children.length > 0 && <FamilyRoutineCard />}
 
         {!isLoading && selected && <ManualsCard child={selected} />}
 
