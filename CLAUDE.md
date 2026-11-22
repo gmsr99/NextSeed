@@ -36,7 +36,7 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 - **Edge functions:** sempre `verify_jwt=true`; o destinatário ou a família vêm do JWT, nunca do corpo do pedido.
 - **Ano escolar:** `children.school_year` tem CHECK com os valores da app; "Pré-escolar" com P maiúsculo.
 - **Supabase (decisão do dono, 5 nov):** o Claude **não** interage com as bases de dados de produção, nem por conector nem por CLI. Migrações e edge functions entregam-se como ficheiros no repositório, com instruções curtas para o dono do repo as publicar. Atenção: alterações em `supabase/functions/` **não** são publicadas pela Vercel.
-- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos; 031 é o Financinhas; próximo: 032).
+- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos; 031 é o Financinhas; 032 é a Tradição da família; próximo: 033).
 - **Textos da app:** português de Portugal, na voz NexSeed (doc 06): claro, humano, sem alarmismo, nunca comunicar pelo medo.
 
 ## Como trabalhamos
@@ -62,6 +62,7 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 - **Sempre que o `BACKLOG.md` muda:** aplicar a mesma alteração ao Doc no mesmo dia, com edições pontuais (mudar um estado, acrescentar uma linha), sem recriar o documento, para não perder comentários nem o link. Atualizar a data de "Última atualização" nos dois.
 - **Perguntas para o Elton:** tudo o que precisa de resposta dele vai para a tabela "Perguntas à espera de resposta", no topo do backlog (IDs Q-NN), em vez de ficar só no chat. Ele responde na coluna "Resposta" do Google Doc. No início da sessão, ler essas respostas, agir sobre elas e tirar da tabela as perguntas tratadas. Nunca apagar o que ele escreveu nessa coluna.
 - **Para testar:** cada publicação acrescenta linhas à tabela "Para testar" do backlog (IDs V-NN: onde, o que fazer, o que deve acontecer). O Elton escreve os resultados no Google Doc "Testes NexSeed" (ID `104uet4031oozWlBr10oaEdndpFG8S8FZ0vjePL5kA4M`, uma cópia da tabela adaptada à conta dele: 2.º ano e pré-escolar), ou na própria tabela do backlog. Ler os dois no início da sessão, corrigir o que falhou e tirar as linhas confirmadas.
+- **Testes NexSeed (desde 22 nov):** o Doc tem três partes: as notas do Elton com a resposta logo a seguir, os testes e "Resolvido". Cada nota e cada teste é uma caixa de verificação; a resposta vai na mesma caixa, numa linha a seguir. No início da sessão: ler o Doc e, nos itens com a caixa marcada (o Google Docs risca o texto dos itens marcados; ler o `strikethrough` com `read_doc`), mover o item para "Resolvido" com a data, e no backlog tirar a linha V-NN ou passar o item a confirmado. Nota nova do Elton: responder por baixo, na mesma caixa. Não apagar o que ele escreveu.
 - **Pré-visualizações:** o Elton não tem acesso às pré-visualizações da Vercel (Q-12). Só vê o que está publicado. Testar bem antes de pedir aprovação e dizer sempre o que não foi testado.
 - IDs estáveis por secção: B (bloqueantes), P (plano semanal), R (portefólio e relatórios), T (técnico), I (ideias), OK (feito). Um ID nunca é reutilizado.
 

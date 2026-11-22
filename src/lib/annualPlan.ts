@@ -15,7 +15,7 @@
 // Hipótese (até haver calendário por família, P-04): calendário escolar oficial
 // do 1.º ciclo, aproximado à semana. Só o Natal e a Páscoa contam como pausa.
 
-import { distributeManual, remainingEntries, sliceLabel, type Manual } from "./manualIndex";
+import { distributeManual, isNextLesson, remainingEntries, sliceLabel, type Manual } from "./manualIndex";
 
 export type Period = "1" | "2" | "3";
 
@@ -287,6 +287,23 @@ export function buildAnnualPlan(
   manuals.forEach((manual, k) => {
     if (!withManual.has(manual.discipline) || manual.entries.length === 0) return;
     const several = (perDiscipline.get(manual.discipline) ?? 0) > 1;
+    // "Lição seguinte": todas as semanas de aulas, a partir de quando começam,
+    // dizem só "lição seguinte". O livro marca onde ficaram; o plano não desatualiza.
+    if (isNextLesson(manual.entries)) {
+      const from = manual.start_date ? planningMonday(new Date(`${manual.start_date}T12:00:00`)).getTime() : 0;
+      teaching.filter((w) => w.monday.getTime() >= from).forEach((w, i) => {
+        (w.byDiscipline[manual.discipline] ??= []).push({
+          id: `manual:${manual.discipline}:${k}:next:${i}`,
+          discipline: manual.discipline,
+          period: w.period,
+          domain: manual.title,
+          content: several ? `${manual.title}: lição seguinte` : "Lição seguinte",
+          sort_order: k * 1000,
+          fromManual: true,
+        });
+      });
+      return;
+    }
     const left = remainingEntries(manual.entries);
     if (left.length === 0) return;
     // O manual reparte-se pelas semanas que faltam a partir da data em que a

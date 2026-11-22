@@ -7,6 +7,7 @@ import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import { manualLabel } from "@/lib/annualPlan";
 import { dayQuestionsFor, QUESTION_TIP, SHORT_DAY, DAILY_LOG, WEEK_CLOSE, reviewLines } from "@/lib/weekGuide";
 import type { WeekRoutine } from "@/lib/familyRoutine";
+import type { WeekLiturgy } from "@/lib/tradicao/week";
 import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
 
 const S = StyleSheet.create({
@@ -56,9 +57,11 @@ interface Props {
   weekTheme?: string;
   /** P-18: a semana da família */
   routine?: WeekRoutine | null;
+  /** I-08: o tempo litúrgico da semana */
+  liturgy?: WeekLiturgy | null;
 }
 
-export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {}, weekTheme, routine = null }: Props) {
+export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {}, weekTheme, routine = null, liturgy = null }: Props) {
   const withFocus = children.filter((c) => weekFocus[c.id]);
   const allMaterials = collectMaterials(planItems);
 
@@ -75,6 +78,16 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
           <View style={S.box} wrap={false}>
             <Text style={S.boxTitle}>Fio condutor da semana: {weekTheme}</Text>
             <Text style={S.boxLine}>É o tema que liga as disciplinas e as crianças ao longo da semana.</Text>
+          </View>
+        ) : null}
+
+        {liturgy ? (
+          <View style={S.box} wrap={false}>
+            <Text style={S.boxTitle}>Esta semana na liturgia: {liturgy.label}</Text>
+            {liturgy.antiphon ? <Text style={S.boxLine}>Antífona do tempo: {liturgy.antiphon}</Text> : null}
+            {liturgy.celebrations.map((c) => (
+              <Text key={c.day + c.name} style={S.boxLine}>{c.day} · {c.name}. {c.texto} Desafio: {c.desafio}</Text>
+            ))}
           </View>
         ) : null}
 

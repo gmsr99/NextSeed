@@ -37,6 +37,8 @@ import { buildAnnualPlan, weekFocus, weeksFor, type AnnualContent } from "@/lib/
 import { fetchFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import { fetchFamilyRoutine, useFamilyRoutine } from "@/hooks/useFamilyRoutine";
 import type { WeekRoutine } from "@/lib/familyRoutine";
+import { useFamilyTradition } from "@/hooks/useFamilyTradition";
+import { weekLiturgy } from "@/lib/tradicao/week";
 import { mergeWeekContents } from "@/lib/weekClose";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
 import { fetchChildManuals } from "@/hooks/useChildManuals";
@@ -78,6 +80,8 @@ export default function WeeklyPlanner() {
   const { family, registeredAt } = useAuth();
   // P-18: a semana da família (dias de estudo, dias curtos, saída à sexta)
   const { routine } = useFamilyRoutine();
+  // I-08: tempo litúrgico da semana (só com a Tradição da família ligada; não vai para a IA)
+  const { tradition } = useFamilyTradition();
   const { notifyEvent } = useFeedback();
   const { startTourIfUnseen } = useTour();
   const { activities: extracurriculars } = useExtracurricular();
@@ -602,7 +606,7 @@ export default function WeeklyPlanner() {
 
     const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
     const scheduleBlob = await pdf(
-      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} />
+      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} liturgyOn={!!tradition} />
     ).toBlob();
     const a1 = document.createElement("a");
     a1.href = URL.createObjectURL(scheduleBlob);
@@ -611,7 +615,7 @@ export default function WeeklyPlanner() {
 
     const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
     const guideBlob = await pdf(
-      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} />
+      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} />
     ).toBlob();
     const a2 = document.createElement("a");
     a2.href = URL.createObjectURL(guideBlob);
@@ -657,12 +661,12 @@ export default function WeeklyPlanner() {
 
       const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
       const scheduleBlob = await pdf(
-        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} />
+        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} liturgyOn={!!tradition} />
       ).toBlob();
 
       const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
       const guideBlob = await pdf(
-        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} />
+        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} />
       ).toBlob();
 
       const toBase64 = (blob: Blob): Promise<string> =>
@@ -779,6 +783,7 @@ export default function WeeklyPlanner() {
             childrenWithoutFocus={childrenWithoutFocus}
             weekFocusByChild={weekFocusByChild}
             routine={routine}
+            liturgy={weekLiturgy(weekStart, tradition)}
             onGenerate={handleGeneratePlan}
           />
         ) : (

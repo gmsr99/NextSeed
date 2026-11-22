@@ -25,6 +25,7 @@ import NexSeedLogo from "@/components/NexSeedLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsTeamAdmin } from "@/hooks/useIsTeamAdmin";
 import { canSeeFinancinhas } from "@/lib/financinhas/access";
+import { usePilotFeature } from "@/hooks/usePilotFeature";
 import {
   Sidebar,
   SidebarContent,
@@ -76,7 +77,7 @@ const sistemaItems: NavItem[] = [
 
 // Só visível a membros da equipa (team_admins). A página tem o seu próprio
 // guard — isto apenas evita que o link apareça a quem não pode lá entrar.
-// Financinhas: por agora só para a equipa (ver src/lib/financinhas/access.ts)
+// Financinhas: equipa e famílias convidadas (ver src/lib/financinhas/access.ts)
 const financinhasItem: NavItem = { title: "Financinhas", url: "/financinhas", icon: PiggyBank };
 
 const adminItems: NavItem[] = [
@@ -144,12 +145,13 @@ export function AppSidebar() {
   const location = useLocation();
   const { family, signOut } = useAuth();
   const { isAdmin } = useIsTeamAdmin();
+  const { invited: finInvited } = usePilotFeature("financinhas");
 
   const groups = useMemo(
     () =>
       navGroups.map((group) => {
         if (group.label === "Sistema" && isAdmin) return { ...group, items: [...group.items, ...adminItems] };
-        if (group.label === "Aprender" && canSeeFinancinhas(isAdmin)) {
+        if (group.label === "Aprender" && canSeeFinancinhas(isAdmin, finInvited)) {
           // logo a seguir a "Missões do Mundo"
           const i = group.items.findIndex((it) => it.url === "/world-missions");
           const items = [...group.items];
@@ -158,7 +160,7 @@ export function AppSidebar() {
         }
         return group;
       }),
-    [isAdmin],
+    [isAdmin, finInvited],
   );
 
   const isActive = (url: string) =>

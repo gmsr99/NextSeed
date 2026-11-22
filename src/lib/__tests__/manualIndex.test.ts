@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries } from "../manualIndex";
+import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries, NEXT_LESSON_ENTRIES, isNextLesson } from "../manualIndex";
 import { buildAnnualPlan, weekFocus, weeksFor, planWeekFor, planningMonday, isoDay, type AnnualContent } from "../annualPlan";
 
 describe("parseIndex", () => {
@@ -189,5 +189,26 @@ describe("onde vão no manual (nota de 22 nov)", () => {
     expect(entries.slice(0, 2).every((e) => e.done)).toBe(true);
     expect(currentTopicOf(entries)).toBe(2);
     expect(portugues(entries, "2026-11-23", "2026-11-23")).toContain("Leitura em voz alta");
+  });
+});
+
+describe("modo lição seguinte (F-01, 22 nov)", () => {
+  const weeks = weeksFor(new Date("2026-11-23T12:00:00"));
+  it("todas as semanas de aulas a partir do arranque dizem «Lição seguinte»", () => {
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "matematica", title: "Lições", entries: NEXT_LESSON_ENTRIES, start_date: "2026-11-22" }]);
+    const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
+    expect(now.byDiscipline.matematica.map((c) => c.content)).toEqual(["Lição seguinte"]);
+    expect(now.byDiscipline.matematica[0].fromManual).toBe(true);
+    expect(planWeekFor(plan, new Date("2026-11-16T12:00:00"))?.byDiscipline.matematica ?? []).toEqual([]);
+    expect(isNextLesson(NEXT_LESSON_ENTRIES)).toBe(true);
+    expect(isNextLesson(parseIndex("A ... 3"))).toBe(false);
+  });
+  it("com dois livros na disciplina, cada um leva o nome", () => {
+    const plan = buildAnnualPlan([], weeks, [
+      { discipline: "portugues", title: "Caderno", entries: NEXT_LESSON_ENTRIES, start_date: "2026-11-23" },
+      { discipline: "portugues", title: "Manual", entries: parseIndex("A ... 3\nB ... 9"), start_date: "2026-11-23" },
+    ]);
+    const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
+    expect(now.byDiscipline.portugues.map((c) => c.content)[0]).toBe("Caderno: lição seguinte");
   });
 });

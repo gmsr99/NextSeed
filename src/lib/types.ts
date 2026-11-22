@@ -621,6 +621,42 @@ export type Database = {
         }
         Relationships: []
       }
+      family_traditions: {
+        Row: {
+          family_id: string
+          tradition: string
+          calendar: string
+          proprio_pt: boolean
+          consent_version: string
+          consented_at: string
+          updated_at: string
+        }
+        Insert: {
+          family_id: string
+          tradition: string
+          calendar?: string
+          proprio_pt?: boolean
+          consent_version: string
+          consented_at?: string
+          updated_at?: string
+        }
+        Update: {
+          family_id?: string
+          tradition?: string
+          calendar?: string
+          proprio_pt?: boolean
+          consent_version?: string
+          consented_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pilot_features: {
+        Row: { family_id: string; feature: string; created_at: string }
+        Insert: { family_id: string; feature: string; created_at?: string }
+        Update: { family_id?: string; feature?: string; created_at?: string }
+        Relationships: []
+      }
       family_week_routines: {
         Row: {
           family_id: string
