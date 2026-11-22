@@ -57,12 +57,19 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 ## Backlog: ficheiro e Google Doc
 - Fonte: `BACKLOG.md` (neste repositório).
 - Espelho para o Elton: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit) — ID `1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw`.
-- **No início da sessão:** ler o Doc com comentários. O que o Elton tiver escrito ou comentado lá passa para o `BACKLOG.md`.
+- **No início da sessão (arranque leve):** do `BACKLOG.md`, ler só o topo (perguntas Q, tabela "Para testar", "Ordem de implementação") e a secção E do trabalho do dia. Do Google Doc, ler com comentários mas procurar apenas três coisas: respostas na coluna "Resposta" das Q, resultados na tabela de testes e comentários novos. O que o Elton tiver escrito lá passa para o `BACKLOG.md`. Não reler o Doc inteiro: é um espelho do ficheiro.
+- **Arquivo:** o que está feito e confirmado sai do `BACKLOG.md` para `BACKLOG_ARQUIVO.md`, no repositório. O Google Doc espelha só o backlog ativo. Não ler o arquivo no arranque.
 - **Sempre que o `BACKLOG.md` muda:** aplicar a mesma alteração ao Doc no mesmo dia, com edições pontuais (mudar um estado, acrescentar uma linha), sem recriar o documento, para não perder comentários nem o link. Atualizar a data de "Última atualização" nos dois.
 - **Perguntas para o Elton:** tudo o que precisa de resposta dele vai para a tabela "Perguntas à espera de resposta", no topo do backlog (IDs Q-NN), em vez de ficar só no chat. Ele responde na coluna "Resposta" do Google Doc. No início da sessão, ler essas respostas, agir sobre elas e tirar da tabela as perguntas tratadas. Nunca apagar o que ele escreveu nessa coluna.
 - **Para testar:** cada publicação acrescenta linhas à tabela "Para testar" do backlog (IDs V-NN: onde, o que fazer, o que deve acontecer). O Elton escreve os resultados no Google Doc "Testes NexSeed" (ID `104uet4031oozWlBr10oaEdndpFG8S8FZ0vjePL5kA4M`, uma cópia da tabela adaptada à conta dele: 2.º ano e pré-escolar), ou na própria tabela do backlog. Ler os dois no início da sessão, corrigir o que falhou e tirar as linhas confirmadas.
 - **Pré-visualizações:** o Elton não tem acesso às pré-visualizações da Vercel (Q-12). Só vê o que está publicado. Testar bem antes de pedir aprovação e dizer sempre o que não foi testado.
 - IDs estáveis por secção: B (bloqueantes), P (plano semanal), R (portefólio e relatórios), T (técnico), I (ideias), OK (feito). Um ID nunca é reutilizado.
+
+## Proveniência do código (obrigatório em cada entrega)
+O objetivo é que qualquer pessoa consiga reconstituir, anos depois, quem pediu, quem decidiu e quem aprovou cada alteração. Ver `docs/PROVENIENCIA.md`.
+- **Commits:** usar o modelo `.gitmessage` (`git config commit.template .gitmessage`). Cada commit de `feat`/`fix` leva no corpo as linhas `Spec:` (ID do backlog e, se houver, link da especificação) e, no commit de merge para `main`, `Aprovado:` (quem aprovou e a data, tal como foi escrito no chat). Manter as linhas `Co-Authored-By` e `Claude-Session`.
+- **Registo:** depois de cada merge para `main`, acrescentar as linhas novas ao Google Sheet "NexSeed | Registo de proveniência do código" (Drive › NexSeed › 3. Produto/Tecnologia › Proveniência do código), preenchendo as colunas Spec, Aprovado por e Data de aprovação.
+- **Selo mensal:** no primeiro dia útil de cada mês, criar a tag anotada `selo-AAAA-MM` no `main` e guardar no Drive, na mesma pasta, um `git bundle` completo com a data no nome.
 
 ## Onde está o quê
 - `BACKLOG.md`: o que falta fazer, por prioridade

@@ -1,6 +1,6 @@
 # NexSeed: backlog de produto e desenvolvimento
 
-Última atualização: 17 de novembro de 2026
+Última atualização: 22 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -103,7 +103,6 @@ Corre em paralelo com o resto. A maior parte depende do Gil ou de revisão jurí
 | B-09 | Consentimentos granulares registados (quem, quando, a quê, versão dos termos) | Docs (Fase A, A6). BD | A/A | M | Feito (branch feat/consentimentos). Vai com os textos legais; precisa da migração 028 (Gil) |
 | B-01 | Gemini em faturação paga | Docs (D-013). Adiado até haver receita (decisão de 4 nov); mitigado pelo OK-06 | A/M | S | Adiado (Elton) |
 | B-04 | Acesso do Claude ao Supabase | Decisão do Gil (5 nov): não, enquanto não houver backup | M/B | S | Em pausa |
-| B-12 | Gil: publicar as migrações 026 (child_manuals) e 027 (family_calendars) e voltar a publicar a função export-family-data | I-01 e P-24. Sem as migrações, os manuais aparecem só como aviso, o calendário não se pode ajustar e o resto da app funciona igual | A/A | S | Feito pelo Gil a 14 nov |
 
 ## E8 · Correções rápidas
 
@@ -111,13 +110,7 @@ Erros já encontrados pelas famílias. Pequenos, mas cada um tira confiança.
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| T-06 | No perfil da criança só deixa escolher um interesse | F-04. O código não tem limite, por isso é erro de interface | M/A | S | Publicado a 13 nov |
-| T-07 | Data de nascimento: escolher ano, mês e dia diretamente | F-03. Hoje é preciso recuar mês a mês até ao ano certo | M/A | S | Publicado a 13 nov |
 | T-08 | Página mal apresentada no telemóvel | F-03 enviou uma captura; falta saber qual é a página | M/A | S | Aguarda Elton (captura) |
-| T-09 | Aviso claro de que o currículo só existe até ao 4.º ano | F-04. Uma criança de 5.º ou 6.º ano é criada sem currículo e sem aviso | M/A | S | Publicado a 13 nov |
-| R-09 | Intervalo vazio entre as 13:45 e as 15:00 no horário | Equipa (backlog da família piloto) | M/A | S | Publicado a 13 nov |
-| P-11 | "Ver Mundo": uma saída para a família toda, não uma por criança | F-03. O plano mandou duas crianças para dois sítios diferentes no mesmo dia | M/A | S | Publicado a 13 nov |
-| T-10 | Guia de Leitura: a pergunta aparecia repetida dentro do texto do episódio ("\| Pergunta: …") | Plano real de 13 nov | M/A | S | Publicado a 13 nov |
 
 ## E2 · Atividades melhores no plano semanal
 
@@ -125,9 +118,6 @@ A funcionalidade que decide o produto. Tudo isto é trabalho nos pedidos ao Gemi
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| P-01 | Sem conteúdos marcados, enviar só os do período atual em vez do ano inteiro | Docs 03 e 10. Planos sem prioridade clara | A/A | M | Publicado a 13 nov |
-| P-02 | Aviso no Plano Semanal quando uma criança não tem conteúdos marcados | Docs 10 (INS-06). As famílias não encontram a marcação | A/A | S | Publicado a 13 nov |
-| P-21 | Deixar de perguntar "o que quero ensinar esta semana": o campo passa a opcional, com a indicação de que a NexSeed escolhe os conteúdos | F-02. Passo intermédio até ao P-12 | A/A | S | Publicado a 13 nov |
 | P-06 | Variedade: o plano repete o mesmo formato todos os dias ("encontra as personagens principais") | F-02. Rodar formatos por disciplina: jogo, manipulação, oral, escrita, movimento | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
 | P-07 | Sugerir formas de ensinar cada conteúdo: uma explicação alternativa ao manual e uma forma lúdica | F-02. "Não temos formação; é isto que nos faz falta" | A/A | M | Publicado a 14 nov. Por confirmar com um plano real (Q-07) |
 | P-09 | Ajustar a dificuldade ao nível real da criança | F-03. Primeiro plano com atividades complexas demais; usar idade e progresso marcado | A/A | M | Publicado a 15 nov: regra de dificuldade por ano e ritmo, e a IA recebe o que a criança já domina em cada disciplina. Por confirmar com uma família |
@@ -157,7 +147,6 @@ Saber o que dar em cada altura e se o ritmo está certo. Parte já existe (Rotei
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
-| P-12 | O plano semanal parte sozinho dos conteúdos da semana no plano anual; a família só ajusta se quiser | F-02: perguntar "o que queres ensinar" cria insegurança em vez de a resolver. Faz parte do P-13 | A/A | M | Publicado a 13 nov |
 | P-13 | Plano anual semana a semana: para cada criança e disciplina, o que dar em cada semana do ano letivo, calculado pela app a partir do currículo (sem a família preencher nada) | F-01, F-02, equipa. F-02 construiu este plano fora da app (calendário de 29 semanas). Fase 1 não precisa de BD | A/A | L | Fase 1 publicada a 13 nov (página Rumo do ano; segue o calendário escolar oficial) |
 | P-14 | "Estou no ritmo certo?": pontos de controlo por período e regra de atraso sem culpa (o que não se fez passa para a semana seguinte) | Equipa, F-02 (o plano dela tem pontos de controlo e margem em julho). Responde à insegurança dos pais | A/A | M | Publicado a 14 nov. Por confirmar com uma família |
 | P-24 | Rumo do ano, fase 2: PDF do ano para imprimir, semanas e férias da própria família, e vista de família com os conteúdos comuns às várias crianças | F-02 (calendário de 29 semanas feito fora da app). A fase 1 usa o calendário escolar oficial e mostra uma criança de cada vez | A/M | M | Calendário da família e PDF do ano publicados a 14 nov. Falta a vista de família |
@@ -234,13 +223,6 @@ Ideias para quando o núcleo estiver sólido.
 | T-11 | Plano Semanal perdia o formulário e o plano por guardar ao sair da página ou ao voltar à app | Elton, 16 nov (testes). A app recarregava o ecrã sempre que regressava ao primeiro plano | A/A | S | Publicado a 16 nov. Por confirmar (V-29 a V-31) |
 | T-05 | Confirmar que as migrações locais correspondem à produção | Auditoria | M/B | S | Em pausa (depende de B-04) |
 
-## Feito recentemente
+## Feito
 
-| ID | Item | Data |
-|---|---|---|
-| OK-06 | Nomes das crianças deixam de ser enviados ao Gemini (era o P-03) | publicado a 5 nov 2026 |
-| OK-01 | Fotos comprimidas antes do upload; remove a localização GPS | publicado a 5 nov 2026 |
-| OK-02 | Nomes da família piloto retirados da documentação e do exemplo do onboarding | publicado a 5 nov 2026 |
-| OK-03 | Gemini só no servidor, chaves rodadas; fotos privadas; funções com autenticação | julho 2026 (FASE 1) |
-| OK-04 | Onboarding, Manual em /ajuda, visitas guiadas, dashboard "Hoje", PWA | julho 2026 (FASES 2 e 3) |
-| OK-05 | Exportar dados e eliminar conta; feedback e métricas em /admin/feedback | julho 2026 (FASES 4.5 e 5) |
+O que está feito e confirmado sai daqui e passa para [`BACKLOG_ARQUIVO.md`](BACKLOG_ARQUIVO.md), para este ficheiro ficar curto. Os itens "publicado, por confirmar" ficam aqui até o Elton confirmar.

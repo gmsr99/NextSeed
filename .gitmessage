@@ -1,0 +1,9 @@
+
+# tipo: resumo curto em português (feat, fix, docs, chore)
+#
+# Porquê, em linguagem simples (o que muda para as famílias).
+#
+# Spec: P-00 (link da especificação, se houver)
+# Aprovado: Elton, AAAA-MM-DD (só no merge para main; copiar o "aprovado" do chat)
+#
+# Manter as linhas Co-Authored-By e Claude-Session quando o commit é feito com o Claude.
