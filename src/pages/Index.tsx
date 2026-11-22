@@ -1,30 +1,28 @@
-// src/pages/Index.tsx
+// Início (DASH, spec claude/DASH_Redesenho_Inicio.md v3.1).
+// Hoje em cima, sem cor; por baixo, duas caixas: A semana e O ano.
+// Três momentos: dias de aulas, sexta (fechar a semana) e fim de semana sem
+// plano (a próxima semana). Missões ficam na página delas (D-DASH-3).
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, differenceInYears, parseISO } from 'date-fns';
+import { format, differenceInYears, parseISO, addDays } from 'date-fns';
 import { pt } from 'date-fns/locale';
-import { motion } from 'framer-motion';
-import { CalendarCheck, Plus, ArrowRight, Trophy, BookOpen, Clock, Star, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, CalendarCheck, ChevronDown, Plus, Star, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/components/AppLayout';
-import { useTodayDashboard } from '@/hooks/useTodayDashboard';
-import { useMissionRewards } from '@/hooks/useMissionRewards';
+import WeekCloseDialog, { closeShownKey } from '@/components/WeekCloseDialog';
+import { useTodayDashboard, type TodayPlanItem } from '@/hooks/useTodayDashboard';
+import { useChildren } from '@/hooks/useChildren';
 import { useChildMilestones, MILESTONE_CATEGORIES } from '@/hooks/useChildMilestones';
-
-const DISCIPLINE_COLORS: Record<string, string> = {
-  'Português': 'bg-blue-100 text-blue-800',
-  'Matemática': 'bg-purple-100 text-purple-800',
-  'Estudo do Meio': 'bg-green-100 text-green-800',
-  'Inglês': 'bg-yellow-100 text-yellow-800',
-  'Ed. Artística': 'bg-pink-100 text-pink-800',
-  'Ed. Física': 'bg-orange-100 text-orange-800',
-  'Cidadania': 'bg-teal-100 text-teal-800',
-};
-
-function disciplineColor(d: string) {
-  return DISCIPLINE_COLORS[d] ?? 'bg-gray-100 text-gray-800';
-}
+import { useDashboardYear } from '@/hooks/useDashboardYear';
+import { useWeekFocus } from '@/hooks/useAnnualPlan';
+import { GC_DISCIPLINE_LABELS } from '@/lib/gcConstants';
+import { cn } from '@/lib/utils';
+import {
+  weekSummary, paceState, paceSentence, PACE_LABEL, shouldOfferClose,
+  type PaceState, type WeekState,
+} from '@/lib/dashboard';
 
 function greeting() {
   const h = new Date().getHours();
@@ -33,21 +31,79 @@ function greeting() {
   return 'Boa noite';
 }
 
+const DAY_SHORT = ['seg', 'ter', 'qua', 'qui', 'sex'];
+
+const WEEK_LABEL: Record<WeekState, string> = {
+  em_dia: 'Em dia',
+  quase: 'Quase lá',
+  por_preparar: 'Por preparar',
+  preparada: 'Preparada',
+};
+
+const WEEK_TONE: Record<WeekState, string> = {
+  em_dia: 'border-emerald-200 bg-emerald-50/70 text-emerald-900',
+  quase: 'border-amber-200 bg-amber-50/70 text-amber-900',
+  por_preparar: 'border-border bg-card text-foreground',
+  preparada: 'border-border bg-card text-foreground',
+};
+
+const PACE_TONE: Record<PaceState, string> = {
+  bom: 'border-emerald-200 bg-emerald-50/70 text-emerald-900',
+  folga: 'border-amber-200 bg-amber-50/70 text-amber-900',
+  ajuste: 'border-rose-200 bg-rose-50/70 text-rose-900',
+  a_ganhar: 'border-border bg-card text-foreground',
+  sem_marcas: 'border-border bg-card text-foreground',
+};
+
+const BAR_TONE: Record<PaceState, string> = {
+  bom: 'bg-emerald-500',
+  folga: 'bg-amber-500',
+  ajuste: 'bg-rose-500',
+  a_ganhar: 'bg-primary/60',
+  sem_marcas: 'bg-primary/60',
+};
+
+const labelOf = (d: string) => GC_DISCIPLINE_LABELS[d] ?? d;
+
+function readFlag(key: string): boolean {
+  try { return localStorage.getItem(key) === '1'; } catch { return false; }
+}
+function writeFlag(key: string) {
+  try { localStorage.setItem(key, '1'); } catch { /* sem armazenamento */ }
+}
+
 export default function Index() {
   const navigate = useNavigate();
   const {
-    isLoading, hasPlan, todayItems, totalRegistered, totalPlannedWeek,
-    children, upcomingExtras, isWeekend, familyName,
-    toggleItemDone, showNextWeekCta,
+    isLoading, hasPlan, todayItems, allItems, nextWeekPlanned, todayDow, weekStart,
+    familyName, toggleItemDone,
   } = useTodayDashboard();
-  const { rewards, getBalance } = useMissionRewards();
+  const { children } = useChildren();
   const { milestones: recentMilestones } = useChildMilestones();
+  const today = useMemo(() => new Date(), []);
+  const year = useDashboardYear(children, today);
+  const nextMonday = useMemo(() => addDays(weekStart, 7), [weekStart]);
+  const nextFocus = useWeekFocus(children, nextMonday);
 
-  // Children under 3 years old — milestone tracking focus
-  const youngChildren = children.filter((c) => {
-    if (!c.birth_date) return false;
-    return differenceInYears(new Date(), parseISO(c.birth_date)) < 3;
-  });
+  const [open, setOpen] = useState<'semana' | 'ano' | null>(null);
+  const [closing, setClosing] = useState(false);
+  const closedKey = closeShownKey(weekStart);
+  const [closed, setClosed] = useState(() => readFlag(closedKey));
+
+  const isWeekend = todayDow >= 6;
+  const isFriday = todayDow === 5;
+
+  // Popup à sexta, a partir das 12h, uma vez (D-DASH-6)
+  useEffect(() => {
+    if (isLoading || !hasPlan || closed) return;
+    const shownKey = `${closedKey}:visto`;
+    if (shouldOfferClose(new Date(), readFlag(shownKey))) {
+      writeFlag(shownKey);
+      setClosing(true);
+    }
+  }, [isLoading, hasPlan, closed, closedKey]);
+
+  const youngChildren = children.filter((c) => c.birth_date && differenceInYears(new Date(), parseISO(c.birth_date)) < 3);
 
   if (isLoading) {
     return (
@@ -58,271 +114,275 @@ export default function Index() {
   }
 
   const todayLabel = format(new Date(), "EEEE, d 'de' MMMM", { locale: pt });
+  const week = weekSummary(hasPlan ? allItems : null, todayDow, nextWeekPlanned);
+  const clock = year.clock;
+  const yearState: PaceState | null = clock && year.total.total > 0 ? paceState(year.total, clock) : null;
+  const showCloseButton = hasPlan && !closed && (isFriday || isWeekend);
+
+  // Itens de hoje por criança
+  const byChild = new Map<string, TodayPlanItem[]>();
+  for (const it of todayItems) byChild.set(it.child_id, [...(byChild.get(it.child_id) ?? []), it]);
+  const childName = (id: string) => children.find((c) => c.id === id)?.name ?? '';
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
 
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="space-y-2 pb-2">
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">{greeting()}, família {familyName}! 🌱</h1>
           <p className="text-muted-foreground text-lg capitalize">{todayLabel}</p>
         </motion.div>
 
-        {/* Bloco 1 — Hoje */}
+        {/* ── Hoje (sem cor) ─────────────────────────────────────────── */}
         <section className="space-y-4" data-tour="dashboard-hoje">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-xl flex items-center gap-2">
-              <CalendarCheck className="w-6 h-6 text-primary animate-pulse-soft" /> Hoje
-            </h2>
-            {hasPlan && (
-              <Button variant="ghost" size="sm" className="hover:bg-primary/10 transition-colors" onClick={() => navigate('/weekly-planner')}>
-                Ver plano <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
+          <h2 className="font-semibold text-xl flex items-center gap-2">
+            <CalendarCheck className="w-6 h-6 text-primary" /> {isWeekend && !nextWeekPlanned ? 'A próxima semana' : 'Hoje'}
+          </h2>
+
+          <div className="rounded-2xl bg-card shadow-soft p-5 space-y-4">
+            {isWeekend ? (
+              !nextWeekPlanned ? (
+                <NextWeek focus={nextFocus} childName={childName} onGenerate={() => navigate('/weekly-planner')} />
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-muted-foreground">Fim de semana. A próxima semana já tem plano. 🌿</p>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/weekly-planner')}>Ver o plano <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                </div>
+              )
+            ) : !hasPlan ? (
+              <div className="space-y-3">
+                <p className="text-muted-foreground">Esta semana ainda não tem plano.</p>
+                <Button onClick={() => navigate('/weekly-planner')}><Plus className="w-4 h-4 mr-2" /> Gerar o plano da semana</Button>
+              </div>
+            ) : todayItems.length === 0 ? (
+              <p className="text-muted-foreground">Hoje não há atividades no plano.</p>
+            ) : (
+              <div className="space-y-4">
+                {[...byChild.entries()].map(([childId, items]) => (
+                  <div key={childId} className="space-y-2">
+                    {byChild.size > 1 && <p className="font-semibold text-foreground">{childName(childId)}</p>}
+                    <ul className="space-y-1.5">
+                      {items.map((item) => {
+                        const done = !!item.completed_at;
+                        return (
+                          <li key={item.id} className="flex items-start gap-3">
+                            <Checkbox
+                              id={`hoje-${item.id}`}
+                              checked={done}
+                              onCheckedChange={(c) => toggleItemDone.mutate({ itemId: item.id, done: c === true })}
+                              className="mt-0.5 h-5 w-5 shrink-0"
+                            />
+                            <label htmlFor={`hoje-${item.id}`} className={cn('text-sm leading-snug cursor-pointer', done && 'line-through text-muted-foreground')}>
+                              {item.discipline && <span className="font-medium">{item.discipline} · </span>}
+                              {item.title}
+                            </label>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!isWeekend && hasPlan && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                <Button variant="outline" size="sm" onClick={() => navigate('/weekly-planner')}>Ver o dia <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/activities')}><Plus className="w-4 h-4 mr-1" /> Registar atividades</Button>
+              </div>
+            )}
+            {showCloseButton && (
+              <Button size="sm" onClick={() => setClosing(true)}><CheckCircle2 className="w-4 h-4 mr-1.5" /> Fechar a semana · 5 min</Button>
             )}
           </div>
-
-          {/* CTA contextual: a partir de sexta-feira, sem plano para a próxima semana */}
-          {showNextWeekCta && hasPlan && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 bg-primary/5 border border-primary/20 shadow-soft"
-            >
-              <p className="text-sm font-medium flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" /> Já planearam a próxima semana?
-              </p>
-              <Button size="sm" onClick={() => navigate('/weekly-planner')}>
-                Planear agora <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-            </motion.div>
-          )}
-
-          {!hasPlan ? (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="rounded-2xl p-8 text-center space-y-4 gradient-warmth shadow-glow text-white relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
-              <div className="relative z-10 flex flex-col items-center justify-center">
-                <h3 className="text-2xl font-bold mb-1">Prontos para uma nova semana?</h3>
-                <p className="text-white/90 font-medium mb-5 text-lg">Ainda não há plano estruturado.</p>
-                <Button variant="secondary" size="lg" className="font-semibold hover:scale-105 transition-transform shadow-elevated text-primary-foreground" onClick={() => navigate('/weekly-planner')}>
-                  <Plus className="w-5 h-5 mr-2" /> Gerar plano semanal
-                </Button>
-              </div>
-            </motion.div>
-          ) : isWeekend ? (
-            <div className="rounded-2xl p-6 bg-gradient-to-r from-muted/40 to-muted/20 backdrop-blur-sm text-center text-muted-foreground shadow-soft border border-white/40">
-              <span className="text-lg font-medium">É fim de semana! Aproveita o descanso. 🌿</span>
-            </div>
-          ) : todayItems.length === 0 ? (
-            <div className="rounded-2xl p-6 text-center text-muted-foreground shadow-soft bg-card/80 backdrop-blur-sm border-transparent">
-              Sem atividades planeadas para hoje.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {todayItems.map((item, i) => {
-                const done = !!item.completed_at;
-                return (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    whileHover={{ y: -2, scale: 1.01 }}
-                    className={`flex items-center gap-4 bg-card shadow-soft rounded-2xl p-4 hover:shadow-elevated transition-all border border-transparent hover:border-primary/20 ${done ? 'opacity-60' : ''}`}
-                  >
-                    <Checkbox
-                      checked={done}
-                      onCheckedChange={(checked) => toggleItemDone.mutate({ itemId: item.id, done: checked === true })}
-                      aria-label={done ? 'Marcar como por fazer' : 'Marcar como concluída'}
-                      className="shrink-0 h-5 w-5"
-                    />
-                    <div className="w-16 text-sm text-muted-foreground text-center font-mono shrink-0 bg-muted/30 py-1 px-2 rounded-lg">
-                      {item.time_slot}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-semibold text-base truncate ${done ? 'line-through text-muted-foreground' : ''}`}>{item.title}</p>
-                      {item.discipline && (
-                        <span className={`inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full font-medium shadow-sm ${disciplineColor(item.discipline)}`}>
-                          {item.discipline}
-                        </span>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="shrink-0 hover:shadow-glow hover:border-primary/50 transition-all"
-                      onClick={() => navigate('/activities')}
-                    >
-                      <Plus className="w-3.5 h-3.5 mr-1" /> Registar
-                    </Button>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
         </section>
 
-        {/* Bloco 1.5 — Marcos de bebés/crianças pequenas */}
+        {/* ── A semana · O ano ─────────────────────────────────────────── */}
+        <section className="grid grid-cols-2 gap-3">
+          <button
+            type="button" onClick={() => setOpen(open === 'semana' ? null : 'semana')} aria-expanded={open === 'semana'}
+            className={cn('rounded-2xl border p-4 text-left transition-shadow hover:shadow-soft', WEEK_TONE[week.state])}
+          >
+            <p className="text-xs font-medium uppercase tracking-wider opacity-70">A semana</p>
+            <p className="mt-1 text-lg font-semibold">{WEEK_LABEL[week.state]}</p>
+            <p className="text-sm opacity-80">
+              {isWeekend || !hasPlan ? (nextWeekPlanned ? 'plano pronto' : 'sem plano ainda') : `${week.done} de ${week.total} atividades`}
+            </p>
+            <ChevronDown className={cn('mt-1 h-4 w-4 opacity-50 transition-transform', open === 'semana' && 'rotate-180')} />
+          </button>
+          <button
+            type="button" onClick={() => setOpen(open === 'ano' ? null : 'ano')} aria-expanded={open === 'ano'}
+            className={cn('rounded-2xl border p-4 text-left transition-shadow hover:shadow-soft', yearState ? PACE_TONE[yearState] : 'border-border bg-card')}
+          >
+            <p className="text-xs font-medium uppercase tracking-wider opacity-70">O ano</p>
+            <p className="mt-1 text-lg font-semibold">{yearState ? PACE_LABEL[yearState] : 'Sem rumo'}</p>
+            <p className="text-sm opacity-80">
+              {clock ? (clock.current ? `semana ${clock.current} de ${clock.totalWeeks}` : 'semana de pausa') : 'falta o ano da criança'}
+            </p>
+            <ChevronDown className={cn('mt-1 h-4 w-4 opacity-50 transition-transform', open === 'ano' && 'rotate-180')} />
+          </button>
+        </section>
+
+        <AnimatePresence initial={false}>
+          {open === 'semana' && (
+            <motion.section key="semana" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden">
+              <div className="rounded-2xl bg-card shadow-soft p-5 space-y-4">
+                {hasPlan ? (
+                  <div className="grid grid-cols-5 gap-2">
+                    {week.days.map((d) => (
+                      <div key={d.day} className={cn('rounded-xl border p-2 text-center', d.day === todayDow && 'border-primary/40')}>
+                        <p className="text-xs uppercase text-muted-foreground">{DAY_SHORT[d.day - 1]}</p>
+                        <p className="text-sm font-semibold">{d.total ? `${d.done}/${d.total}` : '–'}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Esta semana não tem plano.</p>
+                )}
+                <Attention rows={year.rows.map((r) => ({ name: r.child.name, n: r.steps.consolidating }))} />
+                <p className="text-xs text-muted-foreground">O que não for dado passa para a semana seguinte.</p>
+              </div>
+            </motion.section>
+          )}
+          {open === 'ano' && (
+            <motion.section key="ano" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden">
+              <div className="rounded-2xl bg-card shadow-soft p-5 space-y-5">
+                {!clock || year.rows.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">O ritmo do ano aparece quando a criança tem o ano escolar definido ou um manual com índice.</p>
+                ) : (
+                  <>
+                    {yearState && <p className="text-sm text-foreground">{paceSentence(year.total, clock)}</p>}
+                    {year.rows.map((r) => (
+                      <div key={r.child.id} className="space-y-2">
+                        {year.rows.length > 1 && <p className="font-semibold text-foreground">{r.child.name}</p>}
+                        {r.disciplines.map((d) => {
+                          const st = paceState(d, clock);
+                          const pct = Math.round((d.given / d.total) * 100);
+                          const mark = Math.min(100, Math.round((d.plannedByNow / d.total) * 100));
+                          return (
+                            <div key={d.discipline} className="space-y-1">
+                              <div className="flex items-baseline justify-between gap-2 text-sm">
+                                <span className="font-medium">{labelOf(d.discipline)}{d.manual ? <span className="text-muted-foreground font-normal"> · {d.manual}</span> : null}</span>
+                                <span className="text-xs text-muted-foreground">{d.given} de {d.total} · {PACE_LABEL[st]}</span>
+                              </div>
+                              <div className="relative h-2 rounded-full bg-muted overflow-hidden" aria-hidden>
+                                <div className={cn('h-full rounded-full', BAR_TONE[st])} style={{ width: `${pct}%` }} />
+                                <div className="absolute top-0 h-full w-0.5 bg-foreground/40" style={{ left: `${mark}%` }} title="previsto até hoje" />
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {r.steps.consolidating > 0 && (
+                          <p className="text-xs text-muted-foreground">a consolidar: {r.steps.consolidating} {r.steps.consolidating === 1 ? 'tema' : 'temas'}</p>
+                        )}
+                      </div>
+                    ))}
+                    <p className="text-xs text-muted-foreground">A barra é o que foi dado; o traço, o que o rumo previa até hoje.</p>
+                    {yearState === 'ajuste' || year.rows.some((r) => r.disciplines.some((d) => paceState(d, clock) === 'ajuste')) ? (
+                      <Button variant="outline" size="sm" onClick={() => navigate('/roteiro-anual')}>
+                        Acertar o rumo <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    ) : (
+                      <Button variant="ghost" size="sm" onClick={() => navigate('/roteiro-anual')}>
+                        Ver o rumo do ano <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
+
+        {/* Marcos de bebés e crianças pequenas */}
         {youngChildren.length > 0 && (
-          <section className="space-y-4 pt-2">
+          <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-xl flex items-center gap-2">
-                <Star className="w-6 h-6 text-amber-400 animate-float" fill="currentColor" /> Marcos recentes
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-400" fill="currentColor" /> Marcos recentes
               </h2>
               <Button variant="ghost" size="sm" onClick={() => navigate('/portfolio')}>
                 Ver todos <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
-            <div className="grid gap-3">
-              {youngChildren.map((child) => {
-                const childMilestones = recentMilestones
-                  .filter((m) => m.child_id === child.id)
-                  .slice(0, 2);
-                return (
-                  <motion.div key={child.id} whileHover={{ y: -2 }} className="rounded-2xl p-5 space-y-3 bg-gradient-to-br from-amber-50/90 to-white/90 backdrop-blur-sm border border-amber-100/60 shadow-soft hover:shadow-elevated transition-all">
-                    <div className="flex items-center justify-between">
-                      <p className="font-bold text-base text-amber-950">{child.name}</p>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-xs h-8 border-amber-200 bg-white/80 hover:bg-amber-100 hover:text-amber-900 transition-colors shadow-sm"
-                        onClick={() => navigate('/portfolio')}
-                      >
-                        <Plus className="w-3.5 h-3.5 mr-1" /> Novo Marco
-                      </Button>
-                    </div>
-                    {childMilestones.length === 0 ? (
-                      <p className="text-sm text-amber-700/70 bg-amber-100/30 p-3 rounded-xl border border-amber-100/50">
-                        Nenhum marco registado ainda. Regista o primeiro momento especial!
+            {youngChildren.map((child) => {
+              const list = recentMilestones.filter((m) => m.child_id === child.id).slice(0, 2);
+              return (
+                <div key={child.id} className="rounded-2xl p-4 bg-card shadow-soft space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold">{child.name}</p>
+                    <Button size="sm" variant="ghost" onClick={() => navigate('/portfolio')}><Plus className="w-3.5 h-3.5 mr-1" /> Novo marco</Button>
+                  </div>
+                  {list.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Ainda sem marcos. Regista o primeiro momento especial.</p>
+                  ) : list.map((m) => {
+                    const cat = MILESTONE_CATEGORIES.find((c) => c.key === m.category);
+                    return (
+                      <p key={m.id} className="text-sm flex items-center gap-2">
+                        <span>{cat?.emoji ?? '⭐'}</span> {m.title}
+                        <span className="ml-auto text-xs text-muted-foreground">{format(new Date(m.date + 'T00:00:00'), 'd MMM', { locale: pt })}</span>
                       </p>
-                    ) : (
-                      <div className="space-y-2">
-                        {childMilestones.map((m) => {
-                          const cat = MILESTONE_CATEGORIES.find((c) => c.key === m.category);
-                          return (
-                            <div key={m.id} className="flex items-center gap-3 text-sm bg-white/60 p-2.5 rounded-xl border border-amber-50 shadow-sm">
-                              <span className="text-lg bg-amber-100/50 w-8 h-8 flex items-center justify-center rounded-full">{cat?.emoji ?? '⭐'}</span>
-                              <span className="font-medium text-amber-950">{m.title}</span>
-                              <span className="text-xs text-amber-700/80 ml-auto font-medium bg-amber-50 px-2 py-1 rounded-md">
-                                {format(new Date(m.date + 'T00:00:00'), "d MMM", { locale: pt })}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Bloco 2 — Missões ativas */}
-        {children.length > 0 && (
-          <section className="space-y-4 pt-2">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-xl flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-amber-500" /> Missões
-              </h2>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/world-missions')}>
-                Ver missões <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {children.map(child => {
-                const balance = getBalance(child.id);
-                const nearest = rewards
-                  .filter(r => r.is_active && balance < r.points_cost)
-                  .sort((a, b) => (a.points_cost - balance) - (b.points_cost - balance))[0];
-                const pct = nearest ? Math.min(100, Math.round((balance / nearest.points_cost) * 100)) : 100;
-                return (
-                  <motion.div key={child.id} whileHover={{ y: -2 }} className="rounded-2xl p-5 space-y-4 bg-card shadow-soft hover:shadow-elevated transition-all border border-transparent">
-                    <div className="flex items-center justify-between">
-                      <p className="font-bold text-base">{child.name}</p>
-                      <Badge variant="secondary" className="text-sm px-2.5 py-0.5 shadow-sm bg-amber-100 text-amber-900 hover:bg-amber-200">{balance} pts</Badge>
-                    </div>
-                    {nearest ? (
-                      <div className="space-y-1.5">
-                        <div className="w-full bg-muted/60 rounded-full h-2.5 shadow-inner overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }} 
-                            animate={{ width: `${pct}%` }} 
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className="gradient-warmth h-full rounded-full shadow-sm" 
-                          />
-                        </div>
-                        <p className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-                          <span>{nearest.emoji ?? ''} {nearest.title}</span>
-                          <span className="text-xs">faltam {nearest.points_cost - balance}</span>
-                        </p>
-                      </div>
-                    ) : rewards.length === 0 ? (
-                      <p className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-xl">
-                        <Button variant="link" className="h-auto p-0 text-sm font-semibold text-primary" onClick={() => navigate('/world-missions')}>Cria uma recompensa</Button> para motivar!
-                      </p>
-                    ) : (
-                      <p className="text-sm text-green-600 font-semibold bg-green-50 p-3 rounded-xl border border-green-100 flex items-center gap-2">
-                        🎉 Pode resgatar recompensas!
-                      </p>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Bloco 3 — Esta semana */}
-        <section className="space-y-4 pt-2">
-          <h2 className="font-semibold text-xl flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-primary" /> Esta semana
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} className="rounded-2xl p-6 text-center bg-card shadow-soft hover:shadow-elevated transition-all border border-transparent flex flex-col justify-center">
-              <p className="text-4xl font-black text-primary drop-shadow-sm">{totalRegistered}</p>
-              <p className="text-sm font-medium text-muted-foreground mt-2">
-                {hasPlan ? `de ${totalPlannedWeek} atividades` : 'registadas'}
-              </p>
-            </motion.div>
-            
-            {upcomingExtras.length > 0 && (
-              <motion.div whileHover={{ scale: 1.02 }} className="rounded-2xl p-5 col-span-1 sm:col-span-2 bg-gradient-to-br from-card to-muted/10 shadow-soft hover:shadow-elevated transition-all border border-transparent">
-                <p className="text-base font-semibold flex items-center gap-2 mb-3 text-foreground/90">
-                  <Clock className="w-5 h-5 text-blue-500" /> Extracurriculares
-                </p>
-                <div className="space-y-2">
-                  {upcomingExtras.slice(0, 3).map(e => (
-                    <div key={e.id} className="flex items-center justify-between text-sm bg-white/50 px-3 py-2 rounded-lg border border-white/60 shadow-sm">
-                      <span className="font-medium text-foreground/80">{e.name}</span>
-                      <span className="text-xs font-bold text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-md">{e.start_time?.slice(0, 5)}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-              </motion.div>
-            )}
-          </div>
-        </section>
-
-        {/* Ações rápidas */}
-        <section className="flex flex-wrap gap-3 pt-6 border-t border-border/50">
-          <Button variant="default" className="shadow-elevated hover:shadow-glow hover:-translate-y-0.5 transition-all gradient-forest text-white" onClick={() => navigate('/activities')}>
-            <Plus className="w-4 h-4 mr-2" /> Registar atividade
-          </Button>
-          <Button variant="outline" className="shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all bg-card" onClick={() => navigate('/calendar')}>
-            Ver agenda
-          </Button>
-          <Button variant="outline" className="shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all bg-card" onClick={() => navigate('/portfolio')}>
-            Ver portfólio
-          </Button>
-        </section>
-
+              );
+            })}
+          </section>
+        )}
       </div>
+
+      <WeekCloseDialog
+        open={closing}
+        onClose={() => { setClosing(false); setClosed(readFlag(closedKey)); }}
+        familyChildren={children}
+        date={weekStart}
+        proposeNext
+      />
     </AppLayout>
   );
 }
 
+function NextWeek({ focus, childName, onGenerate }: {
+  focus: ReturnType<typeof useWeekFocus>;
+  childName: (id: string) => string;
+  onGenerate: () => void;
+}) {
+  const entries = Object.entries(focus);
+  return (
+    <div className="space-y-4">
+      {entries.length === 0 ? (
+        <p className="text-muted-foreground">A semana que vem ainda não tem plano.</p>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">A semana que vem já tem rumo:</p>
+          {entries.map(([childId, f]) => (
+            <div key={childId} className="space-y-1">
+              {entries.length > 1 && <p className="font-semibold text-foreground">{childName(childId)}</p>}
+              {Object.entries(f.focus).slice(0, 5).map(([d, list]) => (
+                <p key={d} className="text-sm"><span className="font-medium">{labelOf(d)}</span> · {list[0]?.content}{list.length > 1 ? ` (+${list.length - 1})` : ''}</p>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+      <Button onClick={onGenerate}><Sparkles className="w-4 h-4 mr-2" /> Gerar o plano da semana</Button>
+    </div>
+  );
+}
+
+function Attention({ rows }: { rows: { name: string; n: number }[] }) {
+  const withAny = rows.filter((r) => r.n > 0);
+  if (withAny.length === 0) return null;
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium">Com atenção esta semana</p>
+      {withAny.map((r) => (
+        <p key={r.name} className="text-sm text-muted-foreground">
+          {rows.length > 1 ? `${r.name}: ` : ''}{r.n} {r.n === 1 ? 'tema volta' : 'temas voltam'} em revisão curta
+        </p>
+      ))}
+    </div>
+  );
+}

@@ -68,10 +68,10 @@ export function useTodayDashboard() {
     onSuccess: () => qc.invalidateQueries({ queryKey: planQueryKey }),
   });
 
-  // ── Já existe plano para a próxima semana? (CTA de sexta-feira) ──
+  // ── Já existe plano para a próxima semana? (sexta e fim de semana) ──
   const { data: nextWeekPlanned = true } = useQuery({
     queryKey: ['next_week_plan', family?.id, format(nextWeekStart, 'yyyy-MM-dd')],
-    enabled: !!family?.id && todayDow >= 5,
+    enabled: !!family?.id,
     staleTime: 60_000,
     queryFn: async () => {
       const { count } = await supabase
@@ -138,6 +138,10 @@ export function useTodayDashboard() {
   return {
     isLoading: planLoading || childrenLoading,
     hasPlan: !!planData?.plan,
+    allItems: planData?.allItems ?? [],
+    nextWeekPlanned,
+    todayDow,
+    weekStart,
     todayItems: planData?.todayItems ?? [],
     totalRegistered,
     totalPlannedWeek,

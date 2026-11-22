@@ -59,7 +59,7 @@ export const TOURS: TourDef[] = [
       {
         target: "dashboard-hoje",
         title: "O vosso dia, num relance",
-        body: "O painel mostra as atividades planeadas para hoje. Quando ainda não há plano, é aqui que aparece o atalho para gerar o primeiro.",
+        body: "O Início mostra o que cada criança tem hoje. Por baixo, duas caixas dizem como vai a semana e o ano. Quando ainda não há plano, é aqui que aparece o atalho para o gerar.",
       },
       {
         target: "header-ajuda",
