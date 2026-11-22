@@ -85,6 +85,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-45 | Definições (só a F-01 e a equipa; depois da migração 032 e do convite) | Ver o cartão "Tradição da família (opcional)" e ligar: católica, calendário, próprio de Portugal, confirmar o consentimento | O cartão diz "Ligada"; a outras famílias o cartão não aparece (I-08) |  |
 | V-46 | Planeador e Guia de Atividades (com a tradição ligada) | Abrir a semana de 7 de dezembro e descarregar os PDF | Aparece "Esta semana na liturgia: 2.ª semana do Advento" e a Alma Redemptoris Mater; no horário, o bloco da manhã chama-se "Orações e liturgia". Sem fichas revistas, não aparece nenhuma celebração (I-08) |  |
 | V-47 | Definições (com a tradição ligada) | Tocar em "Acrescentar ao calendário da família"; depois "Desligar" | As pausas do Natal (21 dez a 3 jan) e da Semana Santa (22 mar a 4 abr) entram no calendário; desligar apaga a escolha e o Planeador deixa de mostrar a liturgia (I-08) |  |
+| V-48 | Definições › Membros da família | Convidar um email que já tem conta na NexSeed (por exemplo o teu) | Aparece "Este email já tem conta na NexSeed…" em vez de "Edge Function returned a non-2xx status code" (T-12) |  |
 
 ## Ordem de implementação
 
@@ -253,6 +254,7 @@ Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões
 | T-04 | Corrigir ou apagar Ponto de situação/contexto_chat.json | Auditoria | B/B | S | Por fazer |
 | T-01 | Auditoria em telemóvel real: câmara, botões, PWA | Auditoria (FASE 3.5) | M/M | S | Aguarda Elton |
 | T-11 | Plano Semanal perdia o formulário e o plano por guardar ao sair da página ou ao voltar à app | Elton, 16 nov (testes). A app recarregava o ecrã sempre que regressava ao primeiro plano | A/A | S | Publicado a 16 nov. Por confirmar (V-29 a V-31) |
+| T-12 | Convite a membro da família falhava com "Edge Function returned a non-2xx status code" | Elton, 22 nov. O convite do Supabase recusa emails que já têm conta e o ecrã escondia o motivo. Juntar uma conta existente a outra família fica como ideia por especificar (mexe em my_family_id e na RLS) | A/A | S | Branch fix/convite-membro-erro. Falta publicar a edge function (dono do repo) e confirmar (V-48) |
 | T-05 | Confirmar que as migrações locais correspondem à produção | Auditoria | M/B | S | Em pausa (depende de B-04) |
 
 ## Feito

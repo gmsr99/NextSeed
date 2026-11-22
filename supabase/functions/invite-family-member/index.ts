@@ -85,9 +85,26 @@ serve(async (req) => {
     });
 
     if (linkErr || !linkData?.properties?.action_link) {
+      console.error("generateLink falhou:", linkErr?.code, linkErr?.status, linkErr?.message);
+      // O convite do Supabase só funciona para emails sem conta. Por agora,
+      // cada conta pertence a uma só família (my_family_id), por isso não há
+      // forma de juntar uma conta existente a outra família.
+      const emailExists =
+        linkErr?.code === "email_exists" ||
+        linkErr?.status === 422 ||
+        /already (been )?registered/i.test(linkErr?.message ?? "");
+      if (emailExists) {
+        return new Response(
+          JSON.stringify({
+            error:
+              "Este email já tem conta na NexSeed. Por agora, cada conta só pode pertencer a uma família. Convida outro email, ou fala connosco para juntar as contas.",
+          }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       return new Response(
-        JSON.stringify({ error: linkErr?.message ?? "Não foi possível gerar o link de convite." }),
-        { status: 400, headers: corsHeaders }
+        JSON.stringify({ error: "Não foi possível criar o convite. Confirma o email e tenta novamente." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -127,8 +144,11 @@ serve(async (req) => {
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Resend error: ${err}`);
+      console.error("Resend falhou:", res.status, await res.text());
+      return new Response(
+        JSON.stringify({ error: "O convite foi criado, mas o email não seguiu. Tenta novamente daqui a pouco." }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Regista o convite na tabela

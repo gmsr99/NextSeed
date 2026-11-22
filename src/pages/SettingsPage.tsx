@@ -4,6 +4,7 @@ import AppLayout from "@/components/AppLayout";
 import FamilyTraditionCard from "@/components/FamilyTraditionCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { edgeFunctionErrorMessage } from "@/lib/edgeFunctionError";
 import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink, Download } from "lucide-react";
 
 type Member = { id: string; user_id: string; email: string; joined_at: string };
@@ -74,7 +75,10 @@ const SettingsPage = () => {
       body: { email: inviteEmail.trim().toLowerCase() },
     });
     if (error || inviteResult?.error) {
-      setInviteError(inviteResult?.error ?? error?.message ?? "Erro ao enviar convite.");
+      setInviteError(
+        inviteResult?.error ??
+          (await edgeFunctionErrorMessage(error, "Não foi possível enviar o convite. Tenta novamente daqui a pouco.")),
+      );
     } else {
       setInviteSuccess(true);
       setInviteEmail("");
