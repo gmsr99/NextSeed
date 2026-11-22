@@ -37,7 +37,6 @@ Elton: responde na coluna Resposta, quando puderes. Não tem de ser tudo de uma 
 | Q-14 | Em que regime está cada família do piloto: matriculada numa escola portuguesa (ensino doméstico), numa escola estrangeira ou à distância, ou outro? | Decide se o currículo nacional é a base ou só uma lente opcional (P-25). No ensino doméstico português há portefólio e provas no 4.º, 6.º e 9.º ano; fora dele não |  |
 | Q-15 | Podes enviar à F-03 as 7 perguntas sobre o percurso Montessori dos 3 aos 6? Estão prontas a copiar no documento claude/Metodologias_percurso_ritmo_forma.md do projeto. | Sem a sequência de quem pratica, a app só organiza pelas cinco áreas; não inventa a ordem dos materiais (I-02) |  |
 | Q-17 | Carregar o próprio PDF na NexSeed (para a app ler o índice sozinha): avançamos? Preciso de validação jurídica sobre direitos de autor antes. | Pedido teu de 16 nov. Hoje a família cola o índice e o ficheiro fica com ela. Guardar e ler ficheiros comprados a outros criadores levanta a questão A-09 do documento 10 e tem custos de armazenamento |  |
-| Q-19 | Financinhas para outras famílias: só depois da Q-03 (Gemini pago) e de rever o documento 04 para as observações das crianças. Por agora, o menu e a página só aparecem a quem é da equipa (a tua conta tem de estar em team_admins, como para a página Feedback). Concordas? | O módulo guarda observações do adulto sobre o comportamento das crianças com dinheiro e envia ao Gemini o escalão, o interesse e a situação da semana |  |
 
 ## Para testar: novidades publicadas de 13 a 15 de novembro
 
@@ -100,7 +99,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | 8 | E7 · Impressão e documentos | As famílias imprimem demasiadas folhas. Alguns pontos são rápidos e podem entrar antes. | M | M | Por fazer |
 | 9 | E9 · Personalização e conteúdos próprios | Pedidos com valor real mas grandes, alguns com questões legais (direitos de autor, dados religiosos). | M | B | Em estudo |
 | 10 | E10 · Comunidade, conteúdos e negócio | Ideias para depois de o núcleo estar sólido. | M | B | Em estudo |
-| 11 | E11 · Financinhas | Pedido do Elton (22 nov): o módulo de literacia financeira e empreendedorismo (5–12 anos) entra na app e substitui a antiga página de Literacia Financeira. Feito de raiz a partir das regras e parâmetros do Financinhas (documentos FIN_*); a experiência de outubro não é usada. | M | M | Publicado a 22 nov, só para a equipa. A 22 nov passou a abrir também às famílias convidadas (`pilot_features` 'financinhas', migração 032): falta o Gil inserir o convite da família do Elton. Para as outras famílias, depois da Q-03 e da Q-19 |
+| 11 | E11 · Financinhas | Pedido do Elton (22 nov): o módulo de literacia financeira e empreendedorismo (5–12 anos) entra na app e substitui a antiga página de Literacia Financeira. Feito de raiz a partir das regras e parâmetros do Financinhas (documentos FIN_*); a experiência de outubro não é usada. | M | M | Publicado a 22 nov e aberto a todas as contas no mesmo dia (decisão do Elton, 22 nov: só há duas famílias em teste; responde à Q-19). Rever antes de abrir a novas famílias: Q-03 (Gemini pago) e o documento 04 para as observações das crianças |
 
 ## E1 · Conformidade e base
 

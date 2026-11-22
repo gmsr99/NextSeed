@@ -5,7 +5,7 @@
 // equipa (team_admins) e às famílias convidadas para o piloto
 // (pilot_features 'financinhas', migração 032). Para abrir a todas as
 // famílias, mudar para true.
-export const FINANCINHAS_FOR_ALL = false;
+export const FINANCINHAS_FOR_ALL = true; // Elton, 22 nov: aberto (só duas famílias em teste)
 
 export function canSeeFinancinhas(isTeamAdmin: boolean, invited = false): boolean {
   return FINANCINHAS_FOR_ALL || isTeamAdmin || invited;

@@ -117,7 +117,10 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Erros ao guardar passam a mostrar o motivo. A falha "não deixa guardar" não foi reproduzida como erro da base de dados; a causa provável era o recarregamento acima. Por confirmar (V-31).
 - **Manuais, cursos e PDF (I-01):** uma linha por tema; a unidade repetida no início da linha é reconhecida ("3 temas, em 2 unidades"). O cartão serve também para cursos e PDF comprados: cola-se o índice, o ficheiro fica com a família. Carregar o ficheiro não está feito (I-14, Q-17).
 
-## Lição seguinte e Tradição da família (22 nov, ramo `feat/licao-seguinte-e-tradicao`, por publicar)
+## Financinhas aberto a todas as contas (22 nov)
+- `FINANCINHAS_FOR_ALL = true` em `src/lib/financinhas/access.ts`, por decisão do Elton (só duas famílias em teste). Antes de entrarem famílias novas: Gemini pago (Q-03) e documento 04. O convite por família (`pilot_features` 'financinhas') fica no código para quando se voltar a fechar.
+
+## Lição seguinte e Tradição da família (publicado a 22 nov)
 - **Lição seguinte (I-16):** cada manual pode ser seguido pelo índice ou em "lição seguinte". Guarda-se como uma entrada marcadora em `child_manuals.entries` (`NEXT_LESSON_ENTRIES`, sem migração); o rumo põe "Lição seguinte" em todas as semanas de aulas a partir do arranque e o pedido ao Gemini sabe que não conhece a lição.
 - **Tradição da família (I-08, fase 1, piloto só da F-01):** `src/lib/tradicao/` calcula o ano litúrgico (Páscoa, Advento, Epifania e Batismo em Portugal, tempos, antífona mariana) nos calendários atual e de 1962, e as pausas do Natal e da Semana Santa. `celebrations.ts` tem as celebrações do Advento ao Batismo, todas por rever: a app só mostra fichas com `revisto: true`. Migração **032** (`family_traditions` com o consentimento, `pilot_features` para o convite). O cartão vive em Definições e só aparece a quem tem o convite ou é da equipa. Planeador: "Esta semana na liturgia"; Guia de Atividades: a mesma caixa; horário: "Orações e liturgia". Nada vai para a IA.
 - Verificado: testes das bibliotecas (substituto do vitest) e verificação de tipos com declarações simplificadas. **Não testado:** browser e base de dados real.
