@@ -217,7 +217,8 @@ export const MANUAL_SECTIONS: ManualSection[] = [
       { type: "p", text: "Na caixa **Manuais**, escolham a disciplina, deem um nome ao manual e escrevam o índice: uma unidade por linha. Se puserem no fim de cada linha a página onde a unidade começa, a NexSeed dá mais semanas às unidades maiores e diz que páginas trabalhar em cada semana." },
       { type: "ul", items: [
         "Nessa disciplina, o rumo e o plano semanal passam a seguir o manual em vez do currículo.",
-        "Podem repartir o manual a partir desta semana ou desde o início do ano letivo. Se já vão a meio, escrevam só as unidades que faltam.",
+        "Colem sempre o índice completo, mesmo que já vão a meio, e digam em **Onde vão neste manual?** a última página que fizeram (ou o tema onde vão). O que está para trás fica feito e a NexSeed sabe o que já aprenderam; o rumo continua daí, na semana que estão a preparar.",
+        "Ao fim de semana, a semana que estão a preparar já é a seguinte.",
         "A NexSeed guarda só os títulos e as páginas que escreverem. As atividades do plano acompanham essas páginas; não substituem o manual.",
         "Funciona para qualquer ano, incluindo os que ainda não têm currículo na app.",
       ]},

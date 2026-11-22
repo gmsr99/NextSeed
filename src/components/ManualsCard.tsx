@@ -11,20 +11,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
-import { MANUAL_DISCIPLINES, applyCurrentPage, countGroups, currentPageOf, formatIndex, hasUsablePages, parseIndex } from "@/lib/manualIndex";
+import {
+  MANUAL_DISCIPLINES, applyCurrentPage, applyCurrentTopic, countGroups, currentPageOf, currentTopicOf, formatIndex,
+  hasUsablePages, parseIndex, type ManualEntry,
+} from "@/lib/manualIndex";
 import { useChildManuals, type ChildManual } from "@/hooks/useChildManuals";
-import { schoolYearStartFor } from "@/lib/annualPlan";
-import { useFamilyCalendar } from "@/hooks/useFamilyCalendar";
+import { formatWeekShort, isoDay, planningMonday } from "@/lib/annualPlan";
 import type { Child } from "@/lib/types";
 
 const EXAMPLE = "Unidade 1 — Números até 100 ... 6\nUnidade 1 — Contar de 2 em 2 ... 10\nUnidade 1 — Maior, menor, igual ... 14\nUnidade 2 — Adição até 100 ... 24\nUnidade 2 — Subtração até 100 ... 30";
 
+/** Onde vão neste manual, em texto curto para a lista. */
+function progressLabel(entries: ManualEntry[]): string {
+  const page = currentPageOf(entries);
+  if (page) return `vão na página ${page}`;
+  const topic = currentTopicOf(entries);
+  if (topic !== null) return `vão em "${entries[topic].title}"`;
+  return "começa no 1.º tema";
+}
+
 export default function ManualsCard({ child }: { child: Child }) {
   const { manuals, available, isLoading, save, remove } = useChildManuals();
   const { toast } = useToast();
-  const { calendar } = useFamilyCalendar();
-  // "Desde o início do ano": o início do calendário da família, se existir
-  const yearStart = calendar?.year_start ?? `${schoolYearStartFor(new Date())}-09-01`;
   const mine = manuals.filter((m) => m.child_id === child.id);
 
   const [open, setOpen] = useState(false);
@@ -32,18 +40,28 @@ export default function ManualsCard({ child }: { child: Child }) {
   const [discipline, setDiscipline] = useState<string>("");
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
-  // "now" = a partir desta semana; "year" = desde o início do ano letivo; "keep" = como estava
-  const [startMode, setStartMode] = useState<"now" | "year" | "keep">("now");
-  // Página até onde já trabalharam (opcional)
+  // Onde vão: "new" = ainda não começaram; "started" = já vão a meio
+  const [progress, setProgress] = useState<"new" | "started">("new");
+  // Já começaram: última página feita (índice com páginas) ou tema onde vão (sem páginas)
   const [pageText, setPageText] = useState("");
-  const [savedPage, setSavedPage] = useState<number | null>(null);
+  const [topicIdx, setTopicIdx] = useState<string>("");
+  // Como estava guardado, para não mexer na data quando nada mudou
+  const [savedMarks, setSavedMarks] = useState<string>("");
 
   const entries = useMemo(() => parseIndex(text), [text]);
   const paged = hasUsablePages(entries);
   const groups = countGroups(entries);
   const currentPage = /^\d{1,4}$/.test(pageText.trim()) ? Number(pageText.trim()) : null;
+  const currentTopic = topicIdx !== "" && Number(topicIdx) < entries.length ? Number(topicIdx) : null;
   const lastPage = paged ? entries[entries.length - 1].page! : null;
   const pageOutOfRange = currentPage !== null && lastPage !== null && currentPage >= lastPage + 200;
+  // Já começaram mas ainda não disseram onde vão: não deixa guardar
+  const missingProgress = progress === "started" && (paged ? !currentPage : currentTopic === null);
+  const startWeek = formatWeekShort(planningMonday(new Date()));
+  const marked = (): ManualEntry[] =>
+    progress === "new" ? applyCurrentPage(entries, null)
+    : paged ? applyCurrentPage(entries, currentPage)
+    : applyCurrentTopic(entries, currentTopic);
 
   const openNew = () => {
     setEditingId(null);
@@ -51,8 +69,9 @@ export default function ManualsCard({ child }: { child: Child }) {
     setTitle("");
     setText("");
     setPageText("");
-    setSavedPage(null);
-    setStartMode("now");
+    setTopicIdx("");
+    setSavedMarks("");
+    setProgress("new");
     setOpen(true);
   };
   const openEdit = (m: ChildManual) => {
@@ -61,30 +80,28 @@ export default function ManualsCard({ child }: { child: Child }) {
     setTitle(m.title);
     setText(formatIndex(m.entries));
     const p = currentPageOf(m.entries);
-    setSavedPage(p);
+    const t = currentTopicOf(m.entries);
     setPageText(p ? String(p) : "");
-    setStartMode(m.start_date ? "keep" : "year");
+    setTopicIdx(!p && t !== null ? String(t) : "");
+    setProgress(p || t !== null ? "started" : "new");
+    setSavedMarks(JSON.stringify(m.entries));
     setOpen(true);
   };
 
   const onSave = async () => {
     try {
       const previous = mine.find((m) => m.id === editingId);
-      const today = new Date();
-      const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      // Mudou a página onde vão: o que falta reparte-se a partir desta semana
-      const pageChanged = currentPage !== savedPage;
-      const start_date =
-        currentPage && pageChanged ? iso(today)
-        : startMode === "keep" && previous?.start_date ? previous.start_date
-        : startMode === "year" ? yearStart
-        : iso(today);
-      await save.mutateAsync({
-        id: editingId, child_id: child.id, discipline, title: title.trim(),
-        entries: applyCurrentPage(entries, currentPage), start_date,
-      });
+      const next = marked();
+      // O que falta reparte-se a partir da semana que estão a preparar (ao fim de
+      // semana, a seguinte). Se só mudou o nome, o rumo fica como estava.
+      const unchanged = !!previous?.start_date && JSON.stringify(next) === savedMarks;
+      const start_date = unchanged ? previous!.start_date! : isoDay(planningMonday(new Date()));
+      await save.mutateAsync({ id: editingId, child_id: child.id, discipline, title: title.trim(), entries: next, start_date });
       setOpen(false);
-      toast({ title: "Manual guardado", description: "O rumo do ano já segue este índice." });
+      toast({
+        title: "Manual guardado",
+        description: unchanged ? "O rumo do ano continua como estava." : `O rumo continua daqui a partir da semana de ${startWeek}.`,
+      });
     } catch (e) {
       const dup = (e as { code?: string } | null)?.code === "23505";
       toast({
@@ -137,7 +154,7 @@ export default function ManualsCard({ child }: { child: Child }) {
                       <p className="text-xs text-muted-foreground">
                         {GC_DISCIPLINE_LABELS[m.discipline] ?? m.discipline} · {m.entries.length}{" "}
                         {m.entries.length === 1 ? "tema" : "temas"}
-                        {currentPageOf(m.entries) ? ` · vão na página ${currentPageOf(m.entries)}` : ""}
+                        {` · ${progressLabel(m.entries)}`}
                       </p>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(m)} aria-label={`Editar ${m.title}`}>
@@ -156,6 +173,9 @@ export default function ManualsCard({ child }: { child: Child }) {
             {mine.length > 0 && (
               <p className="text-xs text-muted-foreground">
                 Podem ter mais do que um na mesma disciplina, por exemplo o manual e o caderno de fichas.
+                {mine.some((m) => progressLabel(m.entries) === "começa no 1.º tema")
+                  ? " Se já vão mais à frente num que diz \"começa no 1.º tema\", toquem no lápis e digam onde vão: o rumo continua daí."
+                  : ""}
               </p>
             )}
           </>
@@ -199,9 +219,10 @@ export default function ManualsCard({ child }: { child: Child }) {
                 className="font-mono text-xs"
               />
               <p className="text-xs text-muted-foreground">
-                Uma linha por tema. Se o manual tem unidades com vários temas, repitam a unidade no início de cada
-                linha, como no exemplo: a NexSeed percebe que são temas da mesma unidade. Com o número da página no fim,
-                dá mais semanas aos temas maiores e diz que páginas trabalhar em cada semana.
+                Colem o índice completo, desde o início, mesmo que já vão a meio: logo a seguir dizem onde vão. Uma
+                linha por tema; se o manual tem unidades com vários temas, repitam a unidade no início de cada linha,
+                como no exemplo. Com o número da página no fim, a NexSeed dá mais semanas aos temas maiores e diz que
+                páginas trabalhar em cada semana.
               </p>
               <p className="text-xs font-medium text-foreground" aria-live="polite">
                 {entries.length === 0
@@ -213,40 +234,59 @@ export default function ManualsCard({ child }: { child: Child }) {
                     }.`}
               </p>
             </div>
-            {paged && (
-              <div className="space-y-1.5">
-                <Label htmlFor="manual-page">Já fizeram até à página (opcional)</Label>
-                <Input
-                  id="manual-page" inputMode="numeric" className="w-32" value={pageText}
-                  onChange={(e) => setPageText(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                  placeholder="Ex: 39"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {currentPage
-                    ? `Os temas antes da página ${currentPage + 1} ficam feitos e o rumo continua daí, a partir desta semana.`
-                    : "Se já começaram, escrevam a última página trabalhada: o rumo continua a partir da seguinte."}
-                  {pageOutOfRange ? " Confirmem o número: é bem maior do que a última página do índice." : ""}
+            {entries.length > 0 && (
+              <div className="space-y-2 rounded-lg border border-border/60 p-3">
+                <Label htmlFor="manual-progress">Onde vão neste manual?</Label>
+                <Select value={progress} onValueChange={(v) => setProgress(v as typeof progress)}>
+                  <SelectTrigger id="manual-progress"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Ainda não começámos</SelectItem>
+                    <SelectItem value="started">Já começámos</SelectItem>
+                  </SelectContent>
+                </Select>
+                {progress === "started" && paged && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="manual-page">Última página que já fizeram</Label>
+                    <Input
+                      id="manual-page" inputMode="numeric" className="w-32" value={pageText}
+                      onChange={(e) => setPageText(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      placeholder="Ex: 39"
+                    />
+                    {pageOutOfRange && (
+                      <p className="text-xs text-muted-foreground">Confirmem o número: é bem maior do que a última página do índice.</p>
+                    )}
+                  </div>
+                )}
+                {progress === "started" && !paged && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="manual-topic">Tema onde vão agora</Label>
+                    <Select value={topicIdx} onValueChange={setTopicIdx}>
+                      <SelectTrigger id="manual-topic"><SelectValue placeholder="Escolher o tema" /></SelectTrigger>
+                      <SelectContent>
+                        {entries.map((e, i) => (
+                          <SelectItem key={i} value={String(i)}>{e.title}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground" aria-live="polite">
+                  {progress === "new"
+                    ? `O rumo começa no primeiro tema, na semana de ${startWeek}.`
+                    : missingProgress
+                      ? paged
+                        ? "Escrevam a última página que já fizeram. Colem o índice completo: assim a NexSeed sabe o que já aprenderam."
+                        : "Escolham o tema onde vão. Os anteriores ficam feitos e a NexSeed sabe o que já aprenderam."
+                      : paged
+                        ? `Até à página ${currentPage} fica feito. Na semana de ${startWeek} continuam na página ${currentPage! + 1}.`
+                        : `Os temas antes deste ficam feitos. Na semana de ${startWeek} continuam em "${entries[currentTopic!].title}".`}
                 </p>
               </div>
             )}
-            <div className="space-y-1.5">
-              <Label htmlFor="manual-start">Repartir o manual</Label>
-              <Select value={startMode} onValueChange={(v) => setStartMode(v as typeof startMode)}>
-                <SelectTrigger id="manual-start"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {editingId && <SelectItem value="keep">Como está agora</SelectItem>}
-                  <SelectItem value="now">A partir desta semana, até ao fim do ano</SelectItem>
-                  <SelectItem value="year">Desde o início do ano</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                {paged ? "Com a página preenchida, reparte sempre a partir desta semana." : "Se já vão a meio, escrevam só os temas que faltam."}
-              </p>
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={onSave} disabled={!discipline || !title.trim() || entries.length === 0 || save.isPending}>
+            <Button onClick={onSave} disabled={!discipline || !title.trim() || entries.length === 0 || missingProgress || save.isPending}>
               {save.isPending ? "A guardar…" : "Guardar"}
             </Button>
           </DialogFooter>
