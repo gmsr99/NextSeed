@@ -8,7 +8,7 @@
 // O ritmo conta os dois. "A consolidar" nunca muda a cor de uma disciplina.
 import type { AnnualPlan } from "./annualPlan";
 import { mondayOf, schoolYearStartFor } from "./annualPlan";
-import { indexEntries, isNextLesson, type Manual } from "./manualIndex";
+import { hasNextLesson, indexEntries, isNextLesson, type Manual } from "./manualIndex";
 
 export const GIVEN_STATUSES = ["dominado", "em_progresso"] as const;
 export const isGiven = (s: string | undefined) => s === "dominado" || s === "em_progresso";
@@ -160,6 +160,8 @@ export function disciplinePaces(
   }
 
   // Manuais: a posição no índice diz o que já foi dado
+  const clock = yearClock(plan, today);
+  const yearFrac = clock.elapsed + clock.left > 0 ? clock.elapsed / (clock.elapsed + clock.left) : 0;
   manuals.forEach((m, k) => {
     if (m.entries.length === 0 || isNextLesson(m.entries)) return;
     // Com manual, a disciplina não tem temas do currículo no rumo
@@ -177,7 +179,9 @@ export function disciplinePaces(
     }
     p.total += index.length;
     p.given += given;
-    p.plannedByNow += given + pastLines.size;
+    // "Lição seguinte": o rumo reparte sempre a partir de hoje, por isso o
+    // previsto até hoje é a parte do ano que já passou
+    p.plannedByNow += hasNextLesson(m.entries) ? Math.round(index.length * yearFrac) : given + pastLines.size;
     p.recent = null; // as unidades do manual não guardam a data
     p.manual = p.manual ? `${p.manual} + ${m.title}` : m.title;
   });

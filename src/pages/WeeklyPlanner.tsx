@@ -358,7 +358,8 @@ export default function WeeklyPlanner() {
 
           // P-12: sem marcações, o plano parte dos conteúdos desta semana no rumo
           // do ano. Em pausas e semanas de balanço não há foco: usa o período.
-          const childPlan = buildAnnualPlan((allContents ?? []) as AnnualContent[], planWeeks, childManuals);
+          // A "lição seguinte" reparte-se a partir da semana que se está a planear
+          const childPlan = buildAnnualPlan((allContents ?? []) as AnnualContent[], planWeeks, childManuals, weekStart);
           const focus = weekFocus(childPlan, weekStart, (id) => progressMap.get(id) === "dominado");
 
           // DASH §4: o que não foi dado na semana anterior passa para esta, ao

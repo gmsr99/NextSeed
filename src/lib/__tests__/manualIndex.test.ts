@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries, NEXT_LESSON_ENTRIES, isNextLesson, hasNextLesson, indexEntries, lessonDaysOf, lessonsPerWeekLabel, withNextLesson } from "../manualIndex";
+import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries, NEXT_LESSON_ENTRIES, isNextLesson, hasNextLesson, indexEntries, lessonsPerWeek, withNextLesson } from "../manualIndex";
 import { buildAnnualPlan, weekFocus, weeksFor, planWeekFor, planningMonday, isoDay, type AnnualContent } from "../annualPlan";
 
 describe("parseIndex", () => {
@@ -213,28 +213,32 @@ describe("modo lição seguinte (F-01, 22 nov)", () => {
   });
 });
 
-describe("lição seguinte com índice e tamanho da lição (Elton, 22 nov)", () => {
+describe("lição seguinte com índice: ritmo estimado (Elton, 23 nov)", () => {
   const weeks = weeksFor(new Date("2026-11-23T12:00:00"));
-  it("o índice continua a contar e cada semana diz quantas lições e por onde devem andar", () => {
-    const entries = withNextLesson([{ title: "Frações", done: true }, { title: "Decimais" }, { title: "Medidas" }], 1);
+  const lessons = Array.from({ length: 50 }, (_, i) => ({ title: `Lição ${i + 1}` }));
+  it("as lições que faltam repartem-se pelas semanas que faltam, a contar da semana atual", () => {
+    const entries = withNextLesson(lessons.map((e, i) => (i < 10 ? { ...e, done: true } : e)));
     expect(hasNextLesson(entries)).toBe(true);
     expect(isNextLesson(entries)).toBe(false);
-    expect(indexEntries(entries).map((e) => e.title)).toEqual(["Frações", "Decimais", "Medidas"]);
-    expect(lessonDaysOf(entries)).toBe(1);
-    const plan = buildAnnualPlan([], weeks, [{ discipline: "matematica", title: "Mat 3", entries, start_date: "2026-11-23" }]);
-    const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
-    const c = now.byDiscipline.matematica[0];
-    expect(c.content.startsWith("Lição seguinte (cerca de 5 lições esta semana) · por esta altura: Decimais")).toBe(true);
-    expect(c.id).toMatch(/^manual:matematica:0:1:/); // a linha do índice, para o fecho e o ritmo
+    expect(indexEntries(entries)).toHaveLength(50);
+    const now = new Date("2026-11-23T12:00:00");
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "matematica", title: "Mat", entries, start_date: "2026-09-14" }], now);
+    const thisWeek = planWeekFor(plan, now)!.byDiscipline.matematica;
+    expect(thisWeek[0].content).toBe("Lição seguinte · Lição 11");
+    expect(thisWeek[0].id).toBe("manual:matematica:0:10:1"); // a linha do índice, para o fecho e o ritmo
+    expect(thisWeek.length).toBeGreaterThanOrEqual(1);
+    // as semanas passadas não ficam com lições por dar
+    expect(planWeekFor(plan, new Date("2026-11-16T12:00:00"))?.byDiscipline.matematica ?? []).toEqual([]);
   });
-  it("sem índice, só o número de lições", () => {
-    const plan = buildAnnualPlan([], weeks, [{ discipline: "portugues", title: "Livro", entries: withNextLesson([], 2), start_date: "2026-11-23" }]);
-    const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
-    expect(now.byDiscipline.portugues[0].content).toBe("Lição seguinte (2 a 3 lições esta semana)");
+  it("ao confirmar mais lições, a semana seguinte começa na seguinte", () => {
+    const now = new Date("2026-11-30T12:00:00");
+    const entries = withNextLesson(lessons.map((e, i) => (i < 14 ? { ...e, done: true } : e)));
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "matematica", title: "Mat", entries, start_date: "2026-09-14" }], now);
+    expect(planWeekFor(plan, now)!.byDiscipline.matematica[0].content).toBe("Lição seguinte · Lição 15");
   });
-  it("rótulos", () => {
-    expect(lessonsPerWeekLabel(0.5)).toBe("cerca de 10 lições");
-    expect(lessonsPerWeekLabel(3)).toBe("1 a 2 lições");
-    expect(lessonsPerWeekLabel(null)).toBeNull();
+  it("ritmo por semana", () => {
+    expect(lessonsPerWeek(40, 25)).toBe(2);
+    expect(lessonsPerWeek(3, 25)).toBe(1);
+    expect(lessonsPerWeek(0, 25)).toBe(0);
   });
 });

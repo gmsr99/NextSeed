@@ -13,11 +13,12 @@ import { useToast } from "@/hooks/use-toast";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import {
   MANUAL_DISCIPLINES, applyCurrentPage, applyCurrentTopic, countGroups, currentPageOf, currentTopicOf, formatIndex,
-  hasNextLesson, hasUsablePages, indexEntries, isNextLesson, lessonDaysOf, lessonsPerWeekLabel, LESSON_DAYS,
+  hasNextLesson, hasUsablePages, indexEntries, isNextLesson, lessonsPerWeek,
   parseIndex, withNextLesson, type ManualEntry,
 } from "@/lib/manualIndex";
 import { useChildManuals, type ChildManual } from "@/hooks/useChildManuals";
-import { formatWeekShort, isoDay, planningMonday } from "@/lib/annualPlan";
+import { formatWeekShort, isoDay, planningMonday, weeksFor } from "@/lib/annualPlan";
+import { useFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import type { Child } from "@/lib/types";
 
 const EXAMPLE = "Unidade 1 — Números até 100 ... 6\nUnidade 1 — Contar de 2 em 2 ... 10\nUnidade 1 — Maior, menor, igual ... 14\nUnidade 2 — Adição até 100 ... 24\nUnidade 2 — Subtração até 100 ... 30";
@@ -46,8 +47,6 @@ export default function ManualsCard({ child }: { child: Child }) {
   const [text, setText] = useState("");
   // Como seguem o livro: "index" (a NexSeed reparte o índice) ou "next" (lição seguinte)
   const [mode, setMode] = useState<"index" | "next">("index");
-  // "Lição seguinte": quantos dias leva uma lição ("" = não sabem)
-  const [lessonDays, setLessonDays] = useState<string>("");
   // Onde vão: "new" = ainda não começaram; "started" = já vão a meio
   const [progress, setProgress] = useState<"new" | "started">("new");
   // Já começaram: última página feita (índice com páginas) ou tema onde vão (sem páginas)
@@ -66,6 +65,12 @@ export default function ManualsCard({ child }: { child: Child }) {
   // Já começaram mas ainda não disseram onde vão: não deixa guardar
   const missingProgress = entries.length > 0 && progress === "started" && (paged ? !currentPage : currentTopic === null);
   const startWeek = formatWeekShort(planningMonday(new Date()));
+  // Ritmo estimado da "lição seguinte": lições por dar a dividir pelas semanas que faltam
+  const { calendar } = useFamilyCalendar();
+  const weeksLeft = useMemo(() => {
+    const from = planningMonday(new Date()).getTime();
+    return weeksFor(new Date(), calendar).filter((w) => !w.isReview && w.monday.getTime() >= from - 12 * 3600 * 1000).length;
+  }, [calendar]);
   const markedIndex = (): ManualEntry[] =>
     entries.length === 0 ? []
     : progress === "new" ? applyCurrentPage(entries, null)
@@ -73,8 +78,9 @@ export default function ManualsCard({ child }: { child: Child }) {
     : applyCurrentTopic(entries, currentTopic);
   // Com "lição seguinte", o índice (se houver) continua a contar e a linha
   // marcadora vai no fim, com o tamanho da lição
+  const pendingLessons = markedIndex().filter((e) => !e.done).length;
   const marked = (): ManualEntry[] =>
-    mode === "next" ? withNextLesson(markedIndex(), lessonDays ? Number(lessonDays) : null) : markedIndex();
+    mode === "next" ? withNextLesson(markedIndex()) : markedIndex();
 
   const openNew = () => {
     setEditingId(null);
@@ -82,7 +88,6 @@ export default function ManualsCard({ child }: { child: Child }) {
     setTitle("");
     setText("");
     setMode("index");
-    setLessonDays("");
     setPageText("");
     setTopicIdx("");
     setSavedMarks("");
@@ -95,7 +100,6 @@ export default function ManualsCard({ child }: { child: Child }) {
     setTitle(m.title);
     const index = indexEntries(m.entries);
     setMode(hasNextLesson(m.entries) ? "next" : "index");
-    setLessonDays(lessonDaysOf(m.entries) ? String(lessonDaysOf(m.entries)) : "");
     setText(formatIndex(index));
     const p = currentPageOf(index);
     const t = currentTopicOf(index);
@@ -238,26 +242,16 @@ export default function ManualsCard({ child }: { child: Child }) {
               {mode === "next" && (
                 <p className="text-xs text-muted-foreground">
                   Cada semana, o plano diz "lição seguinte" deste livro e prepara o resto à volta. O índice é opcional,
-                  mas ajuda: com ele, o plano diz também por onde devem andar e o Início mostra o ritmo do ano.
+                  mas ajuda: com ele, a NexSeed dá um ritmo realista para guiar o ano, sem vos prender a um horário.
                 </p>
               )}
             </div>
             {mode === "next" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="manual-lesson-days">Quanto tempo leva uma lição?</Label>
-                <Select value={lessonDays || "nao-sei"} onValueChange={(v) => setLessonDays(v === "nao-sei" ? "" : v)}>
-                  <SelectTrigger id="manual-lesson-days"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="nao-sei">Depende (não dizer)</SelectItem>
-                    {LESSON_DAYS.map((o) => (
-                      <SelectItem key={o.value} value={String(o.value)}>{o.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {lessonDays && (
-                  <p className="text-xs text-muted-foreground">Numa semana de cinco dias, {lessonsPerWeekLabel(Number(lessonDays))}.</p>
-                )}
-              </div>
+              <p className="text-xs text-muted-foreground" aria-live="polite">
+                {entries.length === 0
+                  ? "Sem índice, o plano diz só \"lição seguinte\". Com o índice (as lições pela ordem), a NexSeed estima um ritmo para chegarem ao fim do ano."
+                  : `Faltam ${pendingLessons} ${pendingLessons === 1 ? "lição" : "lições"} em ${weeksLeft} ${weeksLeft === 1 ? "semana" : "semanas"}: cerca de ${lessonsPerWeek(pendingLessons, weeksLeft)} por semana, para começar. O ritmo acerta-se com o que marcarem como dado no fecho da semana.`}
+              </p>
             )}
             {(
 
