@@ -60,7 +60,7 @@ export type PaceState = "bom" | "folga" | "ajuste" | "a_ganhar" | "sem_marcas";
 
 export const PACE_LABEL: Record<PaceState, string> = {
   bom: "Bom ritmo",
-  folga: "A usar a folga",
+  folga: "A usar folga",
   ajuste: "Pede um ajuste",
   a_ganhar: "A ganhar ritmo",
   sem_marcas: "Por começar",
@@ -210,7 +210,7 @@ export function recentRate(s: Steps, clock: YearClock): number {
 
 /**
  * Bom ritmo: em linha com o rumo, ou a projeção acaba até 30 de junho.
- * A usar a folga: acaba até 31 de julho. Pede um ajuste: depois disso.
+ * A usar folga: acaba até 31 de julho. Pede um ajuste: depois disso.
  * Sem marcações ou com menos de 4 semanas, não há cor.
  */
 export function paceState(s: Steps, clock: YearClock): PaceState {
