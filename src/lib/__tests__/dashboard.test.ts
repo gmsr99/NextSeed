@@ -131,3 +131,26 @@ describe("fecho da semana (DASH §4)", () => {
     expect(shouldOfferClose(new Date(2026, 10, 26, 15, 0), false)).toBe(false);
   });
 });
+
+describe("ritmo com lição seguinte e índice", () => {
+  it("conta as unidades do índice e ignora a linha marcadora", () => {
+    const manuals = [{ discipline: "portugues", title: "Livro", entries: [{ title: "U1", done: true }, { title: "U2" }, { title: "Lição seguinte", next: true }] }];
+    const p = buildAnnualPlan(contents, 2026, manuals);
+    const pt = disciplinePaces(p, {}, {}, manuals, new Date(2026, 8, 30)).find((x) => x.discipline === "portugues")!;
+    expect(pt.total).toBe(2);
+    expect(pt.given).toBe(1);
+  });
+});
+
+describe("ritmo da lição seguinte com índice", () => {
+  it("o previsto até hoje é a parte do ano que já passou", () => {
+    const entries = [...Array.from({ length: 30 }, (_, i) => ({ title: `L${i}`, done: i < 2 })), { title: "Lição seguinte", next: true }];
+    const manuals = [{ discipline: "portugues", title: "Livro", entries }];
+    const today = new Date(2026, 10, 23);
+    const p = buildAnnualPlan(contents, 2026, manuals, today);
+    const pt = disciplinePaces(p, {}, {}, manuals, today).find((x) => x.discipline === "portugues")!;
+    expect(pt.total).toBe(30);
+    expect(pt.given).toBe(2);
+    expect(pt.plannedByNow).toBeGreaterThan(5); // cerca de um quarto do ano
+  });
+});

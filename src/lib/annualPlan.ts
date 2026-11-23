@@ -15,7 +15,7 @@
 // Hipótese (até haver calendário por família, P-04): calendário escolar oficial
 // do 1.º ciclo, aproximado à semana. Só o Natal e a Páscoa contam como pausa.
 
-import { distributeManual, isNextLesson, remainingEntries, sliceLabel, type Manual } from "./manualIndex";
+import { distributeManual, hasNextLesson, indexEntries, isNextLesson, remainingEntries, sliceLabel, type Manual } from "./manualIndex";
 
 export type Period = "1" | "2" | "3";
 
@@ -272,6 +272,8 @@ export function buildAnnualPlan(
   /** Ano em que começa o ano letivo (calendário escolar) ou as semanas do calendário da família */
   calendar: number | SchoolWeek[],
   manuals: Manual[] = [],
+  /** Hoje (para o ritmo da "lição seguinte", que se reparte a partir da semana atual) */
+  now: Date = new Date(),
 ): AnnualPlan {
   const base = typeof calendar === "number" ? schoolWeeks(calendar) : calendar;
   const weeks: PlanWeek[] = base.map((w) => ({ ...w, byDiscipline: {} }));
@@ -304,13 +306,20 @@ export function buildAnnualPlan(
       });
       return;
     }
-    const left = remainingEntries(manual.entries);
+    // "Lição seguinte" com índice (Elton, 23 nov): o ritmo é uma estimativa
+    // realista, as lições que faltam a dividir pelas semanas que faltam, a contar
+    // da semana atual. À medida que a família confirma no fecho o que já deu, o
+    // que falta encolhe e o ritmo acerta-se sozinho. Sem perguntar quanto dura
+    // uma lição: a família muitas vezes não sabe de antemão.
+    const left = remainingEntries(indexEntries(manual.entries));
+    const next = hasNextLesson(manual.entries);
     if (left.length === 0) return;
     // O manual reparte-se pelas semanas que faltam a partir da data em que a
     // família começa a usá-lo; se já não houver semanas, pelo ano inteiro.
     // Guardado ao fim de semana conta a partir da segunda seguinte (também
     // corrige os manuais que já foram guardados assim).
-    const from = manual.start_date ? planningMonday(new Date(`${manual.start_date}T12:00:00`)).getTime() : 0;
+    const started = manual.start_date ? planningMonday(new Date(`${manual.start_date}T12:00:00`)).getTime() : 0;
+    const from = next ? Math.max(started, planningMonday(now).getTime()) : started;
     const remaining = teaching.filter((w) => w.monday.getTime() >= from);
     const span = remaining.length > 0 ? remaining : teaching;
     distributeManual(left.map((x) => x.entry), span.length).forEach((slices, i) => {
@@ -323,7 +332,9 @@ export function buildAnnualPlan(
           discipline: manual.discipline,
           period: span[i].period,
           domain: manual.title,
-          content: several ? `${manual.title}: ${sliceLabel(s)}` : sliceLabel(s),
+          content: next
+            ? `${several ? `${manual.title}: ` : ""}Lição seguinte · ${sliceLabel(s)}`
+            : several ? `${manual.title}: ${sliceLabel(s)}` : sliceLabel(s),
           sort_order: k * 1000 + line,
           fromManual: true,
         });

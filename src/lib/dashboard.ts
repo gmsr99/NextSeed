@@ -8,7 +8,7 @@
 // O ritmo conta os dois. "A consolidar" nunca muda a cor de uma disciplina.
 import type { AnnualPlan } from "./annualPlan";
 import { mondayOf, schoolYearStartFor } from "./annualPlan";
-import { isNextLesson, type Manual } from "./manualIndex";
+import { hasNextLesson, indexEntries, isNextLesson, type Manual } from "./manualIndex";
 
 export const GIVEN_STATUSES = ["dominado", "em_progresso"] as const;
 export const isGiven = (s: string | undefined) => s === "dominado" || s === "em_progresso";
@@ -60,7 +60,7 @@ export type PaceState = "bom" | "folga" | "ajuste" | "a_ganhar" | "sem_marcas";
 
 export const PACE_LABEL: Record<PaceState, string> = {
   bom: "Bom ritmo",
-  folga: "A usar a folga",
+  folga: "A usar folga",
   ajuste: "Pede um ajuste",
   a_ganhar: "A ganhar ritmo",
   sem_marcas: "Por começar",
@@ -160,11 +160,15 @@ export function disciplinePaces(
   }
 
   // Manuais: a posição no índice diz o que já foi dado
+  const clock = yearClock(plan, today);
+  const yearFrac = clock.elapsed + clock.left > 0 ? clock.elapsed / (clock.elapsed + clock.left) : 0;
   manuals.forEach((m, k) => {
     if (m.entries.length === 0 || isNextLesson(m.entries)) return;
     // Com manual, a disciplina não tem temas do currículo no rumo
     const p = get(m.discipline);
-    const given = m.entries.filter((e) => e.done).length;
+    const index = indexEntries(m.entries);
+    if (index.length === 0) return;
+    const given = index.filter((e) => e.done).length;
     const pastLines = new Set<string>();
     for (const w of plan.weeks) {
       if (w.monday.getTime() >= t) continue;
@@ -173,9 +177,11 @@ export function disciplinePaces(
         if (c.fromManual && parts[2] === String(k)) pastLines.add(parts[3]);
       }
     }
-    p.total += m.entries.length;
+    p.total += index.length;
     p.given += given;
-    p.plannedByNow += given + pastLines.size;
+    // "Lição seguinte": o rumo reparte sempre a partir de hoje, por isso o
+    // previsto até hoje é a parte do ano que já passou
+    p.plannedByNow += hasNextLesson(m.entries) ? Math.round(index.length * yearFrac) : given + pastLines.size;
     p.recent = null; // as unidades do manual não guardam a data
     p.manual = p.manual ? `${p.manual} + ${m.title}` : m.title;
   });
@@ -204,7 +210,7 @@ export function recentRate(s: Steps, clock: YearClock): number {
 
 /**
  * Bom ritmo: em linha com o rumo, ou a projeção acaba até 30 de junho.
- * A usar a folga: acaba até 31 de julho. Pede um ajuste: depois disso.
+ * A usar folga: acaba até 31 de julho. Pede um ajuste: depois disso.
  * Sem marcações ou com menos de 4 semanas, não há cor.
  */
 export function paceState(s: Steps, clock: YearClock): PaceState {

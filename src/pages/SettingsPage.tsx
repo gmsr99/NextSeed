@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import FamilyTraditionCard from "@/components/FamilyTraditionCard";
+import SundayReminderCard from "@/components/SundayReminderCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink, Download } from "lucide-react";
@@ -263,7 +264,10 @@ const SettingsPage = () => {
           )}
         </section>
 
-        {/* Tradição da família (I-08): só aparece a quem foi convidada para o piloto */}
+        {/* Lembrete de domingo (DASH fase 5) */}
+        <SundayReminderCard />
+
+        {/* Tradição da família (I-08): também em Metodologias, onde se escolhe como se ensina */}
         <FamilyTraditionCard />
 
         {/* Privacidade e dados */}

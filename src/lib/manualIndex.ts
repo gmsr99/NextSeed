@@ -12,7 +12,7 @@ export interface ManualEntry {
   done?: boolean;
   /** Tema começado: retoma nesta página */
   from?: number;
-  /** Modo "lição seguinte": o livro marca onde ficaram (sem índice) */
+  /** Modo "lição seguinte": o livro marca onde ficaram. É uma linha marcadora, sempre a última */
   next?: boolean;
 }
 
@@ -23,8 +23,34 @@ export interface ManualEntry {
  */
 export const NEXT_LESSON_ENTRIES: ManualEntry[] = [{ title: "Lição seguinte", next: true }];
 
+/** Só "lição seguinte", sem índice. */
 export function isNextLesson(entries: ManualEntry[]): boolean {
   return entries.length === 1 && entries[0].next === true;
+}
+
+/**
+ * "Lição seguinte", com ou sem índice (I-16, 22 nov). Com índice, o índice e a
+ * posição continuam a contar (rumo, ritmo do ano, fecho da semana) e a linha
+ * marcadora fica no fim, para não mudar a posição das outras.
+ */
+export function hasNextLesson(entries: ManualEntry[]): boolean {
+  return entries.some((e) => e.next === true);
+}
+
+/** As linhas do índice, sem a marcadora da "lição seguinte". */
+export function indexEntries(entries: ManualEntry[]): ManualEntry[] {
+  return entries.filter((e) => e.next !== true);
+}
+
+/** Índice (já marcado) + linha marcadora da "lição seguinte". */
+export function withNextLesson(index: ManualEntry[]): ManualEntry[] {
+  return [...indexEntries(index), { title: "Lição seguinte", next: true }];
+}
+
+/** Ritmo estimado: lições que faltam a dividir pelas semanas que faltam. */
+export function lessonsPerWeek(remaining: number, weeksLeft: number): number {
+  if (remaining <= 0) return 0;
+  return Math.max(1, Math.ceil(remaining / Math.max(1, weeksLeft)));
 }
 
 export interface Manual {

@@ -83,6 +83,8 @@ export function useFamilyTradition() {
     available: !!data?.available,
     /** Pode ver a opção: convidada para o piloto, da equipa, ou já a tem ligada */
     canSee: !!data?.available && (!!data?.invited || isAdmin || !!data?.tradition),
+    /** Convidada para o piloto (sem contar a equipa) */
+    invited: !!data?.invited,
     isLoading,
     save,
     remove,

@@ -85,7 +85,7 @@ export function useAnnualPlans(children: Child[], date: Date) {
       const mine = manuals.filter((m) => m.child_id === child.id && m.entries.length > 0);
       if (list.length === 0 && mine.length === 0) continue;
       out[child.id] = mine.length > 0
-        ? buildAnnualPlan(list, weeks, mine)
+        ? buildAnnualPlan(list, weeks, mine, parseDay(day))
         : (byYear[y] ??= buildAnnualPlan(list, weeks));
     }
     return out;

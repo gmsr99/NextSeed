@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries, NEXT_LESSON_ENTRIES, isNextLesson } from "../manualIndex";
+import { parseIndex, formatIndex, distributeManual, sliceLabel, hasUsablePages, countGroups, applyCurrentPage, applyCurrentTopic, currentPageOf, currentTopicOf, remainingEntries, NEXT_LESSON_ENTRIES, isNextLesson, hasNextLesson, indexEntries, lessonsPerWeek, withNextLesson } from "../manualIndex";
 import { buildAnnualPlan, weekFocus, weeksFor, planWeekFor, planningMonday, isoDay, type AnnualContent } from "../annualPlan";
 
 describe("parseIndex", () => {
@@ -210,5 +210,35 @@ describe("modo lição seguinte (F-01, 22 nov)", () => {
     ]);
     const now = planWeekFor(plan, new Date("2026-11-23T12:00:00"))!;
     expect(now.byDiscipline.portugues.map((c) => c.content)[0]).toBe("Caderno: lição seguinte");
+  });
+});
+
+describe("lição seguinte com índice: ritmo estimado (Elton, 23 nov)", () => {
+  const weeks = weeksFor(new Date("2026-11-23T12:00:00"));
+  const lessons = Array.from({ length: 50 }, (_, i) => ({ title: `Lição ${i + 1}` }));
+  it("as lições que faltam repartem-se pelas semanas que faltam, a contar da semana atual", () => {
+    const entries = withNextLesson(lessons.map((e, i) => (i < 10 ? { ...e, done: true } : e)));
+    expect(hasNextLesson(entries)).toBe(true);
+    expect(isNextLesson(entries)).toBe(false);
+    expect(indexEntries(entries)).toHaveLength(50);
+    const now = new Date("2026-11-23T12:00:00");
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "matematica", title: "Mat", entries, start_date: "2026-09-14" }], now);
+    const thisWeek = planWeekFor(plan, now)!.byDiscipline.matematica;
+    expect(thisWeek[0].content).toBe("Lição seguinte · Lição 11");
+    expect(thisWeek[0].id).toBe("manual:matematica:0:10:1"); // a linha do índice, para o fecho e o ritmo
+    expect(thisWeek.length).toBeGreaterThanOrEqual(1);
+    // as semanas passadas não ficam com lições por dar
+    expect(planWeekFor(plan, new Date("2026-11-16T12:00:00"))?.byDiscipline.matematica ?? []).toEqual([]);
+  });
+  it("ao confirmar mais lições, a semana seguinte começa na seguinte", () => {
+    const now = new Date("2026-11-30T12:00:00");
+    const entries = withNextLesson(lessons.map((e, i) => (i < 14 ? { ...e, done: true } : e)));
+    const plan = buildAnnualPlan([], weeks, [{ discipline: "matematica", title: "Mat", entries, start_date: "2026-09-14" }], now);
+    expect(planWeekFor(plan, now)!.byDiscipline.matematica[0].content).toBe("Lição seguinte · Lição 15");
+  });
+  it("ritmo por semana", () => {
+    expect(lessonsPerWeek(40, 25)).toBe(2);
+    expect(lessonsPerWeek(3, 25)).toBe(1);
+    expect(lessonsPerWeek(0, 25)).toBe(0);
   });
 });
