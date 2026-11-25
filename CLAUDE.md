@@ -41,7 +41,7 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 ## Acesso ao Supabase (produção)
 O token de acesso fica na Keychain do macOS com o nome `nexseed-supabase-token`. **Nunca** em ficheiros, commits, logs, memória ou mensagens.
 
-**No arranque de cada sessão**, confirmar que o token existe e funciona:
+**No arranque de cada sessão**, confirmar que o token existe e funciona (e o da Vercel, secção seguinte):
 ```
 SBT=$(security find-generic-password -s nexseed-supabase-token -w 2>/dev/null)
 curl -s -o /dev/null -w "%{http_code}" https://api.supabase.com/v1/projects/lqznbdfgyeikeepxgeoo -H "Authorization: Bearer $SBT"
@@ -60,6 +60,23 @@ curl -s -o /dev/null -w "%{http_code}" https://api.supabase.com/v1/projects/lqzn
 - Migrações só a partir do `main`, por ordem, cada uma dentro de `begin; … commit;`. Antes, verificar o que já existe; depois, confirmar tabelas, RLS e políticas.
 - Nada destrutivo (`drop`, `delete`, `truncate`, apagar utilizadores, alterar dados de famílias) sem confirmação explícita no chat para aquela operação concreta, e só com um backup recente (`docs/backup-semanal.md`).
 - Registar no `Ponto de situação/estado_atual.md` o que foi aplicado e quando.
+
+## Acesso à Vercel
+Token na Keychain do macOS com o nome `nexseed-vercel-token`. Válido até **25 mai 2027**; a partir de 11 mai 2027, lembrar o Gil de criar um novo. As mesmas regras do token do Supabase: nunca em ficheiros, commits, logs, memória ou mensagens.
+
+**No arranque de cada sessão**, junto com o do Supabase:
+```
+VT=$(security find-generic-password -s nexseed-vercel-token -w 2>/dev/null)
+curl -s -o /dev/null -w "%{http_code}" "https://api.vercel.com/v9/projects/prj_JtEPyNEUB80DSrZ1lOWA57Cvsfg5?teamId=team_GtwlLD6jxdiha3aWcU2Zm5Ud" -H "Authorization: Bearer $VT"
+```
+- `200`: pronto.
+- Não existe, ou dá `401`/`403`: pedir o token da Vercel ao utilizador. Quando o receber, guardá-lo com `security add-generic-password -U -a "$USER" -s nexseed-vercel-token -w '<token>'` e voltar a testar.
+
+**Projeto:** `next-seed` (`prj_JtEPyNEUB80DSrZ1lOWA57Cvsfg5`), equipa `team_GtwlLD6jxdiha3aWcU2Zm5Ud`. Acrescentar sempre `?teamId=…` aos pedidos.
+- Variáveis de ambiente: listar com `GET /v10/projects/{id}/env`, criar com `POST /v10/projects/{id}/env` (`{"key","value","type":"encrypted","target":["production","preview"]}`), alterar com `PATCH /v9/projects/{id}/env/{envId}`. Uma variável nova só entra em produção no deploy seguinte.
+- Deploys: ver o estado com `GET /v6/deployments?projectId={id}&limit=5`. Para confirmar que a produção atualizou depois de um merge.
+- Tudo o que começa por `VITE_` vai para o browser: nunca pôr lá segredos. Os segredos do servidor (Gemini, Resend) ficam nos secrets das edge functions do Supabase, não na Vercel.
+- Apagar variáveis, mudar domínios ou definições do projeto só com confirmação explícita no chat para aquela operação.
 - **Textos da app:** português de Portugal, na voz NexSeed (doc 06): claro, humano, sem alarmismo, nunca comunicar pelo medo.
 
 ## Como trabalhamos
