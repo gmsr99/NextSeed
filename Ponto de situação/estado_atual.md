@@ -157,7 +157,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 | Privacidade e Termos | Páginas existem mas faltam: subcontratantes (Gemini), cessão da posição contratual, reembolso, consentimentos (B-07 a B-09) |
 
 ## Limites desta auditoria
-- **Base de dados:** desde 25 nov o Claude tem acesso à produção (ver "Acesso ao Supabase" no CLAUDE.md). A 25 nov aplicou as migrações 029 a 033 (verificadas: tabelas, RLS e políticas). Falta a 028 (consentimentos). Ainda por publicar: `analyze-curriculum-coverage`, `export-family-data`, `send-sunday-reminder` e o agendamento do lembrete de domingo.
+- **Base de dados:** desde 25 nov o Claude tem acesso à produção (ver "Acesso ao Supabase" no CLAUDE.md). A 25 nov aplicou as migrações 029 a 033 (verificadas: tabelas, RLS e políticas). A 034 (cascata dos convites ao apagar a conta) foi aplicada no mesmo dia, junto com a nova `delete-family-account`, que deixa de responder "ok" quando a eliminação falha. Falta a 028 (consentimentos). Ainda por publicar: `analyze-curriculum-coverage`, `export-family-data`, `send-sunday-reminder` e o agendamento do lembrete de domingo.
 - **Repositório público temporariamente** (desde 5 nov à noite) para a Vercel Hobby aceitar publicações de colaboradores; volta a privado no fim desta ronda de trabalho (B-11). O histórico do git ainda contém nomes da família piloto (removidos dos ficheiros atuais).
 
 ## Famílias no beta

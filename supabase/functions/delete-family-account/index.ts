@@ -46,6 +46,14 @@ async function removePrefix(admin: any, bucket: string, prefix: string) {
   if (files.length) await admin.storage.from(bucket).remove(files);
 }
 
+// O deleteUser não lança exceção quando falha: devolve { error }. Sem esta
+// verificação, a função respondia "ok" sem ter apagado nada (25 nov).
+// deno-lint-ignore no-explicit-any
+async function deleteUserOrThrow(admin: any, uid: string) {
+  const { error } = await admin.auth.admin.deleteUser(uid);
+  if (error) throw new Error(error.message ?? String(error));
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Método não permitido" }, 405);
@@ -88,17 +96,18 @@ Deno.serve(async (req) => {
 
       // Membros primeiro, dono no fim — a família cai em cascata com o dono
       for (const uid of memberIds) {
-        await admin.auth.admin.deleteUser(uid);
+        await deleteUserOrThrow(admin, uid);
       }
-      await admin.auth.admin.deleteUser(user.id);
+      await deleteUserOrThrow(admin, user.id);
       return json({ ok: true, scope: "family" }, 200);
     }
 
     // ── Membro convidado: apaga só a própria conta ────────────────────────
     await removePrefix(admin, "feedback-screenshots", user.id);
-    await admin.auth.admin.deleteUser(user.id);
+    await deleteUserOrThrow(admin, user.id);
     return json({ ok: true, scope: "member" }, 200);
   } catch (e) {
-    return json({ error: `Falha ao eliminar a conta: ${String((e as Error)?.message ?? e)}` }, 500);
+    console.error("delete-family-account:", (e as Error)?.message ?? e);
+    return json({ error: "A conta não foi eliminada por um erro do nosso lado. Escreve-nos para geral@nexseed.pt e tratamos disso." }, 500);
   }
 });
