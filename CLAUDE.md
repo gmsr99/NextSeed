@@ -35,8 +35,31 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 - **Fotos:** bucket `activity-photos` é privado. Guarda-se o *path* na BD e lê-se com signed URLs (`src/lib/photoStorage.ts`). As fotos são comprimidas no cliente antes do upload (`src/lib/imageCompression.ts`).
 - **Edge functions:** sempre `verify_jwt=true`; o destinatário ou a família vêm do JWT, nunca do corpo do pedido.
 - **Ano escolar:** `children.school_year` tem CHECK com os valores da app; "Pré-escolar" com P maiúsculo.
-- **Supabase (decisão do dono, 5 nov):** o Claude **não** interage com as bases de dados de produção, nem por conector nem por CLI. Migrações e edge functions entregam-se como ficheiros no repositório, com instruções curtas para o dono do repo as publicar. Atenção: alterações em `supabase/functions/` **não** são publicadas pela Vercel.
-- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos; 031 é o Financinhas; 032 é a Tradição da família; 033 é o lembrete de domingo; próximo: 034).
+- **Supabase em produção (decisão do dono, 25 nov; substitui a de 5 nov):** o Claude pode aplicar migrações, publicar edge functions e correr SQL na produção (projeto `lqznbdfgyeikeepxgeoo`), quando o utilizador da sessão (Gil ou Elton) o pedir. Ver "Acesso ao Supabase" abaixo. Atenção: alterações em `supabase/functions/` **não** são publicadas pela Vercel; publicam-se à parte.
+- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos, ainda por aplicar até os textos legais estarem revistos; 029–033 aplicadas a 25 nov; próximo: 034).
+
+## Acesso ao Supabase (produção)
+O token de acesso fica na Keychain do macOS com o nome `nexseed-supabase-token`. **Nunca** em ficheiros, commits, logs, memória ou mensagens.
+
+**No arranque de cada sessão**, confirmar que o token existe e funciona:
+```
+SBT=$(security find-generic-password -s nexseed-supabase-token -w 2>/dev/null)
+curl -s -o /dev/null -w "%{http_code}" https://api.supabase.com/v1/projects/lqznbdfgyeikeepxgeoo -H "Authorization: Bearer $SBT"
+```
+- `200`: está pronto, não dizer nada.
+- Não existe, ou dá `401`: pedir logo o token ao utilizador ("Para eu poder mexer na base de dados, preciso do token do Supabase que o Gil te enviou"). Quando o receber, guardá-lo e voltar a testar:
+  `security add-generic-password -U -a "$USER" -s nexseed-supabase-token -w '<token>'`
+  Depois, pedir ao utilizador que apague do chat de origem a mensagem com o token, se puder.
+
+**Como usar:**
+- SQL e migrações: `POST https://api.supabase.com/v1/projects/lqznbdfgyeikeepxgeoo/database/query` com `{"query": "..."}` e `Authorization: Bearer $SBT` (gerar o JSON com `jq -Rs '{query: .}' < ficheiro.sql`). O conector MCP do Supabase não tem permissão neste projeto.
+- Edge functions: `SUPABASE_ACCESS_TOKEN=$SBT npx supabase functions deploy <nome> --project-ref lqznbdfgyeikeepxgeoo` (sempre a partir do `main`).
+
+**Regras:**
+- Só quando o utilizador pede, ou quando faz parte de uma entrega que ele aprovou ("podes publicar"). Nunca por iniciativa própria.
+- Migrações só a partir do `main`, por ordem, cada uma dentro de `begin; … commit;`. Antes, verificar o que já existe; depois, confirmar tabelas, RLS e políticas.
+- Nada destrutivo (`drop`, `delete`, `truncate`, apagar utilizadores, alterar dados de famílias) sem confirmação explícita no chat para aquela operação concreta, e só com um backup recente (`docs/backup-semanal.md`).
+- Registar no `Ponto de situação/estado_atual.md` o que foi aplicado e quando.
 - **Textos da app:** português de Portugal, na voz NexSeed (doc 06): claro, humano, sem alarmismo, nunca comunicar pelo medo.
 
 ## Como trabalhamos
