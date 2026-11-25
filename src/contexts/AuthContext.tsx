@@ -157,7 +157,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Eliminação RGPD-completa no servidor: Storage + utilizadores auth +
     // dados da BD em cascata (ver edge function delete-family-account).
     const { data, error } = await supabase.functions.invoke("delete-family-account");
-    if (error || data?.error) return { error: data?.error ?? error?.message ?? "Erro ao eliminar a conta" };
+    if (error || data?.error) {
+      // Em erro (não 2xx), a mensagem da função vem no corpo da resposta
+      const body = await (error as { context?: Response } | null)?.context?.json?.().catch(() => null);
+      return { error: data?.error ?? body?.error ?? "A conta não foi eliminada. Tenta outra vez ou escreve-nos para geral@nexseed.pt." };
+    }
     // O utilizador já não existe no servidor — limpar apenas a sessão local
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     return { error: null };
