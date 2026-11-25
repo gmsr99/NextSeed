@@ -20,7 +20,7 @@ React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (
 
 Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
 
-## Financinhas (publicado a 22 nov, só para a equipa; falta a migração 031)
+## Financinhas (publicado a 22 nov, aberto a todas as contas; migração 031 aplicada a 25 nov)
 - O protagonista nunca é o primeiro nome de uma criança da família (`avoidNames` no motor); a lista de nomes não tem nomes do piloto.
 - Substitui a antiga página estática de Literacia Financeira (tinha juros e investimento, contra as regras do módulo). Sai também a barra "Literacia Financeira" dos Relatórios.
 - Lógica em `src/lib/financinhas/`: `catalog.ts` (26 competências, 23 temas, 12 sessões do trilho × 3 escalões, 8 modos de descoberta, protagonistas, fotografia, ritual), `engine.ts` (motor determinístico), `levels.ts` (níveis derivados dos eventos; uma observação nunca faz descer), `generator.ts` (pedido ao Gemini com resposta estruturada; a app monta o prompt da apresentação ≤ 5000 caracteres, valida slides, quiz e termos proibidos, e repete com correção), `ritual.ts`, `importer.ts`, `access.ts`. Testes em `src/lib/__tests__/financinhas.test.ts`.
@@ -108,7 +108,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Por decidir: referência por criança em vez do currículo nacional como base (P-25, Q-14).
 
 ## Manuais: vários por disciplina e página onde vão (17 nov)
-- O cartão de manuais grava por id. Com a migração **029** (por aplicar pelo Gil) pode haver mais do que um manual na mesma disciplina (ex.: manual e caderno de fichas); cada um segue o seu índice e o nome do manual aparece à frente de cada tema. Antes da 029 o segundo manual não grava e a família vê uma mensagem clara.
+- O cartão de manuais grava por id. Com a migração **029** (aplicada a 25 nov) pode haver mais do que um manual na mesma disciplina (ex.: manual e caderno de fichas); cada um segue o seu índice e o nome do manual aparece à frente de cada tema. Antes da 029 o segundo manual não grava e a família vê uma mensagem clara.
 - "Já fizeram até à página": marca como feitos os temas anteriores e retoma o tema começado na página seguinte (marcas `done`/`from` dentro de `entries`, sem coluna nova). O rumo passa a repartir o que falta a partir desta semana.
 - Testado com dados simulados num browser; não testado na base de dados real.
 
@@ -120,7 +120,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 ## Lição seguinte com índice, Tradição em Metodologias e lembrete de domingo (22 nov, ramo `feat/licao-indice-e-domingo`)
 - **Lição seguinte (I-16):** o modo guarda-se como uma linha marcadora no fim de `child_manuals.entries` (`{ next: true, lessonDays }`), a seguir ao índice, se houver. `indexEntries()` tira-a; as posições das outras linhas não mudam. Com índice, as lições por dar repartem-se pelas semanas que faltam **a contar da semana atual** (`buildAnnualPlan(..., now)`), e cada uma aparece como "Lição seguinte · <título>". Sem pergunta sobre a duração da lição: o ritmo acerta-se com o que a família marca no fecho. No Início, o previsto até hoje destes manuais é a fração do ano já passada.
 - **Tradição (I-08):** o cartão aparece também em Metodologias (`#tradicao`); no Início, uma linha discreta, uma vez, só para quem tem o convite.
-- **Lembrete de domingo (DASH fase 5):** migração **033** (`family_notification_prefs`, `sunday_reminders_sent`), função `send-sunday-reminder` (só aceita a service role key; envia às 20h de Lisboa, uma vez por família e semana, ao `families.email`; não envia em pausas nem a quem já tem plano), cartão em Definições. O agendamento (pg_cron + pg_net + Vault) está comentado no fim da 033. `?teste=<family_id>` envia já, só para essa família.
+- **Lembrete de domingo (DASH fase 5):** migração **033**, aplicada a 25 nov (`family_notification_prefs`, `sunday_reminders_sent`), função `send-sunday-reminder` (só aceita a service role key; envia às 20h de Lisboa, uma vez por família e semana, ao `families.email`; não envia em pausas nem a quem já tem plano), cartão em Definições. O agendamento (pg_cron + pg_net + Vault) está comentado no fim da 033. `?teste=<family_id>` envia já, só para essa família.
 - **Não testado:** browser e base de dados real; a função não foi executada.
 
 ## Início redesenhado, DASH (22 nov)
@@ -140,7 +140,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 
 ## Manuais e "A nossa semana" (publicado a 22 nov)
 - **Onde vão no manual (I-16):** o cartão pergunta "Onde vão neste manual?" (ainda não começámos / já começámos). Já começámos pede a última página feita (índice com páginas) ou o tema onde vão (sem páginas); sem resposta não guarda. O rumo reparte o que falta a partir da semana que estão a preparar: ao sábado e ao domingo, a seguinte (`planningMonday` em `annualPlan.ts`). Os manuais já guardados ao fim de semana ficam corrigidos sem os editar. Saiu a opção "Desde o início do ano".
-- **A nossa semana (P-18, parte do P-04):** tabela `family_week_routines` (migração **030**, por aplicar pelo Gil): para cada dia, dia completo, dia curto (só a manhã, antes das 10:42) ou sem estudo, e se há saída à sexta. `src/lib/familyRoutine.ts` aplica-a ao esqueleto do plano com IA, ao plano sem IA, aos blocos fixos do horário e às perguntas do guia. Sexta sem saída fica com a estrutura de segunda (sem leitura); os episódios de leitura renumeram-se. Sem linha na tabela (ou antes da 030), tudo fica como antes.
+- **A nossa semana (P-18, parte do P-04):** tabela `family_week_routines` (migração **030**, aplicada a 25 nov): para cada dia, dia completo, dia curto (só a manhã, antes das 10:42) ou sem estudo, e se há saída à sexta. `src/lib/familyRoutine.ts` aplica-a ao esqueleto do plano com IA, ao plano sem IA, aos blocos fixos do horário e às perguntas do guia. Sexta sem saída fica com a estrutura de segunda (sem leitura); os episódios de leitura renumeram-se. Sem linha na tabela (ou antes da 030), tudo fica como antes.
 - Verificado: testes das bibliotecas (corridos com um substituto do vitest, sem dependências instaladas) e verificação de tipos com declarações simplificadas. **Não testado:** num browser e na base de dados real.
 
 ## Segurança e dados: estado verificado no código
@@ -157,7 +157,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 | Privacidade e Termos | Páginas existem mas faltam: subcontratantes (Gemini), cessão da posição contratual, reembolso, consentimentos (B-07 a B-09) |
 
 ## Limites desta auditoria
-- **A base de dados não foi verificada ao vivo.** Por decisão do dono do repositório (5 nov), o Claude não interage com as bases de dados de produção enquanto não houver backup (B-04, B-05). O estado acima vem do código, das migrações (001 a 025) e dos registos de execução das fases.
+- **Base de dados:** desde 25 nov o Claude tem acesso à produção (ver "Acesso ao Supabase" no CLAUDE.md). A 25 nov aplicou as migrações 029 a 033 (verificadas: tabelas, RLS e políticas). Falta a 028 (consentimentos). Ainda por publicar: `analyze-curriculum-coverage`, `export-family-data`, `send-sunday-reminder` e o agendamento do lembrete de domingo.
 - **Repositório público temporariamente** (desde 5 nov à noite) para a Vercel Hobby aceitar publicações de colaboradores; volta a privado no fim desta ronda de trabalho (B-11). O histórico do git ainda contém nomes da família piloto (removidos dos ficheiros atuais).
 
 ## Famílias no beta

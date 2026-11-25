@@ -35,8 +35,48 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 - **Fotos:** bucket `activity-photos` é privado. Guarda-se o *path* na BD e lê-se com signed URLs (`src/lib/photoStorage.ts`). As fotos são comprimidas no cliente antes do upload (`src/lib/imageCompression.ts`).
 - **Edge functions:** sempre `verify_jwt=true`; o destinatário ou a família vêm do JWT, nunca do corpo do pedido.
 - **Ano escolar:** `children.school_year` tem CHECK com os valores da app; "Pré-escolar" com P maiúsculo.
-- **Supabase (decisão do dono, 5 nov):** o Claude **não** interage com as bases de dados de produção, nem por conector nem por CLI. Migrações e edge functions entregam-se como ficheiros no repositório, com instruções curtas para o dono do repo as publicar. Atenção: alterações em `supabase/functions/` **não** são publicadas pela Vercel.
-- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos; 031 é o Financinhas; 032 é a Tradição da família; 033 é o lembrete de domingo; próximo: 034).
+- **Supabase em produção (decisão do dono, 25 nov; substitui a de 5 nov):** o Claude pode aplicar migrações, publicar edge functions e correr SQL na produção (projeto `lqznbdfgyeikeepxgeoo`), quando o utilizador da sessão (Gil ou Elton) o pedir. Ver "Acesso ao Supabase" abaixo. Atenção: alterações em `supabase/functions/` **não** são publicadas pela Vercel; publicam-se à parte.
+- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos, ainda por aplicar até os textos legais estarem revistos; 029–033 aplicadas a 25 nov; próximo: 034).
+
+## Acesso ao Supabase (produção)
+O token de acesso fica na Keychain do macOS com o nome `nexseed-supabase-token`. **Nunca** em ficheiros, commits, logs, memória ou mensagens.
+
+**No arranque de cada sessão**, confirmar que o token existe e funciona (e o da Vercel, secção seguinte):
+```
+SBT=$(security find-generic-password -s nexseed-supabase-token -w 2>/dev/null)
+curl -s -o /dev/null -w "%{http_code}" https://api.supabase.com/v1/projects/lqznbdfgyeikeepxgeoo -H "Authorization: Bearer $SBT"
+```
+- `200`: está pronto, não dizer nada.
+- Não existe, ou dá `401`: pedir logo o token ao utilizador ("Para eu poder mexer na base de dados, preciso do token do Supabase que o Gil te enviou"). Quando o receber, guardá-lo e voltar a testar:
+  `security add-generic-password -U -a "$USER" -s nexseed-supabase-token -w '<token>'`
+  Depois, pedir ao utilizador que apague do chat de origem a mensagem com o token, se puder.
+
+**Como usar:**
+- SQL e migrações: `POST https://api.supabase.com/v1/projects/lqznbdfgyeikeepxgeoo/database/query` com `{"query": "..."}` e `Authorization: Bearer $SBT` (gerar o JSON com `jq -Rs '{query: .}' < ficheiro.sql`). O conector MCP do Supabase não tem permissão neste projeto.
+- Edge functions: `SUPABASE_ACCESS_TOKEN=$SBT npx supabase functions deploy <nome> --project-ref lqznbdfgyeikeepxgeoo` (sempre a partir do `main`).
+
+**Regras:**
+- Só quando o utilizador pede, ou quando faz parte de uma entrega que ele aprovou ("podes publicar"). Nunca por iniciativa própria.
+- Migrações só a partir do `main`, por ordem, cada uma dentro de `begin; … commit;`. Antes, verificar o que já existe; depois, confirmar tabelas, RLS e políticas.
+- Nada destrutivo (`drop`, `delete`, `truncate`, apagar utilizadores, alterar dados de famílias) sem confirmação explícita no chat para aquela operação concreta, e só com um backup recente (`docs/backup-semanal.md`).
+- Registar no `Ponto de situação/estado_atual.md` o que foi aplicado e quando.
+
+## Acesso à Vercel
+Token na Keychain do macOS com o nome `nexseed-vercel-token`. Válido até **25 mai 2027**; a partir de 11 mai 2027, lembrar o Gil de criar um novo. As mesmas regras do token do Supabase: nunca em ficheiros, commits, logs, memória ou mensagens.
+
+**No arranque de cada sessão**, junto com o do Supabase:
+```
+VT=$(security find-generic-password -s nexseed-vercel-token -w 2>/dev/null)
+curl -s -o /dev/null -w "%{http_code}" "https://api.vercel.com/v9/projects/prj_JtEPyNEUB80DSrZ1lOWA57Cvsfg5?teamId=team_GtwlLD6jxdiha3aWcU2Zm5Ud" -H "Authorization: Bearer $VT"
+```
+- `200`: pronto.
+- Não existe, ou dá `401`/`403`: pedir o token da Vercel ao utilizador. Quando o receber, guardá-lo com `security add-generic-password -U -a "$USER" -s nexseed-vercel-token -w '<token>'` e voltar a testar.
+
+**Projeto:** `next-seed` (`prj_JtEPyNEUB80DSrZ1lOWA57Cvsfg5`), equipa `team_GtwlLD6jxdiha3aWcU2Zm5Ud`. Acrescentar sempre `?teamId=…` aos pedidos.
+- Variáveis de ambiente: listar com `GET /v10/projects/{id}/env`, criar com `POST /v10/projects/{id}/env` (`{"key","value","type":"encrypted","target":["production","preview"]}`), alterar com `PATCH /v9/projects/{id}/env/{envId}`. Uma variável nova só entra em produção no deploy seguinte.
+- Deploys: ver o estado com `GET /v6/deployments?projectId={id}&limit=5`. Para confirmar que a produção atualizou depois de um merge.
+- Tudo o que começa por `VITE_` vai para o browser: nunca pôr lá segredos. Os segredos do servidor (Gemini, Resend) ficam nos secrets das edge functions do Supabase, não na Vercel.
+- Apagar variáveis, mudar domínios ou definições do projeto só com confirmação explícita no chat para aquela operação.
 - **Textos da app:** português de Portugal, na voz NexSeed (doc 06): claro, humano, sem alarmismo, nunca comunicar pelo medo.
 
 ## Como trabalhamos
