@@ -36,7 +36,7 @@ npx tsc -p tsconfig.app.json --noEmit   # tem erros antigos (ver T-02); não acr
 - **Edge functions:** sempre `verify_jwt=true`; o destinatário ou a família vêm do JWT, nunca do corpo do pedido.
 - **Ano escolar:** `children.school_year` tem CHECK com os valores da app; "Pré-escolar" com P maiúsculo.
 - **Supabase em produção (decisão do dono, 25 nov; substitui a de 5 nov):** o Claude pode aplicar migrações, publicar edge functions e correr SQL na produção (projeto `lqznbdfgyeikeepxgeoo`), quando o utilizador da sessão (Gil ou Elton) o pedir. Ver "Acesso ao Supabase" abaixo. Atenção: alterações em `supabase/functions/` **não** são publicadas pela Vercel; publicam-se à parte.
-- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos, ainda por aplicar até os textos legais estarem revistos; 029–033 aplicadas a 25 nov; próximo: 034).
+- **Migrações:** ficheiros numerados em `supabase/migrations/` (028 reservada para os consentimentos, ainda por aplicar até os textos legais estarem revistos; 029–033 aplicadas a 25 nov; 034 é a cascata dos convites ao apagar a conta; próximo: 035).
 
 ## Acesso ao Supabase (produção)
 O token de acesso fica na Keychain do macOS com o nome `nexseed-supabase-token`. **Nunca** em ficheiros, commits, logs, memória ou mensagens.
