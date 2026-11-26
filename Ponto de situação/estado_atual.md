@@ -130,6 +130,10 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
+## Financinhas no relatório trimestral (26 nov, ramo `feat/financinhas-relatorio`)
+- `src/lib/financinhas/report.ts`: três competências fortes (nível ≥ 2) e três a trabalhar, só com eventos observados até ao fim do período; sem secção com menos de duas observadas. `TrimesterReportPDF` mostra a secção antes da declaração; em Relatórios há a opção "Incluir Financinhas" (ligada por omissão). Nada vai para a IA.
+- A capa do relatório citava o Decreto-Lei 55/2018 e o Despacho Normativo 10-B/2018 (regime antigo); passa a citar o Decreto-Lei n.º 70/2021, que aprova o regime jurídico do ensino individual e do ensino doméstico.
+
 ## Financinhas aberto a todas as contas (22 nov)
 - `FINANCINHAS_FOR_ALL = true` em `src/lib/financinhas/access.ts`, por decisão do Elton (só duas famílias em teste). Antes de entrarem famílias novas: Gemini pago (Q-03) e documento 04. O convite por família (`pilot_features` 'financinhas') fica no código para quando se voltar a fechar.
 
