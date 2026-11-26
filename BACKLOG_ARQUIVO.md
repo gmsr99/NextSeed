@@ -6,6 +6,7 @@ Itens feitos e confirmados, retirados do `BACKLOG.md` para o manter curto. Os ID
 
 | ID | Item | Secção de origem | Estado final |
 |---|---|---|---|
+| V-09 a V-20, V-25, V-26, V-29, V-30, V-32, V-34 | Testes do plano gerado, do formulário e dos manuais | Para testar | Confirmados pelo Elton a 22 nov (Testes NexSeed) |
 | R-08 | Horário de todas as crianças num só documento, com cor por criança | E7 · Impressão e documentos | Já existia (SchedulePDF, cor por criança e legenda); confirmado no código a 26 nov |
 | B-12 | Gil: publicar as migrações 026 (child_manuals) e 027 (family_calendars) e voltar a publicar a função export-family-data | E1 · Conformidade e base | Feito pelo Gil a 14 nov |
 | T-06 | No perfil da criança só deixa escolher um interesse | E8 · Correções rápidas | Publicado a 13 nov |
