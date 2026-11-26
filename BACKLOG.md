@@ -261,6 +261,7 @@ Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões
 | T-04 | Corrigir ou apagar Ponto de situação/contexto_chat.json | Auditoria | B/B | S | Por fazer |
 | T-01 | Auditoria em telemóvel real: câmara, botões, PWA | Auditoria (FASE 3.5) | M/M | S | Aguarda Elton |
 | T-11 | Plano Semanal perdia o formulário e o plano por guardar ao sair da página ou ao voltar à app | Elton, 16 nov (testes). A app recarregava o ecrã sempre que regressava ao primeiro plano | A/A | S | Publicado a 16 nov. Por confirmar (V-29 a V-31) |
+| T-12 | Adulto convidado para uma família era mandado para o wizard e tinha de criar crianças (que ficavam duplicadas numa família à parte) | Elton, 26 nov. O convite criava ao convidado uma família própria vazia (trigger da 019), que tapava a família que o convidou. BD (migração 035) | A/A | S | Feito no branch fix/convite-sem-onboarding; falta aplicar a 035 em produção |
 | T-05 | Confirmar que as migrações locais correspondem à produção | Auditoria | M/B | S | Em pausa (depende de B-04) |
 
 ## Feito
