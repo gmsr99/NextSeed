@@ -27,6 +27,7 @@ import {
   getNextMonday,
   formatWeekRange,
   type GeneratedPlanItem,
+  getFixedScheduleBlocks,
 } from "@/lib/planGenerator";
 import { Button } from "@/components/ui/button";
 import { loadDraft, removeDraft, saveDraft, type PlanDraft } from "@/lib/planDraft";
@@ -935,6 +936,8 @@ export default function WeeklyPlanner() {
               onRegenerateItem={handleRegenerateItem}
               regeneratingKey={regeneratingKey}
               hours={showsHours(routine)}
+              fixedItems={getFixedScheduleBlocks(children, routine).map((b) =>
+                tradition && b.title === "Ritual de Chegada" ? { ...b, title: "Orações e liturgia" } : b)}
             />
           </div>
         )}

@@ -17,7 +17,9 @@ import { toast } from "@/hooks/use-toast";
 import { useChildren } from "@/hooks/useChildren";
 import { useActivities } from "@/hooks/useActivities";
 import QuickDayLog from "@/components/QuickDayLog";
+import PlanActivityPicker, { type PickedPlanItem } from "@/components/PlanActivityPicker";
 import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
+import { withObservations } from "@/lib/activityAreas";
 
 const DISCIPLINES = Object.entries(DISCIPLINE_LABELS).map(([id, name]) => ({ id, name }));
 
@@ -29,6 +31,10 @@ const Activities = () => {
   const [title, setTitle] = useState("");
   const [discipline, setDiscipline] = useState("");
   const [description, setDescription] = useState("");
+  // V-22: outras áreas (R-04) e observações, quando a atividade vem do plano
+  const [extraAreas, setExtraAreas] = useState<string[]>([]);
+  const [observations, setObservations] = useState("");
+  const [fromPlan, setFromPlan] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -71,23 +77,42 @@ const Activities = () => {
     setPreviewUrls((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const pickFromPlan = (p: PickedPlanItem | null) => {
+    if (!p) { setFromPlan(null); return; }
+    setFromPlan(p.key);
+    setChildId(p.childId);
+    setTitle(p.title);
+    setDiscipline(p.discipline && DISCIPLINE_LABELS[p.discipline] ? p.discipline : "");
+    setDescription(p.description);
+    setDate(p.date);
+  };
+
+  const toggleExtra = (id: string) =>
+    setExtraAreas((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
   const handleSave = async () => {
     if (!isFormValid) return;
     try {
-      await createActivity.mutateAsync({
+      const res = await createActivity.mutateAsync({
         child_id: childId,
         title: title.trim(),
         discipline: discipline || undefined,
-        description: description.trim() || undefined,
+        extra_disciplines: extraAreas.filter((d) => d !== discipline),
+        description: withObservations(description, observations) || undefined,
         activity_date: format(date, "yyyy-MM-dd"),
         photoFiles,
       });
       setSaved(true);
-      toast({ title: "Atividade guardada no portfólio! 🌱" });
+      toast(res && !res.extrasSaved
+        ? { title: "Atividade guardada no portfólio! 🌱", description: "As outras áreas ficam disponíveis depois de uma atualização da base de dados; guardámos a principal." }
+        : { title: "Atividade guardada no portfólio! 🌱" });
       setChildId("");
       setTitle("");
       setDiscipline("");
       setDescription("");
+      setExtraAreas([]);
+      setObservations("");
+      setFromPlan(null);
       setDate(new Date());
       previewUrls.forEach((u) => URL.revokeObjectURL(u));
       setPhotoFiles([]);
@@ -120,6 +145,9 @@ const Activities = () => {
             <CardTitle className="text-lg font-heading">Nova Atividade</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            {/* V-22: escolher uma atividade do plano e só juntar a foto e as observações */}
+            <PlanActivityPicker children={children} value={fromPlan} onPick={pickFromPlan} />
+
             {/* Criança + Data */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -173,6 +201,25 @@ const Activities = () => {
               </div>
             </div>
 
+            {/* R-04: outras áreas que a atividade também trabalhou */}
+            <div className="space-y-2">
+              <Label>Também trabalhou (opcional)</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {DISCIPLINES.filter((d) => d.id !== discipline).map((d) => (
+                  <button
+                    key={d.id} type="button" onClick={() => toggleExtra(d.id)}
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-xs transition-colors",
+                      extraAreas.includes(d.id) ? "border-primary bg-primary/10 text-foreground" : "border-border/60 text-muted-foreground hover:bg-muted",
+                    )}
+                    aria-pressed={extraAreas.includes(d.id)}
+                  >
+                    {d.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Descrição */}
             <div className="space-y-2">
               <Label>Descrição</Label>
@@ -181,6 +228,17 @@ const Activities = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="min-h-[90px] resize-none"
+              />
+            </div>
+
+            {/* V-22: observações da família (juntam-se à descrição) */}
+            <div className="space-y-2">
+              <Label>Observações (opcional)</Label>
+              <Textarea
+                placeholder="Como correu, o que disse, o que quer repetir…"
+                value={observations}
+                onChange={(e) => setObservations(e.target.value)}
+                className="min-h-[70px] resize-none"
               />
             </div>
 

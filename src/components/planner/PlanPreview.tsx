@@ -104,6 +104,8 @@ interface PlanPreviewProps {
   regeneratingKey?: string | null;
   /** P-27: mostrar horas (por omissão, não: mostra a duração) */
   hours?: boolean;
+  /** V-23: blocos fixos do horário (ritual, relaxamento, almoço, saídas), só para ver */
+  fixedItems?: GeneratedPlanItem[];
 }
 
 interface ChildViewProps {
@@ -112,11 +114,13 @@ interface ChildViewProps {
   onRegenerateItem?: (item: GeneratedPlanItem) => void;
   regeneratingKey?: string | null;
   hours?: boolean;
+  fixedItems?: GeneratedPlanItem[];
 }
 
 // Per-child view (existing)
-function ChildView({ child, planItems, onRegenerateItem, regeneratingKey, hours = false }: ChildViewProps) {
+function ChildView({ child, planItems, onRegenerateItem, regeneratingKey, hours = false, fixedItems = [] }: ChildViewProps) {
   const childItems = planItems.filter((i) => i.child_id === child.id);
+  const childFixed = fixedItems.filter((i) => i.child_id === child.id);
   return (
     <div className="space-y-4 mt-4">
       <PortfolioSummary childId={child.id} planItems={planItems} />
@@ -125,6 +129,9 @@ function ChildView({ child, planItems, onRegenerateItem, regeneratingKey, hours 
           .filter((i) => i.day_of_week === day)
           .sort((a, b) => a.sort_order - b.sort_order);
         if (dayItems.length === 0) return null;
+        // V-23: os blocos fixos aparecem entre as atividades, pela hora
+        const dayFixed = childFixed.filter((i) => i.day_of_week === day);
+        const merged = [...dayItems, ...dayFixed].sort((a, b) => a.time_slot.localeCompare(b.time_slot) || a.sort_order - b.sort_order);
         return (
           <Card key={day} className="border-border/60">
             <CardHeader className="pb-2">
@@ -133,7 +140,15 @@ function ChildView({ child, planItems, onRegenerateItem, regeneratingKey, hours 
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {dayItems.map((item, idx) => {
+              {merged.map((item, idx) => {
+                if (item.is_fixed) {
+                  return (
+                    <div key={`f${idx}`} className="flex gap-3 rounded-lg bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
+                      <div className="w-24 shrink-0">{hours ? item.time_slot : ""}</div>
+                      <div className="flex-1">{item.title}</div>
+                    </div>
+                  );
+                }
                 const color = DISCIPLINE_COLORS[item.discipline] ?? "#E5E7EB";
                 return (
                   <div
@@ -275,7 +290,7 @@ function FamilyView({ children, planItems, hours = false }: { children: Child[];
   );
 }
 
-export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, regeneratingKey, hours = false }: PlanPreviewProps) {
+export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, regeneratingKey, hours = false, fixedItems = [] }: PlanPreviewProps) {
   const showFamilyTab = children.length > 1;
   const defaultTab = showFamilyTab ? "familia" : children[0]?.id ?? "familia";
 
@@ -317,6 +332,7 @@ export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, 
             onRegenerateItem={onRegenerateItem}
             regeneratingKey={regeneratingKey}
             hours={hours}
+            fixedItems={fixedItems}
           />
         </TabsContent>
       ))}

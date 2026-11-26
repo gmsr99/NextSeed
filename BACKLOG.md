@@ -87,6 +87,9 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-67 | A vossa semana | Pôr a quarta como "Dia livre", guardar e gerar o plano | Na quarta só aparece a leitura (e o momento da manhã no horário); os outros dias não mudam. (P-29) |  |
 | V-68 | Início, num dia de aulas com plano | Carregar em "Semana difícil? Fiquem só com o essencial" e confirmar; depois "Voltar ao plano normal" | Daqui até sexta as atividades passam a "Semana leve · …" (menos a leitura e a saída) e A semana mostra Em dia; voltar tira o prefixo (P-28) |  |
 | V-69 | A vossa semana | Pôr "Saída à tarde" na terça e "Saída de manhã" na quarta; guardar, gerar o plano e abrir o Horário | Na terça à tarde e na quarta de manhã não há atividades; o horário mostra "Saída (tarde)" e "Saída (manhã)"; o resumo diz "saídas à terça à tarde, à quarta de manhã…" (P-30) |  |
+| V-70 | Plano Semanal, separador da criança do pré-escolar | Gerar ou abrir o plano e ver cada dia | Entre as atividades aparecem, em cinzento, os blocos fixos: Ritual de Chegada (ou Orações e liturgia), Pausa, Almoço, Relaxamento / Descanso e as saídas (nota do Elton no V-23) |  |
+| V-71 | Diário › Nova Atividade (com um plano desta semana) | Em "Do plano da semana", escolher uma atividade; juntar uma foto e uma observação; guardar | Criança, título, área, descrição e dia ficam preenchidos; no portefólio a descrição acaba com "Observações: …" (R-12) |  |
+| V-72 | Diário › Nova Atividade (só depois da migração 039) | Escolher a área principal e, em "Também trabalhou", mais uma ou duas; guardar | No portefólio a atividade mostra todas as áreas e aparece ao filtrar por qualquer uma; nos relatórios conta em cada área (R-04) |  |
 
 ## Ordem de implementação
 
@@ -153,7 +156,8 @@ A entrega às escolas em dezembro e janeiro é a prova de valor da segunda ânco
 | R-01 | Testar portefólio e relatório trimestral com uma família, na entrega real à escola | Docs 08 (Bloco 3) | A/A | M | Elton |
 | R-02 | Corrigir o que o R-01 revelar | Depende do R-01 | A/A | M | Por fazer |
 | R-03 | Validar a secção "relatórios" do Manual (está como rascunho) | Auditoria (FASE 2.3) | A/A | S | Aguarda Elton |
-| R-04 | Uma atividade pode contar para várias áreas de aprendizagem | Equipa. Muitas atividades trabalham várias áreas ao mesmo tempo. BD | A/A | M | Por fazer |
+| R-04 | Uma atividade pode contar para várias áreas de aprendizagem | Equipa. Muitas atividades trabalham várias áreas ao mesmo tempo. BD | A/A | M | Feito a 26 nov (ramo `feat/notas-elton-26nov`, nota do Elton no V-22): no Diário, "Também trabalhou" com as outras áreas; o portefólio mostra e filtra por todas; os relatórios contam a atividade em cada área; o PDF trimestral diz "Também trabalhou". Migração 039 (`extra_disciplines`); sem ela, guarda só a principal e avisa. V-72 |
+| R-12 | No Diário, registar a partir de uma atividade do plano da semana: a app preenche criança, título, área, descrição e dia; a família junta a foto e as observações | Elton, nota no V-22 (26 nov) | A/M | S | Feito a 26 nov (ramo `feat/notas-elton-26nov`): "Do plano da semana" no topo da Nova Atividade e campo "Observações", que se junta à descrição. Sem migração. V-71 |
 | R-10 | Sugerir em cada semana o que guardar no portefólio (3 ou 4 evidências por criança) e facilitar o registo de 2 minutos por dia | F-02, equipa. Liga o plano à segunda âncora | A/A | M | Publicado a 14 nov (sugestões e registo de 2 minutos). Por confirmar com um plano real (Q-07) |
 | R-05 | Registar marcos e acontecimentos importantes (todas as idades) que entram no relatório | F-02, F-05. BD; rever doc 04 (dados de desenvolvimento de menores) | M/M | M | Por fazer |
 | R-06 | Crianças até 2 ou 3 anos: diário de marcos em vez de plano de atividades | F-05, equipa. Alarga a app a uma fase fora do ensino doméstico formal | M/B | M | Em estudo |

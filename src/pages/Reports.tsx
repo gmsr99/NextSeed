@@ -1,3 +1,4 @@
+import { activityAreas } from "@/lib/activityAreas";
 import { useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -146,7 +147,8 @@ export default function Reports() {
   // KPIs
   const totalActivities  = periodActivities.length;
   const photosCount      = periodActivities.filter(a => a.photos.length > 0).length;
-  const areasCount       = new Set(periodActivities.map(a => a.discipline).filter(Boolean)).size;
+  // R-04: uma atividade conta em todas as áreas que trabalhou
+  const areasCount       = new Set(periodActivities.flatMap(a => activityAreas(a))).size;
   const childProjects    = projects.filter(p => selectedChildId === "all" || p.child_id === selectedChildId);
   const activeProjects   = childProjects.filter(p => p.status !== "paused");
 
@@ -154,7 +156,7 @@ export default function Reports() {
   const subjectBreakdown = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const a of periodActivities) {
-      if (a.discipline) counts[a.discipline] = (counts[a.discipline] ?? 0) + 1;
+      for (const d of activityAreas(a)) counts[d] = (counts[d] ?? 0) + 1;
     }
     return Object.entries(counts)
       .map(([discipline, count]) => ({

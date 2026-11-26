@@ -33,6 +33,8 @@ export interface CreateActivityInput {
   title: string;
   description?: string;
   discipline?: string;
+  /** R-04: outras áreas (migração 039) */
+  extra_disciplines?: string[];
   activity_date: string;
   photoFiles?: File[];
 }
@@ -94,7 +96,7 @@ export function useActivities() {
         }
       }
 
-      const { error } = await supabase.from("activities").insert({
+      const row = {
         id: activityId,
         family_id: family.id,
         child_id: input.child_id,
@@ -103,9 +105,18 @@ export function useActivities() {
         discipline: input.discipline || null,
         activity_date: input.activity_date,
         photos: photoPaths,
-      });
+      };
+      const extras = (input.extra_disciplines ?? []).filter((d) => d && d !== input.discipline);
+      let extrasSaved = true;
+      let { error } = await supabase.from("activities").insert(extras.length ? { ...row, extra_disciplines: extras } : row);
+      // Antes da migração 039 não há extra_disciplines: guarda-se só a área principal
+      if (error && extras.length && /extra_disciplines/.test(error.message ?? "")) {
+        extrasSaved = false;
+        ({ error } = await supabase.from("activities").insert(row));
+      }
       if (error) throw error;
       track("activity_logged", { type: input.discipline ?? null });
+      return { extrasSaved };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["activities", family?.id] });
