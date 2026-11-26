@@ -11,10 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useFamilyRoutine } from "@/hooks/useFamilyRoutine";
-import { DAY_MODE_LABELS, DEFAULT_ROUTINE, routineSummary, type DayMode, type WeekRoutine } from "@/lib/familyRoutine";
+import { DAY_MODE_LABELS, DEFAULT_ROUTINE, OUTING_LABELS, routineOutings, routineSummary, type DayMode, type OutingPart, type WeekRoutine } from "@/lib/familyRoutine";
 
 const DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
 const MODES: DayMode[] = ["full", "short", "free", "off"];
+const OUTING_PARTS: OutingPart[] = ["none", "morning", "afternoon", "day"];
 
 export default function FamilyRoutineCard() {
   const { routine, available, isLoading, save, reset } = useFamilyRoutine();
@@ -26,11 +27,22 @@ export default function FamilyRoutineCard() {
   const noStudy = draft.days.every((d) => d === "off");
 
   const openDialog = () => {
-    setDraft({ days: [...current.days], outing: current.outing, hours: current.hours === true });
+    setDraft({ days: [...current.days], outing: current.outing, outings: routineOutings(current), hours: current.hours === true });
     setOpen(true);
   };
   const setDay = (i: number, mode: DayMode) =>
-    setDraft((d) => ({ ...d, days: d.days.map((x, j) => (j === i ? mode : x)) }));
+    setDraft((d) => {
+      const days = d.days.map((x, j) => (j === i ? mode : x));
+      // Dia sem estudo: sem saída
+      const outings = routineOutings(d).map((o, j) => (j === i && mode === "off" ? "none" : o));
+      return { ...d, days, outings, outing: outings[4] === "day" };
+    });
+  const setOuting = (i: number, part: OutingPart) =>
+    setDraft((d) => {
+      const outings = routineOutings(d).map((o, j) => (j === i ? part : o));
+      return { ...d, outings, outing: outings[4] === "day" };
+    });
+  const draftOutings = routineOutings(draft);
 
   const onSave = async () => {
     try {
@@ -83,13 +95,21 @@ export default function FamilyRoutineCard() {
           <div className="space-y-4">
             <div className="space-y-2">
               {DAYS.map((day, i) => (
-                <div key={day} className="flex items-center gap-3">
+                <div key={day} className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-3">
                   <Label htmlFor={`day-${i}`} className="w-20 shrink-0">{day}</Label>
                   <Select value={draft.days[i]} onValueChange={(v) => setDay(i, v as DayMode)}>
-                    <SelectTrigger id={`day-${i}`} className="flex-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger id={`day-${i}`} className="min-w-0 flex-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {MODES.map((m) => (
                         <SelectItem key={m} value={m}>{DAY_MODE_LABELS[m]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={draftOutings[i]} onValueChange={(v) => setOuting(i, v as OutingPart)} disabled={draft.days[i] === "off"}>
+                    <SelectTrigger aria-label={`Saída à ${day.toLowerCase()}`} className="min-w-0 flex-1 sm:max-w-[11rem]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {OUTING_PARTS.map((o) => (
+                        <SelectItem key={o} value={o}>{OUTING_LABELS[o]}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -98,26 +118,10 @@ export default function FamilyRoutineCard() {
               <p className="text-xs text-muted-foreground">
                 Dia curto: só a manhã, com Português e Matemática (cerca de 1 hora). Bom para dias com outras atividades
                 fora de casa. Dia livre: sem currículo; fica o momento da manhã em família e a leitura em voz alta.
+                Saídas (uma visita, uma ida a uma comunidade): em qualquer dia, de manhã, à tarde ou o dia todo; essa parte
+                do dia fica sem currículo e aparece no horário como "Saída". A saída de sexta o dia todo é a "Ver Mundo",
+                que o plano prepara convosco.
               </p>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Switch
-                id="routine-outing" checked={draft.outing && draft.days[4] !== "off" && draft.days[4] !== "free"} disabled={draft.days[4] === "off" || draft.days[4] === "free"}
-                onCheckedChange={(v) => setDraft((d) => ({ ...d, outing: v }))}
-              />
-              <div>
-                <Label htmlFor="routine-outing">Saída "Ver Mundo" à sexta</Label>
-                <p className="text-xs text-muted-foreground">
-                  {draft.days[4] === "off"
-                    ? "A sexta está sem estudo, por isso não há saída."
-                    : draft.days[4] === "free"
-                      ? "A sexta é dia livre, por isso não há saída."
-                    : draft.outing
-                      ? "Uma saída da família, a um sítio perto, com as crianças todas."
-                      : "Sem saída: a sexta é um dia de estudo em casa, como os outros."}
-                </p>
-              </div>
             </div>
 
             <div className="flex items-start gap-3">

@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { normalizeRoutine, type WeekRoutine } from "@/lib/familyRoutine";
+import { normalizeRoutine, serializeRoutine, type WeekRoutine } from "@/lib/familyRoutine";
 
 type Result = { available: boolean; routine: WeekRoutine | null };
 
@@ -43,7 +43,9 @@ export function useFamilyRoutine() {
 
   const save = useMutation({
     mutationFn: async (r: WeekRoutine) => {
-      const row = { family_id: family!.id, days: r.days, outing: r.outing, updated_at: new Date().toISOString() };
+      // P-30: dias com saída guardam-se como {m, o} dentro de days (sem migração)
+      const { days, outing } = serializeRoutine(r);
+      const row = { family_id: family!.id, days, outing, updated_at: new Date().toISOString() };
       const { error } = await supabase.from("family_week_routines").upsert(
         { ...row, schedule_mode: r.hours ? "horas" : "blocos" },
         { onConflict: "family_id" },

@@ -128,10 +128,14 @@ const BLOCK_LABELS: Record<string, string> = {
   "14:00-14:30": "Se houver tempo",
   "14:30-14:45": "Pausa",
   "14:45-15:15": "Leitura",
+  // P-30: saídas
+  "09:30-12:30": "Saída (manhã)",
+  "14:00-16:30": "Saída (tarde)",
+  "09:30-16:30": "Saída (dia todo)",
 };
 
 // BIG_SLOTS: blocos com duração >2h — span máximo, destaque verde.
-const BIG_SLOTS = new Set(["09:45-11:50", "09:30-12:00"]);
+const BIG_SLOTS = new Set(["09:45-11:50", "09:30-12:00", "09:30-12:30", "14:00-16:30", "09:30-16:30"]);
 
 // MEDIUM_SLOTS: blocos com duração >1h — altura média, destaque amarelo.
 const MEDIUM_SLOTS = new Set(["12:30-14:00", "12:00-14:00"]);

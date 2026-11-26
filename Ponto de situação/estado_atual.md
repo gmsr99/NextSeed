@@ -132,6 +132,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 
 ## Dia livre e semana difícil (26 nov, ramo `feat/dia-livre-semana-dificil`, por publicar)
 - **P-29**: `DayMode` ganha `"free"` (`familyRoutine.ts`): num dia livre `applyWeekRoutine` deixa só `ritual`, `lunch` e `reading`; sexta livre não tem saída; `dropReadingDay(items, routine)` mantém a leitura de terça se a terça for livre. Sem migração (os dias são jsonb sem restrição de valores).
+- **P-30**: `OutingPart` por dia (`routineOutings`, `serializeRoutine`, `otherOutings`, `outingBlocks`). Em `family_week_routines.days` um dia com saída fica `{"m": modo, "o": parte}`; `outing` continua a ser a "Ver Mundo" de sexta (dia todo). `applyWeekRoutine` tira o currículo da parte do dia da saída (manhã < 12:30, tarde ≥ 14:00, dia todo); `getFixedScheduleBlocks` junta os blocos "Saída". Sem migração.
 - **P-28**: `LIGHT_WEEK_PREFIX = "Semana leve · "` (`essentialPlan.ts`), contado por `isOptional`; `lightWeekChanges` e `setLightWeek` (em `useTodayDashboard`) atualizam os títulos de `weekly_plan_items` de hoje até sexta, menos a leitura e a saída; desfaz-se tirando o prefixo.
 
 ## Rumo em família, Financinhas no plano, kit e Direitos (26 nov, ramo `feat/rumo-familia`, por publicar)

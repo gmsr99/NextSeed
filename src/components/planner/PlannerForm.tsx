@@ -259,7 +259,7 @@ export function PlannerForm({
           <CardDescription>
             {outing
               ? "Actividade de saída planeada (opcional)"
-              : "Esta semana não tem saída: é a vossa escolha em \"A nossa semana\", logo acima."}
+              : "Esta semana não há saída à sexta o dia todo: é a vossa escolha em \"A nossa semana\", logo acima."}
           </CardDescription>
         </CardHeader>
         {outing && (
