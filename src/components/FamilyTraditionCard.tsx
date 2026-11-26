@@ -15,6 +15,7 @@ import { useFamilyTradition } from "@/hooks/useFamilyTradition";
 import { useFamilyCalendar } from "@/hooks/useFamilyCalendar";
 import { officialCalendar, schoolYearStartFor } from "@/lib/annualPlan";
 import { traditionBreaks, type LiturgicalCalendar } from "@/lib/tradicao/liturgical";
+import CatechismSettings from "@/components/CatechismSettings";
 
 const CALENDAR_LABELS: Record<LiturgicalCalendar, string> = {
   atual: "Atual (o da Missa de hoje)",
@@ -62,7 +63,7 @@ export default function FamilyTraditionCard() {
     try {
       await remove.mutateAsync();
       setConfirmOff(false);
-      toast({ title: "Tradição da família desligada", description: "Apagámos a vossa escolha e o consentimento." });
+      toast({ title: "Tradição da família desligada", description: "Apagámos a vossa escolha, o consentimento e o catecismo." });
     } catch {
       toast({ title: "Não foi possível desligar", variant: "destructive" });
     }
@@ -116,6 +117,7 @@ export default function FamilyTraditionCard() {
               Acrescentar ao calendário da família
             </Button>
           </div>
+          <CatechismSettings />
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={openDialog}>Ajustar</Button>
             {confirmOff ? (

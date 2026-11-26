@@ -130,6 +130,9 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
+## Catecismo em família (26 nov, ramo `feat/catecismo-em-familia`, por publicar)
+- I-08 fase 2: `src/lib/tradicao/catechism.ts` (lê a lista colada, pergunta da semana, cinco etapas seg–sex), `useFamilyCatechism` (sem a migração **038**, `available=false` e a tradição funciona como antes), `CatechismSettings` dentro do cartão da Tradição em Definições, linha no `LiturgyWeekCard` do Planeador e caixa no Guia de Atividades. Só números e títulos; as respostas ficam no livro. Nada vai para a IA. Desligar a tradição apaga a linha e o catecismo.
+
 ## Rumo em família, Financinhas no plano, kit e Direitos (26 nov, ramo `feat/rumo-familia`, por publicar)
 - **P-24** (`src/lib/familyYear.ts`): "A família" no seletor do Rumo do ano (com 2+ crianças com rumo). Semanas alinhadas pela segunda-feira; "Para fazerem juntos" quando 2+ crianças têm Estudo do Meio, Artes ou FPS na mesma semana, com o domínio quando coincide. Português, Matemática e Inglês nunca são comuns. Sem BD.
 - **I-21** (`src/lib/financinhas/weekSession.ts`, `FinancinhasWeekCard`, `FinancinhasWeekPDF`): no Plano Semanal, por criança com perfil, o dia da semanada e a aula `por_dar` mais antiga, com "Copiar o prompt"; em Descarregar PDFs sai `nexseed-financinhas-*.pdf` (guia, quiz, atividades, desafio; emojis dos mealheiros trocados por palavras). Não gera aulas nem mexe no horário.

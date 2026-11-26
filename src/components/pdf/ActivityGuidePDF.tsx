@@ -9,6 +9,7 @@ import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import { manualLabel } from "@/lib/annualPlan";
 import { dayQuestionsFor, QUESTION_TIP, SHORT_DAY, DAILY_LOG, WEEK_CLOSE, reviewLines } from "@/lib/weekGuide";
 import type { WeekRoutine } from "@/lib/familyRoutine";
+import type { WeekCatechism } from "@/lib/tradicao/catechism";
 import type { WeekLiturgy } from "@/lib/tradicao/week";
 import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
 
@@ -61,9 +62,11 @@ interface Props {
   routine?: WeekRoutine | null;
   /** I-08: o tempo litúrgico da semana */
   liturgy?: WeekLiturgy | null;
+  /** I-08 fase 2: a pergunta do catecismo da semana */
+  catechism?: WeekCatechism | null;
 }
 
-export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {}, weekTheme, routine = null, liturgy = null }: Props) {
+export default function ActivityGuidePDF({ children, planItems, weekStart, familyName, weekFocus = {}, weekTheme, routine = null, liturgy = null, catechism = null }: Props) {
   const withFocus = children.filter((c) => weekFocus[c.id]);
   const allMaterials = collectMaterials(planItems);
 
@@ -89,6 +92,18 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
             {liturgy.antiphon ? <Text style={S.boxLine}>Antífona do tempo: {liturgy.antiphon}</Text> : null}
             {liturgy.celebrations.map((c) => (
               <Text key={c.day + c.name} style={S.boxLine}>{c.day} · {c.name}. {c.texto} Desafio: {c.desafio}</Text>
+            ))}
+          </View>
+        ) : null}
+
+        {catechism ? (
+          <View style={S.box} wrap={false}>
+            <Text style={S.boxTitle}>Catecismo da semana: {catechism.label}</Text>
+            <Text style={S.boxLine}>
+              {catechism.book ? `${catechism.book} · ` : ""}pergunta {catechism.index} de {catechism.total}, para todos juntos. A resposta está no vosso livro.
+            </Text>
+            {catechism.stages.map((st) => (
+              <Text key={st.day} style={S.boxLine}>{st.day}: {st.stage}.</Text>
             ))}
           </View>
         ) : null}
