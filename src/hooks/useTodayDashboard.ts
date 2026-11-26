@@ -1,4 +1,5 @@
 // src/hooks/useTodayDashboard.ts
+import { lightWeekChanges } from '@/lib/essentialPlan';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -64,6 +65,20 @@ export function useTodayDashboard() {
         .update({ completed_at: done ? new Date().toISOString() : null })
         .eq('id', itemId);
       if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: planQueryKey }),
+  });
+
+  // ── P-28: semana difícil — o resto da semana fica leve (só leitura e o bloco da manhã) ──
+  const setLightWeek = useMutation({
+    mutationFn: async (on: boolean) => {
+      const items = planData?.allItems ?? [];
+      const changes = lightWeekChanges(items, Math.min(5, Math.max(1, todayDow)), on);
+      for (const c of changes) {
+        const { error } = await supabase.from('weekly_plan_items').update({ title: c.title }).eq('id', c.id);
+        if (error) throw error;
+      }
+      return changes.length;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: planQueryKey }),
   });
@@ -150,6 +165,7 @@ export function useTodayDashboard() {
     isWeekend,
     familyName: family?.name ?? '',
     toggleItemDone,
+    setLightWeek,
     showNextWeekCta,
   };
 }

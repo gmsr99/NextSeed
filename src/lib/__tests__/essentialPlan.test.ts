@@ -49,3 +49,31 @@ describe("plano essencial (P-27)", () => {
     expect(mon.filter((i) => isOptional(i))).toHaveLength(1);
   });
 });
+
+describe("semana difícil (P-28)", () => {
+  it("põe o resto da semana leve, sem tocar na leitura nem no que já era opcional, e desfaz", async () => {
+    const { lightWeekChanges, isOptional, isLightWeek, stripOptional, LIGHT_WEEK_PREFIX, OPTIONAL_PREFIX } = await import("../essentialPlan");
+    const items = [
+      { id: "a", title: "Dezenas", discipline: "math", day_of_week: 2 },
+      { id: "b", title: "Ler", discipline: "reading", day_of_week: 3 },
+      { id: "c", title: "Ditado", discipline: "language", day_of_week: 3 },
+      { id: "d", title: OPTIONAL_PREFIX + "Inglês", discipline: "english", day_of_week: 3 },
+      { id: "e", title: "Saída", discipline: "world", day_of_week: 5, is_friday_world: true },
+    ];
+    const on = lightWeekChanges(items, 3, true);
+    expect(on).toEqual([{ id: "c", title: LIGHT_WEEK_PREFIX + "Ditado" }]);
+    const after = items.map((i) => ({ ...i, ...(on.find((c) => c.id === i.id) ?? {}) }));
+    expect(isLightWeek(after)).toBe(true);
+    expect(isOptional(after[2])).toBe(true);
+    expect(stripOptional(after[2].title)).toBe("Ditado");
+    expect(lightWeekChanges(after, 3, false)).toEqual([{ id: "c", title: "Ditado" }]);
+  });
+
+  it("num dia livre a leitura de terça fica", async () => {
+    const { dropReadingDay } = await import("../essentialPlan");
+    const { normalizeRoutine } = await import("../familyRoutine");
+    const items = [{ day_of_week: 2, discipline: "reading", time_slot: "14:45-15:15", is_friday_world: false }];
+    expect(dropReadingDay(items)).toEqual([]);
+    expect(dropReadingDay(items, normalizeRoutine(["full", "free", "full", "full", "full"], true))).toHaveLength(1);
+  });
+});

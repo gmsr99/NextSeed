@@ -15,6 +15,13 @@ import { hasOuting, type WeekRoutine } from "./familyRoutine";
 
 /** Prefixo do título das atividades opcionais (vai para a base de dados com o título). */
 export const OPTIONAL_PREFIX = "Se houver tempo · ";
+/**
+ * P-28: semana difícil (regra do plano da F-01: "se a semana correr mal, só as
+ * orações e a leitura; não é uma semana falhada"). O resto da semana fica com
+ * este prefixo: não conta para "Em dia" e desfaz-se sem mexer no que já era
+ * "se houver tempo".
+ */
+export const LIGHT_WEEK_PREFIX = "Semana leve · ";
 
 /** Começam a esta hora (ou depois) os blocos da tarde, que passam a opcionais. */
 const AFTERNOON = "14:00";
@@ -55,8 +62,26 @@ export function isOptionalSlot(item: SlotItem, routine: WeekRoutine | null): boo
   return item.time_slot.slice(0, 5) >= AFTERNOON;
 }
 
-export const isOptional = (item: { title: string }) => item.title.startsWith(OPTIONAL_PREFIX);
-export const stripOptional = (title: string) => (title.startsWith(OPTIONAL_PREFIX) ? title.slice(OPTIONAL_PREFIX.length) : title);
+export const isOptional = (item: { title: string }) =>
+  item.title.startsWith(OPTIONAL_PREFIX) || item.title.startsWith(LIGHT_WEEK_PREFIX);
+export const stripOptional = (title: string) =>
+  title.startsWith(LIGHT_WEEK_PREFIX) ? stripOptional(title.slice(LIGHT_WEEK_PREFIX.length))
+  : title.startsWith(OPTIONAL_PREFIX) ? title.slice(OPTIONAL_PREFIX.length) : title;
+
+/** P-28: o que muda (id e título novo) para pôr a semana leve a partir de um dia, ou para a desfazer. */
+export function lightWeekChanges<T extends { id: string; title: string; discipline: string | null; day_of_week: number; is_friday_world?: boolean | null }>(
+  items: T[], fromDay: number, on: boolean,
+): { id: string; title: string }[] {
+  if (!on) {
+    return items.filter((i) => i.title.startsWith(LIGHT_WEEK_PREFIX)).map((i) => ({ id: i.id, title: i.title.slice(LIGHT_WEEK_PREFIX.length) }));
+  }
+  return items
+    .filter((i) => i.day_of_week >= fromDay && i.discipline !== "reading" && !i.is_friday_world && !isOptional(i))
+    .map((i) => ({ id: i.id, title: LIGHT_WEEK_PREFIX + i.title }));
+}
+
+/** P-28: a semana está leve? (algum item com o prefixo) */
+export const isLightWeek = (items: { title: string }[]) => items.some((i) => i.title.startsWith(LIGHT_WEEK_PREFIX));
 
 /** Marca no título as atividades opcionais (idempotente). */
 export function markOptional<T extends SlotItem & { title: string }>(items: T[], routine: WeekRoutine | null): T[] {
@@ -66,7 +91,9 @@ export function markOptional<T extends SlotItem & { title: string }>(items: T[],
 }
 
 /** Tira a leitura de terça (fica em família, três vezes por semana). */
-export function dropReadingDay<T extends SlotItem>(items: T[]): T[] {
+export function dropReadingDay<T extends SlotItem>(items: T[], routine?: WeekRoutine | null): T[] {
+  // P-29: num dia livre a leitura fica (é o que o dia tem)
+  if (routine && routine.days[READING_DAY_OFF - 1] === "free") return items;
   return items.filter((i) => !(i.discipline === "reading" && i.day_of_week === READING_DAY_OFF));
 }
 

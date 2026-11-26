@@ -18,7 +18,7 @@ import { useChildMilestones, MILESTONE_CATEGORIES } from '@/hooks/useChildMilest
 import { useDashboardYear } from '@/hooks/useDashboardYear';
 import { useWeekFocus } from '@/hooks/useAnnualPlan';
 import { useFamilyTradition } from '@/hooks/useFamilyTradition';
-import { isOptional } from '@/lib/essentialPlan';
+import { isOptional, isLightWeek } from '@/lib/essentialPlan';
 import { GC_DISCIPLINE_LABELS } from '@/lib/gcConstants';
 import { DISCIPLINE_LABELS } from '@/lib/planGenerator';
 import { cn } from '@/lib/utils';
@@ -79,8 +79,9 @@ export default function Index() {
   const navigate = useNavigate();
   const {
     isLoading, hasPlan, todayItems, allItems, nextWeekPlanned, todayDow, weekStart,
-    familyName, toggleItemDone,
+    familyName, toggleItemDone, setLightWeek,
   } = useTodayDashboard();
+  const [askLight, setAskLight] = useState(false);
   const { children } = useChildren();
   const { milestones: recentMilestones } = useChildMilestones();
   const today = useMemo(() => new Date(), []);
@@ -197,6 +198,32 @@ export default function Index() {
                 <Button variant="outline" size="sm" onClick={() => navigate('/weekly-planner')}>Ver o dia <ArrowRight className="w-4 h-4 ml-1" /></Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate('/activities')}><Plus className="w-4 h-4 mr-1" /> Registar atividades</Button>
               </div>
+            )}
+            {/* P-28: semana difícil (regra do plano da F-01) */}
+            {!isWeekend && hasPlan && (
+              isLightWeek(allItems) ? (
+                <p className="text-xs text-muted-foreground">
+                  Semana leve: fica a leitura e o momento da manhã; o resto é se der. Não é uma semana falhada.{' '}
+                  <button type="button" className="text-primary hover:underline disabled:opacity-50" disabled={setLightWeek.isPending}
+                    onClick={() => setLightWeek.mutate(false)}>Voltar ao plano normal</button>
+                </p>
+              ) : askLight ? (
+                <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-2">
+                  <p className="text-foreground">
+                    Daqui até sexta fica só a leitura e o momento da manhã. O resto passa a "Semana leve": continua no plano,
+                    se der, e não conta para estarem em dia. Não é uma semana falhada.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" disabled={setLightWeek.isPending}
+                      onClick={() => setLightWeek.mutate(true, { onSuccess: () => setAskLight(false) })}>Sim, semana leve</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setAskLight(false)}>Agora não</Button>
+                  </div>
+                </div>
+              ) : (
+                <button type="button" className="text-xs text-muted-foreground hover:text-foreground hover:underline" onClick={() => setAskLight(true)}>
+                  Semana difícil? Fiquem só com o essencial
+                </button>
+              )
             )}
             {showCloseButton && (
               <Button size="sm" onClick={() => setClosing(true)}><CheckCircle2 className="w-4 h-4 mr-1.5" /> Fechar a semana · 5 min</Button>
