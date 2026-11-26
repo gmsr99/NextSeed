@@ -10,6 +10,7 @@ import { assignFormats } from "./activityFormats";
 import { preschoolGuidance } from "./methodologyRoles";
 import { applyPortfolioHints, splitPortfolio, withPortfolio, DEFAULT_HINTS } from "./portfolioHints";
 import { applyWeekRoutine, renumberEpisodes, type WeekRoutine } from "./familyRoutine";
+import { dropReadingDay, isOptionalSlot, markOptional, targetMinutes } from "./essentialPlan";
 
 const MODE_LABEL: Record<BlockMode, string> = {
   juntos: "EM CONJUNTO",
@@ -76,10 +77,15 @@ interface SkeletonItem {
   episode?: number;
 }
 
+/** A semana usada no último esqueleto (para marcar os blocos opcionais no pedido) */
+let essentialRoutine: WeekRoutine | null = null;
+
 function buildSkeleton(children: Child[], routine: WeekRoutine | null = null): SkeletonItem[] {
   // P-18: a semana da família (dias sem estudo, dias curtos, sexta sem saída)
-  const skeleton = applyWeekRoutine(buildFullSkeleton(children), routine);
+  // P-27: plano essencial (a leitura de terça sai; a tarde fica "se houver tempo")
+  const skeleton = dropReadingDay(applyWeekRoutine(buildFullSkeleton(children), routine));
   renumberEpisodes(skeleton);
+  essentialRoutine = routine;
   return skeleton;
 }
 
@@ -240,7 +246,10 @@ function buildPrompt(
     const ep = item.episode ? ` [Ep.${item.episode}/${episodes} — história contínua sobre o tema de leitura]` : "";
     const mode = modes[idx] ? ` | MODO: ${MODE_LABEL[modes[idx]!]}` : "";
     const format = formats[idx] ? ` | FORMATO: ${formats[idx]}` : "";
-    return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep}${mode}${format}`;
+    // P-27: duração pela idade; a tarde é opcional
+    const optional = isOptionalSlot(item, essentialRoutine);
+    const minutes = item.is_friday_world || item.episode ? "" : optional ? " | SE HOUVER TEMPO" : ` | ~${targetMinutes(item.school_year)} min`;
+    return `${idx + 1}. ${item.child_name} | ${day} | ${item.time_slot} | ${item.discipline_label}${ep}${mode}${format}${minutes}`;
   }).join("\n");
 
   const familyWeekSection = hasModes
@@ -349,7 +358,9 @@ ${skeletonSection}
 15. **DIFICULDADE AO NÍVEL DA CRIANÇA**: parte sempre do passo mais simples do conteúdo e sobe um degrau de cada vez ao longo da semana. Com ritmo "Calmo" ou no 1.º ano, no máximo um passo novo por atividade e instruções de uma frase. Pré-escolar: sem leitura nem escrita formal.
 16. **PORTEFÓLIO** (campo \`portfolio\`): para cada criança, escolhe 3 a 4 atividades da semana que deixam uma boa evidência para o portefólio (um texto, um desenho, uma construção, o registo de uma experiência ou de uma saída), de disciplinas DIFERENTES. Nessas, escreve em \`portfolio\` o que guardar, em 12 palavras no máximo (ex.: "Foto da maquete e a legenda escrita pela criança"). Em todas as outras atividades e nos episódios de leitura, \`portfolio\` fica "".
 
-17. **TEMA DA SEMANA** (campo \`theme\`): no PRIMEIRO objeto, escreve o fio condutor que escolheste, em 8 palavras no máximo (ex.: "Como é que as plantas bebem?"). Nos restantes, \`theme\` fica "".
+17. **DURAÇÃO (plano essencial)**: cada atividade tem de caber nos minutos indicados (~N min), que seguem o tempo de atenção da idade. É melhor uma atividade curta, prática e bem feita do que uma longa que fica a meio: um só objetivo, poucos passos, materiais à mão. As atividades marcadas SE HOUVER TEMPO são extras: curtas (10 a 15 minutos), leves e que se possam saltar sem perder o fio da semana.
+
+18. **TEMA DA SEMANA** (campo \`theme\`): no PRIMEIRO objeto, escreve o fio condutor que escolheste, em 8 palavras no máximo (ex.: "Como é que as plantas bebem?"). Nos restantes, \`theme\` fica "".
 
 ## RESPOSTA
 Devolve APENAS um JSON array com exatamente ${skeleton.length} objetos, na mesma ordem:
@@ -516,7 +527,7 @@ export async function generateWithGemini(
   // Tema da semana escolhido pela IA (fica acessível a quem chamou, sem mudar o tipo devolvido)
   lastWeekTheme = restoreNames(String(aiContent.find((c) => c?.theme?.trim())?.theme ?? ""), realNames).trim().slice(0, 90);
   const hints = skeleton.map((_, idx) => restoreNames(String(aiContent![idx]?.portfolio ?? ""), realNames));
-  return applyPortfolioHints(applyFamilyWeek(unifyFamilyOuting(skeleton.map((s, idx) => ({
+  return markOptional(applyPortfolioHints(applyFamilyWeek(unifyFamilyOuting(skeleton.map((s, idx) => ({
     child_id: s.child_id,
     day_of_week: s.day_of_week,
     time_slot: s.time_slot,
@@ -526,7 +537,7 @@ export async function generateWithGemini(
     materials: (aiContent[idx]?.materials ?? []).map((m) => restoreNames(String(m), realNames)),
     is_friday_world: s.is_friday_world,
     sort_order: s.sort_order,
-  })))), hints);
+  })))), hints), routine);
 }
 
 /**

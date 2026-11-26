@@ -1,7 +1,8 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { GeneratedPlanItem } from "@/lib/planGenerator";
-import type { WeekRoutine } from "@/lib/familyRoutine";
+import { showsHours, type WeekRoutine } from "@/lib/familyRoutine";
+import { durationLabel } from "@/lib/essentialPlan";
 import {
   DISCIPLINE_COLORS,
   DAY_LABELS,
@@ -114,6 +115,21 @@ const CANONICAL_PRIMARY_FRIDAY = [
   "14:45-15:15",  // Encerramento Reflexivo
 ];
 
+// P-27: sem horas, a coluna da esquerda mostra a ordem do dia
+const BLOCK_LABELS: Record<string, string> = {
+  "09:30-09:45": "Início",
+  "09:45-10:10": "1.º bloco",
+  "10:10-10:17": "Pausa curta",
+  "10:17-10:42": "2.º bloco",
+  "10:42-11:05": "Pausa",
+  "11:05-11:50": "3.º bloco",
+  "11:50-12:30": "Antes do almoço",
+  "12:30-14:00": "Almoço",
+  "14:00-14:30": "Se houver tempo",
+  "14:30-14:45": "Pausa",
+  "14:45-15:15": "Leitura",
+};
+
 // BIG_SLOTS: blocos com duração >2h — span máximo, destaque verde.
 const BIG_SLOTS = new Set(["09:45-11:50", "09:30-12:00"]);
 
@@ -187,6 +203,7 @@ interface Props {
 
 export default function SchedulePDF({ children, planItems, weekStart, familyName, extracurriculars = [], routine = null, liturgyOn = false }: Props) {
   const weekDates = getWeekDates(weekStart);
+  const hours = showsHours(routine);
 
   const fixedBlocks = getFixedScheduleBlocks(children, routine).map((b) =>
     liturgyOn && b.title === "Ritual de Chegada" ? { ...b, title: "Orações e liturgia" } : b,
@@ -225,7 +242,10 @@ export default function SchedulePDF({ children, planItems, weekStart, familyName
         {/* Cabeçalho */}
         <View style={S.header}>
           <Text style={S.headerTitle}>NexSeed — Horário Semanal</Text>
-          <Text style={S.headerSub}>{familyName} · Semana de {formatWeekRange(weekStart)}</Text>
+          <Text style={S.headerSub}>
+            {familyName} · Semana de {formatWeekRange(weekStart)}
+            {hours ? "" : " · Sem horas: sigam a ordem dos blocos, à vossa hora"}
+          </Text>
         </View>
 
         {/* ─── Horário unificado — todas as crianças ─── */}
@@ -236,14 +256,14 @@ export default function SchedulePDF({ children, planItems, weekStart, familyName
             {sortedChildren.map((child, idx) => (
               <View key={child.id} style={S.childLegendItem}>
                 <View style={[S.childLegendDot, { backgroundColor: CHILD_COLORS[idx % CHILD_COLORS.length] }]} />
-                <Text style={S.childLegendText}>{child.name}</Text>
+                <Text style={S.childLegendText}>{child.name}{hours ? "" : ` · atividades de ${durationLabel(child.school_year)}`}</Text>
               </View>
             ))}
           </View>
 
           {/* Cabeçalho da tabela */}
           <View style={S.headerRow}>
-            <Text style={S.headerTimeCell}>Hora</Text>
+            <Text style={S.headerTimeCell}>{hours ? "Hora" : "Ordem"}</Text>
             {weekDates.map((d, idx) => (
               <Text key={idx} style={S.headerCell}>
                 {DAY_LABELS[idx]}{"\n"}
@@ -270,7 +290,7 @@ export default function SchedulePDF({ children, planItems, weekStart, familyName
                       backgroundColor: med ? "#FEFCE8" : undefined,
                     }}
                   >
-                    <Text style={med ? S.timeCellMedium : S.timeCell}>{slot}</Text>
+                    <Text style={med ? S.timeCellMedium : S.timeCell}>{hours ? slot : BLOCK_LABELS[slot] ?? ""}</Text>
                   </View>
                 );
               })}

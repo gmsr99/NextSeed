@@ -10,6 +10,8 @@ export interface WeekRoutine {
   days: DayMode[];
   /** Saída "Ver Mundo" à sexta */
   outing: boolean;
+  /** P-27: mostrar horas no horário (por omissão, não: só a ordem e a duração) */
+  hours?: boolean;
 }
 
 export const DEFAULT_ROUTINE: WeekRoutine = { days: ["full", "full", "full", "full", "full"], outing: true };
@@ -26,11 +28,14 @@ const WEEKDAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
 const SHORT_DAY_CUTOFF = "10:42";
 
 /** Lê o que vem da base de dados; qualquer valor estranho volta ao de sempre. */
-export function normalizeRoutine(days: unknown, outing: unknown): WeekRoutine {
+export function normalizeRoutine(days: unknown, outing: unknown, scheduleMode?: unknown): WeekRoutine {
   const valid = (d: unknown): d is DayMode => d === "full" || d === "short" || d === "off";
   const list = Array.isArray(days) && days.length === 5 && days.every(valid) ? (days as DayMode[]) : DEFAULT_ROUTINE.days;
-  return { days: [...list], outing: typeof outing === "boolean" ? outing : true };
+  return { days: [...list], outing: typeof outing === "boolean" ? outing : true, hours: scheduleMode === "horas" };
 }
+
+/** P-27: o horário mostra horas? Por omissão (sem configuração), não. */
+export const showsHours = (r: WeekRoutine | null | undefined) => r?.hours === true;
 
 export function isDefaultRoutine(r: WeekRoutine | null | undefined): boolean {
   return !r || (r.outing && r.days.every((d) => d === "full"));

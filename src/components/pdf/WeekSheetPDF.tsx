@@ -7,6 +7,7 @@ import { DISCIPLINE_LABELS, DAY_LABELS, collectMaterials, formatWeekRange } from
 import type { Child } from "@/lib/types";
 import { splitPortfolio, weekPortfolioList } from "@/lib/portfolioHints";
 import { splitMode } from "@/lib/familyWeek";
+import { slotText } from "@/lib/essentialPlan";
 
 const GREEN = "#2D4A2D";
 const S = StyleSheet.create({
@@ -29,13 +30,15 @@ const S = StyleSheet.create({
 const MODE_SHORT = { juntos: "juntos", adulto: "com o adulto", sozinho: "sozinho(a)" } as const;
 
 interface Props {
+  /** P-27: mostrar horas (por omissão, a duração) */
+  hours?: boolean;
   children: Child[];
   planItems: GeneratedPlanItem[];
   weekStart: Date;
   familyName: string;
 }
 
-export default function WeekSheetPDF({ children, planItems, weekStart, familyName }: Props) {
+export default function WeekSheetPDF({ children, planItems, weekStart, familyName, hours = false }: Props) {
   const items = planItems.filter((i) => !i.is_fixed);
   const materials = collectMaterials(planItems);
   const withHints = children.filter((c) => weekPortfolioList(planItems, c.id).length > 0);
@@ -64,7 +67,7 @@ export default function WeekSheetPDF({ children, planItems, weekStart, familyNam
                       const hint = splitPortfolio(i.description).hint;
                       return (
                         <Text key={k} style={S.line}>
-                          <Text style={S.time}>{i.time_slot.split("-")[0]} </Text>
+                          <Text style={S.time}>{hours ? i.time_slot.split("-")[0] : slotText(i, child.school_year, false) ? `(${slotText(i, child.school_year, false)})` : ""} </Text>
                           <Text style={S.bold}>{DISCIPLINE_LABELS[i.discipline] ?? i.discipline}: </Text>
                           {i.title}
                           {mode ? ` (${MODE_SHORT[mode]})` : ""}

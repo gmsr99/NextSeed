@@ -16,11 +16,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
+import { DISCIPLINE_LABELS } from "@/lib/planGenerator";
 import { useAnnualPlans } from "@/hooks/useAnnualPlan";
 import { useChildManuals } from "@/hooks/useChildManuals";
 import { planWeekFor, formatWeekShort, mondayOf, isoDay, type AnnualContent, type AnnualPlan } from "@/lib/annualPlan";
 import { WEEK_CLOSE_TITLE } from "@/lib/weekClose";
 import { closeStatus, closeSummary } from "@/lib/dashboard";
+import { isOptional } from "@/lib/essentialPlan";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Child, Json } from "@/lib/types";
 
@@ -79,7 +81,7 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
         .from("weekly_plans").select("id").eq("week_start", isoDay(monday))
         .order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (!plan) return [];
-      const { data } = await supabase.from("weekly_plan_items").select("child_id, discipline, completed_at").eq("plan_id", plan.id);
+      const { data } = await supabase.from("weekly_plan_items").select("child_id, discipline, title, completed_at").eq("plan_id", plan.id);
       return data ?? [];
     },
   });
@@ -141,7 +143,7 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
     const pre: Record<string, boolean> = {};
     for (const it of allItems) {
       if (it.kind === "revisao") continue;
-      const mineItems = planItems.filter((p) => p.child_id === it.childId && norm(p.discipline) === norm(labelOf(it.discipline)));
+      const mineItems = planItems.filter((p) => p.child_id === it.childId && !isOptional(p) && norm(DISCIPLINE_LABELS[p.discipline] ?? p.discipline) === norm(labelOf(it.discipline)));
       if (mineItems.length > 0 && mineItems.every((p) => p.completed_at)) pre[it.key] = true;
     }
     setGiven(pre);

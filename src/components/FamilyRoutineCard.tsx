@@ -26,7 +26,7 @@ export default function FamilyRoutineCard() {
   const noStudy = draft.days.every((d) => d === "off");
 
   const openDialog = () => {
-    setDraft({ days: [...current.days], outing: current.outing });
+    setDraft({ days: [...current.days], outing: current.outing, hours: current.hours === true });
     setOpen(true);
   };
   const setDay = (i: number, mode: DayMode) =>
@@ -37,8 +37,9 @@ export default function FamilyRoutineCard() {
       await save.mutateAsync(draft);
       setOpen(false);
       toast({ title: "Semana guardada", description: "Os próximos planos seguem os vossos dias." });
-    } catch {
-      toast({ title: "Não foi possível guardar", description: "Tenta outra vez daqui a pouco.", variant: "destructive" });
+    } catch (e) {
+      const msg = e instanceof Error && e.message.startsWith("A opção das horas") ? e.message : "Tenta outra vez daqui a pouco.";
+      toast({ title: "Não foi possível guardar tudo", description: msg, variant: "destructive" });
     }
   };
   const onReset = async () => {
@@ -113,6 +114,21 @@ export default function FamilyRoutineCard() {
                     : draft.outing
                       ? "Uma saída da família, a um sítio perto, com as crianças todas."
                       : "Sem saída: a sexta é um dia de estudo em casa, como os outros."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Switch
+                id="routine-hours" checked={draft.hours === true}
+                onCheckedChange={(v) => setDraft((d) => ({ ...d, hours: v }))}
+              />
+              <div>
+                <Label htmlFor="routine-hours">Mostrar horas no horário</Label>
+                <p className="text-xs text-muted-foreground">
+                  {draft.hours
+                    ? "O horário sugere horas para cada bloco."
+                    : "Sem horas: o horário mostra a ordem dos blocos e quanto tempo dura cada atividade, pela idade. As horas ficam convosco."}
                 </p>
               </div>
             </div>

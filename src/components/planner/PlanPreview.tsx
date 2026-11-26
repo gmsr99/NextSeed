@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { slotText } from "@/lib/essentialPlan";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -101,6 +102,8 @@ interface PlanPreviewProps {
   onRegenerateItem?: (item: GeneratedPlanItem) => void;
   /** planItemKey do item em regeneração (desativa os restantes botões). */
   regeneratingKey?: string | null;
+  /** P-27: mostrar horas (por omissão, não: mostra a duração) */
+  hours?: boolean;
 }
 
 interface ChildViewProps {
@@ -108,10 +111,11 @@ interface ChildViewProps {
   planItems: GeneratedPlanItem[];
   onRegenerateItem?: (item: GeneratedPlanItem) => void;
   regeneratingKey?: string | null;
+  hours?: boolean;
 }
 
 // Per-child view (existing)
-function ChildView({ child, planItems, onRegenerateItem, regeneratingKey }: ChildViewProps) {
+function ChildView({ child, planItems, onRegenerateItem, regeneratingKey, hours = false }: ChildViewProps) {
   const childItems = planItems.filter((i) => i.child_id === child.id);
   return (
     <div className="space-y-4 mt-4">
@@ -138,7 +142,7 @@ function ChildView({ child, planItems, onRegenerateItem, regeneratingKey }: Chil
                     style={{ backgroundColor: color + "22", borderLeft: `3px solid ${color}` }}
                   >
                     <div className="text-xs text-muted-foreground w-24 shrink-0 pt-0.5">
-                      {item.time_slot}
+                      {slotText(item, child.school_year, hours)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -189,7 +193,7 @@ function ChildView({ child, planItems, onRegenerateItem, regeneratingKey }: Chil
 }
 
 // Family unified view — all children by day, color-coded per child
-function FamilyView({ children, planItems }: { children: Child[]; planItems: GeneratedPlanItem[] }) {
+function FamilyView({ children, planItems, hours = false }: { children: Child[]; planItems: GeneratedPlanItem[]; hours?: boolean }) {
   const childColorMap = new Map(children.map((c, i) => [c.id, CHILD_COLORS[i % CHILD_COLORS.length]]));
   const childNameMap = new Map(children.map((c) => [c.id, c.name.split(" ")[0]]));
 
@@ -234,7 +238,7 @@ function FamilyView({ children, planItems }: { children: Child[]; planItems: Gen
             <CardContent className="space-y-2">
               {[...bySlot.entries()].map(([slot, items]) => (
                 <div key={slot} className="flex gap-3">
-                  <div className="text-xs text-muted-foreground w-24 shrink-0 pt-2">{slot}</div>
+                  <div className="text-xs text-muted-foreground w-24 shrink-0 pt-2">{hours ? slot : ""}</div>
                   <div className="flex-1 space-y-2">
                     {items.map((item, idx) => {
                       const col = childColorMap.get(item.child_id) ?? CHILD_COLORS[0];
@@ -271,7 +275,7 @@ function FamilyView({ children, planItems }: { children: Child[]; planItems: Gen
   );
 }
 
-export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, regeneratingKey }: PlanPreviewProps) {
+export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, regeneratingKey, hours = false }: PlanPreviewProps) {
   const showFamilyTab = children.length > 1;
   const defaultTab = showFamilyTab ? "familia" : children[0]?.id ?? "familia";
 
@@ -301,7 +305,7 @@ export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, 
 
       {showFamilyTab && (
         <TabsContent value="familia">
-          <FamilyView children={children} planItems={planItems} />
+          <FamilyView children={children} planItems={planItems} hours={hours} />
         </TabsContent>
       )}
 
@@ -312,6 +316,7 @@ export function PlanPreview({ children, planItems, weekTheme, onRegenerateItem, 
             planItems={planItems}
             onRegenerateItem={onRegenerateItem}
             regeneratingKey={regeneratingKey}
+            hours={hours}
           />
         </TabsContent>
       ))}

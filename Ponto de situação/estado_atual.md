@@ -130,6 +130,11 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
+## Plano essencial e mapa da criança (26 nov, ramo `feat/plano-essencial`)
+- **P-27** (`src/lib/essentialPlan.ts`): a leitura de terça sai (`dropReadingDay`), os blocos da tarde (≥ 14:00, menos leitura e saída) levam o prefixo "Se houver tempo · " no título (`markOptional`, nos dois geradores e ao regenerar), o pedido à IA leva "~N min" por bloco (`targetMinutes`: pré 8/10/12, 1.º 15, 2.º 18, 3.º 20, 4.º 25) e a regra 17 (duração). Horário sem horas por omissão: `SchedulePDF` mostra a ordem dos blocos, `WeekSheetPDF`, `ActivityGuidePDF` e o Planeador mostram a duração (`slotText`). A opção vive em `family_week_routines.schedule_mode` (migração **036**); sem a 036, lê-se e grava-se sem a coluna e fica sem horas. No Início, as opcionais não contam para "Em dia".
+- **R-11** (`ChildWeekMapPDF`): uma página por criança, com desenhos SVG simples por disciplina (sem imagens externas), caixas, tarefas da casa e autocolantes. Nos PDF descarregados e no email (`send-weekly-plan` aceita `mapB64`/`mapName`; precisa de ser publicada de novo).
+- Corrigido também: o Hoje mostrava a disciplina pela chave interna ("language"); o fecho da semana comparava chaves com nomes e não pré-marcava.
+
 ## Financinhas no relatório trimestral (26 nov, ramo `feat/financinhas-relatorio`)
 - `src/lib/financinhas/report.ts`: três competências fortes (nível ≥ 2) e três a trabalhar, só com eventos observados até ao fim do período; sem secção com menos de duas observadas. `TrimesterReportPDF` mostra a secção antes da declaração; em Relatórios há a opção "Incluir Financinhas" (ligada por omissão). Nada vai para a IA.
 - A capa do relatório citava o Decreto-Lei 55/2018 e o Despacho Normativo 10-B/2018 (regime antigo); passa a citar o Decreto-Lei n.º 70/2021, que aprova o regime jurídico do ensino individual e do ensino doméstico.
