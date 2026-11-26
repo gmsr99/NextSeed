@@ -87,7 +87,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | 4 | E2 · Atividades melhores no plano semanal | A semana passa a ser um guia que a mãe consegue dar a várias crianças ao mesmo tempo, com pouca preparação. | A | A | P-06 a P-10, P-21, P-22 e P-23 publicados. Por confirmar com planos reais (Q-07) |
 | 5 | E6 · Registo, portefólio e relatórios | A primeira entrega às escolas é em dezembro e janeiro: é a prova de valor da segunda âncora. | A | A | Por fazer |
 | 6 | E5 · Fecho da semana | Liga o que foi feito ao progresso, sem a família ter de ir às Áreas de Aprendizagem. Alimenta o E3 e o portefólio. | A | M | Por fazer |
-| 7 | E4 · Horário e tempo flexíveis | O plano é gerado para uma semana que muitas famílias não têm. Precisa de BD e é o maior bloco de trabalho. | A | M | Versão mínima feita a 22 nov ("A nossa semana": dias de estudo, dias curtos, saída opcional). Publicado a 22 nov; migração 030 aplicada a 25 nov. A seguir: plano essencial e horário por blocos (P-27) |
+| 7 | E4 · Horário e tempo flexíveis | O plano é gerado para uma semana que muitas famílias não têm. Precisa de BD e é o maior bloco de trabalho. | A | M | Versão mínima feita a 22 nov ("A nossa semana": dias de estudo, dias curtos, saída opcional). Publicado a 22 nov; migração 030 aplicada a 25 nov. Plano essencial, horário sem horas e mapa da criança (P-27, R-11) publicados a 26 nov; falta aplicar a migração 036 |
 | 8 | E7 · Impressão e documentos | As famílias imprimem demasiadas folhas. Alguns pontos são rápidos e podem entrar antes. | M | M | Por fazer |
 | 9 | E9 · Personalização e conteúdos próprios | Pedidos com valor real mas grandes, alguns com questões legais (direitos de autor, dados religiosos). | M | B | Em estudo |
 | 10 | E10 · Comunidade, conteúdos e negócio | Ideias para depois de o núcleo estar sólido. | M | B | Em estudo |
@@ -246,6 +246,7 @@ Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões
 | T-04 | Corrigir ou apagar Ponto de situação/contexto_chat.json | Auditoria | B/B | S | Por fazer |
 | T-01 | Auditoria em telemóvel real: câmara, botões, PWA | Auditoria (FASE 3.5) | M/M | S | Aguarda Elton |
 | T-11 | Plano Semanal perdia o formulário e o plano por guardar ao sair da página ou ao voltar à app | Elton, 16 nov (testes). A app recarregava o ecrã sempre que regressava ao primeiro plano | A/A | S | Publicado a 16 nov. Por confirmar (V-29 a V-31) |
+| T-12 | Quem entra por convite ficava também com uma família própria vazia (e podia cair nela) | Gil, 25 nov (patch). Migração 035 no ramo `fix/convite-sem-onboarding`: o registo por convite já não cria família, aceitar o convite apaga a família vazia e há uma limpeza única das famílias vazias antigas | A/M | S | **Parado de propósito (decisão do Elton, 26 nov: "para não fazermos asneira").** A limpeza apaga famílias: só avança com um backup feito e com o resultado de `docs/sql/035_previsao_limpeza.sql` visto pelo Elton (quantas famílias, se a conta convidada dele é uma delas), numa sessão no Mac do Gil. Hipótese: separar a limpeza da correção do convite |
 | T-05 | Confirmar que as migrações locais correspondem à produção | Auditoria | M/B | S | Em pausa (depende de B-04) |
 
 ## Feito
