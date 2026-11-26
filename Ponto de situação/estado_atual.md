@@ -130,6 +130,10 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
+## Dia livre e semana difícil (26 nov, ramo `feat/dia-livre-semana-dificil`, por publicar)
+- **P-29**: `DayMode` ganha `"free"` (`familyRoutine.ts`): num dia livre `applyWeekRoutine` deixa só `ritual`, `lunch` e `reading`; sexta livre não tem saída; `dropReadingDay(items, routine)` mantém a leitura de terça se a terça for livre. Sem migração (os dias são jsonb sem restrição de valores).
+- **P-28**: `LIGHT_WEEK_PREFIX = "Semana leve · "` (`essentialPlan.ts`), contado por `isOptional`; `lightWeekChanges` e `setLightWeek` (em `useTodayDashboard`) atualizam os títulos de `weekly_plan_items` de hoje até sexta, menos a leitura e a saída; desfaz-se tirando o prefixo.
+
 ## Rumo em família, Financinhas no plano, kit e Direitos (26 nov, ramo `feat/rumo-familia`, por publicar)
 - **P-24** (`src/lib/familyYear.ts`): "A família" no seletor do Rumo do ano (com 2+ crianças com rumo). Semanas alinhadas pela segunda-feira; "Para fazerem juntos" quando 2+ crianças têm Estudo do Meio, Artes ou FPS na mesma semana, com o domínio quando coincide. Português, Matemática e Inglês nunca são comuns. Sem BD.
 - **I-21** (`src/lib/financinhas/weekSession.ts`, `FinancinhasWeekCard`, `FinancinhasWeekPDF`): no Plano Semanal, por criança com perfil, o dia da semanada e a aula `por_dar` mais antiga, com "Copiar o prompt"; em Descarregar PDFs sai `nexseed-financinhas-*.pdf` (guia, quiz, atividades, desafio; emojis dos mealheiros trocados por palavras). Não gera aulas nem mexe no horário.
