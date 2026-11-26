@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, PiggyBank, Settings2, Upload } from "lucide-react";
+import { Download, Loader2, PiggyBank, Settings2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useChildren } from "@/hooks/useChildren";
 import { useIsTeamAdmin } from "@/hooks/useIsTeamAdmin";
@@ -239,7 +239,27 @@ export default function Financinhas() {
   const { toast } = useToast();
   const [selected, setSelected] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [kitBusy, setKitBusy] = useState(false);
   const today = todayIso();
+
+  const downloadKit = async () => {
+    setKitBusy(true);
+    try {
+      const [{ pdf }, { default: KitPDF }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("@/components/pdf/FinancinhasKitPDF"),
+      ]);
+      const blob = await pdf(<KitPDF />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "nexseed-financinhas-kit-de-arranque.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setKitBusy(false);
+    }
+  };
 
   const withAge = children.map((c) => {
     const age = ageOn(c.birth_date, today);
@@ -273,9 +293,15 @@ export default function Financinhas() {
               <p className="text-muted-foreground">Aprender a decidir com dinheiro: uma história por semana e um ritual de 5 minutos.</p>
             </div>
           </div>
-          {fin.data.available && eligible.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" /> Importar histórico</Button>
-          )}
+          <div className="flex flex-wrap gap-1">
+            {/* I-20: kit de arranque para imprimir (frascos, mapas, sonho, fotografia inicial) */}
+            <Button variant="outline" size="sm" onClick={downloadKit} disabled={kitBusy}>
+              <Download className="h-4 w-4 mr-1" /> {kitBusy ? "A preparar…" : "Kit de arranque (PDF)"}
+            </Button>
+            {fin.data.available && eligible.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" /> Importar histórico</Button>
+            )}
+          </div>
         </div>
 
         {(childrenLoading || fin.isLoading) && <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />}

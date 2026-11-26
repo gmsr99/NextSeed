@@ -276,6 +276,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "A app gera a aula: o texto para colares no Gemini Notebook ou no NotebookLM (que faz a apresentação ilustrada), o quiz, as atividades e o guia para ti. Revês tudo antes de mostrares à criança.",
         "A partir da sessão 2 há quatro mealheiros (🐷 Gastar, 🎯 Poupar, ❤️ Dar, 🚀 Investir), o chão do 🐷 e um caderninho em papel. Todas as semanas, no mesmo dia, fazem o ritual da semanada e registas em 30 segundos.",
         "No [Plano Semanal](/weekly-planner) aparece o cartão **Financinhas desta semana**: o dia da semanada de cada criança e a aula por dar, com o botão **Copiar o prompt**. Em **Descarregar PDFs** sai também o guia do adulto, o quiz e as atividades dessa aula. A aula prepara-se sempre na página Financinhas.",
+        "Em **Kit de arranque (PDF)**, no topo da página, estão as etiquetas dos quatro frascos e da linha do chão, o Mapa de Moedas (5–6 anos), a Página da Semana (7–8 anos), a folha do sonho e a ficha da fotografia inicial, para imprimir.",
         "Nos dias seguintes, em **O que observar**, confirmas o que viste acontecer. É isso, e só isso, que faz subir as competências.",
         "Depois da sessão 12 passam ao **ciclo semanal**: a app escolhe o tema pelas competências mais frágeis e pelo que a criança está a viver.",
       ]},
