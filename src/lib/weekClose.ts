@@ -1,29 +1,63 @@
 // Fecho da semana e ritmo do ano (P-14, P-19, P-20).
 //
-// Regra de atraso sem culpa: o que ficou "em progresso" volta nas semanas
-// seguintes, ao lado dos conteúdos novos da semana, no máximo dois por
-// disciplina. Nada se acumula como dívida.
+// Regra de atraso sem culpa: o que não foi dado volta na semana seguinte, ao
+// lado dos conteúdos novos, no máximo dois por disciplina; o que ficou "precisa
+// de mais" volta como revisão curta, no máximo duas por criança. Nada se
+// acumula como dívida.
 import type { AnnualContent, AnnualPlan } from "./annualPlan";
 import { mondayOf, planWeekFor } from "./annualPlan";
 
 export const MAX_CARRY_OVER = 2;
+/** DASH fase 3: revisões curtas ("precisa de mais") por criança e por semana, no total. */
+export const MAX_REVIEWS_PER_WEEK = 2;
+export const REVIEW_PREFIX = "Rever · ";
 
 /**
  * Conteúdos a enviar ao plano: os da semana (rumo) e, por cima, até dois por
- * disciplina que ficaram por consolidar. Sem foco (pausas, balanço), só os
- * que ficaram por consolidar.
+ * disciplina que não chegaram a ser dados ([retomar]). Sem foco (pausas,
+ * balanço), só esses.
+ *
+ * DASH fase 3: o que ficou "precisa de mais" (em progresso) volta como
+ * revisão curta ([rever]), no máximo duas por criança na semana, uma por
+ * disciplina de cada vez, para não encher o plano.
  */
 export function mergeWeekContents(
   focus: Record<string, string[]> | null | undefined,
   inProgress: Record<string, string[]>,
   max = MAX_CARRY_OVER,
+  reviews: Record<string, string[]> = {},
+  maxReviews = MAX_REVIEWS_PER_WEEK,
 ): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const [d, list] of Object.entries(focus ?? {})) out[d] = list.map((c) => `[a aprender] ${c}`);
+  const picked = pickReviews(reviews, maxReviews, focus);
   for (const [d, list] of Object.entries(inProgress)) {
-    const already = new Set(focus?.[d] ?? []);
+    const already = new Set([...(focus?.[d] ?? []), ...(picked[d] ?? [])]);
     const extra = list.filter((c) => !already.has(c)).slice(0, max).map((c) => `[retomar] ${c}`);
     if (extra.length) out[d] = [...(out[d] ?? []), ...extra];
+  }
+  for (const [d, list] of Object.entries(picked)) out[d] = [...(out[d] ?? []), ...list.map((c) => `[rever] ${c}`)];
+  return out;
+}
+
+/** Até `max` revisões no total, alternando entre disciplinas (uma de cada vez). */
+export function pickReviews(
+  reviews: Record<string, string[]>,
+  max = MAX_REVIEWS_PER_WEEK,
+  exclude?: Record<string, string[]> | null,
+): Record<string, string[]> {
+  const queues = Object.entries(reviews)
+    .map(([d, list]) => [d, [...new Set(list)].filter((c) => !(exclude?.[d] ?? []).includes(c))] as const)
+    .filter(([, list]) => list.length > 0);
+  const out: Record<string, string[]> = {};
+  let n = 0;
+  for (let round = 0; n < max; round++) {
+    let any = false;
+    for (const [d, list] of queues) {
+      if (n >= max) break;
+      if (round < list.length) { (out[d] ??= []).push(list[round]); n++; any = true; }
+    }
+    if (!any) break;
   }
   return out;
 }

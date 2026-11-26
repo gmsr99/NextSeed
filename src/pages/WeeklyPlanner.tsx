@@ -447,14 +447,16 @@ export default function WeeklyPlanner() {
           const focusNoManual = Object.fromEntries(
             Object.entries(gcCurrentByChild[child.id] ?? {}).filter(([d]) => !manualDisciplines.has(d)),
           );
-          const carry: Record<string, string[]> = {};
-          for (const src of [inProgressByChild[child.id] ?? {}, leftoverByChild[child.id] ?? {}]) {
-            for (const [d, list] of Object.entries(src)) {
-              if (manualDisciplines.has(d)) continue;
-              carry[d] = [...new Set([...(carry[d] ?? []), ...list])];
-            }
-          }
-          gcProgressByChild[child.id] = mergeWeekContents(focusNoManual, carry);
+          // DASH fase 3: o que não foi dado volta como [retomar]; o que ficou
+          // "precisa de mais" volta como revisão curta [rever] (até 2 por criança)
+          const noManual = (src: Record<string, string[]>) =>
+            Object.fromEntries(Object.entries(src).filter(([d]) => !manualDisciplines.has(d)));
+          gcProgressByChild[child.id] = mergeWeekContents(
+            focusNoManual,
+            noManual(leftoverByChild[child.id] ?? {}),
+            undefined,
+            noManual(inProgressByChild[child.id] ?? {}),
+          );
           continue;
         }
         if (!gcProgressByChild[child.id] && gcCurrentByChild[child.id]) {

@@ -135,3 +135,14 @@ describe("plano essencial no pedido (P-27)", () => {
     expect(items.filter((i) => i.title.startsWith("Se houver tempo · ")).length).toBe(4);
   });
 });
+
+describe("revisões curtas no pedido (DASH fase 3)", () => {
+  it("as linhas [rever] chegam ao pedido com a regra da revisão curta", async () => {
+    await generateWithGemini([child("a", "Ana", "2º ano")], {}, "", "", {}, {
+      a: { matematica: ["[a aprender] Dezenas", "[rever] Unidades"] },
+    });
+    expect(lastPrompt).toContain("[rever] Unidades");
+    expect(lastPrompt).toContain("Linhas com [rever]");
+    expect(lastPrompt).toContain("Rever · ");
+  });
+});

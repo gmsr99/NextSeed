@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mergeWeekContents, paceUntil, weekCloseNote } from "../weekClose";
+import { mergeWeekContents, paceUntil, pickReviews, weekCloseNote } from "../weekClose";
 import { buildAnnualPlan, type AnnualContent } from "../annualPlan";
 
 describe("mergeWeekContents (P-14)", () => {
@@ -15,6 +15,28 @@ describe("mergeWeekContents (P-14)", () => {
 
   it("sem foco (pausa ou balanço), só o que ficou por consolidar", () => {
     expect(mergeWeekContents(null, { matematica: ["X"] })).toEqual({ matematica: ["[retomar] X"] });
+  });
+});
+
+describe("revisões curtas (DASH fase 3)", () => {
+  it("no máximo duas por criança, uma disciplina de cada vez", () => {
+    expect(pickReviews({ matematica: ["M1", "M2", "M3"], portugues: ["P1"], estudo_do_meio: ["E1"] })).toEqual({
+      matematica: ["M1"], portugues: ["P1"],
+    });
+    expect(pickReviews({ matematica: ["M1", "M2", "M3"] })).toEqual({ matematica: ["M1", "M2"] });
+    expect(pickReviews({})).toEqual({});
+  });
+
+  it("[rever] para o que precisa de mais, [retomar] para o que não foi dado, sem repetir", () => {
+    expect(mergeWeekContents(
+      { matematica: ["A"] },
+      { matematica: ["X", "R"] },
+      2,
+      { matematica: ["R", "A"], portugues: ["P"] },
+    )).toEqual({
+      matematica: ["[a aprender] A", "[retomar] X", "[rever] R"],
+      portugues: ["[rever] P"],
+    });
   });
 });
 
