@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 26 de novembro de 2026 (plano essencial e mapa da criança publicados; rumo em família, Financinhas no plano, kit e Direitos e deveres por publicar). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
+**Atualizado:** 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -130,7 +130,7 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
-## Notas do Elton nos testes de 26 nov (ramo `feat/notas-elton-26nov`, por publicar)
+## Notas do Elton nos testes de 26 nov (publicado a 26 nov)
 - **V-23**: `PlanPreview` recebe `fixedItems` (`getFixedScheduleBlocks`, com "Orações e liturgia" se a Tradição estiver ligada) e mostra-os em cinzento entre as atividades de cada criança.
 - **R-12** (`PlanActivityPicker`): no Diário, escolher um item do plano da semana (ou da anterior, ao fim de semana) preenche criança, título (sem prefixos), área, descrição (sem o JSON da leitura) e dia; "Observações" junta-se à descrição (`withObservations`).
 - **R-04**: `activities.extra_disciplines` (migração **039**); `activityAreas()` usado no Portfólio (badges e filtro), nos Relatórios (contagens) e no PDF trimestral ("Também trabalhou"). Sem a coluna, `createActivity` guarda só a principal e devolve `extrasSaved=false`.
