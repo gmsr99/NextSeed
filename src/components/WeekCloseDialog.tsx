@@ -21,7 +21,8 @@ import { useAnnualPlans } from "@/hooks/useAnnualPlan";
 import { useChildManuals } from "@/hooks/useChildManuals";
 import { planWeekFor, formatWeekShort, mondayOf, isoDay, type AnnualContent, type AnnualPlan } from "@/lib/annualPlan";
 import { WEEK_CLOSE_TITLE } from "@/lib/weekClose";
-import { closeStatus, closeSummary } from "@/lib/dashboard";
+import { closeStatus, closeSummary, isOnHold, nextReviewCount, REVIEW_HOLD_AFTER } from "@/lib/dashboard";
+import { useReviewCounts } from "@/hooks/useReviewCounts";
 import { isOptional } from "@/lib/essentialPlan";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Child, Json } from "@/lib/types";
@@ -71,6 +72,10 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedSummary, setSavedSummary] = useState<string | null>(null);
+  const [holdNotice, setHoldNotice] = useState<string[]>([]);
+  // DASH fase 3 (migração 037): quantas revisões seguidas cada tema já teve
+  const { data: reviewData } = useReviewCounts(open ? familyChildren.map((c) => c.id) : []);
+  const reviewCounts = reviewData?.available ? reviewData.byChild : {};
 
   // Atividades do plano da semana: as que foram marcadas no Hoje pré-marcam a disciplina
   const { data: planItems = [] } = useQuery({
@@ -101,6 +106,8 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
           if (w.monday.getTime() > monday.getTime() + 12 * 3600 * 1000) break;
           for (const c of Object.values(w.byDiscipline).flat() as AnnualContent[]) {
             if (c.fromManual || status[c.id] !== "em_progresso" || seen.has(c.id)) continue;
+            // "com atenção" (3 revisões seguidas): deixa de voltar sozinho
+            if (isOnHold(status[c.id], reviewCounts[child.id]?.[c.id]?.count)) continue;
             if ((reviews[c.discipline] ?? 0) >= MAX_REVIEWS) continue;
             seen.add(c.id);
             reviews[c.discipline] = (reviews[c.discipline] ?? 0) + 1;
@@ -127,7 +134,7 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
       for (const it of items) byDiscipline.set(it.discipline, [...(byDiscipline.get(it.discipline) ?? []), it]);
       return { child, groups: [...byDiscipline.entries()] };
     });
-  }, [familyChildren, plans, progress, manuals, date, monday]);
+  }, [familyChildren, plans, progress, manuals, date, monday, reviewData]);
 
   const allItems = rows.flatMap((r) => r.groups.flatMap(([, l]) => l));
   const week = Object.values(plans)[0] ? planWeekFor(Object.values(plans)[0], date) : null;
@@ -161,11 +168,24 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
     setError(null);
     try {
       const now = new Date().toISOString();
+      const withCount = !!reviewData?.available;
+      const reachedHold: string[] = [];
       const upserts = allItems
         .filter((i) => i.contentId)
-        .map((i) => ({ i, s: closeStatus(!!given[i.key], !!needsMore[i.key], progress[i.childId]?.[i.contentId!]) }))
-        .filter((x) => x.s)
-        .map(({ i, s }) => ({ child_id: i.childId, content_id: i.contentId!, status: s!, updated_at: now }));
+        .map((i) => {
+          const s = closeStatus(!!given[i.key], !!needsMore[i.key], progress[i.childId]?.[i.contentId!]);
+          const prev = reviewCounts[i.childId]?.[i.contentId!]?.count ?? 0;
+          const next = nextReviewCount(i.kind === "revisao", !!given[i.key], !!needsMore[i.key], prev);
+          if (next !== null && next >= REVIEW_HOLD_AFTER && prev < REVIEW_HOLD_AFTER) reachedHold.push(i.label.replace(/^Rever · /, ""));
+          return { i, s, count: next ?? prev };
+        })
+        .filter((x) => x.s || (withCount && x.count !== (reviewCounts[x.i.childId]?.[x.i.contentId!]?.count ?? 0)))
+        .map(({ i, s, count }) => ({
+          child_id: i.childId, content_id: i.contentId!,
+          status: s ?? progress[i.childId]?.[i.contentId!] ?? "em_progresso",
+          updated_at: now,
+          ...(withCount ? { review_count: count } : {}),
+        }));
       if (upserts.length) {
         const { error: e } = await supabase.from("child_content_progress").upsert(upserts, { onConflict: "child_id,content_id" });
         if (e) throw e;
@@ -198,7 +218,9 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
         qc.invalidateQueries({ queryKey: ["child_content_progress"] }),
         qc.invalidateQueries({ queryKey: ["progress-dates"] }),
         qc.invalidateQueries({ queryKey: ["child-manuals"] }),
+        qc.invalidateQueries({ queryKey: ["review-counts"] }),
       ]);
+      setHoldNotice(reachedHold);
       const { g, n } = counts();
       if (proposeNext) setSavedSummary(allItems.length ? closeSummary(allItems.length, g, n) : "Semana fechada.");
       else onClose();
@@ -222,6 +244,13 @@ export default function WeekCloseDialog({ open, onClose, familyChildren, date, t
             <DialogDescription>{savedSummary}</DialogDescription>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">O que não foi dado entra no plano da semana que vem, sem pressa.</p>
+          {holdNotice.length > 0 && (
+            <p className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-foreground">
+              <span className="font-medium">Com atenção:</span> {holdNotice.join(", ")}. Já voltou {REVIEW_HOLD_AFTER} vezes e ainda
+              precisa de mais, por isso deixa de voltar sozinho. Experimentem outra abordagem (material concreto, outra explicação,
+              ou uma pausa de umas semanas). Podem voltar a propô-lo no Rumo do ano.
+            </p>
+          )}
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="ghost" onClick={onClose}>Fica para domingo</Button>
             <Button onClick={() => { onClose(); navigate("/weekly-planner?semana=proxima"); }}>Preparar a próxima semana</Button>

@@ -239,6 +239,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "**A semana** diz se vão em dia ou quase lá. O que ficar para trás encaixa-se noutro dia ou passa para a semana seguinte.",
         "**O ano** compara o que já foi dado com o que falta até 30 de junho, com julho de folga. Toquem na caixa para ver cada disciplina: a barra é o que foi dado, o traço é o que o rumo previa até hoje.",
         "À sexta, **Fechar a semana · 5 min**: marquem o que foi dado. Se precisar de mais, toquem em **Precisa de mais**: conta como dado e volta no plano seguinte como revisão curta (cerca de 10 minutos, com outro formato, e um título que começa por **Rever ·**). Há no máximo duas revisões por criança por semana, para não encher o plano. O que não marcarem passa para a semana seguinte como atividade normal.",
+        "Se um tema voltar **3 vezes** e ainda precisar de mais, deixa de voltar sozinho e aparece **Com atenção** no Rumo do ano, com a sugestão de outra abordagem. Quando quiserem retomá-lo, carreguem em **Voltar a propor**.",
         "A **nota** do fecho é só para vocês: fica no Diário e não vai para o plano nem para a inteligência artificial.",
       ]},
       { type: "callout", text: "O rumo é uma orientação, não uma dívida. Se uma semana correr de outra maneira, ele continua lá. O que marcarem como **Dominado** nas Áreas de Aprendizagem deixa de entrar nos planos, e o que marcarem como **Em progresso** passa à frente do rumo." },

@@ -564,6 +564,7 @@ export type Database = {
           child_id: string
           content_id: string
           status: 'a_aprender' | 'em_progresso' | 'dominado'
+          review_count: number
           success_level: number | null
           taught_on: string | null
           notes: string | null
@@ -575,6 +576,7 @@ export type Database = {
           child_id: string
           content_id: string
           status?: 'a_aprender' | 'em_progresso' | 'dominado'
+          review_count?: number
           success_level?: number | null
           taught_on?: string | null
           notes?: string | null
@@ -586,6 +588,7 @@ export type Database = {
           child_id?: string
           content_id?: string
           status?: 'a_aprender' | 'em_progresso' | 'dominado'
+          review_count?: number
           success_level?: number | null
           taught_on?: string | null
           notes?: string | null

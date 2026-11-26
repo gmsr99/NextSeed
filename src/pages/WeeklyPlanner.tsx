@@ -44,6 +44,8 @@ import { weekLiturgy } from "@/lib/tradicao/week";
 import { mergeWeekContents } from "@/lib/weekClose";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
 import { fetchChildManuals } from "@/hooks/useChildManuals";
+import { fetchReviewCounts } from "@/hooks/useReviewCounts";
+import { isOnHold } from "@/lib/dashboard";
 import { useFinancinhas } from "@/hooks/useFinancinhas";
 import { useIsTeamAdmin } from "@/hooks/useIsTeamAdmin";
 import { usePilotFeature } from "@/hooks/usePilotFeature";
@@ -350,6 +352,8 @@ export default function WeeklyPlanner() {
       const masteredByChild: Record<string, Record<string, string[]>> = {};
       // DASH: temas da semana anterior que não foram dados
       const leftoverByChild: Record<string, Record<string, string[]>> = {};
+      // DASH fase 3 (migração 037): temas "com atenção" (3 revisões seguidas) não voltam sozinhos
+      const reviewCounts = await fetchReviewCounts(gcChildren.map((c) => c.id));
       await Promise.all(
         gcChildren.map(async (child) => {
           const dbYear = YEAR_MAP[child.school_year];
@@ -427,7 +431,9 @@ export default function WeeklyPlanner() {
               gcCurrentByChild[child.id][c.discipline].push(c.content);
             }
 
-            if (status === "em_progresso") {
+            if (status === "em_progresso" && isOnHold(status, reviewCounts.byChild[child.id]?.[c.id]?.count)) {
+              // com atenção: fica no Rumo do ano, fora do plano
+            } else if (status === "em_progresso") {
               ((inProgressByChild[child.id] ??= {})[c.discipline] ??= []).push(c.content);
               if (!gcProgressByChild[child.id]) gcProgressByChild[child.id] = {};
               if (!gcProgressByChild[child.id][c.discipline]) gcProgressByChild[child.id][c.discipline] = [];
