@@ -678,6 +678,104 @@ export type Database = {
         }
         Relationships: []
       }
+      // Agenda da comunidade (migração 041, I-03a)
+      municipalities: {
+        Row: { code: string; name: string; district: string; lat: number; lng: number }
+        Insert: { code: string; name: string; district: string; lat: number; lng: number }
+        Update: { code?: string; name?: string; district?: string; lat?: number; lng?: number }
+        Relationships: []
+      }
+      community_events: {
+        Row: {
+          id: string
+          kind: string
+          title: string
+          description: string
+          organizer_name: string
+          municipality_code: string
+          venue: string | null
+          starts_at: string
+          ends_at: string
+          all_day: boolean
+          recurrence: string
+          recurrence_until: string | null
+          age_min: number | null
+          age_max: number | null
+          categories: string[]
+          is_free: boolean
+          price_text: string | null
+          url: string | null
+          public_contact: string | null
+          source: string
+          source_url: string | null
+          status: string
+          rejection_reason: string | null
+          declaration_accepted: boolean
+          submitted_by: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          kind?: string
+          title: string
+          description: string
+          organizer_name: string
+          municipality_code: string
+          venue?: string | null
+          starts_at: string
+          ends_at: string
+          all_day?: boolean
+          recurrence?: string
+          recurrence_until?: string | null
+          age_min?: number | null
+          age_max?: number | null
+          categories: string[]
+          is_free: boolean
+          price_text?: string | null
+          url?: string | null
+          public_contact?: string | null
+          source?: string
+          source_url?: string | null
+          status?: string
+          rejection_reason?: string | null
+          declaration_accepted: boolean
+          submitted_by?: string | null
+        }
+        Update: {
+          kind?: string
+          title?: string
+          description?: string
+          organizer_name?: string
+          municipality_code?: string
+          venue?: string | null
+          starts_at?: string
+          ends_at?: string
+          all_day?: boolean
+          recurrence?: string
+          recurrence_until?: string | null
+          age_min?: number | null
+          age_max?: number | null
+          categories?: string[]
+          is_free?: boolean
+          price_text?: string | null
+          url?: string | null
+          public_contact?: string | null
+          source_url?: string | null
+          status?: string
+          rejection_reason?: string | null
+          declaration_accepted?: boolean
+        }
+        Relationships: []
+      }
+      family_event_settings: {
+        Row: { family_id: string; municipality_code: string | null; preferences: Json; updated_at: string }
+        Insert: { family_id: string; municipality_code?: string | null; preferences?: Json; updated_at?: string }
+        Update: { family_id?: string; municipality_code?: string | null; preferences?: Json; updated_at?: string }
+        Relationships: []
+      }
       pilot_features: {
         Row: { family_id: string; feature: string; created_at: string }
         Insert: { family_id: string; feature: string; created_at?: string }
@@ -1539,6 +1637,7 @@ export interface CalendarEvent {
   end_time: string | null;
   notes: string | null;
   type: 'consulta' | 'saida' | 'visita' | 'evento';
+  community_event_id?: string | null; // "Juntar à nossa agenda" (041)
   created_at: string;
 }
 

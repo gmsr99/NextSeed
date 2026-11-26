@@ -24,11 +24,15 @@ function isoDateForDow(weekStart: Date, dow: number): string {
   return format(addDays(weekStart, dow - 1), 'yyyy-MM-dd');
 }
 
+const NO_LINKS: Record<string, { kind: string; status: string }> = {};
+
 export function useCalendarData(
   monthStart: Date,
   monthEnd: Date,
   calendarEvents: CalendarEvent[],
-  children: { id: string; name: string }[]
+  children: { id: string; name: string }[],
+  /** Estado dos eventos da comunidade juntados à agenda (I-03a): tipo e se foram cancelados. */
+  linked: Record<string, { kind: string; status: string }> = NO_LINKS
 ) {
   const { family } = useAuth();
 
@@ -130,14 +134,20 @@ export function useCalendarData(
       cursor = addDays(cursor, 7);
     }
 
-    // Manual calendar events
+    // Manual calendar events (os juntados da Agenda da comunidade levam a cor do tipo)
     for (const ev of calendarEvents) {
+      const link = ev.community_event_id ? linked[ev.community_event_id] : undefined;
+      const color = !ev.community_event_id
+        ? 'bg-green-100 text-green-800'
+        : link?.kind === 'encontro'
+          ? 'bg-rose-100 text-rose-800'
+          : 'bg-teal-100 text-teal-800';
       push(ev.date, {
         id: ev.id,
         kind: 'manual',
-        title: ev.title,
+        title: link?.status === 'cancelado' ? `${ev.title} (cancelado)` : ev.title,
         time: ev.start_time?.slice(0, 5) ?? null,
-        color: 'bg-green-100 text-green-800',
+        color: link?.status === 'cancelado' ? `${color} line-through opacity-70` : color,
         date: ev.date,
         childName: childName(ev.child_id),
         rawEvent: ev,
@@ -145,7 +155,7 @@ export function useCalendarData(
     }
 
     return map;
-  }, [planItems, extras, calendarEvents, children]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [planItems, extras, calendarEvents, children, linked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { eventsByDate };
 }

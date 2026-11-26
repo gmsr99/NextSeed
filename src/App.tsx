@@ -22,6 +22,9 @@ const Projects          = React.lazy(() => import("./pages/Projects"));
 const Portfolio         = React.lazy(() => import("./pages/Portfolio"));
 const Reports           = React.lazy(() => import("./pages/Reports"));
 const CalendarPage      = React.lazy(() => import("./pages/CalendarPage"));
+const AgendaPropose     = React.lazy(() => import("./pages/AgendaPropose"));
+const AgendaProposals   = React.lazy(() => import("./pages/AgendaProposals"));
+const AgendaTriage      = React.lazy(() => import("./pages/AgendaTriage"));
 const SettingsPage      = React.lazy(() => import("./pages/SettingsPage"));
 const CreativeEngine    = React.lazy(() => import("./pages/CreativeEngine"));
 const Financinhas = React.lazy(() => import("./pages/Financinhas"));
@@ -174,6 +177,9 @@ function AppRoutes() {
         <Route path="/portfolio"      element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
         <Route path="/reports"        element={<ProtectedRoute><Reports /></ProtectedRoute>} />
         <Route path="/calendar"       element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+        <Route path="/agenda/propor"    element={<ProtectedRoute><AgendaPropose /></ProtectedRoute>} />
+        <Route path="/agenda/propostas" element={<ProtectedRoute><AgendaProposals /></ProtectedRoute>} />
+        <Route path="/agenda/triagem"   element={<ProtectedRoute><AgendaTriage /></ProtectedRoute>} />
         <Route path="/settings"       element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="/metodologias"   element={<ProtectedRoute><Metodologias /></ProtectedRoute>} />
         <Route path="/direitos"       element={<ProtectedRoute><Direitos /></ProtectedRoute>} />
