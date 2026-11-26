@@ -640,6 +640,9 @@ export type Database = {
         Row: {
           family_id: string
           tradition: string
+          catechism_name: string | null
+          catechism_pos: number
+          catechism_questions: Json
           calendar: string
           proprio_pt: boolean
           consent_version: string
@@ -649,6 +652,9 @@ export type Database = {
         Insert: {
           family_id: string
           tradition: string
+          catechism_name?: string | null
+          catechism_pos?: number
+          catechism_questions?: Json
           calendar?: string
           proprio_pt?: boolean
           consent_version: string
@@ -658,6 +664,9 @@ export type Database = {
         Update: {
           family_id?: string
           tradition?: string
+          catechism_name?: string | null
+          catechism_pos?: number
+          catechism_questions?: Json
           calendar?: string
           proprio_pt?: boolean
           consent_version?: string

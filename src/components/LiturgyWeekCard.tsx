@@ -3,8 +3,9 @@
 import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { WeekLiturgy } from "@/lib/tradicao/week";
+import type { WeekCatechism } from "@/lib/tradicao/catechism";
 
-export default function LiturgyWeekCard({ liturgy }: { liturgy: WeekLiturgy | null }) {
+export default function LiturgyWeekCard({ liturgy, catechism = null }: { liturgy: WeekLiturgy | null; catechism?: WeekCatechism | null }) {
   if (!liturgy) return null;
   return (
     <Card className="border-border/60">
@@ -23,6 +24,17 @@ export default function LiturgyWeekCard({ liturgy }: { liturgy: WeekLiturgy | nu
             <p className="text-xs text-muted-foreground">
               As celebrações da semana, com um desafio curto, aparecem aqui depois de as fichas estarem revistas.
             </p>
+          )}
+          {catechism && (
+            <div className="pt-1">
+              <p className="text-sm font-medium text-foreground">
+                Catecismo da semana: {catechism.label}
+                <span className="font-normal text-muted-foreground"> · {catechism.index} de {catechism.total}</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {catechism.stages.map((st) => `${st.day}: ${st.stage.toLowerCase()}`).join(" · ")}. A resposta está no vosso livro.
+              </p>
+            </div>
           )}
         </div>
       </CardContent>

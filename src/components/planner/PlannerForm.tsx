@@ -2,6 +2,7 @@ import { useState } from "react";
 import FamilyRoutineCard from "@/components/FamilyRoutineCard";
 import LiturgyWeekCard from "@/components/LiturgyWeekCard";
 import type { WeekLiturgy } from "@/lib/tradicao/week";
+import type { WeekCatechism } from "@/lib/tradicao/catechism";
 import { hasOuting, routineSummary, type WeekRoutine } from "@/lib/familyRoutine";
 import { CalendarDays, Sparkles, Loader2, ChevronLeft, ChevronRight, BookOpen, ChevronDown, ChevronUp, Target } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -62,6 +63,7 @@ interface PlannerFormProps {
   routine?: WeekRoutine | null;
   /** I-08: o tempo litúrgico da semana (só com a Tradição da família ligada) */
   liturgy?: WeekLiturgy | null;
+  catechism?: WeekCatechism | null;
 }
 
 export function PlannerForm({
@@ -86,6 +88,7 @@ export function PlannerForm({
   childrenWithoutFocus,
   routine = null,
   liturgy = null,
+  catechism = null,
 }: PlannerFormProps) {
   const outing = hasOuting(routine);
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({});
@@ -249,7 +252,7 @@ export function PlannerForm({
       })}
 
       {/* A nossa semana (P-18): dias de estudo, dias curtos, saída à sexta */}
-      <LiturgyWeekCard liturgy={liturgy} />
+      <LiturgyWeekCard liturgy={liturgy} catechism={catechism} />
       <FamilyRoutineCard />
 
       {/* Friday activity */}

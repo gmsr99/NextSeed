@@ -41,6 +41,8 @@ import { fetchFamilyRoutine, useFamilyRoutine } from "@/hooks/useFamilyRoutine";
 import type { WeekRoutine } from "@/lib/familyRoutine";
 import { useFamilyTradition } from "@/hooks/useFamilyTradition";
 import { weekLiturgy } from "@/lib/tradicao/week";
+import { weekCatechism } from "@/lib/tradicao/catechism";
+import { useFamilyCatechism } from "@/hooks/useFamilyCatechism";
 import { mergeWeekContents } from "@/lib/weekClose";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
 import { fetchChildManuals } from "@/hooks/useChildManuals";
@@ -92,6 +94,9 @@ export default function WeeklyPlanner() {
   const { routine } = useFamilyRoutine();
   // I-08: tempo litúrgico da semana (só com a Tradição da família ligada; não vai para a IA)
   const { tradition } = useFamilyTradition();
+  // I-08 fase 2: a pergunta do catecismo da semana (só com a tradição ligada)
+  const { catechism: familyCatechism } = useFamilyCatechism(!!tradition);
+  const weekCat = tradition ? weekCatechism(familyCatechism) : null;
   // I-21: a sessão Financinhas da semana, para quem tem o módulo e perfis criados
   const { isAdmin: finAdmin } = useIsTeamAdmin();
   const { invited: finInvited } = usePilotFeature("financinhas");
@@ -667,7 +672,7 @@ export default function WeeklyPlanner() {
 
     const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
     const guideBlob = await pdf(
-      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} />
+      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} catechism={weekCat} />
     ).toBlob();
     const a2 = document.createElement("a");
     a2.href = URL.createObjectURL(guideBlob);
@@ -745,7 +750,7 @@ export default function WeeklyPlanner() {
 
       const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
       const guideBlob = await pdf(
-        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} />
+        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} catechism={weekCat} />
       ).toBlob();
 
       const toBase64 = (blob: Blob): Promise<string> =>
@@ -868,6 +873,7 @@ export default function WeeklyPlanner() {
             weekFocusByChild={weekFocusByChild}
             routine={routine}
             liturgy={weekLiturgy(weekStart, tradition)}
+            catechism={weekCat}
             onGenerate={handleGeneratePlan}
           />
         ) : (
