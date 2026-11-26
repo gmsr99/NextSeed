@@ -1,4 +1,5 @@
 import { applyWeekRoutine, type WeekRoutine } from "./familyRoutine";
+import { dropReadingDay, markOptional } from "./essentialPlan";
 import type { Child } from "./types";
 import RAW_TEMPLATES from "./planTemplates.json";
 
@@ -450,7 +451,8 @@ export function generateWeeklyPlan(
     (c) => !c.school_year.toLowerCase().startsWith("pré"),
   );
 
-  return applyWeekRoutine(children.flatMap((child) => {
+  // P-27: plano essencial (sem a leitura de terça; a tarde "se houver tempo")
+  return markOptional(dropReadingDay(applyWeekRoutine(children.flatMap((child) => {
     const interests = childInterests[child.id] || [];
     const isPreSchool = child.school_year.toLowerCase().startsWith("pré");
     // Alinha pré-escolar com primário quando ambos existem na mesma família
@@ -458,7 +460,7 @@ export function generateWeeklyPlan(
     return isPreSchool
       ? preSchoolSchedule(child, interests, fridayActivity, aligned)
       : primarySchedule(child, interests, fridayActivity, weeklyReadingTheme);
-  }), routine);
+  }), routine)), routine);
 }
 
 // ─── Utilitários ──────────────────────────────────────────────────────────────

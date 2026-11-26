@@ -110,7 +110,7 @@ describe("a nossa semana no pedido (P-18)", () => {
     const friday = items.filter((i) => i.day_of_week === 5);
     expect(friday.length).toBeGreaterThan(0);
     expect(friday.every((i) => i.time_slot < "10:42")).toBe(true);
-    expect(lastPrompt).toContain("Ep.4/4");
+    expect(lastPrompt).toContain("Ep.3/3"); // P-27: a leitura de terça sai
   });
 
   it("dias sem estudo não entram e a história tem só os episódios desses dias", async () => {
@@ -122,5 +122,16 @@ describe("a nossa semana no pedido (P-18)", () => {
     expect(lastPrompt).toContain("Ep.2/2");
     expect(lastPrompt).not.toContain("Ep.3");
     expect(items.some((i) => i.is_friday_world)).toBe(true);
+  });
+});
+
+describe("plano essencial no pedido (P-27)", () => {
+  it("cada bloco leva a duração da idade e a tarde vai como SE HOUVER TEMPO", async () => {
+    const items = await generateWithGemini([child("a", "Ana", "2º ano")], {}, "", "", {}, {}, {}, {}, [], null);
+    expect(lastPrompt).toContain("~18 min");
+    expect(lastPrompt).toContain("SE HOUVER TEMPO");
+    expect(lastPrompt).toContain("DURAÇÃO (plano essencial)");
+    expect(lastPrompt).toContain("Ep.3/3");
+    expect(items.filter((i) => i.title.startsWith("Se houver tempo · ")).length).toBe(4);
   });
 });

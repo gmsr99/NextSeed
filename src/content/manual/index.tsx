@@ -224,6 +224,14 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "A NexSeed guarda só os títulos e as páginas que escreverem. As atividades do plano acompanham essas páginas; não substituem o manual.",
         "Funciona para qualquer ano, incluindo os que ainda não têm currículo na app.",
       ]},
+      { type: "h", text: "Um plano que cabe no dia" },
+      { type: "ul", items: [
+        "Cada dia tem um **núcleo de 3 atividades** por criança: Português, Matemática e uma terceira que vai rodando. A leitura é uma história em família, três vezes por semana.",
+        "O que aparece como **Se houver tempo** é extra: se o dia correr bem, fazem; se não, não faz falta.",
+        "Cada atividade dura o tempo de atenção da idade: cerca de 10 minutos no pré-escolar, 15 a 20 no 1.º e 2.º ano, 20 a 25 no 3.º e 4.º.",
+        "Com os PDF vem **o mapa da semana de cada criança**: os dias, as atividades com um desenho e uma caixa para ela marcar, e linhas em branco para tarefas da casa.",
+        "O horário vem **sem horas**: segue a ordem dos blocos, à vossa hora. Se preferirem horas sugeridas, liguem \"Mostrar horas no horário\" em \"A vossa semana\".",
+      ]},
       { type: "h", text: "No Início: o dia, a semana e o ano" },
       { type: "ul", items: [
         "**Hoje** mostra o que cada criança tem no plano para hoje. Marquem a caixa quando estiver feito.",

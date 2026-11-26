@@ -21,6 +21,7 @@ serve(async (req) => {
       to, familyId, familyName, weekLabel,
       scheduleB64, guideB64, scheduleName, guideName,
       readingGuideB64, readingGuideName,
+      mapB64, mapName,
     } = await req.json();
 
     // Collect all recipient emails: owner + family members
@@ -64,6 +65,7 @@ serve(async (req) => {
               <li><strong>Horário Semanal</strong> — blocos de tempo e atividades de cada dia</li>
               <li><strong>Guia de Atividades</strong> — descrição passo a passo e lista de materiais</li>
               ${readingGuideB64 ? "<li><strong>Guia de Leitura</strong> — episódios semanais com perguntas de compreensão e conversa</li>" : ""}
+              ${mapB64 ? "<li><strong>Mapa da semana</strong> — uma página por criança, para marcar o que fez</li>" : ""}
             </ul>
             <p style="color:#6B7280;font-size:14px;">Bom trabalho esta semana! 🌿</p>
             <hr style="border:none;border-top:1px solid #E5E7EB;margin:24px 0;" />
@@ -76,6 +78,8 @@ serve(async (req) => {
           ...(readingGuideB64 && readingGuideName
             ? [{ filename: readingGuideName, content: readingGuideB64 }]
             : []),
+          // R-11: mapa da semana de cada criança (opcional)
+          ...(mapB64 && mapName ? [{ filename: mapName, content: mapB64 }] : []),
         ],
       }),
     });

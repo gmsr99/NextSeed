@@ -18,7 +18,9 @@ import { useChildMilestones, MILESTONE_CATEGORIES } from '@/hooks/useChildMilest
 import { useDashboardYear } from '@/hooks/useDashboardYear';
 import { useWeekFocus } from '@/hooks/useAnnualPlan';
 import { useFamilyTradition } from '@/hooks/useFamilyTradition';
+import { isOptional } from '@/lib/essentialPlan';
 import { GC_DISCIPLINE_LABELS } from '@/lib/gcConstants';
+import { DISCIPLINE_LABELS } from '@/lib/planGenerator';
 import { cn } from '@/lib/utils';
 import {
   weekSummary, paceState, paceSentence, PACE_LABEL, shouldOfferClose,
@@ -118,7 +120,8 @@ export default function Index() {
   }
 
   const todayLabel = format(new Date(), "EEEE, d 'de' MMMM", { locale: pt });
-  const week = weekSummary(hasPlan ? allItems : null, todayDow, nextWeekPlanned);
+  // P-27: as atividades "se houver tempo" não contam para estar em dia
+  const week = weekSummary(hasPlan ? allItems.filter((i) => !isOptional(i)) : null, todayDow, nextWeekPlanned);
   const clock = year.clock;
   const yearState: PaceState | null = clock && year.total.total > 0 ? paceState(year.total, clock) : null;
   const showCloseButton = hasPlan && !closed && (isFriday || isWeekend);
@@ -177,7 +180,7 @@ export default function Index() {
                               className="mt-0.5 h-5 w-5 shrink-0"
                             />
                             <label htmlFor={`hoje-${item.id}`} className={cn('text-sm leading-snug cursor-pointer', done && 'line-through text-muted-foreground')}>
-                              {item.discipline && <span className="font-medium">{item.discipline} · </span>}
+                              {item.discipline && <span className="font-medium">{DISCIPLINE_LABELS[item.discipline] ?? item.discipline} · </span>}
                               {item.title}
                             </label>
                           </li>

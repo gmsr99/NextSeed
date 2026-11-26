@@ -30,6 +30,8 @@ import {
 } from "@/lib/planGenerator";
 import { Button } from "@/components/ui/button";
 import { loadDraft, removeDraft, saveDraft, type PlanDraft } from "@/lib/planDraft";
+import { isOptional, OPTIONAL_PREFIX } from "@/lib/essentialPlan";
+import { showsHours } from "@/lib/familyRoutine";
 import { getLastWeekTheme, generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
@@ -506,8 +508,10 @@ export default function WeeklyPlanner() {
     setError(null);
     try {
       const patch = await regenerateActivity(child, item, childInterests[item.child_id] ?? [], familyMethodologies);
+      // P-27: uma atividade "se houver tempo" continua opcional depois de regenerada
+      const keepOptional = isOptional(item) && patch.title && !isOptional({ title: patch.title });
       setPlanItems((prev) =>
-        prev.map((i) => (planItemKey(i) === key ? { ...i, ...patch } : i))
+        prev.map((i) => (planItemKey(i) === key ? { ...i, ...patch, ...(keepOptional ? { title: OPTIONAL_PREFIX + patch.title } : {}) } : i))
       );
     } catch (e: unknown) {
       setError(errorText(e, "Erro ao regenerar a atividade"));
@@ -649,6 +653,14 @@ export default function WeeklyPlanner() {
     a2.download = `nexseed-guia-${format(weekStart, "yyyy-MM-dd")}.pdf`;
     a2.click();
 
+    // R-11: o mapa da semana de cada criança
+    const { default: ChildWeekMapPDFComp } = await import("@/components/pdf/ChildWeekMapPDF");
+    const mapBlob = await pdf(<ChildWeekMapPDFComp children={children} planItems={planItems} weekStart={weekStart} />).toBlob();
+    const a4 = document.createElement("a");
+    a4.href = URL.createObjectURL(mapBlob);
+    a4.download = `nexseed-mapa-criancas-${format(weekStart, "yyyy-MM-dd")}.pdf`;
+    a4.click();
+
     // Guia de Leitura — só gera se existirem episódios
     const readingItems = planItems.filter((i) => i.discipline === "reading");
     if (readingItems.length > 0) {
@@ -667,7 +679,7 @@ export default function WeeklyPlanner() {
   const handleDownloadCompact = async () => {
     const { default: WeekSheetPDFComp } = await import("@/components/pdf/WeekSheetPDF");
     const blob = await pdf(
-      <WeekSheetPDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={family?.name ?? ""} />
+      <WeekSheetPDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={family?.name ?? ""} hours={showsHours(routine)} />
     ).toBlob();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -705,6 +717,9 @@ export default function WeeklyPlanner() {
 
       const scheduleB64 = await toBase64(scheduleBlob);
       const guideB64 = await toBase64(guideBlob);
+      // R-11: o mapa da semana de cada criança (a função só o anexa depois de publicada de novo)
+      const { default: ChildWeekMapPDFComp } = await import("@/components/pdf/ChildWeekMapPDF");
+      const mapB64 = await toBase64(await pdf(<ChildWeekMapPDFComp children={children} planItems={planItems} weekStart={weekStart} />).toBlob());
 
       // Guia de Leitura — opcional, só gerado se existirem episódios
       let readingGuideB64: string | null = null;
@@ -729,6 +744,8 @@ export default function WeeklyPlanner() {
           guideName: `nexseed-guia-${format(weekStart, "yyyy-MM-dd")}.pdf`,
           readingGuideB64,
           readingGuideName: `nexseed-leitura-${format(weekStart, "yyyy-MM-dd")}.pdf`,
+          mapB64,
+          mapName: `nexseed-mapa-criancas-${format(weekStart, "yyyy-MM-dd")}.pdf`,
         },
       });
 
@@ -866,6 +883,7 @@ export default function WeeklyPlanner() {
               weekTheme={weeklyReadingTheme || weekTheme}
               onRegenerateItem={handleRegenerateItem}
               regeneratingKey={regeneratingKey}
+              hours={showsHours(routine)}
             />
           </div>
         )}

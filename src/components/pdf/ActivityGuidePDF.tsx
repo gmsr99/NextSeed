@@ -1,4 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { slotText } from "@/lib/essentialPlan";
+import { showsHours } from "@/lib/familyRoutine";
 import type { GeneratedPlanItem } from "@/lib/planGenerator";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, collectMaterials, formatWeekRange } from "@/lib/planGenerator";
 import type { Child } from "@/lib/types";
@@ -173,7 +175,7 @@ export default function ActivityGuidePDF({ children, planItems, weekStart, famil
                           <Text style={S.activityTitle}>
                             {DISCIPLINE_LABELS[item.discipline] ?? item.discipline} · {item.title}
                           </Text>
-                          <Text style={S.activitySlot}>{item.time_slot}</Text>
+                          <Text style={S.activitySlot}>{slotText(item, child.school_year, showsHours(routine))}</Text>
                           <Text style={S.activityDesc}>{splitPortfolio(item.description).text}</Text>
                           {splitPortfolio(item.description).hint ? (
                             <Text style={S.portfolioHint}>Para o portefólio: {splitPortfolio(item.description).hint}</Text>

@@ -8,14 +8,19 @@ import { normalizeRoutine, type WeekRoutine } from "@/lib/familyRoutine";
 type Result = { available: boolean; routine: WeekRoutine | null };
 
 async function load(familyId: string): Promise<Result> {
-  const { data, error } = await supabase
+  // P-27: schedule_mode vem com a migração 036; antes dela, lê-se sem a coluna
+  let res = await supabase
     .from("family_week_routines")
-    .select("days, outing")
+    .select("days, outing, schedule_mode")
     .eq("family_id", familyId)
     .maybeSingle();
+  if (res.error) {
+    res = await supabase.from("family_week_routines").select("days, outing").eq("family_id", familyId).maybeSingle() as typeof res;
+  }
+  const { data, error } = res;
   if (error) return { available: false, routine: null };
   if (!data) return { available: true, routine: null };
-  return { available: true, routine: normalizeRoutine(data.days, data.outing) };
+  return { available: true, routine: normalizeRoutine(data.days, data.outing, (data as { schedule_mode?: string }).schedule_mode) };
 }
 
 /** Para usar fora de componentes (geração do plano). Null = semana de sempre. */
@@ -38,11 +43,17 @@ export function useFamilyRoutine() {
 
   const save = useMutation({
     mutationFn: async (r: WeekRoutine) => {
+      const row = { family_id: family!.id, days: r.days, outing: r.outing, updated_at: new Date().toISOString() };
       const { error } = await supabase.from("family_week_routines").upsert(
-        { family_id: family!.id, days: r.days, outing: r.outing, updated_at: new Date().toISOString() },
+        { ...row, schedule_mode: r.hours ? "horas" : "blocos" },
         { onConflict: "family_id" },
       );
-      if (error) throw error;
+      if (!error) return;
+      // Antes da migração 036 não há schedule_mode: guarda o resto
+      if (!/schedule_mode/.test(error.message ?? "")) throw error;
+      const { error: e2 } = await supabase.from("family_week_routines").upsert(row, { onConflict: "family_id" });
+      if (e2) throw e2;
+      if (r.hours) throw new Error("A opção das horas fica disponível depois de uma atualização da base de dados.");
     },
     onSuccess: invalidate,
   });

@@ -51,7 +51,8 @@ describe("a nossa semana", () => {
   });
 
   it("valores estranhos na base de dados voltam à semana de sempre", () => {
-    expect(normalizeRoutine(["full", "nada"], "x")).toEqual(DEFAULT_ROUTINE);
-    expect(normalizeRoutine(["off", "short", "full", "full", "full"], false)).toEqual({ days: ["off", "short", "full", "full", "full"], outing: false });
+    expect(normalizeRoutine(["full", "nada"], "x")).toEqual({ ...DEFAULT_ROUTINE, hours: false });
+    expect(normalizeRoutine(["off", "short", "full", "full", "full"], false)).toEqual({ days: ["off", "short", "full", "full", "full"], outing: false, hours: false });
+    expect(normalizeRoutine(["full", "full", "full", "full", "full"], true, "horas").hours).toBe(true);
   });
 });
