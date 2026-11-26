@@ -27,6 +27,10 @@ import {
   type AnnualContent, type AnnualPlan, type Period, type PlanWeek,
 } from "@/lib/annualPlan";
 import { familyYear, togetherWeeks, type FamilyWeekRow } from "@/lib/familyYear";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { useReviewCounts } from "@/hooks/useReviewCounts";
+import { isOnHold, REVIEW_HOLD_AFTER } from "@/lib/dashboard";
 
 const PERIOD_LABELS: Record<Period, string> = { "1": "1.º período", "2": "2.º período", "3": "3.º período" };
 const PERIODS: Period[] = ["1", "2", "3"];
@@ -232,6 +236,41 @@ function FamilyYearView({ rows, progress, currentMonday }: {
   );
 }
 
+/** DASH fase 3: temas que voltaram 3 vezes e ainda precisam de mais (migração 037). */
+function OnHoldLine({ childId, plan, status, counts }: {
+  childId: string; plan: AnnualPlan; status: Status; counts: Record<string, { status: string; count: number }>;
+}) {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState<string | null>(null);
+  const all = [...plan.weeks.flatMap((w) => Object.values(w.byDiscipline).flat()), ...Object.values(plan.yearRound).flat()];
+  const held = all.filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i && isOnHold(status[c.id], counts[c.id]?.count));
+  if (held.length === 0) return null;
+  const again = async (contentId: string) => {
+    setBusy(contentId);
+    try {
+      await supabase.from("child_content_progress").update({ review_count: 0 }).eq("child_id", childId).eq("content_id", contentId);
+      await qc.invalidateQueries({ queryKey: ["review-counts"] });
+    } finally {
+      setBusy(null);
+    }
+  };
+  return (
+    <div className="mb-2 rounded-md bg-muted/50 px-2.5 py-2 text-xs">
+      <p className="text-foreground"><span className="font-medium">Com atenção:</span> voltaram {REVIEW_HOLD_AFTER} vezes e ainda pedem mais. Deixaram de voltar sozinhos; experimentem outra abordagem (material concreto, outra explicação, ou uma pausa de umas semanas).</p>
+      <ul className="mt-1 space-y-0.5">
+        {held.map((c) => (
+          <li key={c.id} className="flex flex-wrap items-center gap-2">
+            <span className="flex-1 text-muted-foreground">{GC_DISCIPLINE_LABELS[c.discipline] ?? c.discipline} · {c.content}</span>
+            <button type="button" className="text-primary hover:underline disabled:opacity-50" disabled={busy === c.id} onClick={() => again(c.id)}>
+              Voltar a propor
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /** P-14: "estou no ritmo certo?" — só conta o currículo das semanas que já passaram. */
 function PaceLine({ plan, status }: { plan?: AnnualPlan; status: Status }) {
   if (!plan) return null;
@@ -282,6 +321,7 @@ export default function RoteiroAnual() {
   const withPlan = children.filter((c) => plans[c.id]);
   const familyView = selectedId === FAMILY && withPlan.length > 1;
   const familyRows = familyView ? familyYear(withPlan.map((c) => ({ id: c.id, name: c.name, plan: plans[c.id] }))) : [];
+  const { data: reviewData } = useReviewCounts(withPlan.map((c) => c.id));
   const selected = familyView ? undefined : children.find((c) => c.id === selectedId) ?? withPlan[0] ?? children[0];
   const plan = selected ? plans[selected.id] : undefined;
   const status: Status = selected ? progress[selected.id] ?? {} : {};
@@ -380,6 +420,9 @@ export default function RoteiroAnual() {
                           {c.name} <span className="text-xs font-normal text-muted-foreground">{c.school_year}</span>
                         </p>
                         <PaceLine plan={plans[c.id]} status={progress[c.id] ?? {}} />
+                        {reviewData?.available && (
+                          <OnHoldLine childId={c.id} plan={plans[c.id]} status={progress[c.id] ?? {}} counts={reviewData.byChild[c.id] ?? {}} />
+                        )}
                         {focus ? (
                           <Disciplines byDiscipline={focus} status={progress[c.id] ?? {}} />
                         ) : (

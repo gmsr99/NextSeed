@@ -252,6 +252,26 @@ export function closeStatus(
   return current === "dominado" ? null : "dominado";
 }
 
+/** DASH fase 3: ao fim de 3 revisões seguidas a precisar de mais, o tema fica "com atenção". */
+export const REVIEW_HOLD_AFTER = 3;
+
+/**
+ * Nova contagem de revisões depois do fecho (migração 037), ou null para não mexer.
+ * Uma revisão que volta a precisar de mais soma 1; o primeiro "precisa de mais"
+ * de um tema começa em 0; dado sem "precisa de mais" consolida e repõe 0.
+ */
+export function nextReviewCount(isReview: boolean, given: boolean, needsMore: boolean, prev: number | undefined): number | null {
+  if (!given) return null;
+  if (!needsMore) return (prev ?? 0) === 0 ? null : 0;
+  if (isReview) return Math.min(20, (prev ?? 0) + 1);
+  return (prev ?? 0) === 0 ? null : 0;
+}
+
+/** Tema "com atenção": está a consolidar e já voltou 3 vezes sem consolidar. */
+export function isOnHold(status: string | undefined, reviewCount: number | undefined): boolean {
+  return status === "em_progresso" && (reviewCount ?? 0) >= REVIEW_HOLD_AFTER;
+}
+
 /** Resumo do fecho: "10 de 12 dados · 1 volta mais tarde · 2 passam para a semana que vem". */
 export function closeSummary(total: number, given: number, needsMore: number): string {
   const parts = [`${given} de ${total} ${given === 1 ? "dado" : "dados"}`];

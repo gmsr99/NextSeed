@@ -130,7 +130,11 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
-## Rumo em família, Financinhas no plano, kit e Direitos (26 nov, ramo `feat/rumo-familia`, por publicar)
+## Revisões curtas e "com atenção" (26 nov)
+- Publicado: `mergeWeekContents` separa [retomar] (não dado, até 2 por disciplina) de [rever] (precisa de mais, `pickReviews`, até 2 por criança); regra no pedido à IA: revisão de ~10 min, outro formato, título "Rever · …".
+- Ramo `feat/revisoes-com-atencao`: `child_content_progress.review_count` (migração **037**), `nextReviewCount`/`isOnHold` em `dashboard.ts`, `useReviewCounts` (sem a coluna, `available=false` e nada muda). Ao fim de 3 revisões seguidas a precisar de mais, o tema sai do plano e do fecho e aparece "Com atenção" no Rumo do ano, com "Voltar a propor" (repõe 0).
+
+## Rumo em família, Financinhas no plano, kit e Direitos (26 nov, publicado)
 - **P-24** (`src/lib/familyYear.ts`): "A família" no seletor do Rumo do ano (com 2+ crianças com rumo). Semanas alinhadas pela segunda-feira; "Para fazerem juntos" quando 2+ crianças têm Estudo do Meio, Artes ou FPS na mesma semana, com o domínio quando coincide. Português, Matemática e Inglês nunca são comuns. Sem BD.
 - **I-21** (`src/lib/financinhas/weekSession.ts`, `FinancinhasWeekCard`, `FinancinhasWeekPDF`): no Plano Semanal, por criança com perfil, o dia da semanada e a aula `por_dar` mais antiga, com "Copiar o prompt"; em Descarregar PDFs sai `nexseed-financinhas-*.pdf` (guia, quiz, atividades, desafio; emojis dos mealheiros trocados por palavras). Não gera aulas nem mexe no horário.
 - **I-20** (`FinancinhasKitPDF`): botão "Kit de arranque (PDF)" na página Financinhas, 5 páginas; círculos do Mapa de Moedas com 25 mm.

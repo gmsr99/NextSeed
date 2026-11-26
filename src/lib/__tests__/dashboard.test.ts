@@ -154,3 +154,17 @@ describe("ritmo da lição seguinte com índice", () => {
     expect(pt.plannedByNow).toBeGreaterThan(5); // cerca de um quarto do ano
   });
 });
+
+describe("revisões com atenção (DASH fase 3, migração 037)", () => {
+  it("conta só revisões seguidas a precisar de mais", async () => {
+    const { nextReviewCount, isOnHold } = await import("../dashboard");
+    expect(nextReviewCount(true, true, true, 0)).toBe(1);
+    expect(nextReviewCount(true, true, true, 2)).toBe(3);
+    expect(nextReviewCount(true, true, false, 2)).toBe(0); // consolidou
+    expect(nextReviewCount(false, true, true, 0)).toBeNull(); // primeira vez: começa em 0
+    expect(nextReviewCount(true, false, false, 2)).toBeNull(); // não dado: não mexe
+    expect(isOnHold("em_progresso", 3)).toBe(true);
+    expect(isOnHold("em_progresso", 2)).toBe(false);
+    expect(isOnHold("dominado", 3)).toBe(false);
+  });
+});
