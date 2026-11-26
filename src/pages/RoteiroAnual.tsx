@@ -3,7 +3,7 @@
 // este rumo, sem lhe perguntar o que quer ensinar (doc 10, INS-14).
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Map as MapIcon, CheckCircle2, Circle, Clock, CalendarDays, Sparkles, BookMarked, Download } from "lucide-react";
+import { Map as MapIcon, CheckCircle2, Circle, Clock, CalendarDays, Sparkles, BookMarked, Download, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +26,7 @@ import {
   planWeekFor, weekFocus, formatWeekShort, mondayOf, manualLabel,
   type AnnualContent, type AnnualPlan, type Period, type PlanWeek,
 } from "@/lib/annualPlan";
+import { familyYear, togetherWeeks, type FamilyWeekRow } from "@/lib/familyYear";
 
 const PERIOD_LABELS: Record<Period, string> = { "1": "1.º período", "2": "2.º período", "3": "3.º período" };
 const PERIODS: Period[] = ["1", "2", "3"];
@@ -139,6 +140,98 @@ function ByDiscipline({ plan, status }: { plan: AnnualPlan; status: Status }) {
   );
 }
 
+const FAMILY = "__familia__";
+
+/** P-24: as crianças lado a lado, semana a semana, com o que podem fazer juntas. */
+function FamilyWeekCard({ row, isCurrent, isPast, progress }: {
+  row: FamilyWeekRow; isCurrent: boolean; isPast: boolean; progress: Record<string, Status>;
+}) {
+  return (
+    <div
+      id={isCurrent ? "semana-atual" : undefined}
+      className={cn(
+        "rounded-xl border p-4",
+        isCurrent ? "border-primary/50 bg-primary/5 ring-1 ring-primary/30" : "border-border/60 bg-card",
+        isPast && "opacity-70",
+      )}
+    >
+      <div className="mb-3 flex flex-wrap items-baseline gap-2">
+        <p className="font-heading font-semibold text-foreground">Semana {row.number}</p>
+        <p className="text-xs text-muted-foreground">{formatWeekShort(row.monday)}</p>
+        {isCurrent && <Badge>Esta semana</Badge>}
+      </div>
+      {row.isReview ? (
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">Semana de balanço.</span> Sem conteúdos novos para ninguém: rever
+          em conjunto e escolher o que entra no portefólio de cada um.
+        </p>
+      ) : (
+        <>
+          {row.together.length > 0 && (
+            <div className="mb-3 rounded-lg bg-primary/10 px-3 py-2 text-sm">
+              <span className="font-medium text-foreground">Para fazerem juntos: </span>
+              {row.together.map((t, i) => (
+                <span key={t.discipline}>
+                  {i > 0 && " · "}
+                  {GC_DISCIPLINE_LABELS[t.discipline] ?? t.discipline}
+                  {t.sharedDomains.length > 0 && <span className="text-muted-foreground"> ({t.sharedDomains.join(", ")})</span>}
+                </span>
+              ))}
+              <p className="mt-0.5 text-xs text-muted-foreground">Um tema para todos; cada um faz a parte do seu ano.</p>
+            </div>
+          )}
+          <div className={cn("grid gap-4", row.perChild.length > 1 && "sm:grid-cols-2")}>
+            {row.perChild.map((c) => (
+              <div key={c.id} className="min-w-0">
+                <p className="mb-1.5 text-sm font-semibold text-foreground">{c.name}</p>
+                {Object.keys(c.byDiscipline).length > 0
+                  ? <Disciplines byDiscipline={c.byDiscipline} status={progress[c.id] ?? {}} />
+                  : <p className="text-sm text-muted-foreground">Semana para consolidar.</p>}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function FamilyYearView({ rows, progress, currentMonday }: {
+  rows: FamilyWeekRow[]; progress: Record<string, Status>; currentMonday: number;
+}) {
+  const n = togetherWeeks(rows);
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground">
+        {n > 0
+          ? `Em ${n} das ${rows.length} semanas há uma disciplina que podem trabalhar juntos (Estudo do Meio, Artes ou Formação Pessoal e Social). Português e Matemática ficam no nível de cada um.`
+          : "As crianças têm rumos diferentes este ano: cada uma segue o seu. Português e Matemática ficam sempre no nível de cada um."}
+      </p>
+      {PERIODS.map((p) => {
+        const weeks = rows.filter((w) => w.period === p);
+        if (weeks.length === 0) return null;
+        return (
+          <section key={p} className="space-y-2">
+            <h2 className="font-heading text-lg font-semibold text-foreground">
+              {PERIOD_LABELS[p]}{" "}
+              <span className="text-sm font-normal text-muted-foreground">{weeks.length} semanas</span>
+            </h2>
+            {weeks.map((w) => (
+              <FamilyWeekCard
+                key={w.monday.getTime()}
+                row={w}
+                progress={progress}
+                isCurrent={w.monday.getTime() === currentMonday}
+                isPast={w.monday.getTime() < currentMonday}
+              />
+            ))}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 /** P-14: "estou no ritmo certo?" — só conta o currículo das semanas que já passaram. */
 function PaceLine({ plan, status }: { plan?: AnnualPlan; status: Status }) {
   if (!plan) return null;
@@ -187,7 +280,9 @@ export default function RoteiroAnual() {
   };
 
   const withPlan = children.filter((c) => plans[c.id]);
-  const selected = children.find((c) => c.id === selectedId) ?? withPlan[0] ?? children[0];
+  const familyView = selectedId === FAMILY && withPlan.length > 1;
+  const familyRows = familyView ? familyYear(withPlan.map((c) => ({ id: c.id, name: c.name, plan: plans[c.id] }))) : [];
+  const selected = familyView ? undefined : children.find((c) => c.id === selectedId) ?? withPlan[0] ?? children[0];
   const plan = selected ? plans[selected.id] : undefined;
   const status: Status = selected ? progress[selected.id] ?? {} : {};
   const currentMonday = mondayOf(today).getTime();
@@ -207,12 +302,17 @@ export default function RoteiroAnual() {
               O ano inteiro, semana a semana. A NexSeed distribui o currículo pelas semanas e o plano semanal segue este rumo.
             </p>
           </div>
-          {children.length > 1 && selected && (
-            <Select value={selected.id} onValueChange={setSelectedId}>
+          {children.length > 1 && (selected || familyView) && (
+            <Select value={familyView ? FAMILY : selected!.id} onValueChange={setSelectedId}>
               <SelectTrigger className="w-[180px]" aria-label="Criança">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                {withPlan.length > 1 && (
+                  <SelectItem value={FAMILY}>
+                    <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> A família</span>
+                  </SelectItem>
+                )}
                 {children.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
@@ -307,6 +407,10 @@ export default function RoteiroAnual() {
         {!isLoading && children.length > 0 && <FamilyRoutineCard />}
 
         {!isLoading && selected && <ManualsCard child={selected} />}
+
+        {!isLoading && familyView && (
+          <FamilyYearView rows={familyRows} progress={progress} currentMonday={currentMonday} />
+        )}
 
         {!isLoading && selected && !plan && (
           <Card className="border-dashed">

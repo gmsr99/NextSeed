@@ -196,7 +196,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     title: "Rumo do ano",
     icon: Map,
     summary: "O ano inteiro, semana a semana, a partir do currículo de cada criança.",
-    keywords: ["rumo", "roteiro", "anual", "plano anual", "currículo", "períodos", "semanas", "ano letivo"],
+    keywords: ["rumo", "roteiro", "anual", "plano anual", "currículo", "períodos", "semanas", "ano letivo", "família", "juntos", "irmãos"],
     blocks: [
       { type: "p", text: "Enquanto o Planeador olha para a semana, o [Rumo do ano](/roteiro-anual) dá-vos a vista de cima: a NexSeed distribui os conteúdos do currículo de cada criança pelas semanas do ano letivo, período a período. Não têm de decidir, semana a semana, o que ensinar a seguir." },
       { type: "h", text: "Para que serve" },
@@ -212,6 +212,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "A última semana de cada período é de **balanço**: sem conteúdos novos, para rever e escolher o que entra no portefólio.",
         "Alguns conteúdos (por exemplo, de Artes) trabalham-se **ao longo do ano** e não têm semana marcada.",
         "Podem alternar entre **Semana a semana** e **Por disciplina**.",
+        "Com mais do que uma criança, escolham **A família** no seletor: as crianças aparecem lado a lado, semana a semana, e cada semana diz o que podem fazer **juntos** (Estudo do Meio, Artes ou Formação Pessoal e Social, e o domínio, quando é o mesmo). Um tema para todos, cada um na parte do seu ano. Português e Matemática ficam sempre no nível de cada um.",
       ]},
       { type: "h", text: "Se trabalham com manuais" },
       { type: "p", text: "Na caixa **Manuais**, escolham a disciplina, deem um nome ao manual e escrevam o índice: uma unidade por linha. Se puserem no fim de cada linha a página onde a unidade começa, a NexSeed dá mais semanas às unidades maiores e diz que páginas trabalhar em cada semana." },
