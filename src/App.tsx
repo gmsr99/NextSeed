@@ -31,6 +31,7 @@ const WorldMissions     = React.lazy(() => import("./pages/WorldMissions"));
 const Extracurricular   = React.lazy(() => import("./pages/Extracurricular"));
 const AcceptInvite      = React.lazy(() => import("./pages/AcceptInvite"));
 const Metodologias      = React.lazy(() => import("./pages/Metodologias"));
+const Direitos          = React.lazy(() => import("./pages/Direitos"));
 const RoteiroAnual      = React.lazy(() => import("./pages/RoteiroAnual"));
 const Manual            = React.lazy(() => import("./pages/Manual"));
 const Onboarding        = React.lazy(() => import("./pages/Onboarding"));
@@ -175,6 +176,7 @@ function AppRoutes() {
         <Route path="/calendar"       element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         <Route path="/settings"       element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="/metodologias"   element={<ProtectedRoute><Metodologias /></ProtectedRoute>} />
+        <Route path="/direitos"       element={<ProtectedRoute><Direitos /></ProtectedRoute>} />
         <Route path="/learning-areas" element={<ProtectedRoute><LearningAreas /></ProtectedRoute>} />
         <Route path="/roteiro-anual"  element={<ProtectedRoute><RoteiroAnual /></ProtectedRoute>} />
         <Route path="/ajuda"          element={<ProtectedRoute><Manual /></ProtectedRoute>} />

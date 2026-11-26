@@ -17,6 +17,7 @@ import {
   LifeBuoy,
   MessageSquareText,
   PiggyBank,
+  Scale,
 } from "lucide-react";
 import { useMemo } from "react";
 import { NavLink } from "@/components/NavLink";
@@ -26,6 +27,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsTeamAdmin } from "@/hooks/useIsTeamAdmin";
 import { canSeeFinancinhas } from "@/lib/financinhas/access";
 import { usePilotFeature } from "@/hooks/usePilotFeature";
+import { canSeeDireitos } from "@/lib/direitosAccess";
 import {
   Sidebar,
   SidebarContent,
@@ -79,6 +81,10 @@ const sistemaItems: NavItem[] = [
 // guard — isto apenas evita que o link apareça a quem não pode lá entrar.
 // Financinhas: equipa e famílias convidadas (ver src/lib/financinhas/access.ts)
 const financinhasItem: NavItem = { title: "Financinhas", url: "/financinhas", icon: PiggyBank };
+
+// I-13: Direitos e deveres (src/content/direitos.ts). Só a equipa vê enquanto
+// os textos não estiverem revistos (DIREITOS_REVISTO); depois, todas as famílias.
+const direitosItem: NavItem = { title: "Direitos e deveres", url: "/direitos", icon: Scale };
 
 const adminItems: NavItem[] = [
   { title: "Feedback", url: "/admin/feedback", icon: MessageSquareText, badge: "Admin" },
@@ -150,7 +156,11 @@ export function AppSidebar() {
   const groups = useMemo(
     () =>
       navGroups.map((group) => {
-        if (group.label === "Sistema" && isAdmin) return { ...group, items: [...group.items, ...adminItems] };
+        if (group.label === "Sistema") {
+          const items = [...group.items];
+          if (canSeeDireitos(isAdmin)) items.splice(items.findIndex((it) => it.url === "/ajuda"), 0, direitosItem);
+          return { ...group, items: isAdmin ? [...items, ...adminItems] : items };
+        }
         if (group.label === "Aprender" && canSeeFinancinhas(isAdmin, finInvited)) {
           // logo a seguir a "Missões do Mundo"
           const i = group.items.findIndex((it) => it.url === "/world-missions");
