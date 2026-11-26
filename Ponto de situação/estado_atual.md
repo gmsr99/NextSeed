@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 22 de novembro de 2026 (Financinhas publicado, só para a equipa). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
+**Atualizado:** 26 de novembro de 2026 (plano essencial e mapa da criança publicados; rumo em família, Financinhas no plano, kit e Direitos e deveres por publicar). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -130,7 +130,14 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
-## Plano essencial e mapa da criança (26 nov, ramo `feat/plano-essencial`)
+## Rumo em família, Financinhas no plano, kit e Direitos (26 nov, ramo `feat/rumo-familia`, por publicar)
+- **P-24** (`src/lib/familyYear.ts`): "A família" no seletor do Rumo do ano (com 2+ crianças com rumo). Semanas alinhadas pela segunda-feira; "Para fazerem juntos" quando 2+ crianças têm Estudo do Meio, Artes ou FPS na mesma semana, com o domínio quando coincide. Português, Matemática e Inglês nunca são comuns. Sem BD.
+- **I-21** (`src/lib/financinhas/weekSession.ts`, `FinancinhasWeekCard`, `FinancinhasWeekPDF`): no Plano Semanal, por criança com perfil, o dia da semanada e a aula `por_dar` mais antiga, com "Copiar o prompt"; em Descarregar PDFs sai `nexseed-financinhas-*.pdf` (guia, quiz, atividades, desafio; emojis dos mealheiros trocados por palavras). Não gera aulas nem mexe no horário.
+- **I-20** (`FinancinhasKitPDF`): botão "Kit de arranque (PDF)" na página Financinhas, 5 páginas; círculos do Mapa de Moedas com 25 mm.
+- **I-13** (`/direitos`, `src/content/direitos.ts`, acesso em `src/lib/direitosAccess.ts`): o essencial do DL 70/2021 (e DL 8/2025) com o artigo em cada ponto e 5 modelos de requerimento. **Só a equipa vê** até à revisão jurídica (Q-20).
+- **Não testado num browser nem com PDFs gerados** (sem node_modules nesta sessão e sem conta de demonstração): build e testes da Vercel por confirmar no ramo.
+
+## Plano essencial e mapa da criança (26 nov, publicado; migração 036 e `send-weekly-plan` por aplicar)
 - **P-27** (`src/lib/essentialPlan.ts`): a leitura de terça sai (`dropReadingDay`), os blocos da tarde (≥ 14:00, menos leitura e saída) levam o prefixo "Se houver tempo · " no título (`markOptional`, nos dois geradores e ao regenerar), o pedido à IA leva "~N min" por bloco (`targetMinutes`: pré 8/10/12, 1.º 15, 2.º 18, 3.º 20, 4.º 25) e a regra 17 (duração). Horário sem horas por omissão: `SchedulePDF` mostra a ordem dos blocos, `WeekSheetPDF`, `ActivityGuidePDF` e o Planeador mostram a duração (`slotText`). A opção vive em `family_week_routines.schedule_mode` (migração **036**); sem a 036, lê-se e grava-se sem a coluna e fica sem horas. No Início, as opcionais não contam para "Em dia".
 - **R-11** (`ChildWeekMapPDF`): uma página por criança, com desenhos SVG simples por disciplina (sem imagens externas), caixas, tarefas da casa e autocolantes. Nos PDF descarregados e no email (`send-weekly-plan` aceita `mapB64`/`mapName`; precisa de ser publicada de novo).
 - Corrigido também: o Hoje mostrava a disciplina pela chave interna ("language"); o fecho da semana comparava chaves com nomes e não pré-marcava.
