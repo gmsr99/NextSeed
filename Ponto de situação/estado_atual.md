@@ -130,6 +130,11 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 - Planeador: os temas da semana anterior que não foram dados voltam com os "em progresso" (até 2 por disciplina), só para quem marcou algum tema nos últimos 14 dias. `?semana=proxima` abre a semana seguinte.
 - **Não testado num browser** (sem conta de demonstração nem pré-visualização acessível). Por fazer: fase 5 (email de domingo).
 
+## Notas do Elton nos testes de 26 nov (ramo `feat/notas-elton-26nov`, por publicar)
+- **V-23**: `PlanPreview` recebe `fixedItems` (`getFixedScheduleBlocks`, com "Orações e liturgia" se a Tradição estiver ligada) e mostra-os em cinzento entre as atividades de cada criança.
+- **R-12** (`PlanActivityPicker`): no Diário, escolher um item do plano da semana (ou da anterior, ao fim de semana) preenche criança, título (sem prefixos), área, descrição (sem o JSON da leitura) e dia; "Observações" junta-se à descrição (`withObservations`).
+- **R-04**: `activities.extra_disciplines` (migração **039**); `activityAreas()` usado no Portfólio (badges e filtro), nos Relatórios (contagens) e no PDF trimestral ("Também trabalhou"). Sem a coluna, `createActivity` guarda só a principal e devolve `extrasSaved=false`.
+
 ## Dia livre e semana difícil (26 nov, publicado; sem migração)
 - **P-29**: `DayMode` ganha `"free"` (`familyRoutine.ts`): num dia livre `applyWeekRoutine` deixa só `ritual`, `lunch` e `reading`; sexta livre não tem saída; `dropReadingDay(items, routine)` mantém a leitura de terça se a terça for livre. Sem migração (os dias são jsonb sem restrição de valores).
 - **P-30**: `OutingPart` por dia (`routineOutings`, `serializeRoutine`, `otherOutings`, `outingBlocks`). Em `family_week_routines.days` um dia com saída fica `{"m": modo, "o": parte}`; `outing` continua a ser a "Ver Mundo" de sexta (dia todo). `applyWeekRoutine` tira o currículo da parte do dia da saída (manhã < 12:30, tarde ≥ 14:00, dia todo); `getFixedScheduleBlocks` junta os blocos "Saída". Sem migração.

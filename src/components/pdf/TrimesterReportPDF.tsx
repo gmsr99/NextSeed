@@ -298,6 +298,11 @@ export default function TrimesterReportPDF({
                     </View>
                     <View style={S.activityBody}>
                       <Text style={S.activityTitle}>{act.title}</Text>
+                      {(act.extra_disciplines ?? []).length > 0 ? (
+                        <Text style={S.activityDesc}>
+                          Também trabalhou: {(act.extra_disciplines ?? []).map((d) => DISCIPLINE_LABELS[d] ?? d).join(", ")}
+                        </Text>
+                      ) : null}
                       {act.description ? (
                         <Text style={S.activityDesc}>{act.description}</Text>
                       ) : null}

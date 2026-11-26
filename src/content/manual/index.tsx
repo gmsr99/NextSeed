@@ -169,6 +169,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
       { type: "p", text: "Estas três secções são, na verdade, o mesmo: a memória do percurso de aprendizagem dos vossos filhos. Registam num sítio e aparece nos outros." },
       { type: "h", text: "Diário" },
       { type: "p", text: "Sempre que fizerem uma atividade — do plano ou espontânea — registem-na no [Diário](/activities): um título, uma nota curta, a disciplina e, se quiserem, **fotos**. É a prova concreta de que a aprendizagem aconteceu." },
+      { type: "p", text: "Se a atividade veio do plano, escolham-na em **Do plano da semana**: a app preenche a criança, o título, a área e o dia, e só falta a foto e, se quiserem, as **Observações**. Quando uma atividade trabalha mais do que uma área, marquem as outras em **Também trabalhou**: conta em todas no portefólio e nos relatórios." },
       { type: "callout", text: "As fotos das crianças ficam guardadas de forma privada e só acessíveis à vossa família. Vê [Família, conta e privacidade](/ajuda/familia)." },
       { type: "h", text: "Portfólio" },
       { type: "p", text: "O [Portfólio](/portfolio) é a linha do tempo automática de tudo o que registaram, com filtros por criança e por disciplina. É o que mostram a quem quiser ver o caminho percorrido — incluindo a escola." },

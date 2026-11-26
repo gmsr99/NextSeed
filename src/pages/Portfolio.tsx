@@ -1,3 +1,4 @@
+import { activityAreas } from "@/lib/activityAreas";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { parseISO, format } from "date-fns";
 import { pt } from "date-fns/locale";
@@ -274,7 +275,7 @@ export default function Portfolio() {
       .filter((e) => typeFilter === "all" || e.kind === typeFilter)
       .filter((e) => {
         if (disciplineFilter === "all") return true;
-        return e.kind === "activity" && e.discipline === disciplineFilter;
+        return e.kind === "activity" && activityAreas(e).includes(disciplineFilter);
       }),
     [entries, selectedChildId, typeFilter, disciplineFilter]
   );
@@ -283,7 +284,7 @@ export default function Portfolio() {
     const base = entries.filter(
       (e) => (selectedChildId === "all" || e.child_id === selectedChildId) && e.kind === "activity"
     );
-    return [...new Set(base.map((e) => e.kind === "activity" ? e.discipline : null).filter(Boolean))] as string[];
+    return [...new Set(base.flatMap((e) => (e.kind === "activity" ? activityAreas(e) : [])))];
   }, [entries, selectedChildId]);
 
   // ─── Estatísticas ──────────────────────────────────────────────────────────
@@ -618,7 +619,7 @@ export default function Portfolio() {
                             >
                               {isActivity ? "Atividade" : "Projeto"}
                             </Badge>
-                            {isActivity && <DisciplineBadge discipline={entry.discipline} />}
+                            {isActivity && activityAreas(entry).map((d) => <DisciplineBadge key={d} discipline={d} />)}
                             {!isActivity && (
                               <Badge variant="outline" className="text-xs border-violet-200 text-violet-600">
                                 {(entry as typeof entry & { status: string }).status}

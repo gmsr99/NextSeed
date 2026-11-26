@@ -263,14 +263,41 @@ export default function Index() {
               className="overflow-hidden">
               <div className="rounded-2xl bg-card shadow-soft p-5 space-y-4">
                 {hasPlan ? (
-                  <div className="grid grid-cols-5 gap-2">
-                    {week.days.map((d) => (
-                      <div key={d.day} className={cn('rounded-xl border p-2 text-center', d.day === todayDow && 'border-primary/40')}>
-                        <p className="text-xs uppercase text-muted-foreground">{DAY_SHORT[d.day - 1]}</p>
-                        <p className="text-sm font-semibold">{d.total ? `${d.done}/${d.total}` : '–'}</p>
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    <div className="grid grid-cols-5 gap-2">
+                      {week.days.map((d) => (
+                        <div key={d.day} className={cn('rounded-xl border p-2 text-center', d.day === todayDow && 'border-primary/40')}>
+                          <p className="text-xs uppercase text-muted-foreground">{DAY_SHORT[d.day - 1]}</p>
+                          <p className="text-sm font-semibold">{d.total ? `${d.done}/${d.total}` : '–'}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {/* V-49: as atividades de cada dia, feitas e previstas */}
+                    <div className="space-y-3">
+                      {[1, 2, 3, 4, 5].map((day) => {
+                        const dayItems = allItems.filter((i) => i.day_of_week === day);
+                        if (dayItems.length === 0) return null;
+                        return (
+                          <div key={day}>
+                            <p className={cn('text-xs font-semibold uppercase tracking-wider', day === todayDow ? 'text-primary' : 'text-muted-foreground')}>
+                              {DAY_SHORT[day - 1]}
+                            </p>
+                            <ul className="mt-1 space-y-0.5">
+                              {dayItems.map((i) => (
+                                <li key={i.id} className={cn('flex items-start gap-2 text-sm', i.completed_at ? 'text-muted-foreground line-through' : 'text-foreground', isOptional(i) && 'opacity-70')}>
+                                  <span className="mt-0.5 shrink-0">{i.completed_at ? '✓' : '○'}</span>
+                                  <span className="min-w-0">
+                                    {children.length > 1 && <span className="font-medium">{children.find((c) => c.id === i.child_id)?.name.split(' ')[0]} · </span>}
+                                    {i.title}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
                 ) : (
                   <p className="text-sm text-muted-foreground">Esta semana não tem plano.</p>
                 )}

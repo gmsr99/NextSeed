@@ -67,6 +67,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           discipline: string | null
+          extra_disciplines: string[]
           family_id: string
           id: string
           is_public: boolean | null
@@ -81,6 +82,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           discipline?: string | null
+          extra_disciplines?: string[]
           family_id: string
           id?: string
           is_public?: boolean | null
@@ -95,6 +97,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           discipline?: string | null
+          extra_disciplines?: string[]
           family_id?: string
           id?: string
           is_public?: boolean | null
