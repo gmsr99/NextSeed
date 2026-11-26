@@ -5,6 +5,7 @@ import type { Activity, Child } from "@/lib/types";
 import type { Milestone } from "@/hooks/useChildMilestones";
 import { MILESTONE_CATEGORIES } from "@/hooks/useChildMilestones";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS } from "@/lib/planGenerator";
+import type { FinancinhasReport, ReportSkill } from "@/lib/financinhas/report";
 
 const S = StyleSheet.create({
   // ── Cover ─────────────────────────────────────────────────────────
@@ -98,6 +99,17 @@ const S = StyleSheet.create({
 
   // Milestones
   milestonesSection: { marginTop: 24, paddingTop: 14, borderTopWidth: 1, borderColor: "#E5E7EB" },
+  finSection: { marginTop: 24, paddingTop: 14, borderTopWidth: 1, borderColor: "#E5E7EB" },
+  finTitle: { fontSize: 10, fontWeight: "bold", color: "#065F46", marginBottom: 3 },
+  finIntro: { fontSize: 7.5, color: "#6B7280", lineHeight: 1.5, marginBottom: 8 },
+  finCols: { flexDirection: "row", gap: 10 },
+  finCol: { flex: 1 },
+  finColTitle: { fontSize: 8, fontWeight: "bold", color: "#374151", marginBottom: 4 },
+  finSkill: { marginBottom: 5, padding: "5 7", borderRadius: 4, backgroundColor: "#ECFDF5", borderLeftWidth: 3, borderLeftColor: "#10B981" },
+  finSkillWork: { backgroundColor: "#F9FAFB", borderLeftColor: "#9CA3AF" },
+  finSkillName: { fontSize: 8, fontWeight: "bold", color: "#1F2937" },
+  finSkillMeta: { fontSize: 7, color: "#6B7280", marginTop: 1 },
+  finSkillObs: { fontSize: 7, color: "#374151", marginTop: 2, lineHeight: 1.4 },
   milestonesSectionTitle: { fontSize: 10, fontWeight: "bold", color: "#92400E", marginBottom: 8 },
   milestoneRow: {
     flexDirection: "row",
@@ -144,6 +156,8 @@ interface Props {
   familyName: string;
   activities: Activity[];
   milestones?: Milestone[];
+  /** Financinhas (I-22): competências observadas pelo adulto. Omisso → sem secção */
+  financinhas?: FinancinhasReport | null;
   trimesterLabel: string;
   startDate: string; // "yyyy-MM-dd"
   endDate: string;   // "yyyy-MM-dd"
@@ -161,6 +175,7 @@ export default function TrimesterReportPDF({
   familyName,
   activities,
   milestones = [],
+  financinhas = null,
   trimesterLabel,
   startDate,
   endDate,
@@ -232,8 +247,8 @@ export default function TrimesterReportPDF({
 
         <View>
           <Text style={S.coverLegal}>
-            Relatório elaborado ao abrigo do Decreto-Lei n.º 55/2018, de 6 de julho,{"\n"}
-            e do Despacho Normativo n.º 10-B/2018, relativo à educação doméstica.
+            Relatório elaborado no âmbito do regime jurídico do ensino individual e do ensino{"\n"}
+            doméstico (Decreto-Lei n.º 70/2021, de 3 de agosto, na redação em vigor).
           </Text>
         </View>
       </Page>
@@ -330,6 +345,34 @@ export default function TrimesterReportPDF({
                 </View>
               );
             })}
+          </View>
+        )}
+
+        {/* Financinhas (I-22) */}
+        {financinhas && (financinhas.strong.length > 0 || financinhas.toWork.length > 0) && (
+          <View style={S.finSection} wrap={false}>
+            <Text style={S.finTitle}>Literacia financeira e iniciativa (Financinhas)</Text>
+            <Text style={S.finIntro}>
+              Competências observadas pelo encarregado de educação no dia a dia (gestão da semanada, escolhas e
+              pequenos projetos). Os níveis só sobem depois de observados: 1 emergente, 2 em desenvolvimento,
+              3 consolidado, 4 autónomo.
+            </Text>
+            <View style={S.finCols}>
+              {([["Pontos fortes", financinhas.strong, false], ["A trabalhar", financinhas.toWork, true]] as [string, ReportSkill[], boolean][])
+                .filter(([, list]) => list.length > 0)
+                .map(([title, list, work]) => (
+                  <View key={title} style={S.finCol}>
+                    <Text style={S.finColTitle}>{title}</Text>
+                    {list.map((s) => (
+                      <View key={s.code} style={work ? [S.finSkill, S.finSkillWork] : S.finSkill}>
+                        <Text style={S.finSkillName}>{s.name}</Text>
+                        <Text style={S.finSkillMeta}>{s.area} · {s.levelLabel}</Text>
+                        <Text style={S.finSkillObs}>{s.observable}</Text>
+                      </View>
+                    ))}
+                  </View>
+                ))}
+            </View>
           </View>
         )}
 

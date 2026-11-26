@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { supabase } from "@/lib/supabase";
+import { Checkbox } from "@/components/ui/checkbox";
 import { parseISO, differenceInCalendarWeeks, format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { motion } from "framer-motion";
@@ -125,6 +127,8 @@ export default function Reports() {
   const [selectedChildId, setSelectedChildId] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("month");
   const [exporting, setExporting] = useState(false);
+  // Financinhas no relatório (I-22): a família decide se entra
+  const [includeFinancinhas, setIncludeFinancinhas] = useState(true);
 
   const { milestones: allMilestones } = useChildMilestones(selectedChildId === "all" ? undefined : selectedChildId);
 
@@ -198,14 +202,25 @@ export default function Reports() {
     if (!child) return;
     setExporting(true);
     try {
-      const [{ pdf }, { default: TrimesterReportPDF }] = await Promise.all([
+      const [{ pdf }, { default: TrimesterReportPDF }, { financinhasReport }] = await Promise.all([
         import("@react-pdf/renderer"),
         import("@/components/pdf/TrimesterReportPDF"),
+        import("@/lib/financinhas/report"),
       ]);
+      // Financinhas (I-22): só competências observadas pelo adulto, até ao fim do período
+      let financinhas = null;
+      if (includeFinancinhas) {
+        const { data: events } = await supabase
+          .from("fin_skill_events")
+          .select("skill_code, level, origin, observed_on, created_at")
+          .eq("child_id", child.id);
+        financinhas = financinhasReport((events ?? []) as Parameters<typeof financinhasReport>[0], range.end);
+      }
       const blob = await pdf(
         <TrimesterReportPDF
           activities={periodActivities}
           milestones={periodMilestones}
+          financinhas={financinhas}
           child={child}
           trimesterLabel={range.label}
           startDate={range.start}
@@ -238,6 +253,12 @@ export default function Reports() {
             </h1>
             <p className="text-muted-foreground mt-1">Visão geral do percurso de aprendizagem.</p>
           </div>
+          {canExportPDF && (
+            <label className="flex items-center gap-2 text-sm text-muted-foreground" title="Só entram competências que observaste">
+              <Checkbox checked={includeFinancinhas} onCheckedChange={(c) => setIncludeFinancinhas(c === true)} />
+              Incluir Financinhas
+            </label>
+          )}
           <Button
             variant="warmth"
             onClick={handleExport}
