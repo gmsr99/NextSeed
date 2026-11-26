@@ -547,6 +547,10 @@ export default function WeeklyPlanner() {
     }
   };
 
+  /** V-31: erro da regra antiga "um plano por semana" (antes da migração 040). */
+  const isOldWeekUniqueError = (e: { code?: string; message?: string }) =>
+    e.code === "23505" && /weekly_plans_family_id_week_start_key/.test(e.message ?? "");
+
   const persistPlan = async (): Promise<string> => {
     if (!family) throw new Error("Família não encontrada");
 
@@ -591,17 +595,40 @@ export default function WeeklyPlanner() {
 
       const nextVersion = (versionRows?.[0]?.version ?? 0) + 1;
 
-      const { data: plan, error: planErr } = await supabase
+      const inserted = await supabase
         .from("weekly_plans")
         .insert({ ...planPayload, version: nextVersion })
         .select("id, version")
         .single();
-      if (planErr) throw planErr;
-      savedPlanId = plan.id;
-      savedVersion = plan.version ?? nextVersion;
-
-      const newEntry = { id: savedPlanId, version: savedVersion, generated_at: planPayload.generated_at };
-      setPlanHistory((prev) => [newEntry, ...prev]);
+      if (inserted.error && isOldWeekUniqueError(inserted.error)) {
+        // V-31: na produção ainda existe a regra antiga "um plano por semana"
+        // (a migração 040 tira-a). Até lá, a versão nova substitui a última.
+        const { data: latest } = await supabase
+          .from("weekly_plans")
+          .select("id")
+          .eq("family_id", family.id)
+          .eq("week_start", weekKey)
+          .order("version", { ascending: false })
+          .limit(1)
+          .single();
+        if (!latest) throw inserted.error;
+        const { data: plan, error: upErr } = await supabase
+          .from("weekly_plans")
+          .update(planPayload)
+          .eq("id", latest.id)
+          .select("id, version")
+          .single();
+        if (upErr) throw upErr;
+        savedPlanId = plan.id;
+        savedVersion = plan.version ?? nextVersion - 1;
+      } else {
+        if (inserted.error) throw inserted.error;
+        const plan = inserted.data;
+        savedPlanId = plan.id;
+        savedVersion = plan.version ?? nextVersion;
+        const newEntry = { id: savedPlanId, version: savedVersion, generated_at: planPayload.generated_at };
+        setPlanHistory((prev) => [newEntry, ...prev]);
+      }
     }
 
     setPlanId(savedPlanId);

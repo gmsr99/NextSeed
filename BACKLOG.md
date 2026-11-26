@@ -90,6 +90,8 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-70 | Plano Semanal, separador da criança do pré-escolar | Gerar ou abrir o plano e ver cada dia | Entre as atividades aparecem, em cinzento, os blocos fixos: Ritual de Chegada (ou Orações e liturgia), Pausa, Almoço, Relaxamento / Descanso e as saídas (nota do Elton no V-23) |  |
 | V-71 | Diário › Nova Atividade (com um plano desta semana) | Em "Do plano da semana", escolher uma atividade; juntar uma foto e uma observação; guardar | Criança, título, área, descrição e dia ficam preenchidos; no portefólio a descrição acaba com "Observações: …" (R-12) |  |
 | V-72 | Diário › Nova Atividade (só depois da migração 039) | Escolher a área principal e, em "Também trabalhou", mais uma ou duas; guardar | No portefólio a atividade mostra todas as áreas e aparece ao filtrar por qualquer uma; nos relatórios conta em cada área (R-04) |  |
+| V-73 | Plano Semanal (num plano já guardado) | Regenerar, gerar de novo e Guardar | Guarda sem o erro "weekly_plans_family_id_week_start_key" (substitui a última versão; com a migração 040 volta a criar uma versão nova) (V-31) |  |
+| V-74 | Início | Tocar em "A semana" | Por baixo dos 5 dias aparecem as atividades de cada dia, com ✓ nas feitas (V-49) |  |
 
 ## Ordem de implementação
 
