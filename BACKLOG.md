@@ -81,6 +81,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-72 | Diário › Nova Atividade (só depois da migração 039) | Escolher a área principal e, em "Também trabalhou", mais uma ou duas; guardar | No portefólio a atividade mostra todas as áreas e aparece ao filtrar por qualquer uma; nos relatórios conta em cada área (R-04) |  |
 | V-73 | Plano Semanal (num plano já guardado) | Regenerar, gerar de novo e Guardar | Guarda sem o erro "weekly_plans_family_id_week_start_key" (substitui a última versão; com a migração 040 volta a criar uma versão nova) (V-31) |  |
 | V-74 | Início | Tocar em "A semana" | Por baixo dos 5 dias aparecem as atividades de cada dia, com ✓ nas feitas (V-49) |  |
+| V-75 | Agenda | Abrir a Agenda | Só aparece o calendário da família (plano, extracurriculares, eventos da família); já não há separadores Eventos, Mapa nem Por Região, nem eventos inventados. Criar, editar e apagar um evento da família funciona como antes (I-03a, 1A) |  |
 
 ## Ordem de implementação
 
@@ -224,6 +225,7 @@ Ideias para quando o núcleo estiver sólido.
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
 | I-03 | Comunidade: perfil de família, mapa, feed de partilhas, agenda | Docs 01. Cada peça precisa de revisão RGPD | M/B | L | Em estudo |
+| I-03a | Agenda da comunidade: famílias e entidades propõem encontros e eventos para crianças e famílias, com triagem; a família vê primeiro o que está perto (concelho, por anéis de distância) e o que prefere ("O que preferimos"); dois tipos com cor própria (Encontro de comunidade, Evento); "Juntar à nossa agenda" | Elton, 26 nov (problemas 1 e 4 do doc 01; D-001, D-002). Spec v2 aprovada a 26 nov, 11:38 (claude/AGENDA_Especificacao.md; como construir: claude/AGENDA_Pacote_Implementacao.md). BD (041) | A/M | M | 1A (sai o conteúdo inventado; fica "Minha família") feita a 26 nov no ramo `fix/agenda-sem-eventos-inventados`, por publicar (V-75). 1B (agenda da comunidade) a seguir, no ramo `feat/agenda-comunidade`. Decisões de 26 nov: triagem pelo Elton ou pela Andrea (basta um; papel `team_admins` que já existe); 8 categorias mais "Encontros de comunidade" como preferência; proposta só com conta (grátis ou paga); "Não mostrar" esconde, com "Mostrar tudo"; Course Commons sem contacto por agora (a Fase 2 começa por testar a recolha automática); o Claude semeia pelo menos 15 eventos reais como pendentes e o Elton aprova; sem hierarquia entre tipos; território consultável sem guardar, concelho guardado opcional, localização calculada no aparelho. ⚠️ Antes da 1B em produção: doc 04 e Política de Privacidade com o concelho. Em janeiro: nova sementeira (os eventos de Natal acabam a 3 jan) |
 | I-10 | Agenda: acrescentar Brincar de Rua, Toca a Andar e Follow the Flow | F-02. Depende da agenda comunitária (I-03) | B/B | S | Em estudo |
 | I-11 | Links para exemplos ilustrados (Pinterest, YouTube) nas atividades | Equipa. Só links verificados: a IA inventa endereços | M/B | M | Em estudo |
 | I-12 | Manuais próprios da NexSeed para venda (infoproduto) | Equipa. Decisão de negócio: levar ao projeto de estratégia | B/B | L | Em estudo |
