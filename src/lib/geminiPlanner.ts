@@ -83,7 +83,7 @@ let essentialRoutine: WeekRoutine | null = null;
 function buildSkeleton(children: Child[], routine: WeekRoutine | null = null): SkeletonItem[] {
   // P-18: a semana da família (dias sem estudo, dias curtos, sexta sem saída)
   // P-27: plano essencial (a leitura de terça sai; a tarde fica "se houver tempo")
-  const skeleton = dropReadingDay(applyWeekRoutine(buildFullSkeleton(children), routine));
+  const skeleton = dropReadingDay(applyWeekRoutine(buildFullSkeleton(children), routine), routine);
   renumberEpisodes(skeleton);
   essentialRoutine = routine;
   return skeleton;

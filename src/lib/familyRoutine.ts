@@ -1,9 +1,10 @@
 // A nossa semana (P-18, versão mínima do P-04): como é a semana de estudo de
 // cada família. Para cada dia, de segunda a sexta: dia completo, dia curto
-// (cerca de 1 hora, só a manhã) ou sem estudo; e se há saída "Ver Mundo" à
-// sexta. Sem configuração, fica a semana de sempre.
+// (cerca de 1 hora, só a manhã), dia livre (P-29: sem currículo, só o bloco da
+// manhã e a leitura em voz alta, como no plano da F-01) ou sem estudo; e se há
+// saída "Ver Mundo" à sexta. Sem configuração, fica a semana de sempre.
 
-export type DayMode = "full" | "short" | "off";
+export type DayMode = "full" | "short" | "free" | "off";
 
 export interface WeekRoutine {
   /** Segunda a sexta */
@@ -19,6 +20,7 @@ export const DEFAULT_ROUTINE: WeekRoutine = { days: ["full", "full", "full", "fu
 export const DAY_MODE_LABELS: Record<DayMode, string> = {
   full: "Dia completo",
   short: "Dia curto (cerca de 1 hora)",
+  free: "Dia livre (só a manhã em família e a leitura)",
   off: "Sem estudo",
 };
 
@@ -27,9 +29,12 @@ const WEEKDAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
 /** Um dia curto fica com o que começa antes desta hora: português e matemática da manhã. */
 const SHORT_DAY_CUTOFF = "10:42";
 
+/** P-29: o que fica num dia livre: o bloco da manhã (ou as orações, com a tradição), o almoço e a leitura. */
+const FREE_DAY_KEEP = new Set(["ritual", "lunch", "reading"]);
+
 /** Lê o que vem da base de dados; qualquer valor estranho volta ao de sempre. */
 export function normalizeRoutine(days: unknown, outing: unknown, scheduleMode?: unknown): WeekRoutine {
-  const valid = (d: unknown): d is DayMode => d === "full" || d === "short" || d === "off";
+  const valid = (d: unknown): d is DayMode => d === "full" || d === "short" || d === "free" || d === "off";
   const list = Array.isArray(days) && days.length === 5 && days.every(valid) ? (days as DayMode[]) : DEFAULT_ROUTINE.days;
   return { days: [...list], outing: typeof outing === "boolean" ? outing : true, hours: scheduleMode === "horas" };
 }
@@ -41,9 +46,14 @@ export function isDefaultRoutine(r: WeekRoutine | null | undefined): boolean {
   return !r || (r.outing && r.days.every((d) => d === "full"));
 }
 
-/** Há saída esta semana? (pedida e a sexta não está sem estudo) */
+/** Há saída esta semana? (pedida e a sexta não está sem estudo nem livre) */
 export function hasOuting(r: WeekRoutine | null | undefined): boolean {
-  return !r || (r.outing && r.days[4] !== "off");
+  return !r || (r.outing && r.days[4] !== "off" && r.days[4] !== "free");
+}
+
+/** P-29: dia livre (1 = segunda … 5 = sexta). */
+export function isFreeDay(r: WeekRoutine | null | undefined, day: number): boolean {
+  return !!r && r.days[day - 1] === "free";
 }
 
 /** Dias com estudo (1 = segunda … 5 = sexta). */
@@ -64,8 +74,10 @@ export function routineSummary(r: WeekRoutine | null | undefined): string {
   else if (full.length > 1) parts.push(full.map((i) => WEEKDAYS[i]).join(", "));
   const short = rt.days.map((d, i) => (d === "short" ? WEEKDAYS[i].toLowerCase() : "")).filter(Boolean);
   if (short.length) parts.push(`${short.join(", ")} ${short.length === 1 ? "curta" : "curtas"}`);
+  const free = rt.days.map((d, i) => (d === "free" ? WEEKDAYS[i].toLowerCase() : "")).filter(Boolean);
+  if (free.length) parts.push(`${free.join(", ")} ${free.length === 1 ? "livre" : "livres"}`);
   const off = rt.days.map((d, i) => (d === "off" ? WEEKDAYS[i].toLowerCase() : "")).filter(Boolean);
-  if (off.length && full.length + short.length > 0 && off.length < 5) parts.push(`sem estudo à ${off.join(", à ")}`);
+  if (off.length && full.length + short.length + free.length > 0 && off.length < 5) parts.push(`sem estudo à ${off.join(", à ")}`);
   if (off.length === 5) return "Sem dias de estudo";
   parts.push(hasOuting(rt) ? "com saída à sexta" : "sem saída");
   const text = parts.join(", ");
@@ -85,13 +97,14 @@ interface RoutineItem {
  * atividades geradas ou blocos fixos do horário):
  * - sexta sem saída e com estudo: a sexta passa a ser um dia de estudo igual
  *   à segunda (sem o episódio de leitura);
- * - dias sem estudo saem; dias curtos ficam só com a manhã (antes das 10:42).
+ * - dias sem estudo saem; dias curtos ficam só com a manhã (antes das 10:42);
+ * - dias livres ficam só com o bloco da manhã, o almoço e a leitura (P-29).
  * Com a semana de sempre, devolve a lista tal como está.
  */
 export function applyWeekRoutine<T extends RoutineItem>(items: T[], r: WeekRoutine | null | undefined): T[] {
   if (!r || isDefaultRoutine(r)) return items;
   let out = items;
-  if (!r.outing && r.days[4] !== "off") {
+  if ((!r.outing || r.days[4] === "free") && r.days[4] !== "off") {
     const monday = items.filter((i) => i.day_of_week === 1 && i.discipline !== "reading");
     out = [
       ...items.filter((i) => i.day_of_week !== 5),
@@ -105,6 +118,7 @@ export function applyWeekRoutine<T extends RoutineItem>(items: T[], r: WeekRouti
     const mode = r.days[i.day_of_week - 1] ?? "full";
     if (mode === "off") return false;
     if (mode === "short") return i.time_slot.slice(0, 5) < SHORT_DAY_CUTOFF;
+    if (mode === "free") return FREE_DAY_KEEP.has(i.discipline);
     return true;
   });
 }

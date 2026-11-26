@@ -232,6 +232,8 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "Cada atividade dura o tempo de atenção da idade: cerca de 10 minutos no pré-escolar, 15 a 20 no 1.º e 2.º ano, 20 a 25 no 3.º e 4.º.",
         "Com os PDF vem **o mapa da semana de cada criança**: os dias, as atividades com um desenho e uma caixa para ela marcar, e linhas em branco para tarefas da casa.",
         "O horário vem **sem horas**: segue a ordem dos blocos, à vossa hora. Se preferirem horas sugeridas, liguem \"Mostrar horas no horário\" em \"A vossa semana\".",
+        "Em \"A vossa semana\" podem marcar um **Dia livre**: sem currículo, fica só o momento da manhã em família e a leitura em voz alta.",
+        "**Semana difícil?** No Início, em \"Semana difícil? Fiquem só com o essencial\", o resto da semana fica leve: a leitura e o momento da manhã. O resto passa a \"Semana leve\", fica no plano se der e não conta para estarem em dia. Não é uma semana falhada, e podem voltar ao plano normal quando quiserem.",
       ]},
       { type: "h", text: "No Início: o dia, a semana e o ano" },
       { type: "ul", items: [

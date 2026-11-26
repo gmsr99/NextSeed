@@ -460,7 +460,7 @@ export function generateWeeklyPlan(
     return isPreSchool
       ? preSchoolSchedule(child, interests, fridayActivity, aligned)
       : primarySchedule(child, interests, fridayActivity, weeklyReadingTheme);
-  }), routine)), routine);
+  }), routine), routine), routine);
 }
 
 // ─── Utilitários ──────────────────────────────────────────────────────────────

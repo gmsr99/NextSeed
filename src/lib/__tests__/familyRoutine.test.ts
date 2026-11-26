@@ -56,3 +56,21 @@ describe("a nossa semana", () => {
     expect(normalizeRoutine(["full", "full", "full", "full", "full"], true, "horas").hours).toBe(true);
   });
 });
+
+describe("dia livre (P-29)", () => {
+  it("fica só a manhã em família, o almoço e a leitura", async () => {
+    const { applyWeekRoutine, normalizeRoutine, routineSummary, hasOuting } = await import("../familyRoutine");
+    const r = normalizeRoutine(["full", "full", "free", "full", "full"], true);
+    expect(r.days[2]).toBe("free");
+    const items = [
+      { day_of_week: 3, discipline: "ritual", is_friday_world: false, time_slot: "09:30-09:45" },
+      { day_of_week: 3, discipline: "language", is_friday_world: false, time_slot: "09:45-10:10" },
+      { day_of_week: 3, discipline: "reading", is_friday_world: false, time_slot: "14:45-15:15", episode: 2 },
+      { day_of_week: 3, discipline: "lunch", is_friday_world: false, time_slot: "12:30-14:00" },
+      { day_of_week: 2, discipline: "language", is_friday_world: false, time_slot: "09:45-10:10" },
+    ];
+    expect(applyWeekRoutine(items, r).map((i) => `${i.day_of_week}:${i.discipline}`)).toEqual(["3:ritual", "3:reading", "3:lunch", "2:language"]);
+    expect(routineSummary(r)).toContain("quarta livre");
+    expect(hasOuting(normalizeRoutine(["full", "full", "full", "full", "free"], true))).toBe(false);
+  });
+});

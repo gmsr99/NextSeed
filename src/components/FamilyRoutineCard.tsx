@@ -14,7 +14,7 @@ import { useFamilyRoutine } from "@/hooks/useFamilyRoutine";
 import { DAY_MODE_LABELS, DEFAULT_ROUTINE, routineSummary, type DayMode, type WeekRoutine } from "@/lib/familyRoutine";
 
 const DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
-const MODES: DayMode[] = ["full", "short", "off"];
+const MODES: DayMode[] = ["full", "short", "free", "off"];
 
 export default function FamilyRoutineCard() {
   const { routine, available, isLoading, save, reset } = useFamilyRoutine();
@@ -97,13 +97,13 @@ export default function FamilyRoutineCard() {
               ))}
               <p className="text-xs text-muted-foreground">
                 Dia curto: só a manhã, com Português e Matemática (cerca de 1 hora). Bom para dias com outras atividades
-                fora de casa.
+                fora de casa. Dia livre: sem currículo; fica o momento da manhã em família e a leitura em voz alta.
               </p>
             </div>
 
             <div className="flex items-start gap-3">
               <Switch
-                id="routine-outing" checked={draft.outing && draft.days[4] !== "off"} disabled={draft.days[4] === "off"}
+                id="routine-outing" checked={draft.outing && draft.days[4] !== "off" && draft.days[4] !== "free"} disabled={draft.days[4] === "off" || draft.days[4] === "free"}
                 onCheckedChange={(v) => setDraft((d) => ({ ...d, outing: v }))}
               />
               <div>
@@ -111,6 +111,8 @@ export default function FamilyRoutineCard() {
                 <p className="text-xs text-muted-foreground">
                   {draft.days[4] === "off"
                     ? "A sexta está sem estudo, por isso não há saída."
+                    : draft.days[4] === "free"
+                      ? "A sexta é dia livre, por isso não há saída."
                     : draft.outing
                       ? "Uma saída da família, a um sítio perto, com as crianças todas."
                       : "Sem saída: a sexta é um dia de estudo em casa, como os outros."}
