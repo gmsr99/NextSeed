@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
+**Atualizado:** 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana; Agenda sem eventos inventados, só o calendário da família (I-03a, 1A)). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
