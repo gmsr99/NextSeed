@@ -44,6 +44,12 @@ import { weekLiturgy } from "@/lib/tradicao/week";
 import { mergeWeekContents } from "@/lib/weekClose";
 import { useWeekFocus } from "@/hooks/useAnnualPlan";
 import { fetchChildManuals } from "@/hooks/useChildManuals";
+import { useFinancinhas } from "@/hooks/useFinancinhas";
+import { useIsTeamAdmin } from "@/hooks/useIsTeamAdmin";
+import { usePilotFeature } from "@/hooks/usePilotFeature";
+import { canSeeFinancinhas } from "@/lib/financinhas/access";
+import { weekSessions } from "@/lib/financinhas/weekSession";
+import FinancinhasWeekCard from "@/components/financinhas/FinancinhasWeekCard";
 
 type Step = "form" | "preview";
 
@@ -84,6 +90,13 @@ export default function WeeklyPlanner() {
   const { routine } = useFamilyRoutine();
   // I-08: tempo litúrgico da semana (só com a Tradição da família ligada; não vai para a IA)
   const { tradition } = useFamilyTradition();
+  // I-21: a sessão Financinhas da semana, para quem tem o módulo e perfis criados
+  const { isAdmin: finAdmin } = useIsTeamAdmin();
+  const { invited: finInvited } = usePilotFeature("financinhas");
+  const { data: finData } = useFinancinhas();
+  const finSessions = canSeeFinancinhas(finAdmin, finInvited) && finData.available
+    ? weekSessions(children.map((c) => c.id), finData.profiles, finData.lessons)
+    : [];
   const { notifyEvent } = useFeedback();
   const { startTourIfUnseen } = useTour();
   const { activities: extracurriculars } = useExtracurricular();
@@ -661,6 +674,25 @@ export default function WeeklyPlanner() {
     a4.download = `nexseed-mapa-criancas-${format(weekStart, "yyyy-MM-dd")}.pdf`;
     a4.click();
 
+    // I-21: Financinhas da semana, só com aulas preparadas
+    const finEntries = finSessions.filter((s) => s.lesson).map((s) => {
+      const l = finData.lessons.find((x) => x.id === s.lesson!.id)!;
+      return {
+        childName: children.find((c) => c.id === s.childId)?.name ?? "",
+        weekdayLabel: s.weekdayLabel,
+        title: l.title ?? "Sessão da semana",
+        adultGuide: l.adult_guide_md, quiz: l.quiz_md, activities: l.activities_md, challenge: l.challenge_md,
+      };
+    });
+    if (finEntries.length > 0) {
+      const { default: FinPDF } = await import("@/components/pdf/FinancinhasWeekPDF");
+      const finBlob = await pdf(<FinPDF entries={finEntries} weekStart={weekStart} />).toBlob();
+      const a5 = document.createElement("a");
+      a5.href = URL.createObjectURL(finBlob);
+      a5.download = `nexseed-financinhas-${format(weekStart, "yyyy-MM-dd")}.pdf`;
+      a5.click();
+    }
+
     // Guia de Leitura — só gera se existirem episódios
     const readingItems = planItems.filter((i) => i.discipline === "reading");
     if (readingItems.length > 0) {
@@ -875,6 +907,11 @@ export default function WeeklyPlanner() {
             <ExtracurricularsCard
               extracurriculars={extracurriculars}
               children={children}
+            />
+
+            <FinancinhasWeekCard
+              sessions={finSessions}
+              names={Object.fromEntries(children.map((c) => [c.id, c.name]))}
             />
 
             <PlanPreview

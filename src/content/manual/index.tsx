@@ -275,6 +275,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "Começas com o **Trilho de Iniciação**: 12 sessões por ordem, uma por semana. Tu só escolhes o universo da história (o interesse do momento).",
         "A app gera a aula: o texto para colares no Gemini Notebook ou no NotebookLM (que faz a apresentação ilustrada), o quiz, as atividades e o guia para ti. Revês tudo antes de mostrares à criança.",
         "A partir da sessão 2 há quatro mealheiros (🐷 Gastar, 🎯 Poupar, ❤️ Dar, 🚀 Investir), o chão do 🐷 e um caderninho em papel. Todas as semanas, no mesmo dia, fazem o ritual da semanada e registas em 30 segundos.",
+        "No [Plano Semanal](/weekly-planner) aparece o cartão **Financinhas desta semana**: o dia da semanada de cada criança e a aula por dar, com o botão **Copiar o prompt**. Em **Descarregar PDFs** sai também o guia do adulto, o quiz e as atividades dessa aula. A aula prepara-se sempre na página Financinhas.",
         "Nos dias seguintes, em **O que observar**, confirmas o que viste acontecer. É isso, e só isso, que faz subir as competências.",
         "Depois da sessão 12 passam ao **ciclo semanal**: a app escolhe o tema pelas competências mais frágeis e pelo que a criança está a viver.",
       ]},
