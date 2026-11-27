@@ -89,7 +89,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | V-80 | Agenda › Triagem (Elton ou Andrea) | Publicar uma proposta e recusar outra com motivo | A publicada aparece em "Perto de nós"; quem propôs a recusada vê "Desta vez não publicámos: …" (I-03a) |  |
 | V-81 | Agenda › Juntar à nossa agenda | Juntar um evento e abrir "Minha família" nesse dia | O evento está lá com a cor do tipo; se quem organiza o cancelar, aparece riscado com "(cancelado)" (I-03a) |  |
 | V-82 | Agenda › Minha família (com um desporto ou atelier ao sábado ou ao domingo, em Extracurriculares) | Abrir o mês | O desporto aparece em todos os sábados (ou domingos) do mês, a laranja; antes só apareciam de segunda a sexta (P-24) |  |
-| V-83 | Agenda › Minha família | Ver as sextas do mês, com e sem plano guardado | Cada sexta tem "Ver Mundo" a roxo, uma vez (não uma por criança); com plano, mostra também o título da saída. Saídas marcadas noutros dias em "A vossa semana" aparecem nesses dias. Com a sexta sem estudo, não aparece (P-24) |  |
+| V-83 | Agenda › Minha família | Ver uma semana com plano guardado que tenha Ver Mundo (ou uma saída) e uma semana sem saídas | A Ver Mundo aparece a roxo no dia em que o plano a pôs, uma vez (não uma por criança), com o título da saída; uma semana sem saídas no plano não mostra nenhuma; sem plano, também não (P-24) |  |
 | V-84 | Agenda › Perto de nós › encontro semanal (só depois da migração 041) | Tocar em "Todas as semanas" | O encontro aparece em "Minha família" em todas as semanas até ao fim da repetição; "Só esta vez" põe só o próximo (I-03a) |  |
 
 ## Ordem de implementação

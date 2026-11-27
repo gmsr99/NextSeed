@@ -1,27 +1,33 @@
-// Agenda da família ("Minha família"): o que se repete todas as semanas.
+// Agenda da família ("Minha família"): o que vem do plano e o que se repete todas as semanas.
 // Lógica pura, com testes em __tests__/familyAgenda.test.ts.
-import { routineOutings, type WeekRoutine } from "./familyRoutine";
 
-export interface WeeklyFixed {
-  /** 1 = segunda … 7 = domingo */
-  dow: number;
+export interface PlanOutingEntry {
+  date: string;
   title: string;
-  /** "Ver Mundo" (sexta, o dia todo) ou outra saída marcada em "A vossa semana" */
-  kind: "ver_mundo" | "saida";
 }
 
 /**
- * As saídas da semana a partir de "A vossa semana", uma por família (não uma por criança).
- * Sem rotina guardada vale a semana de sempre: "Ver Mundo" à sexta.
- * Os dias sem estudo não têm saída (routineOutings já o trata).
+ * As saídas da semana (Ver Mundo e outras) vêm só do plano guardado dessa semana:
+ * cada família e cada semana decidem se saem, quando e quantas vezes.
+ * No plano há um bloco por criança; no calendário fica um por dia e por título.
  */
-export function routineFixedEntries(r: WeekRoutine | null | undefined): WeeklyFixed[] {
-  return routineOutings(r).flatMap((part, i): WeeklyFixed[] => {
-    if (part === "none") return [];
-    if (i === 4 && part === "day") return [{ dow: 5, title: "Ver Mundo", kind: "ver_mundo" }];
-    const label = part === "morning" ? "Saída (manhã)" : part === "afternoon" ? "Saída (tarde)" : "Saída (dia todo)";
-    return [{ dow: i + 1, title: label, kind: "saida" }];
-  });
+export function outingEntriesFromPlan(
+  items: { date: string; title: string | null; discipline?: string | null; is_friday_world?: boolean | null }[],
+): PlanOutingEntry[] {
+  const seen = new Set<string>();
+  const out: PlanOutingEntry[] = [];
+  for (const it of items) {
+    if (!isOutingPlanItem(it)) continue;
+    const raw = (it.title ?? "").trim();
+    const title = it.is_friday_world
+      ? (raw && !/^ver mundo$/i.test(raw) ? `Ver Mundo · ${raw}` : "Ver Mundo")
+      : raw || "Saída";
+    const key = `${it.date}|${it.is_friday_world ? "vm" : title}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ date: it.date, title });
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date));
 }
 
 /** Só a versão mais recente do plano de cada semana (desde a 003 pode haver várias). */
@@ -34,7 +40,7 @@ export function latestPlans<P extends { id: string; week_start: string; version?
   return [...best.values()];
 }
 
-/** As saídas vêm da rotina; os mesmos blocos do plano (um por criança) não se repetem no calendário. */
+/** Blocos de saída do plano: a Ver Mundo (preparada pela IA) e as saídas de "A vossa semana". */
 export function isOutingPlanItem(item: { discipline?: string | null; is_friday_world?: boolean | null }): boolean {
   return item.discipline === "outing" || item.is_friday_world === true;
 }

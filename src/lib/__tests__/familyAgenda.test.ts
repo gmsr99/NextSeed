@@ -1,26 +1,35 @@
 import { describe, it, expect } from "vitest";
-import { routineFixedEntries, latestPlans, isOutingPlanItem, isValidDow } from "../familyAgenda";
-import { normalizeRoutine } from "../familyRoutine";
+import { outingEntriesFromPlan, latestPlans, isOutingPlanItem, isValidDow } from "../familyAgenda";
 
-describe("agenda da família: o que se repete", () => {
-  it("sem rotina guardada, há Ver Mundo à sexta", () => {
-    expect(routineFixedEntries(null)).toEqual([{ dow: 5, title: "Ver Mundo", kind: "ver_mundo" }]);
+describe("agenda da família: saídas que vêm do plano", () => {
+  it("sem plano, não há saídas no calendário", () => {
+    expect(outingEntriesFromPlan([])).toEqual([]);
   });
 
-  it("saídas de outros dias aparecem uma vez, com a parte do dia", () => {
-    const r = normalizeRoutine(
-      [{ m: "full", o: "none" }, { m: "full", o: "afternoon" }, { m: "full", o: "morning" }, { m: "full", o: "none" }, { m: "full", o: "none" }],
-      false,
-    );
-    expect(routineFixedEntries(r)).toEqual([
-      { dow: 2, title: "Saída (tarde)", kind: "saida" },
-      { dow: 3, title: "Saída (manhã)", kind: "saida" },
+  it("a Ver Mundo aparece uma vez por dia, mesmo com duas crianças, e leva o título da saída", () => {
+    const items = [
+      { date: "2026-12-04", title: "Visita ao mercado", discipline: "mundo", is_friday_world: true },
+      { date: "2026-12-04", title: "Visita ao mercado", discipline: "mundo", is_friday_world: true },
+      { date: "2026-12-04", title: "Português", discipline: "portugues", is_friday_world: false },
+    ];
+    expect(outingEntriesFromPlan(items)).toEqual([{ date: "2026-12-04", title: "Ver Mundo · Visita ao mercado" }]);
+  });
+
+  it("as outras saídas aparecem no dia em que o plano as pôs", () => {
+    const items = [
+      { date: "2026-12-01", title: "Saída (tarde)", discipline: "outing" },
+      { date: "2026-12-01", title: "Saída (tarde)", discipline: "outing" },
+      { date: "2026-12-02", title: "Saída (manhã)", discipline: "outing" },
+    ];
+    expect(outingEntriesFromPlan(items)).toEqual([
+      { date: "2026-12-01", title: "Saída (tarde)" },
+      { date: "2026-12-02", title: "Saída (manhã)" },
     ]);
   });
 
-  it("sexta sem estudo não tem Ver Mundo", () => {
-    const r = normalizeRoutine(["full", "full", "full", "full", "off"], true);
-    expect(routineFixedEntries(r)).toEqual([]);
+  it("uma semana com os cinco dias de estudo não tem saídas", () => {
+    const items = [1, 2, 3, 4, 5].map((d) => ({ date: `2026-12-0${d}`, title: "Matemática", discipline: "matematica", is_friday_world: false }));
+    expect(outingEntriesFromPlan(items)).toEqual([]);
   });
 
   it("fica só a versão mais recente do plano de cada semana", () => {
@@ -32,7 +41,7 @@ describe("agenda da família: o que se repete", () => {
     expect(latestPlans(plans).map((p) => p.id).sort()).toEqual(["b", "c"]);
   });
 
-  it("os blocos de saída do plano não se repetem", () => {
+  it("reconhece os blocos de saída do plano", () => {
     expect(isOutingPlanItem({ discipline: "outing" })).toBe(true);
     expect(isOutingPlanItem({ discipline: "portugues", is_friday_world: true })).toBe(true);
     expect(isOutingPlanItem({ discipline: "portugues", is_friday_world: false })).toBe(false);

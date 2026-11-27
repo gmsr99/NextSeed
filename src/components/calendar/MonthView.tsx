@@ -71,7 +71,7 @@ export function MonthView({ month, eventsByDate, onDayClick, selectedDate }: Pro
                         'inline-block w-2 h-2 rounded-full',
                         ev.kind === 'plan' ? 'bg-blue-400' :
                         ev.kind === 'extra' ? 'bg-orange-400' :
-                        ev.kind === 'routine' ? 'bg-violet-400' :
+                        ev.kind === 'outing' ? 'bg-violet-400' :
                         ev.color.includes('rose') ? 'bg-rose-400' :
                         ev.color.includes('teal') ? 'bg-teal-500' : 'bg-green-400',
                       ].join(' ')}

@@ -85,7 +85,7 @@ const CalendarPage = () => {
             <div className="flex gap-4 text-xs text-muted-foreground flex-wrap">
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block"/> Plano semanal</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block"/> Extracurricular</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-violet-400 inline-block"/> Ver Mundo e saídas</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-violet-400 inline-block"/> Ver Mundo e saídas do plano</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400 inline-block"/> Evento da família</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-400 inline-block"/> Encontro de comunidade</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-500 inline-block"/> Evento da Agenda</span>

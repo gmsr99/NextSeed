@@ -6,12 +6,11 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, addDays, startOfWeek } from 'date-fns';
 import type { CalendarEvent } from '@/lib/types';
-import { useFamilyRoutine } from '@/hooks/useFamilyRoutine';
-import { isOutingPlanItem, isValidDow, latestPlans, routineFixedEntries } from '@/lib/familyAgenda';
+import { isOutingPlanItem, isValidDow, latestPlans, outingEntriesFromPlan } from '@/lib/familyAgenda';
 
 export type AggregatedEvent = {
   id: string;
-  kind: 'plan' | 'extra' | 'manual' | 'routine';
+  kind: 'plan' | 'extra' | 'manual' | 'outing';
   title: string;
   time: string | null;
   color: string;          // Tailwind bg+text classes
@@ -37,7 +36,6 @@ export function useCalendarData(
   linked: Record<string, { kind: string; status: string }> = NO_LINKS
 ) {
   const { family } = useAuth();
-  const { routine } = useFamilyRoutine();
 
   const childName = (id: string | null) => id ? (children.find(c => c.id === id)?.name) : undefined;
 
@@ -103,14 +101,22 @@ export function useCalendarData(
     const monthStartStr = format(monthStart, 'yyyy-MM-dd');
     const monthEndStr = format(monthEnd, 'yyyy-MM-dd');
 
-    // Plan items (as saídas e a Ver Mundo vêm da rotina, uma vez por família)
-    const verMundoTitle: Record<string, string> = {};
-    for (const item of planItems) {
-      if (item.date < monthStartStr || item.date > monthEndStr) continue;
-      if (isOutingPlanItem(item)) {
-        if (item.is_friday_world && item.title && !verMundoTitle[item.date]) verMundoTitle[item.date] = item.title;
-        continue;
-      }
+    // Plan items. As saídas (Ver Mundo e outras) entram à parte, uma vez por dia:
+    // só existem nas semanas em que o plano as tem.
+    const inMonth = planItems.filter(item => item.date >= monthStartStr && item.date <= monthEndStr);
+    for (const o of outingEntriesFromPlan(inMonth)) {
+      push(o.date, {
+        id: `outing-${o.date}-${o.title}`,
+        kind: 'outing',
+        title: o.title,
+        time: null,
+        color: 'bg-violet-100 text-violet-800',
+        date: o.date,
+        navigateTo: '/weekly-planner',
+      });
+    }
+    for (const item of inMonth) {
+      if (isOutingPlanItem(item)) continue;
       push(item.date, {
         id: item.id,
         kind: 'plan',
@@ -123,8 +129,7 @@ export function useCalendarData(
       });
     }
 
-    // Extracurriculars e saídas da semana — repetidos em todas as semanas do mês
-    const fixed = routineFixedEntries(routine);
+    // Extracurriculars — repetidas em todas as semanas do mês (fins de semana incluídos)
     let cursor = startOfWeek(monthStart, { weekStartsOn: 1 });
     while (cursor <= monthEnd) {
       for (const extra of extras) {
@@ -143,20 +148,6 @@ export function useCalendarData(
             });
           }
         }
-      }
-      for (const f of fixed) {
-        const date = isoDateForDow(cursor, f.dow);
-        if (date < monthStartStr || date > monthEndStr) continue;
-        const planned = f.kind === 'ver_mundo' ? verMundoTitle[date] : undefined;
-        push(date, {
-          id: `routine-${f.kind}-${date}`,
-          kind: 'routine',
-          title: planned && planned !== f.title ? `${f.title} · ${planned}` : f.title,
-          time: null,
-          color: 'bg-violet-100 text-violet-800',
-          date,
-          navigateTo: '/weekly-planner',
-        });
       }
       cursor = addDays(cursor, 7);
     }
@@ -182,7 +173,7 @@ export function useCalendarData(
     }
 
     return map;
-  }, [planItems, extras, calendarEvents, children, linked, routine, monthStart, monthEnd]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [planItems, extras, calendarEvents, children, linked, monthStart, monthEnd]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { eventsByDate };
 }
