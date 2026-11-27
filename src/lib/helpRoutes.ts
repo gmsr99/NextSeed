@@ -11,6 +11,7 @@ export const HELP_BY_ROUTE: Record<string, string> = {
   "/learning-areas": "areas-aprendizagem",
   "/roteiro-anual": "roteiro-anual",
   "/world-missions": "missoes-recompensas",
+  "/semana-da-crianca": "planeador",
   "/financinhas": "financinhas",
   "/settings": "familia",
 };

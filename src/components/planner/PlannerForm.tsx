@@ -17,6 +17,7 @@ import { formatWeekRange } from "@/lib/planGenerator";
 import { GC_DISCIPLINE_LABELS } from "@/lib/gcConstants";
 import { manualLabel } from "@/lib/annualPlan";
 import type { ChildWeekFocus } from "@/hooks/useAnnualPlan";
+import { guidingQuestions } from "@/lib/childWeek";
 
 // Disciplines shown per school year type
 const PRESCHOOL_DISCIPLINES = [
@@ -144,6 +145,14 @@ export function PlannerForm({
                 <p className="text-xs text-muted-foreground">
                   Os interesses são usados para tematizar as atividades — não como objetivo de ensino.
                 </p>
+                {/* P-31: perguntas para o adulto escolher com o seu olhar. Não se guardam. */}
+                <details className="rounded-md bg-muted/40 px-3 py-2 text-xs text-muted-foreground" open={childIdx === 0}>
+                  <summary className="cursor-pointer font-medium text-foreground">Para ajudar a escolher</summary>
+                  <ul className="mt-1.5 list-disc space-y-0.5 pl-4">
+                    {guidingQuestions(weekStart).map((q) => <li key={q}>{q}</li>)}
+                  </ul>
+                  <p className="mt-1.5">O que a criança pede, o que precisa e o que vês que a ajuda: as três contam.</p>
+                </details>
               </div>
 
               {/* P-12 / I-01: o que o rumo do ano traz para esta semana. Com conteúdos

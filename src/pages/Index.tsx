@@ -196,6 +196,7 @@ export default function Index() {
             {!isWeekend && hasPlan && (
               <div className="flex flex-wrap gap-2 pt-1">
                 <Button variant="outline" size="sm" onClick={() => navigate('/weekly-planner')}>Ver o dia <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                <Button variant="outline" size="sm" onClick={() => navigate('/semana-da-crianca')}><Star className="w-4 h-4 mr-1" /> Mostrar à criança</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate('/activities')}><Plus className="w-4 h-4 mr-1" /> Registar atividades</Button>
               </div>
             )}

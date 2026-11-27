@@ -709,7 +709,7 @@ export default function WeeklyPlanner() {
 
     // R-11: o mapa da semana de cada criança
     const { default: ChildWeekMapPDFComp } = await import("@/components/pdf/ChildWeekMapPDF");
-    const mapBlob = await pdf(<ChildWeekMapPDFComp children={children} planItems={planItems} weekStart={weekStart} />).toBlob();
+    const mapBlob = await pdf(<ChildWeekMapPDFComp children={children} planItems={planItems} weekStart={weekStart} interestsByChild={childInterests} weekTheme={weekTheme || weeklyReadingTheme} />).toBlob();
     const a4 = document.createElement("a");
     a4.href = URL.createObjectURL(mapBlob);
     a4.download = `nexseed-mapa-criancas-${format(weekStart, "yyyy-MM-dd")}.pdf`;
@@ -792,7 +792,7 @@ export default function WeeklyPlanner() {
       const guideB64 = await toBase64(guideBlob);
       // R-11: o mapa da semana de cada criança (a função só o anexa depois de publicada de novo)
       const { default: ChildWeekMapPDFComp } = await import("@/components/pdf/ChildWeekMapPDF");
-      const mapB64 = await toBase64(await pdf(<ChildWeekMapPDFComp children={children} planItems={planItems} weekStart={weekStart} />).toBlob());
+      const mapB64 = await toBase64(await pdf(<ChildWeekMapPDFComp children={children} planItems={planItems} weekStart={weekStart} interestsByChild={childInterests} weekTheme={weekTheme || weeklyReadingTheme} />).toBlob());
 
       // Guia de Leitura — opcional, só gerado se existirem episódios
       let readingGuideB64: string | null = null;
