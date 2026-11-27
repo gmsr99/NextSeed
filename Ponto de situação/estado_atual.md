@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 27 de novembro de 2026 (ramo `feat/crianca-autora`, por publicar: mapa da criança v2, "Mostrar à criança" e perguntas orientadoras; R-13, R-14, P-31). Antes, no mesmo dia (publicada a Agenda da comunidade, I-03a 1B: separador "Perto de nós", à espera da migração 041). Antes, 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana; Agenda sem eventos inventados, só o calendário da família (I-03a, 1A)). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
+**Atualizado:** 27 de novembro de 2026 (publicados: mapa da criança v2, "Mostrar à criança" e perguntas orientadoras; R-13, R-14, P-31). Antes, no mesmo dia (publicada a Agenda da comunidade, I-03a 1B: separador "Perto de nós", à espera da migração 041). Antes, 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana; Agenda sem eventos inventados, só o calendário da família (I-03a, 1A)). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -20,7 +20,7 @@ React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (
 
 Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
 
-## A criança autora do seu percurso (D-027, D-028; ramo `feat/crianca-autora`, por publicar)
+## A criança autora do seu percurso (D-027, D-028; publicado a 27 nov)
 - Lógica em `src/lib/childWeek.ts` (fase da criança, título com interesses, tema da semana, linhas de abertura e de fecho, perguntas orientadoras P-31), testes em `src/lib/__tests__/childWeek.test.ts`.
 - Mapa da criança em PDF (`ChildWeekMapPDF.tsx`, R-13): título com os interesses, grande pergunta ou tema, "o que quero descobrir" ou "o meu objetivo", canto "aprendi… e construí…".
 - `/semana-da-crianca` (R-14): a mesma semana no ecrã do adulto; as caixas escrevem `weekly_plan_items.completed_at`, o mesmo do Início. Nada novo guardado.
