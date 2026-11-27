@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana; Agenda sem eventos inventados, só o calendário da família (I-03a, 1A)). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
+**Atualizado:** 27 de novembro de 2026 (publicada a Agenda da comunidade, I-03a 1B: separador "Perto de nós", à espera da migração 041). Antes, 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana; Agenda sem eventos inventados, só o calendário da família (I-03a, 1A)). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -195,3 +195,9 @@ Fórum, Comunidade e Formação para Pais existem no código mas estão fora do 
 
 ## Famílias no beta
 Ver documento 10 (base de conhecimento do projeto). Aqui não se registam nomes.
+
+## Agenda da comunidade (I-03a, 1B, publicada a 27 nov; migração 041 por aplicar)
+- Agenda com dois separadores: "Minha família" (igual) e "Perto de nós": encontros e eventos por blocos de distância a partir de um concelho (escolhido na hora, guardado nas Definições, ou pela localização calculada no aparelho). Ordem em cada bloco: "O que preferimos", idades, data. Encontros (rosa) e eventos (azul-petróleo) com etiqueta e ícone.
+- Rotas novas: `/agenda/propor`, `/agenda/propostas`, `/agenda/triagem` (só `team_admins`). Definições: secção "Agenda da comunidade".
+- Migração 041 (`municipalities`, `community_events`, `family_event_settings`, `calendar_events.community_event_id`) por aplicar: até lá, "Perto de nós" diz que está a ser preparada e a secção das Definições não aparece. Sementeira em `supabase/seeds/041_agenda_sementeira_dez2026.sql` (10 eventos, pendentes).
+- Antes de as famílias guardarem o concelho: texto da Política de Privacidade à espera de aprovação do Elton (Testes NexSeed).
