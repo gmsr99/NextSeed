@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import FamilyTraditionCard from "@/components/FamilyTraditionCard";
 import SundayReminderCard from "@/components/SundayReminderCard";
+import EventPreferencesCard from "@/components/agenda/EventPreferencesCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Mail, X, Loader2, UserPlus, Crown, ShieldCheck, FileText, ExternalLink, Download } from "lucide-react";
@@ -269,6 +270,8 @@ const SettingsPage = () => {
 
         {/* Tradição da família (I-08): também em Metodologias, onde se escolhe como se ensina */}
         <FamilyTraditionCard />
+
+        <EventPreferencesCard />
 
         {/* Privacidade e dados */}
         <section className="rounded-2xl border bg-card p-6 space-y-4">

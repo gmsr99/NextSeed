@@ -9,6 +9,10 @@ import { MonthView } from '@/components/calendar/MonthView';
 import { DayPanel } from '@/components/calendar/DayPanel';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarData } from '@/hooks/useCalendarData';
+import { useSearchParams } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLinkedEventStatus } from '@/hooks/useCommunityEvents';
+import AgendaNearby from '@/components/agenda/AgendaNearby';
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -22,7 +26,17 @@ const CalendarPage = () => {
   const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
 
   const { events: manualEvents } = useCalendarEvents(monthStart, monthEnd);
-  const { eventsByDate } = useCalendarData(monthStart, monthEnd, manualEvents, children);
+  const linkedIds = useMemo(
+    () => manualEvents.map(e => e.community_event_id).filter((id): id is string => !!id),
+    [manualEvents]
+  );
+  const { data: linked } = useLinkedEventStatus(linkedIds);
+  const { eventsByDate } = useCalendarData(monthStart, monthEnd, manualEvents, children, linked);
+
+  // Separador: "Minha família" (calendário) ou "Perto de nós" (agenda da comunidade, I-03a)
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('separador') === 'perto' ? 'perto' : 'familia';
+  const setTab = (v: string) => setParams(v === 'perto' ? { separador: 'perto' } : {}, { replace: true });
 
   const selectedEvents = selectedDate ? (eventsByDate[selectedDate] ?? []) : [];
 
@@ -38,10 +52,21 @@ const CalendarPage = () => {
               </div>
               <h1 className="text-3xl font-heading font-bold">Agenda</h1>
             </div>
-            <p className="text-muted-foreground">O plano da semana, as atividades extracurriculares e os eventos da família, num só calendário.</p>
+            <p className="text-muted-foreground">O calendário da família e o que acontece perto de vós, para conhecer outras famílias.</p>
           </div>
         </div>
 
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList>
+            <TabsTrigger value="familia">Minha família</TabsTrigger>
+            <TabsTrigger value="perto">Perto de nós</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="perto" className="mt-4">
+            <AgendaNearby children={children} />
+          </TabsContent>
+
+          <TabsContent value="familia" className="mt-4">
         <div className="space-y-4">
             {/* Month navigation */}
             <div className="flex items-center justify-between">
@@ -61,6 +86,8 @@ const CalendarPage = () => {
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block"/> Plano semanal</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block"/> Extracurricular</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400 inline-block"/> Evento da família</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-400 inline-block"/> Encontro de comunidade</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-500 inline-block"/> Evento da Agenda</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -90,6 +117,8 @@ const CalendarPage = () => {
               </div>
             </div>
         </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
