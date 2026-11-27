@@ -256,17 +256,22 @@ export function useJoinEvent() {
   const { family } = useAuth();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { eventId: string; title: string; date: string; start_time: string | null; end_time: string | null; notes: string }) => {
-      const { error } = await supabase.from("calendar_events" as never).insert({
+    /** Uma entrada por dia: um evento semanal juntado "todas as semanas" dá várias. */
+    mutationFn: async (input: {
+      eventId: string; title: string; notes: string;
+      days: { date: string; start_time: string | null; end_time: string | null }[];
+    }) => {
+      const rows = input.days.map((d) => ({
         family_id: family!.id,
         title: input.title.slice(0, 200),
-        date: input.date,
-        start_time: input.start_time,
-        end_time: input.end_time,
+        date: d.date,
+        start_time: d.start_time,
+        end_time: d.end_time,
         notes: input.notes,
         type: "saida",
         community_event_id: input.eventId,
-      } as never);
+      }));
+      const { error } = await supabase.from("calendar_events" as never).insert(rows as never);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["calendar_events"] }),

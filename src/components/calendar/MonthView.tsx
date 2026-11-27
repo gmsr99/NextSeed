@@ -63,13 +63,17 @@ export function MonthView({ month, eventsByDate, onDayClick, selectedDate }: Pro
                 </span>
                 {/* Event dots (max 3) */}
                 <div className="flex flex-wrap gap-0.5 mt-1">
-                  {events.slice(0, 3).map(ev => (
+                  {/* O que é fixo ou da família aparece antes das atividades do plano */}
+                  {[...events].sort((x, y) => (x.kind === 'plan' ? 1 : 0) - (y.kind === 'plan' ? 1 : 0)).slice(0, 3).map(ev => (
                     <span
                       key={ev.id}
                       className={[
                         'inline-block w-2 h-2 rounded-full',
                         ev.kind === 'plan' ? 'bg-blue-400' :
-                        ev.kind === 'extra' ? 'bg-orange-400' : 'bg-green-400',
+                        ev.kind === 'extra' ? 'bg-orange-400' :
+                        ev.kind === 'routine' ? 'bg-violet-400' :
+                        ev.color.includes('rose') ? 'bg-rose-400' :
+                        ev.color.includes('teal') ? 'bg-teal-500' : 'bg-green-400',
                       ].join(' ')}
                     />
                   ))}

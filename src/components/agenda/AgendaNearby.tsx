@@ -17,7 +17,7 @@ import {
   useEventSettings, useJoinEvent, useJoinedEventIds, usePendingEvents, usePublishedEvents, type CommunityEvent,
 } from "@/hooks/useCommunityEvents";
 import {
-  CATEGORIES, RING_LABEL, ageOn, buildList, isHidden, nearestMunicipality, prefsFromInterests,
+  CATEGORIES, RING_LABEL, ageOn, buildList, isHidden, nearestMunicipality, occurrences, prefsFromInterests,
   type ListedEvent, type Ring,
 } from "@/lib/agenda";
 import type { Child } from "@/lib/types";
@@ -116,26 +116,38 @@ export default function AgendaNearby({ children }: { children: Child[] }) {
     }
   };
 
-  const onJoin = async (x: ListedEvent<CommunityEvent>) => {
+  const onJoin = async (x: ListedEvent<CommunityEvent>, allWeeks = false) => {
     const ev = x.event;
     const now = new Date();
-    const startsLater = x.occurrence.start > now;
-    const day = startsLater ? x.occurrence.start : now;
-    const sameDay = x.occurrence.start.toDateString() === x.occurrence.end.toDateString();
-    const withTimes = !ev.all_day && sameDay && startsLater;
     const place = MUNICIPALITY_BY_CODE.get(ev.municipality_code)?.name;
+    // "Todas as semanas": cada ocorrência que ainda não acabou, até ao fim da repetição
+    const occs = allWeeks
+      ? occurrences(ev, now, new Date(now.getTime() + 200 * 86_400_000))
+      : [x.occurrence];
+    const days = occs.map((o) => {
+      const startsLater = o.start > now;
+      const day = startsLater ? o.start : now;
+      const sameDay = o.start.toDateString() === o.end.toDateString();
+      const withTimes = !ev.all_day && sameDay && startsLater;
+      return {
+        date: localIsoDate(day),
+        start_time: withTimes ? localTime(o.start) : null,
+        end_time: withTimes ? localTime(o.end) : null,
+      };
+    });
     try {
       await join.mutateAsync({
         eventId: ev.id,
         title: ev.title,
-        date: localIsoDate(day),
-        start_time: withTimes ? localTime(x.occurrence.start) : null,
-        end_time: withTimes ? localTime(x.occurrence.end) : null,
         notes: [`Organizado por ${ev.organizer_name}.`, [ev.venue, place].filter(Boolean).join(", "), ev.url].filter(Boolean).join("\n"),
+        days,
       });
+      const first = new Date(`${days[0].date}T12:00:00`);
       toast({
         title: "Está na vossa agenda",
-        description: `No dia ${day.toLocaleDateString("pt-PT", { day: "numeric", month: "long" })}, em "Minha família".`,
+        description: allWeeks && days.length > 1
+          ? `Todas as semanas (${days.length} vezes), em "Minha família".`
+          : `No dia ${first.toLocaleDateString("pt-PT", { day: "numeric", month: "long" })}, em "Minha família".`,
       });
     } catch {
       toast({ title: "Não foi possível juntar", description: "Tentem outra vez daqui a pouco.", variant: "destructive" });
@@ -266,6 +278,7 @@ export default function AgendaNearby({ children }: { children: Child[] }) {
                     joined={joined.data?.has(x.event.id)}
                     joining={join.isPending && join.variables?.eventId === x.event.id}
                     onJoin={() => onJoin(x)}
+                    onJoinAll={() => onJoin(x, true)}
                   />
                 ))}
               </section>
@@ -289,6 +302,7 @@ export default function AgendaNearby({ children }: { children: Child[] }) {
                     joined={joined.data?.has(x.event.id)}
                     joining={join.isPending && join.variables?.eventId === x.event.id}
                     onJoin={() => onJoin(x)}
+                    onJoinAll={() => onJoin(x, true)}
                   />
                 ))}
               </CollapsibleContent>

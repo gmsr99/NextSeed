@@ -6,10 +6,12 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, addDays, startOfWeek } from 'date-fns';
 import type { CalendarEvent } from '@/lib/types';
+import { useFamilyRoutine } from '@/hooks/useFamilyRoutine';
+import { isOutingPlanItem, isValidDow, latestPlans, routineFixedEntries } from '@/lib/familyAgenda';
 
 export type AggregatedEvent = {
   id: string;
-  kind: 'plan' | 'extra' | 'manual';
+  kind: 'plan' | 'extra' | 'manual' | 'routine';
   title: string;
   time: string | null;
   color: string;          // Tailwind bg+text classes
@@ -19,7 +21,7 @@ export type AggregatedEvent = {
   rawEvent?: CalendarEvent; // only for kind='manual'
 };
 
-/** Returns ISO date string for a day-of-week (1=Mon..5=Fri) within the week of weekStart (Monday) */
+/** Returns ISO date string for a day-of-week (1=Mon..7=Sun) within the week of weekStart (Monday) */
 function isoDateForDow(weekStart: Date, dow: number): string {
   return format(addDays(weekStart, dow - 1), 'yyyy-MM-dd');
 }
@@ -35,6 +37,7 @@ export function useCalendarData(
   linked: Record<string, { kind: string; status: string }> = NO_LINKS
 ) {
   const { family } = useAuth();
+  const { routine } = useFamilyRoutine();
 
   const childName = (id: string | null) => id ? (children.find(c => c.id === id)?.name) : undefined;
 
@@ -46,21 +49,23 @@ export function useCalendarData(
     queryFn: async () => {
       const { data: plans, error: plansError } = await supabase
         .from('weekly_plans')
-        .select('id, week_start')
-        .gte('week_start', format(monthStart, 'yyyy-MM-dd'))
+        .select('id, week_start, version')
+        .gte('week_start', format(addDays(monthStart, -6), 'yyyy-MM-dd'))
         .lte('week_start', format(monthEnd, 'yyyy-MM-dd'));
       if (plansError) throw plansError;
 
       if (!plans || plans.length === 0) return [];
 
-      const planIds = plans.map(p => p.id);
+      // Desde a 003 pode haver várias versões por semana: só a mais recente
+      const latest = latestPlans(plans);
+      const planIds = latest.map(p => p.id);
       const weekStarts = Object.fromEntries(
-        plans.map(p => [p.id, new Date(p.week_start + 'T00:00:00')])
+        latest.map(p => [p.id, new Date(p.week_start + 'T00:00:00')])
       );
 
       const { data: items, error: itemsError } = await supabase
         .from('weekly_plan_items')
-        .select('id, plan_id, child_id, day_of_week, time_slot, discipline, title')
+        .select('id, plan_id, child_id, day_of_week, time_slot, discipline, title, is_friday_world')
         .in('plan_id', planIds);
       if (itemsError) throw itemsError;
 
@@ -95,8 +100,17 @@ export function useCalendarData(
       map[date].push(ev);
     }
 
-    // Plan items
+    const monthStartStr = format(monthStart, 'yyyy-MM-dd');
+    const monthEndStr = format(monthEnd, 'yyyy-MM-dd');
+
+    // Plan items (as saídas e a Ver Mundo vêm da rotina, uma vez por família)
+    const verMundoTitle: Record<string, string> = {};
     for (const item of planItems) {
+      if (item.date < monthStartStr || item.date > monthEndStr) continue;
+      if (isOutingPlanItem(item)) {
+        if (item.is_friday_world && item.title && !verMundoTitle[item.date]) verMundoTitle[item.date] = item.title;
+        continue;
+      }
       push(item.date, {
         id: item.id,
         kind: 'plan',
@@ -109,13 +123,12 @@ export function useCalendarData(
       });
     }
 
-    // Extracurriculars — expand for every week in the month
-    const monthStartStr = format(monthStart, 'yyyy-MM-dd');
-    const monthEndStr = format(monthEnd, 'yyyy-MM-dd');
+    // Extracurriculars e saídas da semana — repetidos em todas as semanas do mês
+    const fixed = routineFixedEntries(routine);
     let cursor = startOfWeek(monthStart, { weekStartsOn: 1 });
     while (cursor <= monthEnd) {
       for (const extra of extras) {
-        if (extra.day_of_week >= 1 && extra.day_of_week <= 5) {
+        if (isValidDow(extra.day_of_week)) {
           const date = isoDateForDow(cursor, extra.day_of_week);
           if (date >= monthStartStr && date <= monthEndStr) {
             push(date, {
@@ -130,6 +143,20 @@ export function useCalendarData(
             });
           }
         }
+      }
+      for (const f of fixed) {
+        const date = isoDateForDow(cursor, f.dow);
+        if (date < monthStartStr || date > monthEndStr) continue;
+        const planned = f.kind === 'ver_mundo' ? verMundoTitle[date] : undefined;
+        push(date, {
+          id: `routine-${f.kind}-${date}`,
+          kind: 'routine',
+          title: planned && planned !== f.title ? `${f.title} · ${planned}` : f.title,
+          time: null,
+          color: 'bg-violet-100 text-violet-800',
+          date,
+          navigateTo: '/weekly-planner',
+        });
       }
       cursor = addDays(cursor, 7);
     }
@@ -155,7 +182,7 @@ export function useCalendarData(
     }
 
     return map;
-  }, [planItems, extras, calendarEvents, children, linked]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [planItems, extras, calendarEvents, children, linked, routine, monthStart, monthEnd]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { eventsByDate };
 }

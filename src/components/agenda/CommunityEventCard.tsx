@@ -15,12 +15,14 @@ interface Props {
   joined?: boolean;
   joining?: boolean;
   onJoin?: () => void;
+  /** Só nos encontros semanais: juntar todas as semanas de uma vez. */
+  onJoinAll?: () => void;
   /** Na triagem e em "As nossas propostas" o rodapé e o botão não aparecem. */
   compact?: boolean;
   children?: ReactNode;
 }
 
-export default function CommunityEventCard({ event: ev, occurrence, distanceKm, joined, joining, onJoin, compact, children }: Props) {
+export default function CommunityEventCard({ event: ev, occurrence, distanceKm, joined, joining, onJoin, onJoinAll, compact, children }: Props) {
   const kind = KIND_STYLE[ev.kind] ?? KIND_STYLE.evento;
   const Icon = kind.icon;
   const start = occurrence?.start ?? new Date(ev.starts_at);
@@ -82,11 +84,21 @@ export default function CommunityEventCard({ event: ev, occurrence, distanceKm, 
             Organizado por {ev.organizer_name}. Confirma os detalhes com quem organiza.{" "}
             <a href={reportHref} className="underline underline-offset-2">Pedir correção ou remoção</a>
           </p>
-          {onJoin && (
+          {onJoin && (joined || ev.recurrence !== "weekly" || !onJoinAll) && (
             <Button size="sm" variant={joined ? "secondary" : "default"} disabled={joined || joining} onClick={onJoin} className="shrink-0">
               {joined ? <Check className="h-4 w-4 mr-1" /> : <CalendarPlus className="h-4 w-4 mr-1" />}
               {joined ? "Já está na vossa agenda" : "Juntar à nossa agenda"}
             </Button>
+          )}
+          {onJoin && onJoinAll && !joined && ev.recurrence === "weekly" && (
+            <div className="flex shrink-0 gap-2">
+              <Button size="sm" variant="outline" disabled={joining} onClick={onJoin}>
+                <CalendarPlus className="h-4 w-4 mr-1" />Só esta vez
+              </Button>
+              <Button size="sm" disabled={joining} onClick={onJoinAll}>
+                <CalendarPlus className="h-4 w-4 mr-1" />Todas as semanas
+              </Button>
+            </div>
           )}
         </div>
       )}
