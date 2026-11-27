@@ -32,7 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { loadDraft, removeDraft, saveDraft, type PlanDraft } from "@/lib/planDraft";
 import { isOptional, OPTIONAL_PREFIX } from "@/lib/essentialPlan";
-import { showsHours } from "@/lib/familyRoutine";
+import { outingsFromPlan, routineForPlan, showsHours, withWeekOutings, type OutingPart } from "@/lib/familyRoutine";
 import { getLastWeekTheme, generateWithGemini, regenerateActivity } from "@/lib/geminiPlanner";
 import { YEAR_MAP } from "@/lib/gcConstants";
 import { fallbackPeriods, contextPeriods, inPeriods } from "@/lib/curriculumWindow";
@@ -91,8 +91,10 @@ export default function WeeklyPlanner() {
   const childrenWithoutFocus = useChildrenWithoutFocus(children);
   const { data: familyMethodologies = [] } = useFamilyMethodologies();
   const { family, registeredAt } = useAuth();
-  // P-18: a semana da família (dias de estudo, dias curtos, saída à sexta)
+  // P-18: a semana da família (dias de estudo, dias curtos, Ver Mundo)
   const { routine } = useFamilyRoutine();
+  // P-31: a Ver Mundo desta semana, escolhida no Planeador (null = a de "A vossa semana")
+  const [weekOutings, setWeekOutings] = useState<OutingPart[] | null>(null);
   // I-08: tempo litúrgico da semana (só com a Tradição da família ligada; não vai para a IA)
   const { tradition } = useFamilyTradition();
   // I-08 fase 2: a pergunta do catecismo da semana (só com a tradição ligada)
@@ -128,6 +130,8 @@ export default function WeeklyPlanner() {
 
   const [step, setStep] = useState<Step>("form");
   const [planItems, setPlanItems] = useState<GeneratedPlanItem[]>([]);
+  // P-31: a semana que o plano seguiu (as Ver Mundo vêm do próprio plano)
+  const planRoutine = useMemo(() => routineForPlan(routine, planItems), [routine, planItems]);
   const [planId, setPlanId] = useState<string | null>(null);
   const [planVersion, setPlanVersion] = useState<number>(1);
   const [isNewGeneration, setIsNewGeneration] = useState(false);
@@ -200,6 +204,7 @@ export default function WeeklyPlanner() {
           });
           setChildInterests(defaultInterests);
           setFridayActivity("");
+          setWeekOutings(null);
           setNotes("");
           setWeeklyReadingTheme("");
           setWeeklyContent({});
@@ -228,6 +233,8 @@ export default function WeeklyPlanner() {
         setIsNewGeneration(false);
         setPlanItems(items as GeneratedPlanItem[]);
         setFridayActivity(plan.friday_activity ?? "");
+        // P-31: o formulário mostra as Ver Mundo que este plano tem
+        setWeekOutings(outingsFromPlan(items as GeneratedPlanItem[]));
 
         if (plan.reading_theme != null) {
           setWeeklyReadingTheme(plan.reading_theme);
@@ -268,8 +275,8 @@ export default function WeeklyPlanner() {
   // ─── Rascunho neste dispositivo: nada se perde ao sair da página ────────────
   const weekKeyNow = format(weekStart, "yyyy-MM-dd");
   const draftState: PlanDraft = useMemo(
-    () => ({ childInterests, weeklyContent, fridayActivity, notes, weeklyReadingTheme, weekTheme, step, planItems, planId, isNewGeneration }),
-    [childInterests, weeklyContent, fridayActivity, notes, weeklyReadingTheme, weekTheme, step, planItems, planId, isNewGeneration],
+    () => ({ childInterests, weeklyContent, fridayActivity, weekOutings, notes, weeklyReadingTheme, weekTheme, step, planItems, planId, isNewGeneration }),
+    [childInterests, weeklyContent, fridayActivity, weekOutings, notes, weeklyReadingTheme, weekTheme, step, planItems, planId, isNewGeneration],
   );
   useEffect(() => {
     if (!family || loadingExisting || generating || loadedWeekRef.current !== weekKeyNow) return;
@@ -282,6 +289,7 @@ export default function WeeklyPlanner() {
         setChildInterests(draft.childInterests ?? {});
         setWeeklyContent(draft.weeklyContent ?? {});
         setFridayActivity(draft.fridayActivity ?? "");
+        setWeekOutings(draft.weekOutings ?? null);
         setNotes(draft.notes ?? "");
         setWeeklyReadingTheme(draft.weeklyReadingTheme ?? "");
         setWeekTheme(draft.weekTheme ?? "");
@@ -343,6 +351,8 @@ export default function WeeklyPlanner() {
       const planWeeks = weeksFor(weekStart, family ? await fetchFamilyCalendar(family.id) : null);
       // P-18: lida na hora, para o plano seguir a semana acabada de guardar
       weekRoutine = family ? await fetchFamilyRoutine(family.id) : null;
+      // P-31: com a Ver Mundo escolhida só para esta semana no Planeador
+      weekRoutine = withWeekOutings(weekRoutine, weekOutings);
       // Crianças com currículo carregado ou com um manual (ex.: 5.º ano só com manuais)
       const gcChildren = children.filter(
         (c) => YEAR_MAP[c.school_year] || manuals.some((m) => m.child_id === c.id),
@@ -691,7 +701,7 @@ export default function WeeklyPlanner() {
 
     const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
     const scheduleBlob = await pdf(
-      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} liturgyOn={!!tradition} />
+      <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={planRoutine} liturgyOn={!!tradition} />
     ).toBlob();
     const a1 = document.createElement("a");
     a1.href = URL.createObjectURL(scheduleBlob);
@@ -700,7 +710,7 @@ export default function WeeklyPlanner() {
 
     const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
     const guideBlob = await pdf(
-      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} catechism={weekCat} />
+      <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={planRoutine} liturgy={weekLiturgy(weekStart, tradition)} catechism={weekCat} />
     ).toBlob();
     const a2 = document.createElement("a");
     a2.href = URL.createObjectURL(guideBlob);
@@ -773,12 +783,12 @@ export default function WeeklyPlanner() {
 
       const { default: SchedulePDFComp } = await import("@/components/pdf/SchedulePDF");
       const scheduleBlob = await pdf(
-        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={routine} liturgyOn={!!tradition} />
+        <SchedulePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} extracurriculars={extracurriculars} routine={planRoutine} liturgyOn={!!tradition} />
       ).toBlob();
 
       const { default: ActivityGuidePDFComp } = await import("@/components/pdf/ActivityGuidePDF");
       const guideBlob = await pdf(
-        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={routine} liturgy={weekLiturgy(weekStart, tradition)} catechism={weekCat} />
+        <ActivityGuidePDFComp children={children} planItems={planItems} weekStart={weekStart} familyName={familyName} weekFocus={weekFocusByChild} weekTheme={weeklyReadingTheme || weekTheme} routine={planRoutine} liturgy={weekLiturgy(weekStart, tradition)} catechism={weekCat} />
       ).toBlob();
 
       const toBase64 = (blob: Blob): Promise<string> =>
@@ -888,6 +898,8 @@ export default function WeeklyPlanner() {
             }
             fridayActivity={fridayActivity}
             onFridayActivityChange={setFridayActivity}
+            weekOutings={weekOutings}
+            onWeekOutingsChange={setWeekOutings}
             weeklyReadingTheme={weeklyReadingTheme}
             onWeeklyReadingThemeChange={setWeeklyReadingTheme}
             notes={notes}
@@ -963,7 +975,7 @@ export default function WeeklyPlanner() {
               onRegenerateItem={handleRegenerateItem}
               regeneratingKey={regeneratingKey}
               hours={showsHours(routine)}
-              fixedItems={getFixedScheduleBlocks(children, routine).map((b) =>
+              fixedItems={getFixedScheduleBlocks(children, planRoutine).map((b) =>
                 tradition && b.title === "Ritual de Chegada" ? { ...b, title: "Orações e liturgia" } : b)}
             />
           </div>

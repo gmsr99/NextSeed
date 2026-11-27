@@ -86,7 +86,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
       { type: "h", text: "Com várias crianças" },
       { type: "p", text: "Quando há mais do que uma criança, cada atividade começa por dizer como se faz, para não terem de estar em dois sítios ao mesmo tempo:" },
       { type: "ul", items: [
-        "**Em conjunto** — todas fazem a mesma atividade, cada uma ao seu nível (Estudo do Meio, Expressão, Projeto, Leitura e a sexta-feira).",
+        "**Em conjunto** — todas fazem a mesma atividade, cada uma ao seu nível (Estudo do Meio, Expressão, Projeto, Leitura e a Ver Mundo).",
         "**Com o adulto** — é a vez dessa criança ter a vossa atenção, por exemplo para um conteúdo novo.",
         "**Sozinho(a)** — a criança consegue fazer sem ajuda enquanto estão com a outra. No bloco seguinte, trocam.",
       ]},
@@ -236,7 +236,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
         "Ao escolher os interesses da semana, **Para ajudar a escolher** traz três perguntas que mudam todas as semanas (por exemplo, o que pediu para ver ou fazer muitas vezes). O que a criança pede, o que precisa e o que vês que a ajuda: as três contam.",
         "O horário vem **sem horas**: segue a ordem dos blocos, à vossa hora. Se preferirem horas sugeridas, liguem \"Mostrar horas no horário\" em \"A vossa semana\".",
         "Em \"A vossa semana\" podem marcar um **Dia livre**: sem currículo, fica só o momento da manhã em família e a leitura em voz alta.",
-        "Também em \"A vossa semana\", cada dia pode ter uma **saída** (uma visita, uma ida a uma comunidade): de manhã, à tarde ou o dia todo, as vezes que quiserem. Essa parte do dia fica sem atividades e o horário mostra \"Saída\". A saída de sexta o dia todo é a \"Ver Mundo\", que o plano prepara convosco.",
+        "Também em \"A vossa semana\", cada dia pode ter **Ver Mundo** (uma visita, uma ida a uma comunidade, um passeio): de manhã, à tarde ou o dia todo, as vezes que quiserem. O plano prepara-a convosco e essa parte do dia fica sem atividades. É o ponto de partida: no Planeador, em \"Ver Mundo esta semana\", mudam o dia ou escolhem não sair. Sem nada escolhido, a semana não tem Ver Mundo.",
         "**Semana difícil?** No Início, em \"Semana difícil? Fiquem só com o essencial\", o resto da semana fica leve: a leitura e o momento da manhã. O resto passa a \"Semana leve\", fica no plano se der e não conta para estarem em dia. Não é uma semana falhada, e podem voltar ao plano normal quando quiserem.",
       ]},
       { type: "h", text: "No Início: o dia, a semana e o ano" },

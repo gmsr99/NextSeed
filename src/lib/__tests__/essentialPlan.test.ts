@@ -18,9 +18,13 @@ describe("plano essencial (P-27)", () => {
     expect(isOptionalSlot({ day_of_week: 1, time_slot: "14:00-14:30", discipline: "english" }, null)).toBe(true);
     expect(isOptionalSlot({ day_of_week: 1, time_slot: "14:45-15:15", discipline: "reading" }, null)).toBe(false);
     expect(isOptionalSlot({ day_of_week: 1, time_slot: "10:17-10:42", discipline: "math" }, null)).toBe(false);
-    expect(isOptionalSlot({ day_of_week: 5, time_slot: "14:00-14:30", discipline: "expression" }, null)).toBe(false);
-    const noOuting = { days: ["full", "full", "full", "full", "full"] as const, outing: false };
-    expect(isOptionalSlot({ day_of_week: 5, time_slot: "14:00-14:30", discipline: "expression" }, { ...noOuting, days: [...noOuting.days] })).toBe(true);
+    // P-31: sem configuração, a sexta é dia de estudo (a tarde é opcional)
+    expect(isOptionalSlot({ day_of_week: 5, time_slot: "14:00-14:30", discipline: "expression" }, null)).toBe(true);
+    // num dia de Ver Mundo o dia todo, o registo da visita não é opcional (em qualquer dia)
+    const vmWednesday = { days: ["full", "full", "full", "full", "full"], outing: false, outings: ["none", "none", "day", "none", "none"] } as const;
+    const r = { ...vmWednesday, days: [...vmWednesday.days], outings: [...vmWednesday.outings] };
+    expect(isOptionalSlot({ day_of_week: 3, time_slot: "14:00-14:30", discipline: "expression" }, r)).toBe(false);
+    expect(isOptionalSlot({ day_of_week: 5, time_slot: "14:00-14:30", discipline: "expression" }, r)).toBe(true);
   });
   it("marcar é idempotente e o título fica legível", () => {
     const items = [{ day_of_week: 2, time_slot: "14:00-14:30", discipline: "expression", title: "Pintar folhas" }];

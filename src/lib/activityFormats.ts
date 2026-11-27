@@ -3,7 +3,7 @@
 // atribui um formato a cada bloco, a rodar ao longo da semana. Nos blocos em
 // conjunto, todas as crianças ficam com o mesmo formato.
 
-import { fridayIsStudyDay } from "./familyWeek";
+import { visitDays } from "./familyWeek";
 
 export const FORMATS: Record<string, string[]> = {
   language: ["jogo de sons e sílabas", "leitura e compreensão", "escrita curta", "conversa e narração oral", "jogo de palavras com movimento", "gramática com objetos da casa"],
@@ -36,13 +36,13 @@ export function assignFormats(slots: Slot[], together: boolean[] = []): (string 
   const counters = new Map<string, number>();
   const shared = new Map<string, string>();
   const out: (string | null)[] = slots.map(() => null);
-  // Sexta de saída não leva formato; sexta de estudo (sem saída, P-18) leva
-  const fridayStudy = fridayIsStudyDay(slots);
+  // Dias de Ver Mundo o dia todo e o próprio bloco da saída não levam formato (P-31)
+  const visits = visitDays(slots);
 
   for (const i of order) {
     const s = slots[i];
     const list = FORMATS[s.discipline];
-    if (!list || (s.day_of_week === 5 && !fridayStudy)) continue;
+    if (!list || s.is_friday_world || visits.has(s.day_of_week)) continue;
     const blockKey = `${s.day_of_week}|${s.time_slot.split("-")[0]}|${s.discipline}`;
     if (together[i] && shared.has(blockKey)) {
       out[i] = shared.get(blockKey)!;

@@ -11,7 +11,7 @@
 //     por ano de idade nas tarefas guiadas pelo adulto);
 //   - o horário sem horas por omissão: a família segue a ordem dos blocos e
 //     põe as horas se quiser (opção em "A vossa semana").
-import { hasOuting, type WeekRoutine } from "./familyRoutine";
+import { routineOutings, type WeekRoutine } from "./familyRoutine";
 
 /** Prefixo do título das atividades opcionais (vai para a base de dados com o título). */
 export const OPTIONAL_PREFIX = "Se houver tempo · ";
@@ -55,10 +55,10 @@ interface SlotItem {
   is_fixed?: boolean;
 }
 
-/** É um bloco opcional? A tarde de segunda a quinta (e da sexta sem saída), menos a leitura. */
+/** É um bloco opcional? A tarde dos dias de estudo, menos a leitura e os dias de Ver Mundo o dia todo. */
 export function isOptionalSlot(item: SlotItem, routine: WeekRoutine | null): boolean {
   if (item.is_fixed || item.is_friday_world || item.discipline === "reading") return false;
-  if (item.day_of_week === 5 && hasOuting(routine)) return false;
+  if (routineOutings(routine)[item.day_of_week - 1] === "day") return false;
   return item.time_slot.slice(0, 5) >= AFTERNOON;
 }
 

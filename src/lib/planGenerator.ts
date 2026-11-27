@@ -1,4 +1,4 @@
-import { applyWeekRoutine, outingBlocks, type WeekRoutine } from "./familyRoutine";
+import { applyWeekRoutine, type WeekRoutine } from "./familyRoutine";
 import { dropReadingDay, markOptional } from "./essentialPlan";
 import type { Child } from "./types";
 import RAW_TEMPLATES from "./planTemplates.json";
@@ -227,16 +227,9 @@ export function getFixedScheduleBlocks(children: Child[], routine: WeekRoutine |
       });
     }
   }
-  // P-18: dias sem estudo e dias curtos; sexta sem saída fica com os blocos de segunda.
-  // P-30: as saídas de outros dias (ou de meio dia) entram como bloco "Saída".
-  const outings = children.flatMap((child) =>
-    outingBlocks(routine, (day, slot, title) => ({
-      child_id: child.id, day_of_week: day, time_slot: slot, discipline: "outing", title,
-      description: "Visita ou ida a uma comunidade: escolham o sítio.", materials: [] as string[],
-      is_friday_world: false, sort_order: 90, is_fixed: true,
-    })),
-  );
-  return [...applyWeekRoutine(items, routine), ...outings];
+  // P-18: dias sem estudo e dias curtos; a sexta é dia de estudo, com os blocos de segunda.
+  // P-31: nos dias de Ver Mundo o dia todo entram os blocos da sexta de sempre.
+  return applyWeekRoutine(items, routine);
 }
 
 // ─── Templates de atividades — carregados de planTemplates.json ──────────────

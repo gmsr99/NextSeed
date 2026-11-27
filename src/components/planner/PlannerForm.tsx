@@ -3,7 +3,8 @@ import FamilyRoutineCard from "@/components/FamilyRoutineCard";
 import LiturgyWeekCard from "@/components/LiturgyWeekCard";
 import type { WeekLiturgy } from "@/lib/tradicao/week";
 import type { WeekCatechism } from "@/lib/tradicao/catechism";
-import { hasOuting, routineSummary, type WeekRoutine } from "@/lib/familyRoutine";
+import { OUTING_LABELS, routineOutings, routineSummary, type OutingPart, type WeekRoutine } from "@/lib/familyRoutine";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarDays, Sparkles, Loader2, ChevronLeft, ChevronRight, BookOpen, ChevronDown, ChevronUp, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -46,6 +47,9 @@ interface PlannerFormProps {
   onWeeklyContentChange: (childId: string, discipline: string, value: string) => void;
   fridayActivity: string;
   onFridayActivityChange: (val: string) => void;
+  /** P-31: a Ver Mundo desta semana (null = a de "A vossa semana") */
+  weekOutings?: OutingPart[] | null;
+  onWeekOutingsChange?: (val: OutingPart[] | null) => void;
   weeklyReadingTheme: string;
   onWeeklyReadingThemeChange: (val: string) => void;
   notes: string;
@@ -75,6 +79,8 @@ export function PlannerForm({
   onWeeklyContentChange,
   fridayActivity,
   onFridayActivityChange,
+  weekOutings = null,
+  onWeekOutingsChange,
   weeklyReadingTheme,
   onWeeklyReadingThemeChange,
   notes,
@@ -91,7 +97,13 @@ export function PlannerForm({
   liturgy = null,
   catechism = null,
 }: PlannerFormProps) {
-  const outing = hasOuting(routine);
+  // P-31: a Ver Mundo pode ser em qualquer dia, de manhã, à tarde ou o dia todo, e muda de semana para semana
+  const routineVm = routineOutings(routine);
+  const vm = weekOutings ?? routineVm;
+  const offDays = routine?.days.map((d) => d === "off") ?? [false, false, false, false, false];
+  const outing = vm.some((p, i) => p !== "none" && !offDays[i]);
+  const changedThisWeek = weekOutings !== null && weekOutings.some((p, i) => p !== routineVm[i]);
+  const setVmDay = (i: number, part: OutingPart) => onWeekOutingsChange?.(vm.map((p, j) => (j === i ? part : p)));
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({});
 
   const toggleContent = (childId: string) =>
@@ -264,25 +276,58 @@ export function PlannerForm({
       <LiturgyWeekCard liturgy={liturgy} catechism={catechism} />
       <FamilyRoutineCard />
 
-      {/* Friday activity */}
+      {/* P-31: Ver Mundo esta semana (qualquer dia, de manhã, à tarde ou o dia todo) */}
       <Card className="border-border/60" data-tour="planner-sexta">
         <CardHeader className="pb-3">
-          <CardTitle className="font-heading text-lg">Sexta-feira — Ver Mundo</CardTitle>
+          <CardTitle className="font-heading text-lg">Ver Mundo esta semana</CardTitle>
           <CardDescription>
-            {outing
-              ? "Actividade de saída planeada (opcional)"
-              : "Esta semana não há saída à sexta o dia todo: é a vossa escolha em \"A nossa semana\", logo acima."}
+            Uma saída para a família (museu, quinta, biblioteca, um passeio). Escolham o dia e a parte do dia, só para
+            esta semana. Se não sabem ainda, deixem sem Ver Mundo: quando saírem, juntem a saída à agenda e registem-na no Diário.
           </CardDescription>
         </CardHeader>
-        {outing && (
-          <CardContent>
-            <Input
-              value={fridayActivity}
-              onChange={(e) => onFridayActivityChange(e.target.value)}
-              placeholder="Ex: Visita ao Museu de História Natural..."
-            />
-          </CardContent>
-        )}
+        <CardContent className="space-y-3">
+          <div className="grid gap-2 sm:grid-cols-5">
+            {["Segunda", "Terça", "Quarta", "Quinta", "Sexta"].map((day, i) => (
+              <div key={day} className="space-y-1">
+                <Label htmlFor={`vm-${i}`} className="text-xs text-muted-foreground">{day}</Label>
+                <Select value={offDays[i] ? "none" : vm[i]} onValueChange={(v) => setVmDay(i, v as OutingPart)} disabled={offDays[i] || !onWeekOutingsChange}>
+                  <SelectTrigger id={`vm-${i}`} className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(["none", "morning", "afternoon", "day"] as OutingPart[]).map((o) => (
+                      <SelectItem key={o} value={o}>{o === "none" ? "Sem Ver Mundo" : OUTING_LABELS[o].replace("Ver Mundo ", "")}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {outing && onWeekOutingsChange && (
+              <Button type="button" variant="outline" size="sm" onClick={() => onWeekOutingsChange(["none", "none", "none", "none", "none"])}>
+                Esta semana não
+              </Button>
+            )}
+            {changedThisWeek && onWeekOutingsChange && (
+              <Button type="button" variant="ghost" size="sm" onClick={() => onWeekOutingsChange(null)}>
+                Como em "A vossa semana"
+              </Button>
+            )}
+          </div>
+          {outing && (
+            <div className="space-y-1">
+              <Label htmlFor="vm-plan" className="text-sm">O que já está planeado (opcional)</Label>
+              <Input
+                id="vm-plan"
+                value={fridayActivity}
+                onChange={(e) => onFridayActivityChange(e.target.value)}
+                placeholder="Ex: Visita ao Museu de História Natural..."
+              />
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Meio dia de Ver Mundo deixa a outra metade para estudar. Se costumam estudar só de manhã, não precisam de marcar a tarde: basta o "dia curto" em "A vossa semana".
+          </p>
+        </CardContent>
       </Card>
 
       {/* Tema Semanal de Leitura */}

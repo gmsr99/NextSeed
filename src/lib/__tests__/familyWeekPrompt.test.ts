@@ -132,7 +132,30 @@ describe("plano essencial no pedido (P-27)", () => {
     expect(lastPrompt).toContain("SE HOUVER TEMPO");
     expect(lastPrompt).toContain("DURAÇÃO (plano essencial)");
     expect(lastPrompt).toContain("Ep.3/3");
-    expect(items.filter((i) => i.title.startsWith("Se houver tempo · ")).length).toBe(4);
+    // P-31: sem configuração a sexta é dia de estudo, com a sua tarde "se houver tempo"
+    expect(items.filter((i) => i.title.startsWith("Se houver tempo · ")).length).toBe(5);
+  });
+});
+
+describe("Ver Mundo no dia escolhido (P-31)", () => {
+  it("sem configuração, o pedido diz que não há Ver Mundo", async () => {
+    const items = await generateWithGemini([child("a", "Ana", "2º ano")], {}, "", "", {}, {}, {}, {}, [], null);
+    expect(lastPrompt).toContain("não inclui a saída");
+    expect(items.some((i) => i.is_friday_world)).toBe(false);
+  });
+
+  it("Ver Mundo à quarta o dia todo e à sexta de manhã: o pedido e o plano seguem esses dias", async () => {
+    const { normalizeRoutine } = await import("../familyRoutine");
+    const r = normalizeRoutine(["full", "full", { m: "full", o: "day" }, "full", { m: "full", o: "morning" }], false);
+    const items = await generateWithGemini([child("a", "Ana", "2º ano"), child("b", "Rui", "4º ano")], {}, "Museu", "", {}, {}, {}, {}, [], r);
+    expect(lastPrompt).toContain("Ver Mundo à quarta (o dia todo), sexta (de manhã)");
+    const vm = items.filter((i) => i.is_friday_world);
+    expect([...new Set(vm.map((i) => i.day_of_week))]).toEqual([3, 5]);
+    // uma só saída por dia para a família: o mesmo título para as duas crianças
+    for (const d of [3, 5]) expect(new Set(vm.filter((i) => i.day_of_week === d).map((i) => i.title)).size).toBe(1);
+    expect(vm.find((i) => i.day_of_week === 5)!.time_slot).toBe("09:30-12:30");
+    expect(items.some((i) => i.day_of_week === 3 && !i.is_friday_world && i.discipline === "language")).toBe(false);
+    expect(items.some((i) => i.day_of_week === 5 && i.discipline === "reading")).toBe(false);
   });
 });
 

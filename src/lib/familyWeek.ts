@@ -25,6 +25,21 @@ export interface BlockSlot {
   is_friday_world?: boolean;
 }
 
+/**
+ * P-31: dias de Ver Mundo o dia todo: há um bloco Ver Mundo e o resto do dia é
+ * só o registo e o encerramento da visita. Nesses dias tudo é "juntos" e sem
+ * formato. Nos dias de Ver Mundo de meio dia, só o bloco da saída é "juntos".
+ */
+export function visitDays(items: { day_of_week: number; discipline: string; is_friday_world?: boolean }[]): Set<number> {
+  const out = new Set<number>();
+  for (const d of new Set(items.filter((i) => i.is_friday_world).map((i) => i.day_of_week))) {
+    const day = items.filter((i) => i.day_of_week === d);
+    // O encerramento da visita (world_visit sem ser a saída) só existe no dia todo
+    if (day.every((i) => i.is_friday_world) || day.some((i) => !i.is_friday_world && i.discipline === "world_visit")) out.add(d);
+  }
+  return out;
+}
+
 /** Sexta como dia de estudo (a família não inclui a saída, P-18): sem nenhum bloco de saída. */
 export function fridayIsStudyDay(items: { day_of_week: number; is_friday_world?: boolean }[]): boolean {
   const fri = items.filter((i) => i.day_of_week === 5);
@@ -41,7 +56,7 @@ const startOf = (slot: string) => slot.split("-")[0].trim();
  */
 export function blockModes(items: BlockSlot[]): (BlockMode | null)[] {
   const modes: (BlockMode | null)[] = items.map(() => null);
-  const fridayStudy = fridayIsStudyDay(items);
+  const visits = visitDays(items);
   const groups = new Map<string, number[]>();
   items.forEach((it, i) => {
     const key = `${it.day_of_week}|${startOf(it.time_slot)}`;
@@ -63,7 +78,7 @@ export function blockModes(items: BlockSlot[]): (BlockMode | null)[] {
     for (const i of idxs) {
       const d = items[i].discipline;
       const together =
-        (day === 5 && !fridayStudy) ||
+        visits.has(day) || items[i].is_friday_world === true ||
         (SHARED_DISCIPLINES.has(d) && idxs.some((j) => j !== i && items[j].discipline === d));
       if (together) modes[i] = "juntos";
       else rest.push(i);

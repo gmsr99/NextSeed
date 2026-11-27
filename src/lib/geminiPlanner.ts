@@ -280,15 +280,23 @@ Não escrevas o modo no título nem na descrição: a app acrescenta-o.\n`
     ? `\n## CONTEÚDOS A ENSINAR ESTA SEMANA ⚠️ PRIORIDADE MÁXIMA\nO educador especificou o que quer trabalhar. TODAS as atividades das disciplinas listadas DEVEM ensinar diretamente estes conteúdos. Os interesses apenas tematizam (ex: se conteúdo é "adição até 20" e interesse é "dinossauros" → conta dinossauros em somas).\n${weeklyContentLines.join("\n\n")}\n`
     : "";
 
+  // P-31: a Ver Mundo pode ser em qualquer dia, de manhã, à tarde ou o dia todo, e mais de uma vez
+  const DAY_NAMES = ["", "segunda", "terça", "quarta", "quinta", "sexta"];
+  const vmDays = [...new Set(skeleton.filter((s) => s.is_friday_world).map((s) => s.day_of_week))].sort();
+  const vmWhen = vmDays.map((d) => {
+    const slot = skeleton.find((s) => s.is_friday_world && s.day_of_week === d)!.time_slot;
+    const part = slot.slice(0, 5) >= "14:00" ? "à tarde" : skeleton.some((s) => s.day_of_week === d && !s.is_friday_world && s.discipline === "world_visit") || !skeleton.some((s) => s.day_of_week === d && !s.is_friday_world) ? "o dia todo" : "de manhã";
+    return `${DAY_NAMES[d]} (${part})`;
+  }).join(", ");
   const fridayBase = fridayActivity
-    ? `Atividade de sexta-feira planeada: "${fridayActivity}"`
-    : "Sexta-feira: exploração livre — sugere algo concreto e local";
+    ? `Ver Mundo planeada pela família: "${fridayActivity}"${vmDays.length > 1 ? " (usa-a numa das saídas e sugere as outras)" : ""}`
+    : "Ver Mundo: exploração livre, sugere algo concreto e local";
   // P-11: com várias crianças, o "Ver Mundo" é uma saída da família, não uma por criança
   const fridayNote = !hasOutingThisWeek
-    ? "Esta família não inclui a saída \"Ver Mundo\" nesta semana. Não proponhas saídas nem visitas: se a sexta tem atividades, são de estudo em casa, como nos outros dias."
-    : children.length > 1
-    ? `${fridayBase}\n**"Ver Mundo" é UMA só saída para a família toda:** todas as crianças vão ao MESMO sítio, à mesma hora, com o MESMO título. Na descrição de cada criança, adapta o que ela faz lá à sua idade.`
-    : fridayBase;
+    ? "Esta família não inclui a saída \"Ver Mundo\" nesta semana. Não proponhas saídas nem visitas: todas as atividades são de estudo em casa."
+    : `Esta semana há Ver Mundo à ${vmWhen}. ${vmDays.length > 1 ? "Cada saída é diferente das outras. " : ""}${fridayBase}${children.length > 1
+      ? `\n**Cada "Ver Mundo" é UMA só saída para a família toda:** todas as crianças vão ao MESMO sítio, à mesma hora, com o MESMO título. Na descrição de cada criança, adapta o que ela faz lá à sua idade.`
+      : ""}`;
 
   const readingBase = episodes === 0
     ? "Nesta semana não há blocos de leitura: não escrevas episódios."
@@ -326,7 +334,7 @@ ${AI_NAME_RULE}${multiLevelNote}${preschoolSection}${familyWeekSection}${weeklyC
 ## FIO CONDUTOR DA SEMANA
 Antes de escreveres as atividades, escolhe UM tema ou pergunta para a semana, tirado dos conteúdos desta semana (de preferência de Estudo do Meio; ex.: "Como é que as plantas bebem?"). Esse fio condutor liga as disciplinas${children.length > 1 ? " e é o mesmo para todas as crianças" : ""}: a matemática conta, mede ou compara coisas do tema; o português lê e escreve sobre ele; a expressão representa-o. Não o forces onde não cabe (ex.: uma unidade de manual segue o manual).
 
-## SEXTA-FEIRA
+## VER MUNDO (SAÍDAS)
 ${fridayNote}
 
 ## LEITURA E PORTEFÓLIO
@@ -340,9 +348,9 @@ ${skeletonSection}
 2. Os **interesses** são tempero, nunca o objetivo: usa-os em NO MÁXIMO uma em cada três atividades de cada criança (ex.: objetivo "contagem até 10" + interesse "dinossauros" → contar dinossauros por tipo). As restantes seguem o fio condutor da semana ou o dia a dia da casa.
 3. **Conteúdos dominados** NÃO devem voltar a aparecer nas atividades.
 4. **Leitura Ep.X/${episodes}**: cria ${episodes} episódios de uma história CONTÍNUA sobre o tema indicado. Cada episódio é CURTO e CONCRETO: 1 ou 2 parágrafos, no máximo 120 palavras no total, com personagens com nome, um lugar concreto e uma coisa que acontece (nada de resumos ou títulos soltos). Devolve a "description" como JSON string com este formato exacto (sem quebras de linha): {"episode_text":"[1-2 parágrafos curtos em português de Portugal, adequados à idade, continuação do episódio anterior]","comprehension_question":"[1 pergunta sobre o que aconteceu neste episódio]","discussion_prompt":"[1 pergunta aberta para pais e criança explorarem juntos]"}.
-5. **Ver Mundo** (09:45-11:50): usa a atividade planeada ou sugere algo concreto ao ar livre.
-6. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
-7. **Encerramento Reflexivo** (14:45-15:15): partilha emocional e síntese do dia.
+5. **Ver Mundo** (nos dias e horas do esqueleto): usa a atividade planeada ou sugere algo concreto ao ar livre, que caiba nessa parte do dia.
+6. **Registo da Visita** (só nos dias de Ver Mundo o dia todo, 14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
+7. **Encerramento Reflexivo** (só nos dias de Ver Mundo o dia todo, 14:45-15:15): partilha emocional e síntese do dia.
 8. **Pré-escolar**: atividades lúdicas, sensoriais, máx. 30 min, sem escrita formal.
 9. Títulos específicos e criativos, escritos para a própria criança ler no mapa da semana: começam por um verbo de ação e não usam termos do programa (ex.: "Contar golos com dezenas", não "Numeração: dezenas"). NUNCA genéricos. Máx. 8 palavras.
 10. Descrições CURTAS: máx. 2 frases diretas com passos concretos.
@@ -541,17 +549,14 @@ export async function generateWithGemini(
 }
 
 /**
- * Garante que a saída "Ver Mundo" de sexta é a mesma para todas as crianças
- * (backlog P-11): o título (o destino) passa a ser o da primeira criança; a
- * descrição de cada uma, adaptada à idade, mantém-se.
+ * Garante que cada saída "Ver Mundo" é a mesma para todas as crianças
+ * (backlog P-11; P-31: em qualquer dia): em cada dia, o título (o destino)
+ * passa a ser o da primeira criança; a descrição de cada uma mantém-se.
  */
 export function unifyFamilyOuting<T extends { day_of_week: number; is_friday_world: boolean; title: string }>(
   items: T[],
 ): T[] {
-  const outings = items.filter((i) => i.day_of_week === 5 && i.is_friday_world);
-  if (outings.length < 2) return items;
-  const sharedTitle = outings[0].title;
-  return items.map((i) =>
-    i.day_of_week === 5 && i.is_friday_world ? { ...i, title: sharedTitle } : i,
-  );
+  const sharedByDay = new Map<number, string>();
+  for (const i of items) if (i.is_friday_world && !sharedByDay.has(i.day_of_week)) sharedByDay.set(i.day_of_week, i.title);
+  return items.map((i) => (i.is_friday_world ? { ...i, title: sharedByDay.get(i.day_of_week)! } : i));
 }

@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { Child } from "@/lib/types";
+import { normalizeRoutine } from "@/lib/familyRoutine";
+
+// P-31: sem configuração não há Ver Mundo; estes testes usam uma família com Ver Mundo à sexta
+const FRIDAY_VM = normalizeRoutine(["full", "full", "full", "full", "full"], true);
 import {
   DISCIPLINE_LABELS,
   DISCIPLINE_COLORS,
@@ -127,16 +131,27 @@ describe("generateWeeklyPlan", () => {
   });
 
   it("usa fridayActivity no título da sexta-feira", () => {
-    const items = generateWeeklyPlan([primaryChild], { p1: ["arte"] }, "Jardim Botânico");
+    const items = generateWeeklyPlan([primaryChild], { p1: ["arte"] }, "Jardim Botânico", "", FRIDAY_VM);
     const friday = items.filter((i) => i.day_of_week === 5 && i.is_friday_world);
     expect(friday.length).toBeGreaterThan(0);
     expect(friday[0].title).toContain("Jardim Botânico");
   });
 
   it("marca is_friday_world apenas na sexta-feira", () => {
-    const items = generateWeeklyPlan([primaryChild], { p1: ["arte"] }, "Praia");
+    const items = generateWeeklyPlan([primaryChild], { p1: ["arte"] }, "Praia", "", FRIDAY_VM);
     const fridayWorld = items.filter((i) => i.is_friday_world);
     fridayWorld.forEach((i) => expect(i.day_of_week).toBe(5));
+  });
+
+  it("P-31: sem configuração não há Ver Mundo; com Ver Mundo à quarta, vai para a quarta", () => {
+    expect(generateWeeklyPlan([primaryChild], { p1: ["arte"] }, "").some((i) => i.is_friday_world)).toBe(false);
+    const wed = normalizeRoutine(["full", "full", { m: "full", o: "day" }, "full", "full"], false);
+    const items = generateWeeklyPlan([primaryChild], { p1: ["arte"] }, "Quinta pedagógica", "", wed);
+    const vm = items.filter((i) => i.is_friday_world);
+    expect(vm.map((i) => i.day_of_week)).toEqual([3]);
+    expect(vm[0].title).toContain("Quinta pedagógica");
+    expect(items.some((i) => i.day_of_week === 3 && i.discipline === "language")).toBe(false);
+    expect(items.some((i) => i.day_of_week === 5 && i.discipline === "language")).toBe(true);
   });
 
   it("gera para múltiplas crianças em simultâneo", () => {
@@ -160,7 +175,7 @@ describe("generateWeeklyPlan", () => {
     });
 
     it("tem item de world_visit na sexta-feira no pré-escolar", () => {
-      const items = generateWeeklyPlan([preChild], { pre1: [] }, "");
+      const items = generateWeeklyPlan([preChild], { pre1: [] }, "", "", FRIDAY_VM);
       const fridayWorldVisit = items.find(
         (i) => i.day_of_week === 5 && i.discipline === "world_visit",
       );
@@ -430,7 +445,7 @@ describe("slot de leitura sem gap", () => {
   });
 
   it("encerramento reflexivo da sexta usa 14:45-15:15", () => {
-    const items = generateWeeklyPlan([child], { p1: ["arte"] }, "Museu");
+    const items = generateWeeklyPlan([child], { p1: ["arte"] }, "Museu", "", FRIDAY_VM);
     const encerramento = items.find(
       (i) => i.day_of_week === 5 && i.discipline === "world_visit" && !i.is_friday_world,
     );

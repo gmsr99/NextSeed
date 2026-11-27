@@ -1,47 +1,49 @@
 // A nossa semana (P-18, versão mínima do P-04): como é a semana de estudo de
 // cada família. Para cada dia, de segunda a sexta: dia completo, dia curto
 // (cerca de 1 hora, só a manhã), dia livre (P-29: sem currículo, só o bloco da
-// manhã e a leitura em voz alta, como no plano da F-01) ou sem estudo; e as
-// saídas (visitas, idas a uma comunidade): em qualquer dia, as vezes que
-// quiserem, de manhã, à tarde ou o dia todo. A saída de sexta o dia todo é a
-// "Ver Mundo" que a IA prepara; as outras ficam no horário como "Saída", e
-// essa parte do dia fica sem currículo. Sem configuração, fica a semana de sempre.
+// manhã e a leitura em voz alta, como no plano da F-01) ou sem estudo; e a
+// "Ver Mundo" (P-31): em qualquer dia, as vezes que quiserem, de manhã, à
+// tarde ou o dia todo, preparada pela IA; essa parte do dia fica sem currículo.
+// Sem configuração, a semana é de segunda a sexta, sem Ver Mundo: cada família
+// escolhe (Elton, 27 nov). "A vossa semana" é o ponto de partida; no Planeador
+// decide-se cada semana. Os planos já guardados ficam como estão.
 //
 // Guarda-se sem migração: em family_week_routines.days (jsonb, 5 posições) um
-// dia com saída fica {"m": modo, "o": parte}; sem saída, só o modo (texto).
-// A coluna outing continua a dizer se há "Ver Mundo" à sexta.
+// dia com Ver Mundo fica {"m": modo, "o": parte}; sem ela, só o modo (texto).
+// A coluna outing continua a dizer se há "Ver Mundo" à sexta o dia todo
+// (rotinas antigas sem {m, o} leem-na assim: o histórico mantém-se).
 
 export type DayMode = "full" | "short" | "free" | "off";
-/** Saída nesse dia: nenhuma, de manhã, à tarde ou o dia todo. */
+/** Ver Mundo nesse dia: nenhuma, de manhã, à tarde ou o dia todo. */
 export type OutingPart = "none" | "morning" | "afternoon" | "day";
 
 export interface WeekRoutine {
   /** Segunda a sexta */
   days: DayMode[];
-  /** Saída "Ver Mundo" à sexta (o dia todo, preparada pela IA) */
+  /** Ver Mundo à sexta o dia todo (compatibilidade com a coluna outing) */
   outing: boolean;
-  /** Saídas de segunda a sexta. A da sexta "day" é a "Ver Mundo" (igual a outing). */
+  /** Ver Mundo de segunda a sexta (P-31: em qualquer dia, de manhã, à tarde ou o dia todo). */
   outings?: OutingPart[];
   /** P-27: mostrar horas no horário (por omissão, não: só a ordem e a duração) */
   hours?: boolean;
 }
 
+/** P-31: sem configuração, segunda a sexta sem Ver Mundo (cada família escolhe). */
 export const DEFAULT_ROUTINE: WeekRoutine = {
-  days: ["full", "full", "full", "full", "full"], outing: true, outings: ["none", "none", "none", "none", "day"],
+  days: ["full", "full", "full", "full", "full"], outing: false, outings: ["none", "none", "none", "none", "none"],
 };
 
 export const OUTING_LABELS: Record<OutingPart, string> = {
-  none: "Sem saída",
-  morning: "Saída de manhã",
-  afternoon: "Saída à tarde",
-  day: "Saída o dia todo",
+  none: "Sem Ver Mundo",
+  morning: "Ver Mundo de manhã",
+  afternoon: "Ver Mundo à tarde",
+  day: "Ver Mundo o dia todo",
 };
 
-/** Horas dos blocos de saída no horário (a hora real é a da família). */
-const OUTING_SLOTS: Record<Exclude<OutingPart, "none">, string> = {
+/** Horas do bloco Ver Mundo de meio dia (a hora real é a da família). */
+export const HALF_DAY_SLOTS: Record<"morning" | "afternoon", string> = {
   morning: "09:30-12:30",
   afternoon: "14:00-16:30",
-  day: "09:30-16:30",
 };
 const MORNING_END = "12:30";
 const AFTERNOON_START = "14:00";
@@ -65,7 +67,7 @@ const FREE_DAY_KEEP = new Set(["ritual", "lunch", "reading"]);
 export function normalizeRoutine(days: unknown, outing: unknown, scheduleMode?: unknown): WeekRoutine {
   const valid = (d: unknown): d is DayMode => d === "full" || d === "short" || d === "free" || d === "off";
   const validPart = (o: unknown): o is OutingPart => o === "none" || o === "morning" || o === "afternoon" || o === "day";
-  const fridayWorld = typeof outing === "boolean" ? outing : true;
+  const fridayWorld = typeof outing === "boolean" ? outing : false;
   const parsed = Array.isArray(days) && days.length === 5
     ? days.map((d) => (valid(d) ? { m: d, o: null as OutingPart | null }
         : d && typeof d === "object" && valid((d as { m?: unknown }).m)
@@ -102,24 +104,46 @@ export const showsHours = (r: WeekRoutine | null | undefined) => r?.hours === tr
 export function isDefaultRoutine(r: WeekRoutine | null | undefined): boolean {
   if (!r) return true;
   const o = routineOutings(r);
-  return r.days.every((d) => d === "full") && o.slice(0, 4).every((x) => x === "none") && o[4] === "day";
+  return r.days.every((d) => d === "full") && o.every((x) => x === "none");
 }
 
-/** Há "Ver Mundo" esta semana? (saída o dia todo à sexta, que não está sem estudo) */
+/** Há Ver Mundo à sexta o dia todo? (perguntas do guia da sexta) */
 export function hasOuting(r: WeekRoutine | null | undefined): boolean {
   return routineOutings(r)[4] === "day";
 }
 
-/** Outras saídas (fora a "Ver Mundo"): dia (1–5) e parte. */
-export function otherOutings(r: WeekRoutine | null | undefined): { day: number; part: Exclude<OutingPart, "none"> }[] {
-  const o = routineOutings(r);
-  return o.flatMap((p, i) => (p === "none" || (i === 4 && p === "day") ? [] : [{ day: i + 1, part: p }]));
+/** Dias com Ver Mundo (1 = segunda … 5 = sexta) e a parte do dia. */
+export function verMundoDays(r: WeekRoutine | null | undefined): { day: number; part: Exclude<OutingPart, "none"> }[] {
+  return routineOutings(r).flatMap((p, i) => (p === "none" ? [] : [{ day: i + 1, part: p }]));
 }
 
-/** Blocos "Saída" para o horário (só visualização, como os outros blocos fixos). */
-export function outingBlocks<T>(r: WeekRoutine | null | undefined, make: (day: number, slot: string, title: string) => T): T[] {
-  return otherOutings(r).map(({ day, part }) =>
-    make(day, OUTING_SLOTS[part], part === "morning" ? "Saída (manhã)" : part === "afternoon" ? "Saída (tarde)" : "Saída (dia todo)"));
+/** A semana da família com a escolha feita no Planeador só para esta semana. */
+export function withWeekOutings(r: WeekRoutine | null | undefined, outings: OutingPart[] | null | undefined): WeekRoutine | null {
+  if (!outings || outings.length !== 5) return r ?? null;
+  const base = r ?? DEFAULT_ROUTINE;
+  const o = outings.map((x, i) => (base.days[i] === "off" ? "none" : x));
+  return { ...base, days: [...base.days], outings: o, outing: o[4] === "day" };
+}
+
+/**
+ * As Ver Mundo de um plano já guardado, dia a dia (para o horário e os PDF
+ * seguirem o plano, mesmo quando a semana foi escolhida no Planeador).
+ * Planos antigos (Ver Mundo à sexta, o dia todo) leem-se como antes.
+ */
+export function outingsFromPlan(items: { day_of_week: number; time_slot: string; is_friday_world?: boolean | null }[]): OutingPart[] {
+  return [1, 2, 3, 4, 5].map((d) => {
+    const vm = items.find((i) => i.day_of_week === d && i.is_friday_world);
+    if (!vm) return "none";
+    if (vm.time_slot === HALF_DAY_SLOTS.morning) return "morning";
+    if (vm.time_slot.slice(0, 5) >= HALF_DAY_SLOTS.afternoon.slice(0, 5)) return "afternoon";
+    return "day";
+  });
+}
+
+/** A semana que o plano guardado seguiu: os dias da família com as Ver Mundo do plano. */
+export function routineForPlan(r: WeekRoutine | null | undefined, items: { day_of_week: number; time_slot: string; is_friday_world?: boolean | null }[]): WeekRoutine | null {
+  if (!items.length) return r ?? null;
+  return withWeekOutings(r, outingsFromPlan(items));
 }
 
 /** P-29: dia livre (1 = segunda … 5 = sexta). */
@@ -134,7 +158,7 @@ export function studyDays(r: WeekRoutine | null | undefined): number[] {
 
 /** Resumo curto: "Segunda a quinta, sexta curta, sem saída". */
 export function routineSummary(r: WeekRoutine | null | undefined): string {
-  if (isDefaultRoutine(r)) return "Segunda a sexta, com saída à sexta";
+  if (isDefaultRoutine(r)) return "Segunda a sexta, sem Ver Mundo";
   const rt = r!;
   const full = rt.days.map((d, i) => (d === "full" ? i : -1)).filter((i) => i >= 0);
   const parts: string[] = [];
@@ -152,7 +176,7 @@ export function routineSummary(r: WeekRoutine | null | undefined): string {
   if (off.length === 5) return "Sem dias de estudo";
   const o = routineOutings(rt);
   const outs = o.flatMap((p, i) => (p === "none" ? [] : [`${WEEKDAYS[i].toLowerCase()}${p === "morning" ? " de manhã" : p === "afternoon" ? " à tarde" : ""}`]));
-  parts.push(outs.length ? `${outs.length === 1 ? "saída" : "saídas"} à ${outs.join(", à ")}` : "sem saída");
+  parts.push(outs.length ? `Ver Mundo à ${outs.join(", à ")}` : "sem Ver Mundo");
   const text = parts.join(", ");
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -167,42 +191,60 @@ interface RoutineItem {
 
 /**
  * Aplica a semana da família a uma lista de blocos (esqueleto do plano,
- * atividades geradas ou blocos fixos do horário):
- * - sexta sem saída e com estudo: a sexta passa a ser um dia de estudo igual
- *   à segunda (sem o episódio de leitura);
+ * atividades geradas ou blocos fixos do horário). A lista chega com a sexta
+ * como dia de Ver Mundo (os blocos da sexta são o modelo de um dia de Ver Mundo):
+ * - a sexta passa a ser um dia de estudo igual à segunda (sem o episódio de leitura);
  * - dias sem estudo saem; dias curtos ficam só com a manhã (antes das 10:42);
- * - dias livres ficam só com o bloco da manhã, o almoço e a leitura (P-29).
- * Com a semana de sempre, devolve a lista tal como está.
+ * - dias livres ficam só com o bloco da manhã, o almoço e a leitura (P-29);
+ * - P-31: em cada dia com Ver Mundo, essa parte do dia fica sem currículo e
+ *   entram os blocos da Ver Mundo: o dia todo, como a sexta de sempre (com o
+ *   registo e o encerramento); meio dia, só o bloco da saída.
  */
 export function applyWeekRoutine<T extends RoutineItem>(items: T[], r: WeekRoutine | null | undefined): T[] {
-  if (!r || isDefaultRoutine(r)) return items;
-  let out = items;
+  const days = r?.days ?? DEFAULT_ROUTINE.days;
   const o = routineOutings(r);
-  if (!hasOuting(r) && r.days[4] !== "off") {
+  const visitTemplate = items.filter((i) => i.day_of_week === 5);
+  let out = items.filter((i) => i.day_of_week !== 5);
+  if (days[4] !== "off") {
     const monday = items.filter((i) => i.day_of_week === 1 && i.discipline !== "reading");
     out = [
-      ...items.filter((i) => i.day_of_week !== 5),
+      ...out,
       ...monday.map((i) => {
         const { episode: _episode, ...rest } = i;
         return { ...rest, day_of_week: 5, is_friday_world: false } as T;
       }),
     ];
   }
-  return out.filter((i) => {
-    const mode = r.days[i.day_of_week - 1] ?? "full";
+  out = out.filter((i) => {
+    const mode = days[i.day_of_week - 1] ?? "full";
     if (mode === "off") return false;
-    // Saídas (fora a "Ver Mundo"): essa parte do dia fica sem currículo
     const part = o[i.day_of_week - 1];
     const start = i.time_slot.slice(0, 5);
-    if (!i.is_friday_world) {
-      if (part === "day" && !(i.day_of_week === 5)) return false;
-      if (part === "morning" && start < MORNING_END) return false;
-      if (part === "afternoon" && start >= AFTERNOON_START) return false;
-    }
+    if (part === "day") return false;
+    if (part === "morning" && start < MORNING_END) return false;
+    if (part === "afternoon" && start >= AFTERNOON_START) return false;
     if (mode === "short") return start < SHORT_DAY_CUTOFF;
-    if (mode === "free") return i.is_friday_world || FREE_DAY_KEEP.has(i.discipline);
+    if (mode === "free") return FREE_DAY_KEEP.has(i.discipline);
     return true;
   });
+  for (const { day, part } of verMundoDays(r)) {
+    if (days[day - 1] === "off") continue;
+    const blocks = part === "day"
+      ? visitTemplate
+      : visitTemplate.filter((i) => i.is_friday_world).map((i) => ({ ...i, time_slot: HALF_DAY_SLOTS[part] }));
+    out.push(...blocks.map((i) => ({ ...i, day_of_week: day })));
+  }
+  // Por criança (pela ordem em que chegaram), dia e hora, como o esqueleto de sempre
+  const childOrder = new Map<string, number>();
+  for (const i of items) {
+    const c = (i as { child_id?: string }).child_id ?? "";
+    if (!childOrder.has(c)) childOrder.set(c, childOrder.size);
+  }
+  const rank = (i: T) => childOrder.get((i as { child_id?: string }).child_id ?? "") ?? 0;
+  return out
+    .map((i, k) => ({ i, k }))
+    .sort((a, b) => rank(a.i) - rank(b.i) || a.i.day_of_week - b.i.day_of_week || a.i.time_slot.localeCompare(b.i.time_slot) || a.k - b.k)
+    .map(({ i }) => i);
 }
 
 /** Renumera os episódios de leitura que ficaram (1…N por criança). Devolve N. */

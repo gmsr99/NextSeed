@@ -58,7 +58,7 @@ export default function FamilyRoutineCard() {
     try {
       await reset.mutateAsync();
       setOpen(false);
-      toast({ title: "Semana de sempre reposta", description: "Segunda a sexta, com saída à sexta." });
+      toast({ title: "Semana de sempre reposta", description: "Segunda a sexta, sem Ver Mundo." });
     } catch {
       toast({ title: "Não foi possível repor", variant: "destructive" });
     }
@@ -74,7 +74,7 @@ export default function FamilyRoutineCard() {
           <p className="text-sm font-medium text-foreground">A vossa semana: {routineSummary(routine)}</p>
           <p className="text-xs text-muted-foreground">
             {available
-              ? "Escolham os dias em que estudam, os que são curtos e se há saída à sexta. O plano segue a vossa rotina."
+              ? "Escolham os dias em que estudam, os que são curtos e se há um dia habitual de Ver Mundo. Em cada semana, o Planeador deixa mudar."
               : "Escolher os vossos dias de estudo fica disponível depois de uma atualização que já pedimos. Até lá, o plano usa segunda a sexta."}
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function FamilyRoutineCard() {
                     </SelectContent>
                   </Select>
                   <Select value={draftOutings[i]} onValueChange={(v) => setOuting(i, v as OutingPart)} disabled={draft.days[i] === "off"}>
-                    <SelectTrigger aria-label={`Saída à ${day.toLowerCase()}`} className="min-w-0 flex-1 sm:max-w-[11rem]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger aria-label={`Ver Mundo à ${day.toLowerCase()}`} className="min-w-0 flex-1 sm:max-w-[11rem]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {OUTING_PARTS.map((o) => (
                         <SelectItem key={o} value={o}>{OUTING_LABELS[o]}</SelectItem>
@@ -118,9 +118,9 @@ export default function FamilyRoutineCard() {
               <p className="text-xs text-muted-foreground">
                 Dia curto: só a manhã, com Português e Matemática (cerca de 1 hora). Bom para dias com outras atividades
                 fora de casa. Dia livre: sem currículo; fica o momento da manhã em família e a leitura em voz alta.
-                Saídas (uma visita, uma ida a uma comunidade): em qualquer dia, de manhã, à tarde ou o dia todo; essa parte
-                do dia fica sem currículo e aparece no horário como "Saída". A saída de sexta o dia todo é a "Ver Mundo",
-                que o plano prepara convosco.
+                Ver Mundo (uma visita, uma ida a uma comunidade, um passeio): em qualquer dia, de manhã, à tarde ou o dia
+                todo, as vezes que quiserem; o plano prepara-a convosco e essa parte do dia fica sem currículo. É o vosso
+                ponto de partida: em cada semana podem mudá-la no Planeador, ou não sair.
               </p>
             </div>
 

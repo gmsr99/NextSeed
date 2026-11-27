@@ -3,6 +3,7 @@
 // Apaga-se ao guardar o plano e ao terminar a sessão.
 
 import type { GeneratedPlanItem } from "./planGenerator";
+import type { OutingPart } from "./familyRoutine";
 
 const PREFIX = "nexseed:plano-rascunho:";
 const MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
@@ -11,6 +12,8 @@ export interface PlanDraft {
   childInterests: Record<string, string[]>;
   weeklyContent: Record<string, Record<string, string>>;
   fridayActivity: string;
+  /** P-31: a Ver Mundo escolhida só para esta semana (null = a de "A vossa semana") */
+  weekOutings?: OutingPart[] | null;
   notes: string;
   weeklyReadingTheme: string;
   weekTheme: string;

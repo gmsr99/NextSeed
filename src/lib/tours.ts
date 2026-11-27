@@ -96,8 +96,8 @@ export const TOURS: TourDef[] = [
       },
       {
         target: "planner-sexta",
-        title: "Sexta-feira — Ver Mundo",
-        body: "Se têm uma saída planeada (museu, quinta, biblioteca…), registem-na aqui e o plano organiza-se à volta dela.",
+        title: "Ver Mundo esta semana",
+        body: "Escolham o dia (ou os dias) da saída desta semana, de manhã, à tarde ou o dia todo, e o que já está planeado. O plano organiza-se à volta dela.",
       },
       {
         target: "planner-leitura",
