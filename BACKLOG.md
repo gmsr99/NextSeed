@@ -1,6 +1,6 @@
 # NexSeed: backlog de produto e desenvolvimento
 
-Última atualização: 26 de novembro de 2026
+Última atualização: 27 de novembro de 2026
 
 Espelho em Google Docs: [NexSeed | Backlog](https://docs.google.com/document/d/1wXtLr3gHcJ5vKpuQ9a0mkORafchokye2dOJDw0dN_Cw/edit). Este ficheiro e o Doc têm o mesmo conteúdo; ver as regras de sincronização em `CLAUDE.md`.
 
@@ -98,6 +98,7 @@ Elton: segue a ordem, com uma conta de duas crianças do 1.º ao 4.º ano. Na co
 | 9 | E9 · Personalização e conteúdos próprios | Pedidos com valor real mas grandes, alguns com questões legais (direitos de autor, dados religiosos). | M | B | Em estudo |
 | 10 | E10 · Comunidade, conteúdos e negócio | Ideias para depois de o núcleo estar sólido. | M | B | Em estudo |
 | 11 | E11 · Financinhas | Pedido do Elton (22 nov): o módulo de literacia financeira e empreendedorismo (5–12 anos) entra na app e substitui a antiga página de Literacia Financeira. Feito de raiz a partir das regras e parâmetros do Financinhas (documentos FIN_*); a experiência de outubro não é usada. | M | M | Publicado a 22 nov e aberto a todas as contas no mesmo dia (decisão do Elton, 22 nov: só há duas famílias em teste; responde à Q-19). Rever antes de abrir a novas famílias: Q-03 (Gemini pago) e o documento 04 para as observações das crianças |
+| 12 | E12 · A criança autora do seu percurso | Decisão do Elton (26 nov, D-027 e D-028 no doc 09): a criança vê-se na semana, vê o caminho e celebra o que aprendeu e construiu. Princípio para todas as peças; estas são as primeiras. | M | M | Spec do R-13 aprovada a 27 nov. R-13 e R-14 a seguir, em paralelo |
 
 ## E1 · Conformidade e base
 
@@ -235,7 +236,7 @@ Ideias para quando o núcleo estiver sólido.
 
 ## E11 · Financinhas
 
-Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões, não finanças. A app é do adulto: a criança não tem conta, pontos nem ecrã. Regras e conteúdo nos documentos FIN_* do projeto.
+Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões, não finanças. A app é do adulto: a criança não tem conta nem pontos; vê o seu progresso em papel ou na vista do adulto, sem prémios nem streaks (D-028, 26 nov). Regras e conteúdo nos documentos FIN_* do projeto.
 
 | ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
 |---|---|---|---|---|---|
@@ -249,6 +250,18 @@ Literacia financeira e mentalidade empreendedora, 5–12 anos. Ensinar decisões
 | I-24 | Empreendedorismo (temas 16 e 17) como Projetos com fases (mini-feira, loja) | FIN_11 C1. São os temas sem história de referência | B/B | M | Em estudo |
 | I-25 | Aulas-modelo fixas do trilho (12 sessões × 3 escalões), para a primeira ronda não depender da IA | FIN_CUR_03 §10. Conteúdo, não código | M/B | L | Em estudo |
 | I-26 | Famílias de "tribos" com modos de vida muito próprios: ter debaixo de olho o que pedem e como a app se adapta sem perder a base comum (currículo da DGE, ciência) | Elton, 22 nov (conversa sobre a Tradição da família) | M/B | — | Em observação: registar cada caso no documento 10 |
+
+## E12 · A criança autora do seu percurso
+
+Decisão do Elton (26 nov, D-027 no doc 09): a criança participa na construção e na direção do que aprende e sabe onde está e para onde vai. A direção junta o que ela quer, o que precisa e o que o adulto vê que a ajuda. Celebra-se o que aprendeu e construiu. Sem pontos trocados por prémios, streaks, rankings nem comparação entre irmãos; a criança não tem conta (D-028). Especificação: claude/CRI_01_A_Minha_Semana_Especificacao.md (projeto).
+
+| ID | Item | Origem e porquê | Imp./Urg. | Esforço | Estado |
+|---|---|---|---|---|---|
+| R-13 | Mapa da criança v2 ("A Minha Semana"), em cima do R-11: título da semana com o interesse dela ("A Semana do Futebol"); atividades em frases de criança pedidas ao gerador na mesma chamada (campo curto por atividade, com recurso ao título atual); à sexta, "Esta semana aprendi… e construí…"; variante 9–12 com aspeto de agenda de projeto ("O meu objetivo da semana") | Elton, 26 nov (D-027). Spec aprovada pelo Elton a 27 nov ("sim") | M/M | S–M | Por fazer. Sem BD; ⚠️ mexe no formato de resposta do plano: campo opcional e testes à leitura |
+| R-14 | Vista no ecrã do mapa da criança: a mesma página e a mesma mecânica, na conta do adulto, para mostrar à criança e marcar com ela. Sem login, avatar nem notificações para a criança; sem estatísticas do adulto. Papel por omissão, ecrã como opção | Elton, 26 e 27 nov: há crianças que preferem o ecrã e é mais fácil medir o uso (D-028) | M/M | M | Por fazer, em paralelo com o R-13 (Elton, 27 nov). ⚠️ Guardar as marcas: usar o estado "feito" que o adulto já marca, se servir; se precisar de dados novos, passa pelo doc 04 |
+| P-31 | Perguntas orientadoras ao adulto no formulário dos interesses da semana: 2 ou 3 opcionais e rotativas ("O que pediu para ver ou fazer mais de 5 vezes esta semana?", "Onde ficou mais tempo sem dar pelo tempo?", "O que construiu sem lhe pedirem?", "Onde desistiu depressa, e o que achas que faltou?") | Elton, 26 nov: o adulto orienta com o seu discernimento, não só "o que te apetece?" | M/M | S | Por fazer. As respostas servem o adulto; ao Gemini só vai o interesse escolhido, como hoje |
+| I-29 | Missões do Mundo sem prémios: saem os pontos trocados por prémios dos pais; entram níveis de mestria por missão ("já faço sozinho, próxima missão"), confirmados pelo adulto | D-027 e D-028 (26 nov). O desenho atual troca pontos por guloseimas, o que contraria a decisão e a regra de que a semanada nunca é prémio | M/M | M | Por especificar |
+| R-15 | Mapa da Viagem: o percurso do ano da criança em linguagem dela, a partir do Rumo do ano, com títulos de mestre ligados a marcos observados e figuras de referência variadas (com uma apresentação curta para o adulto quando a criança não as conhece) | Elton, 26 nov (D-027) | M/B | M–L | Por especificar. Depois do R-13 |
 
 ## Qualidade técnica (sem impacto visível)
 
