@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
         </div>
 
         <h1 className="text-3xl font-heading font-bold mb-2">Política de Privacidade</h1>
-        <p className="text-sm text-muted-foreground mb-8">Última atualização: 15 de maio de 2025</p>
+        <p className="text-sm text-muted-foreground mb-8">Última atualização: 27 de novembro de 2026</p>
 
         <div className="prose prose-sm max-w-none space-y-8 text-foreground">
 
@@ -36,6 +36,7 @@ export default function PrivacyPolicy() {
               <li><strong>Dados pedagógicos:</strong> atividades, planos semanais, portfólios, relatórios e progressos educativos criados pelos utilizadores</li>
               <li><strong>Dados técnicos:</strong> endereço IP e logs de acesso, necessários para a segurança do serviço</li>
               <li><strong>Dados de utilização e feedback:</strong> durante a fase piloto, registamos internamente eventos de uso da aplicação (por exemplo, quando é gerado um plano) e as respostas que dás, de forma voluntária, aos questionários de feedback. Servem apenas para melhorar o produto, são medidos com meios próprios (na nossa base de dados, na União Europeia) e não recorrem a cookies de rastreamento nem a serviços de publicidade de terceiros. Os questionários pedem-te para não incluíres dados pessoais dos teus filhos nas respostas.</li>
+              <li><strong>Agenda da comunidade (opcional):</strong> o concelho da família, se decidires guardá-lo, e as preferências de tipos de eventos ("O que preferimos"), para mostrarmos primeiro o que está perto e o que preferem. Se usares "Usar a minha localização", a localização serve só para encontrar o concelho dentro do próprio dispositivo: não é enviada nem guardada. Enquanto criador de eventos, os eventos que propões, incluindo o contacto público que indicares, ficam visíveis a todos os utilizadores depois de publicados. Podes mudar ou apagar o concelho e as preferências nas Definições.</li>
               <li><strong>Consentimento:</strong> data e hora de aceitação destes termos aquando do registo</li>
             </ul>
           </section>
