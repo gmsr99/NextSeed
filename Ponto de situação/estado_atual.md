@@ -1,5 +1,5 @@
 # NexSeed — Ponto de situação
-**Atualizado:** 27 de novembro de 2026 (publicada a Agenda da comunidade, I-03a 1B: separador "Perto de nós", à espera da migração 041). Antes, 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana; Agenda sem eventos inventados, só o calendário da família (I-03a, 1A)). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
+**Atualizado:** 27 de novembro de 2026 (ramo `feat/crianca-autora`, por publicar: mapa da criança v2, "Mostrar à criança" e perguntas orientadoras; R-13, R-14, P-31). Antes, no mesmo dia (publicada a Agenda da comunidade, I-03a 1B: separador "Perto de nós", à espera da migração 041). Antes, 26 de novembro de 2026 (publicados: blocos fixos no Planeador, Diário a partir do plano, várias áreas por atividade (precisa da 039), guardar plano regenerado (V-31; versões voltam com a 040) e atividades em A semana; Agenda sem eventos inventados, só o calendário da família (I-03a, 1A)). Versão anterior: 12 de novembro de 2026 (auditoria ao código de 4 nov)
 
 O que falta fazer está em `BACKLOG.md`. Este ficheiro descreve o que **existe**.
 
@@ -12,13 +12,20 @@ React + TypeScript + Vite + Tailwind + shadcn/ui · TanStack Query · Supabase (
 ## Funcionalidades disponíveis (rotas)
 | Área | Rotas |
 |---|---|
-| Planear | `/` (dashboard "Hoje" com conclusão de atividades), `/weekly-planner` (gerador com regeneração por atividade), `/roteiro-anual`, `/creative-engine` (Ideias Rápidas), `/projects`, `/calendar` |
+| Planear | `/` (dashboard "Hoje" com conclusão de atividades e "Mostrar à criança"), `/semana-da-crianca` (a semana no ecrã para a criança, R-14), `/weekly-planner` (gerador com regeneração por atividade), `/roteiro-anual`, `/creative-engine` (Ideias Rápidas), `/projects`, `/calendar` |
 | Aprender | `/learning-areas`, `/curriculum`, `/world-missions` (com prémios), `/financinhas` (só equipa por agora; `/financial-literacy` redireciona), `/digital-literacy` |
 | Registar e provar | `/activities` (com fotos), `/portfolio`, `/reports` (PDF trimestral) |
 | Sistema | `/children`, `/metodologias`, `/extracurricular`, `/settings` (exportar dados, eliminar conta), `/onboarding`, `/ajuda` (manual), `/admin/feedback` (equipa) |
 | Públicas | `/login`, `/privacidade`, `/termos`, `/accept-invite` |
 
 Fórum, Comunidade e Formação para Pais existem no código mas estão fora do menu e das rotas (mocks).
+
+## A criança autora do seu percurso (D-027, D-028; ramo `feat/crianca-autora`, por publicar)
+- Lógica em `src/lib/childWeek.ts` (fase da criança, título com interesses, tema da semana, linhas de abertura e de fecho, perguntas orientadoras P-31), testes em `src/lib/__tests__/childWeek.test.ts`.
+- Mapa da criança em PDF (`ChildWeekMapPDF.tsx`, R-13): título com os interesses, grande pergunta ou tema, "o que quero descobrir" ou "o meu objetivo", canto "aprendi… e construí…".
+- `/semana-da-crianca` (R-14): a mesma semana no ecrã do adulto; as caixas escrevem `weekly_plan_items.completed_at`, o mesmo do Início. Nada novo guardado.
+- Prompt do plano (regra 9): títulos escritos para a criança ler. Sem campo novo.
+- GitHub Actions (`.github/workflows/testes.yml`): `npm test` e `npm run build` em cada push.
 
 ## Financinhas (publicado a 22 nov, aberto a todas as contas; migração 031 aplicada a 25 nov)
 - O protagonista nunca é o primeiro nome de uma criança da família (`avoidNames` no motor); a lista de nomes não tem nomes do piloto.

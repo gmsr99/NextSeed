@@ -344,7 +344,7 @@ ${skeletonSection}
 6. **Registo da Visita** (14:00-14:30): atividade criativa de recriação/registo do que foi vivido na manhã.
 7. **Encerramento Reflexivo** (14:45-15:15): partilha emocional e síntese do dia.
 8. **Pré-escolar**: atividades lúdicas, sensoriais, máx. 30 min, sem escrita formal.
-9. Títulos específicos e criativos — NUNCA genéricos. Máx. 8 palavras.
+9. Títulos específicos e criativos, escritos para a própria criança ler no mapa da semana: começam por um verbo de ação e não usam termos do programa (ex.: "Contar golos com dezenas", não "Numeração: dezenas"). NUNCA genéricos. Máx. 8 palavras.
 10. Descrições CURTAS: máx. 2 frases diretas com passos concretos.
 11. **Materiais sem preparação**: máx. 4 itens que já existem em qualquer casa (papel, lápis, tesoura, cola, objetos da cozinha, coisas apanhadas na rua, os livros e manuais da criança). NUNCA peças fichas, cartões, tabuleiros, jogos ou imagens para imprimir, recortar ou fabricar antes da atividade. Se a atividade precisa de cartões ou de um registo, é a criança que os faz, como parte da atividade.
 12. **FORMATO**: quando a atividade tem FORMATO indicado, usa esse formato (ex.: "manipulação de objetos" → a criança mexe em objetos; "conversa e narração oral" → não há escrita). Nunca transformes todas as atividades de uma disciplina no mesmo tipo de tarefa (ex.: "encontra as personagens principais" todos os dias).

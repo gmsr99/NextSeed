@@ -4,11 +4,16 @@
 // e linhas livres para as tarefas da casa. Sem pontos: só caixas, e espaço
 // para autocolantes, se a família quiser. No pré-escolar, menos palavras e
 // desenhos maiores.
+// R-13 (D-027, 27 nov): a criança vê-se na semana. O título usa os interesses
+// dela, aparece a grande pergunta da semana, uma linha para o que quer
+// descobrir (1.º–2.º) ou o objetivo (3.º em diante), e no fim o canto
+// "aprendi… e construí…". A lógica de texto vive em lib/childWeek.ts.
 import { Document, Page, Text, View, StyleSheet, Svg, Rect, Circle, Path, Line, Polygon } from "@react-pdf/renderer";
 import type { GeneratedPlanItem } from "@/lib/planGenerator";
 import { DISCIPLINE_LABELS, DISCIPLINE_COLORS, DAY_LABELS, formatWeekRange, getWeekDates } from "@/lib/planGenerator";
-import { isOptional, stripOptional } from "@/lib/essentialPlan";
+import { isOptional } from "@/lib/essentialPlan";
 import type { Child } from "@/lib/types";
+import { childStage, weekHeadline, openingPrompt, closingPrompts, childItemText, themeLine } from "@/lib/childWeek";
 
 const GREEN = "#2D4A2D";
 const S = StyleSheet.create({
@@ -30,6 +35,15 @@ const S = StyleSheet.create({
   taskCell: { flex: 1, alignItems: "center" },
   taskHead: { flex: 1, fontSize: 8, textAlign: "center", color: "#6B7280" },
   foot: { marginTop: 6, fontSize: 7, color: "#9CA3AF" },
+  headline: { fontSize: 9, color: "#6B7280", marginTop: 1 },
+  question: { fontSize: 10, color: GREEN, marginBottom: 6 },
+  writeRow: { flexDirection: "row", alignItems: "flex-end", marginBottom: 8 },
+  writeLabel: { fontSize: 9, color: "#374151", marginRight: 6 },
+  writeLine: { flex: 1, borderBottomWidth: 1, borderColor: "#9CA3AF", height: 12 },
+  bottom: { flexDirection: "row", gap: 8, marginTop: 10 },
+  close: { flex: 2, borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 6, padding: 6 },
+  closeLabel: { fontSize: 9, fontWeight: "bold", color: GREEN, marginBottom: 2 },
+  closeSpace: { borderBottomWidth: 1, borderColor: "#F3F4F6", marginBottom: 4 },
 });
 
 /** Caixa para a criança marcar */
@@ -113,35 +127,46 @@ function Icon({ discipline, size }: { discipline: string; size: number }) {
   }
 }
 
-/** Título curto: até 6 palavras (no pré-escolar, 3) */
-function shortTitle(title: string, words: number): string {
-  const t = stripOptional(title).replace(/^Leitura:\s*/i, "").trim();
-  const list = t.split(/\s+/);
-  return list.length > words ? `${list.slice(0, words).join(" ")}…` : t;
-}
-
 interface Props {
   children: Child[];
   planItems: GeneratedPlanItem[];
   weekStart: Date;
+  /** Interesses da semana por criança (R-13); sem eles fica o título de sempre */
+  interestsByChild?: Record<string, string[]>;
+  /** Fio condutor da semana (a grande pergunta) */
+  weekTheme?: string;
 }
 
-export default function ChildWeekMapPDF({ children, planItems, weekStart }: Props) {
+export default function ChildWeekMapPDF({ children, planItems, weekStart, interestsByChild, weekTheme }: Props) {
   const dates = getWeekDates(weekStart);
   return (
     <Document title="O meu mapa da semana">
       {children.map((child) => {
-        const pre = child.school_year.toLowerCase().startsWith("pré");
+        const stage = childStage(child.school_year);
+        const pre = stage === "pre";
+        const headline = weekHeadline(interestsByChild?.[child.id] ?? child.interests);
+        const opening = openingPrompt(stage);
+        const closing = closingPrompts(stage);
         const items = planItems.filter((i) => i.child_id === child.id && !i.is_fixed);
         const days = [1, 2, 3, 4, 5].filter((d) => items.some((i) => i.day_of_week === d));
         const iconSize = pre ? 22 : 14;
-        const words = pre ? 3 : 6;
         return (
           <Page key={child.id} size="A4" orientation="landscape" style={S.page}>
             <View style={S.header}>
-              <Text style={S.title}>A semana de {child.name}</Text>
+              <View>
+                <Text style={S.title}>{headline ?? `A semana de ${child.name}`}</Text>
+                {headline && <Text style={S.headline}>A semana de {child.name}</Text>}
+              </View>
               <Text style={S.sub}>{formatWeekRange(weekStart)} · marca a caixa quando acabares</Text>
             </View>
+
+            {themeLine(weekTheme) ? <Text style={S.question}>{themeLine(weekTheme)}</Text> : null}
+            {opening && (
+              <View style={S.writeRow}>
+                <Text style={S.writeLabel}>{opening}</Text>
+                <View style={S.writeLine} />
+              </View>
+            )}
 
             <View style={S.grid}>
               {days.map((d) => {
@@ -157,7 +182,7 @@ export default function ChildWeekMapPDF({ children, planItems, weekStart }: Prop
                       <View key={k} style={[S.item, { backgroundColor: (DISCIPLINE_COLORS[i.discipline] ?? "#E5E7EB") + "22" }]} wrap={false}>
                         <Icon discipline={i.discipline} size={iconSize} />
                         <Text style={S.itemText}>
-                          {pre ? shortTitle(i.title, words) : `${DISCIPLINE_LABELS[i.discipline] ?? ""}: ${shortTitle(i.title, words)}`}
+                          {pre ? childItemText(i.title, stage) : `${DISCIPLINE_LABELS[i.discipline] ?? ""}: ${childItemText(i.title, stage)}`}
                         </Text>
                         <Box size={pre ? 14 : 11} />
                       </View>
@@ -166,7 +191,7 @@ export default function ChildWeekMapPDF({ children, planItems, weekStart }: Prop
                     {extra.map((i, k) => (
                       <View key={`x${k}`} style={S.item} wrap={false}>
                         <Icon discipline={i.discipline} size={pre ? 16 : 11} />
-                        <Text style={S.itemTextSmall}>{shortTitle(i.title, words)}</Text>
+                        <Text style={S.itemTextSmall}>{childItemText(i.title, stage)}</Text>
                         <Box size={10} />
                       </View>
                     ))}
@@ -175,13 +200,14 @@ export default function ChildWeekMapPDF({ children, planItems, weekStart }: Prop
               })}
             </View>
 
-            <View style={S.tasks} wrap={false}>
+            <View style={S.bottom} wrap={false}>
+            <View style={[S.tasks, { flex: 3, marginTop: 0 }]}>
               <Text style={S.tasksTitle}>As minhas tarefas</Text>
               <View style={S.taskRow}>
                 <Text style={S.taskLabel}> </Text>
                 {days.map((d) => <Text key={d} style={S.taskHead}>{DAY_LABELS[d - 1].slice(0, 3)}</Text>)}
               </View>
-              {[0, 1, 2, 3].map((r) => (
+              {[0, 1, 2].map((r) => (
                 <View key={r} style={S.taskRow}>
                   <Text style={S.taskLabel}>________________________</Text>
                   {days.map((d) => <View key={d} style={S.taskCell}><Box /></View>)}
@@ -197,6 +223,15 @@ export default function ChildWeekMapPDF({ children, planItems, weekStart }: Prop
                   </View>
                 ))}
               </View>
+            </View>
+            <View style={S.close}>
+              {closing.map((c) => (
+                <View key={c}>
+                  <Text style={S.closeLabel}>{c}</Text>
+                  <View style={[S.closeSpace, { height: pre ? 34 : closing.length > 2 ? 16 : 26 }]} />
+                </View>
+              ))}
+            </View>
             </View>
             <Text style={S.foot}>As linhas das tarefas são para escrever à mão: fazer a cama, regar as plantas, pôr a mesa…</Text>
           </Page>
