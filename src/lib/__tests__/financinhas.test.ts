@@ -343,4 +343,19 @@ describe("importação do histórico", () => {
   it("recusa texto que não é JSON", () => {
     expect(() => parseImport("olá")).toThrow(/JSON/);
   });
+  it("lê os níveis dentro de \"skills\" (formato do arquivo)", () => {
+    const b = parseImport(JSON.stringify({
+      aulas: [{ crianca: "C1", titulo: "X" }],
+      niveis: { C1: { data: "2026-06-21", fonte: "fotografia", skills: { CP: { nivel: 2, nota: "ok" }, GP1: { nivel: 1 } } }, C2: { data: null, fonte: "", skills: {} } },
+    }));
+    expect(b.levels.map((l) => [l.skill_code, l.level, l.observed_on])).toEqual([["CP", 2, "2026-06-21"], ["GP1", 1, "2026-06-21"]]);
+    expect(b.warnings).toEqual([]);
+  });
+  it("encontra aulas agrupadas por criança", () => {
+    const b = parseImport(JSON.stringify({ criancas: { C1: { aulas: [{ titulo: "A" }] }, C2: { aulas: [{ titulo: "B" }] } } }));
+    expect(b.lessons.map((l) => [l.source_key, l.title])).toEqual([["C1", "A"], ["C2", "B"]]);
+  });
+  it("explica quando não encontra aulas em vez de mostrar zero", () => {
+    expect(() => parseImport(JSON.stringify({ familia: "x", sessoes: [] }))).toThrow(/"familia", "sessoes"/);
+  });
 });
