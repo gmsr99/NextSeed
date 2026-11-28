@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<title>O Meu Mapa de Moedas · Financinhas</title>
+<!-- Folha nova (não havia original): Mapa de Moedas, escalão 5–6 (FIN_CUR_04).
+     Zero escrita: casinhas do tamanho de uma moeda em cada mealheiro, linha grossa
+     do chão no Gastar, caixa para desenhar o sonho. O 🚀 chama-se "Inventar".
+     Mesmas letras, cores e medidas do caderninho original. -->
+<style>
+@font-face{font-family:Fredoka;src:url(fredoka-latin.woff) format("woff");font-weight:300 700}
+@font-face{font-family:Nunito;src:url(nunito-latin.woff) format("woff");font-weight:200 1000}
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#332C43;--mute:#7C7490;--faint:#B3AAC0;--line:#E6DFD2;--dash:#C6BDAF;--bg:#FFFBF4;
+  --orange:#EE7B3C;--teal:#0E9C99;--pink:#DE4A7B;--purple:#6A5AE0}
+html,body{width:210mm;height:297mm}
+body{background:var(--bg);font-family:Nunito,sans-serif;color:var(--ink)}
+.page{position:relative;width:210mm;height:297mm;overflow:hidden;padding:13mm 14mm 0}
+.blob{position:absolute;border-radius:50%;z-index:0}
+.b1{right:-26mm;top:-30mm;width:70mm;height:70mm;background:#FDECDC}
+.b2{left:-30mm;bottom:-36mm;width:80mm;height:80mm;background:#E2F4F3}
+.page>*:not(.blob){position:relative;z-index:1}
+.page>.foot,.page>.nx{position:absolute}
+.eyebrow{font-family:Fredoka;font-weight:500;font-size:7.5pt;letter-spacing:.32em;color:var(--mute)}
+h1{font-family:Fredoka;font-weight:600;font-size:25pt;line-height:1.05;margin-top:1mm}
+.head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.2px solid var(--ink);padding-bottom:3mm}
+.month{font-size:8.5pt;color:var(--mute);text-align:right}
+.month b{display:block;width:42mm;height:9mm;border:1px solid var(--line);border-radius:3mm;background:#fff;margin-top:1.5mm}
+.sub{font-size:9.5pt;color:var(--mute);margin-top:3mm}
+.jars{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm;margin-top:5mm}
+.jar{border:1.2px solid var(--ink);border-radius:4mm;background:#fff;overflow:hidden}
+.top{height:21mm;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+.top img{width:11mm;height:11mm;display:block}
+.top span{font-family:Fredoka;font-weight:600;font-size:12pt;margin-top:.5mm;letter-spacing:.02em}
+.coins{display:flex;flex-direction:column;align-items:center;gap:2.6mm;padding:4mm 0 4mm}
+.coin{width:26mm;height:26mm;border-radius:50%;border:1.3px dashed var(--dash);background:var(--bg)}
+.floor{width:100%;display:flex;align-items:center;gap:1.5mm;padding:0 2mm}
+.floor i{flex:1;height:2.2mm;border-radius:1mm;background:var(--orange)}
+.floor em{font-style:normal;font-family:Fredoka;font-weight:600;font-size:7pt;letter-spacing:.12em;color:var(--orange)}
+.dream{margin-top:5mm;height:42mm;border:1.6px dashed var(--dash);border-radius:5mm;background:#fff;position:relative;
+  background-image:repeating-linear-gradient(135deg,transparent 0 6mm,#FDF6EC 6mm 12mm)}
+.dream p{position:absolute;top:3.5mm;left:0;right:0;text-align:center;font-family:Fredoka;font-weight:600;font-size:11pt}
+.dream small{position:absolute;top:10mm;left:0;right:0;text-align:center;font-size:8.5pt;color:var(--mute)}
+.foot{position:absolute;left:14mm;right:14mm;bottom:12.6mm;display:flex;justify-content:space-between;
+  font-family:Fredoka;font-weight:500;font-size:6.5pt;letter-spacing:.3em;color:var(--faint)}
+.nx{position:absolute;left:0;top:0;width:210mm;height:297mm;z-index:2;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="head">
+    <div><div class="eyebrow">FINANCINHAS · 5 E 6 ANOS</div><h1>O MEU MAPA<br>DE MOEDAS</h1></div>
+    <div class="month">o mês de<b></b></div>
+  </div>
+  <p class="sub">No dia da semanada, põe cada moeda no seu frasco e cola um autocolante numa casinha do mesmo mealheiro.</p>
+  <div class="jars">
+    <div class="jar"><div class="top" style="background:var(--orange)"><img src="icones.svg#svgView(viewBox(71,133,44,44))" alt=""><span>GASTAR</span></div>
+      <div class="coins"><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div>
+        <div class="floor"><i></i><em>O CHÃO</em><i></i></div><div class="coin"></div></div></div>
+    <div class="jar"><div class="top" style="background:var(--teal)"><img src="icones.svg#svgView(viewBox(207,133,44,44))" alt=""><span>POUPAR</span></div>
+      <div class="coins"><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div></div></div>
+    <div class="jar"><div class="top" style="background:var(--pink)"><img src="icones.svg#svgView(viewBox(343.5,133,44,44))" alt=""><span>DAR</span></div>
+      <div class="coins"><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div></div></div>
+    <div class="jar"><div class="top" style="background:var(--purple)"><img src="icones.svg#svgView(viewBox(477.5,133,44,44))" alt=""><span>INVENTAR</span></div>
+      <div class="coins"><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div><div class="coin"></div></div></div>
+  </div>
+  <div class="dream"><p>O MEU SONHO</p><small>desenha aqui aquilo por que estás a poupar</small></div>
+  <div class="foot"><span>FINANCINHAS · CADERNINHO</span><span>MAPA DE MOEDAS</span></div>
+  <!--LOGO-->
+</div>
+</body>
+</html>

@@ -28,6 +28,7 @@ import SkillsCard from "@/components/financinhas/SkillsCard";
 import HistoryCard from "@/components/financinhas/HistoryCard";
 import ImportDialog from "@/components/financinhas/ImportDialog";
 import ProfileDialog from "@/components/financinhas/ProfileDialog";
+import KitDialog from "@/components/financinhas/KitDialog";
 import SnapshotForm from "@/components/financinhas/SnapshotForm";
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -239,27 +240,8 @@ export default function Financinhas() {
   const { toast } = useToast();
   const [selected, setSelected] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [kitBusy, setKitBusy] = useState(false);
+  const [kitOpen, setKitOpen] = useState(false);
   const today = todayIso();
-
-  const downloadKit = async () => {
-    setKitBusy(true);
-    try {
-      const [{ pdf }, { default: KitPDF }] = await Promise.all([
-        import("@react-pdf/renderer"),
-        import("@/components/pdf/FinancinhasKitPDF"),
-      ]);
-      const blob = await pdf(<KitPDF />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "nexseed-financinhas-kit-de-arranque.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-    } finally {
-      setKitBusy(false);
-    }
-  };
 
   const withAge = children.map((c) => {
     const age = ageOn(c.birth_date, today);
@@ -294,9 +276,9 @@ export default function Financinhas() {
             </div>
           </div>
           <div className="flex flex-wrap gap-1">
-            {/* I-20: kit de arranque para imprimir (frascos, mapas, sonho, fotografia inicial) */}
-            <Button variant="outline" size="sm" onClick={downloadKit} disabled={kitBusy}>
-              <Download className="h-4 w-4 mr-1" /> {kitBusy ? "A preparar…" : "Kit de arranque (PDF)"}
+            {/* I-20/I-30: kit de arranque com os desenhos originais (PDFs em public/financinhas/kit) */}
+            <Button variant="outline" size="sm" onClick={() => setKitOpen(true)}>
+              <Download className="h-4 w-4 mr-1" /> Kit de arranque (PDF)
             </Button>
             {fin.data.available && eligible.length > 0 && (
               <Button variant="ghost" size="sm" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-1" /> Importar histórico</Button>
@@ -345,6 +327,7 @@ export default function Financinhas() {
           </>
         )}
       </div>
+      <KitDialog open={kitOpen} onOpenChange={setKitOpen} />
     </AppLayout>
   );
 }
