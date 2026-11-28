@@ -53,12 +53,29 @@ export default function ImportDialog({ open, onOpenChange, kids, existing, impor
         <DialogHeader>
           <DialogTitle>Importar histórico de aulas</DialogTitle>
           <DialogDescription>
-            Para aulas feitas antes da app. Cola o conteúdo do ficheiro JSON do histórico. Nada é gravado sem veres a lista primeiro, e as aulas que já existem (mesma criança, título e data) são ignoradas.
+            Para aulas feitas antes da app. Escolhe o ficheiro JSON do histórico (ou cola o conteúdo). Nada é gravado sem veres a lista primeiro, e as aulas que já existem (mesma criança, título e data) são ignoradas.
           </DialogDescription>
         </DialogHeader>
 
         {!bundle ? (
           <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Label htmlFor="imp-file" className="cursor-pointer rounded-md border px-3 py-2 text-sm hover:bg-muted">Escolher ficheiro .json</Label>
+              <input
+                id="imp-file"
+                type="file"
+                accept=".json,application/json"
+                className="hidden"
+                onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  setText(await f.text());
+                  setError(null);
+                  e.target.value = "";
+                }}
+              />
+              <span className="text-xs text-muted-foreground">ou cola o conteúdo abaixo</span>
+            </div>
             <Label htmlFor="imp-text">Conteúdo do ficheiro</Label>
             <Textarea id="imp-text" rows={10} value={text} onChange={(e) => setText(e.target.value)} className="font-mono text-xs" placeholder='{ "aulas": [ … ], "niveis": { … } }' />
             {error && <p className="text-sm text-destructive">{error}</p>}

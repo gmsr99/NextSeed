@@ -131,9 +131,11 @@ function levelsFrom(raw: unknown, key: string, defaultDate: string | null, warni
   } else if (raw && typeof raw === "object") {
     const o = raw as Obj;
     const date = pick(o, "data", "data_fotografia", "observed_on") ?? defaultDate;
-    const inner = (o.niveis ?? o.levels ?? o) as Obj;
+    // Os níveis podem vir diretos ({ CP: 2, … }) ou dentro de "niveis", "levels" ou "skills"
+    // (o FIN_ARQ_Historico_Aulas.json usa { data, fonte, skills: { CP: { nivel, … } } }).
+    const inner = (o.niveis ?? o.levels ?? o.skills ?? o) as Obj;
     for (const [code, v] of Object.entries(inner)) {
-      if (["data", "data_fotografia", "observed_on", "fonte", "notas"].includes(code)) continue;
+      if (["data", "data_fotografia", "observed_on", "fonte", "notas", "skills"].includes(code)) continue;
       if (v && typeof v === "object") {
         const vo = v as Obj;
         push(code, pick(vo, "nivel", "level"), pick(vo, "data", "observed_on") ?? date, pick(vo, "nota", "note"));
@@ -153,22 +155,49 @@ export function parseImport(text: string): ImportBundle {
   } catch {
     throw new Error("O texto colado não é JSON válido.");
   }
+  if (!raw || typeof raw !== "object") throw new Error("O ficheiro não tem a lista de aulas.");
   const warnings: string[] = [];
   const root = (Array.isArray(raw) ? { aulas: raw } : raw) as Obj;
-  const list = (pick(root, "aulas", "lessons", "historico") ?? []) as unknown[];
-  if (!Array.isArray(list)) throw new Error("Não encontrei a lista de aulas (campo \"aulas\").");
 
+  // A lista de aulas pode estar na raiz ("aulas", "lessons", "historico") ou mais abaixo,
+  // por exemplo agrupada por criança: { "criancas": { "C1": { "aulas": [ … ] } } }.
+  // Nesse caso o identificador da criança é a chave onde a lista foi encontrada.
   const lessons: ImportedLesson[] = [];
-  list.forEach((item, i) => {
-    const l = lessonFrom((item ?? {}) as Obj, "?");
-    if (l) lessons.push(l);
-    else warnings.push(`Aula ${i + 1} sem título: ignorada.`);
-  });
+  let found = 0;
+  const visit = (node: unknown, key: string, depth: number) => {
+    if (!node || typeof node !== "object" || depth > 4) return;
+    if (Array.isArray(node)) {
+      const objs = node.filter((x) => x && typeof x === "object" && !Array.isArray(x)) as Obj[];
+      if (objs.length && objs.some((o) => pick(o, "titulo", "title", "nome") !== undefined)) {
+        objs.forEach((o, i) => {
+          found++;
+          const l = lessonFrom(o, key);
+          if (l) lessons.push(l);
+          else warnings.push(`Aula ${i + 1} sem título: ignorada.`);
+        });
+      }
+      return;
+    }
+    for (const [k, v] of Object.entries(node as Obj)) {
+      if (["niveis", "levels", "mapa_criancas"].includes(k)) continue;
+      const isList = ["aulas", "lessons", "historico"].includes(k);
+      visit(v, isList ? key : k, depth + 1);
+    }
+  };
+  visit(root, "?", 0);
 
   const levels: ImportedLevel[] = [];
   const niveis = pick(root, "niveis", "levels");
   if (niveis && typeof niveis === "object" && !Array.isArray(niveis)) {
     for (const [key, v] of Object.entries(niveis as Obj)) levels.push(...levelsFrom(v, key, toDate(pick(root, "data_fotografia")), warnings));
+  }
+
+  if (found === 0 && levels.length === 0) {
+    const fields = Object.keys(root).slice(0, 8).map((k) => `"${k}"`).join(", ");
+    throw new Error(
+      `Não encontrei aulas nem níveis neste ficheiro. Procurei uma lista de aulas com "titulo". ` +
+      `Campos encontrados no topo: ${fields || "nenhum"}. Confirma que colaste o ficheiro do histórico completo.`,
+    );
   }
 
   const keys = [...new Set([...lessons.map((l) => l.source_key), ...levels.map((l) => l.source_key)])];
